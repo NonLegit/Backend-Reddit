@@ -18,11 +18,6 @@ paths:
   #/user/username/hidden
   #/user/username/saved
   #check what to do with icons and images attribute
-
-  #khaled
-  #check the about/ban
-  # and about/mute responses
-
   #####################################################
   /user/login:
     description: User Resource
@@ -4137,7 +4132,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/subreddit"
+                $ref: "#/components/schemas/reducedModeratorInfo"
         "400":
           description: Bad Request
           content:
@@ -4209,10 +4204,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/subreddit"
-            application/xml:
-              schema:
-                $ref: "#/components/schemas/subreddit"
+                $ref: "#/components/schemas/reducedModeratorInfo"
+
         "400":
           description: Bad Request
           content:
