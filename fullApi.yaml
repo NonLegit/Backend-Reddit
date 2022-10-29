@@ -15,8 +15,6 @@ servers:
 paths:
   #TO DO
   #######################################################
-  #/user/username/hidden
-  #/user/username/saved
   #check what to do with icons and images attribute
   #####################################################
   /user/login:
@@ -956,7 +954,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /user/{userName}/posts:
+  /user/{userName}/post:
     get:
       tags:
         - Users
@@ -1081,6 +1079,93 @@ paths:
         "400":
           description: Invalid userName supplied
         "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /user/{userName}/saved:
+    get:
+      tags:
+        - Users
+      summary: Return a listing of saved posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: The page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /user/{userName}/hidden:
+    get:
+      tags:
+        - Users
+      summary: Return a listing of hidden posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userName
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: page
+          description: The page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+        404:
           description: Not found
           content:
             application/json:
@@ -1239,11 +1324,111 @@ paths:
                     type: string
                     example: category not found
 
+
+  /search:
+    get:
+      tags:
+        - Search
+      summary: Returns a listing of search results 
+      parameters:
+        - in: query
+          name: q
+          description: The search query
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: sort
+          schema:
+            type: string
+            default: relevance
+            enum:
+            - hot
+            - top
+            - new
+            - relevance
+            - comments
+        - in: query
+          name: type
+          schema:
+            type: string
+            default: post
+            enum:
+            - sr
+            - post
+            - user
+            - comment
+        - in: query
+          name: time
+          schema:
+            type: string
+            default: day
+            enum:
+            - hour
+            - day
+            - week
+            - month
+            - year
+            - all
+        - in: query
+          name: page
+          description: The page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: true
+          schema:
+            type: integer 
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema: 
+                oneOf:
+                - type: array
+                  items: 
+                    $ref: '#/components/schemas/Post'
+                - type: array
+                  items: 
+                    $ref: '#/components/schemas/comment'
+                - type: array
+                  items: 
+                    type: object
+                    properties:
+                      _id:
+                        type: string 
+                      username:
+                        type: string
+                        example: user
+                      karma:
+                        type: integer
+                        example: 100
+                      bio:
+                        type: string
+                - type: array
+                  items: 
+                    type: object
+                    properties:
+                      _id:
+                        type: string  
+                      subreddit:
+                        type: string
+                        example: subreddit
+                      members:
+                        type: integer
+                        example: 100
+                      about:
+                        type: string
+
   /post/trendingsearches:
     get:
       tags:
+        - Search
         - Posts
-
       description: "get trending searches day by day"
       security:
         - BearerAuth: []
@@ -1310,8 +1495,9 @@ paths:
   /subreddit/{subredditName}/flair:
     post:
       tags:
-        - subreddit
-      summary: get list of flairs belonging to a subreddit
+        - Subreddit
+        - Flair
+      summary: insert a new flair in the list of flair belonging to a subreddit
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -1360,8 +1546,9 @@ paths:
                 $ref: "#/components/schemas/error"
     get:
       tags:
-        - subreddit
-      summary: insert a new flair in the list of flair belonging to a subreddit
+        - Subreddit
+        - Flair
+      summary: get list of flairs belonging to a subreddit
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -1413,7 +1600,7 @@ paths:
   /subreddit/{subredditName}/flair/{flairId}:
     patch:
       tags:
-        - flair
+        - Flair
       description: edit flair by id
       security:
         - BearerAuth: []
@@ -1468,7 +1655,8 @@ paths:
 
     delete:
       tags:
-        - subreddit
+        - Subreddit
+        - Flair
       description: delete flair by id
       security:
         - BearerAuth: []
@@ -1519,7 +1707,8 @@ paths:
 
     get:
       tags:
-        - subreddit
+        - Subreddit
+        - Flair
       description: get flair by id
       security:
         - BearerAuth: []
@@ -1612,38 +1801,7 @@ paths:
                     type: string
                     example: Subreddit not found
 
-  /posts/{postId}:
-    delete:
-      tags:
-        - Posts
-      summary: Delete a post
-      parameters:
-        - in: path
-          name: postId
-          description: post id
-          required: true
-          schema:
-            type: string
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      responses:
-        204:
-          description: Deleted successfully
-        404:
-          description: failed operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  message:
-                    type: string
-                    example: post not found
-
+  /post/{postId}:
     patch:
       tags:
         - Posts
@@ -1692,7 +1850,54 @@ paths:
                   message:
                     type: string
                     example: post not found
-  /posts/{postId}/followPost:
+    delete:
+      tags:
+        - Posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: Remove a post
+      parameters:
+        - name: postId
+          in: path
+          description: id of the post
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+
+  /post/{postId}/followPost:
     post:
       tags:
         - Posts
@@ -1742,7 +1947,7 @@ paths:
                     type: string
                     example: post not found
 
-  /posts/{postId}/hide:
+  /post/{postId}/hide:
     post:
       tags:
         - Posts
@@ -1782,7 +1987,7 @@ paths:
                   message:
                     type: string
                     example: post not found
-  /posts/{postId}/unhide:
+  /post/{postId}/unhide:
     post:
       tags:
         - Posts
@@ -1822,7 +2027,7 @@ paths:
                     type: string
                     example: post not found
 
-  /posts/random:
+  /post/random:
     get:
       tags:
         - Posts
@@ -2317,53 +2522,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}:
-    delete:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: Remove a post
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
-
-      responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
 
   #COMMENTS
 
@@ -2419,7 +2577,7 @@ paths:
                     example: comment not found
     delete:
       tags:
-        - Posts
+        - Comments
       summary: Remove a comment
       security:
         - BearerAuth: []
@@ -2952,7 +3110,255 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
+  /comment/{postId}:
+    get:
+      tags:
+        - Comments
+      summary: Get the comment tree for a given post
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of comments to return
+          required: true
+          schema:
+            type: integer
+        - name: depth
+          in: query
+          description: the maximum depth of the comment subtrees
+          required: true
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+            - top
+            - new
+            - best
+            - old
+        - name: commentId
+          in: query
+          description: If supplied, this comment will be the (highlighted) focal point of the returned view
+          schema:
+            type: string
+        - name: context
+          in: query
+          description: The number of parents shown(an integer between 0 and 8)
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/comment"
+                  moreComments:
+                    $ref: "#/components/schemas/moreComments"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  /comment/moreChildren:
+    get:
+      tags:
+        - Comments
+      summary: Retrieve additional comments omitted from a base comment tree.
+      description: When a comment tree is rendered, the most relevant comments are selected for display first. Remaining comments are fetched with "MoreComments" links. This API call is used to retrieve the additional comments
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: query
+          description: The ID of the post whose comments are being fetched
+          required: true
+          schema:
+            type: string
+        - name: children
+          in: query
+          description: A list of comment IDs that need to be fetched
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: depth
+          in: query
+          description: The maximum depth of the comment subtrees
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+            - top
+            - new
+            - best
+            - old
+        - name: limitChildren
+          in: query
+          description: If True, only return the children requested.
+          schema:
+            type: boolean
+
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/comment"
+                  moreComments:
+                    $ref: "#/components/schemas/moreComments"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   #subreddit
+  /subreddit/{subredditName}/comment/{postId}:
+    get:
+      tags:
+        - Comments
+        - Subreddit
+      summary: Get the comment tree for a given post within a subreddit
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: subredditName
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: The maximum number of comments to return
+          required: true
+          schema:
+            type: integer
+        - name: depth
+          in: query
+          description: the maximum depth of the comment subtrees
+          required: true
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum:
+            - top
+            - new
+            - best
+            - old
+        - name: commentId
+          in: query
+          description: If supplied, this comment will be the (highlighted) focal point of the returned view
+          schema:
+            type: string
+        - name: context
+          in: query
+          description: The number of parents shown(an integer between 0 and 8)
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/comment"
+                  moreComments:
+                    $ref: "#/components/schemas/moreComments"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
 
   /subreddit:
     post:
@@ -4034,6 +4440,7 @@ paths:
   /subreddit/{subredditName}/search:
     get:
       tags:
+        - Search
         - Subreddit
       summary: Search within a subreddit
       security:
@@ -5531,6 +5938,12 @@ components:
     comment:
       type: object
       properties:
+        replies:
+          type: array
+          items:
+            $ref: "#/components/schemas/comment"
+        moreReplies:
+          $ref: "#/components/schemas/moreComments"
         creator:
           type: string
           description: The name of the user who created the comment
@@ -5543,6 +5956,25 @@ components:
         votes:
           type: integer
           description: total number of votes
+
+    moreComments:
+      type: object
+      description: This objects encapsulates the number and IDs of additional replies to be used by the more children endpoint
+      properties:
+        count:
+          type: integer
+          description: The number of replies
+        children:
+          type: array
+          description: An array of comment IDs to be fetched later
+          items:
+            type: string
+        parentID:
+          type: string
+          description: The ID of the parent comment or post(in case of post replies)
+        depth:
+          type: integer
+          description: The depth of the children to be fetched(starts at 0)
 
     mention:
       type: object
