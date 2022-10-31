@@ -26,7 +26,7 @@ class Repository {
             const response = {
                 status: "fail",
                 statusCode: 400,
-                err:"user already exists" ,
+                err: "user already exists",
             };
             return response;
         }

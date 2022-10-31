@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
-        unique: true,
+        unique: [true, "this username is already exists"],
         required: [true, "Enter unique username"],
     },
     displayName: {
@@ -15,7 +16,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, "Provide email"],
-        unique: true,
+        unique: [true, "this email is already exists"],
         lowercase: true,
         validate: [validator.isEmail, " Provide valid email"],
     },
@@ -126,6 +127,21 @@ const userSchema = new mongoose.Schema({
         required: false,
         default: true,
     },
+});
+
+userSchema.pre("save", async function (next) {
+    // Only run this function if password was actually modified
+    if (!this.isModified("password")) return next();
+
+    // Hash the password with cost of 12
+    this.password = await bcrypt.hash(this.password, 12);
+    this.lastUpdatedPassword = Date.now() - 1000;
+    next();
+});
+userSchema.pre(/^find/, function (next) {
+    // this points to the current query
+    this.find({ accountActivated: { $ne: false } });
+    next();
 });
 
 const User = mongoose.model("User", userSchema);
