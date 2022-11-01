@@ -27,7 +27,7 @@
           "Users"
         ],
         "description": "Get authenticated to access our api services later.",
-        "summary": "User authentication",
+        "summary": "User Login",
         "requestBody": {
           "description": "get authenticated using userName & password",
           "required": true,
@@ -131,7 +131,7 @@
           "Users"
         ],
         "description": "update token stored in user",
-        "summary": "Log Out from website",
+        "summary": "Log Out",
         "security": [
           {
             "BearerAuth": []
@@ -185,7 +185,7 @@
           "Users"
         ],
         "description": "signup as user in reddit",
-        "summary": "User registration",
+        "summary": "User SignUP",
         "requestBody": {
           "description": "new user registrated",
           "required": true,
@@ -265,7 +265,7 @@
         ],
         "summary": "Forgot userName",
         "requestBody": {
-          "description": "Send the post/comment id",
+          "description": "user's email",
           "content": {
             "application/json": {
               "schema": {
@@ -302,9 +302,9 @@
         "tags": [
           "Users"
         ],
-        "summary": "Forgot password",
+        "summary": "Forgot Password",
         "requestBody": {
-          "description": "Send the post/comment id",
+          "description": "user's email and username",
           "content": {
             "application/json": {
               "schema": {
@@ -347,14 +347,6 @@
         ],
         "description": "change forgotten password",
         "summary": "Password reset",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
         "parameters": [
           {
             "in": "path",
@@ -367,7 +359,7 @@
           }
         ],
         "requestBody": {
-          "description": "new user registrated",
+          "description": "new Password and confirmPassword",
           "required": true,
           "content": {
             "application/json": {
@@ -1019,7 +1011,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Return a listing of posts according to user preferences",
+        "summary": "Best Posts",
+        "description": "Return a listing of posts according to user preferences",
         "security": [
           {
             "BearerAuth": []
@@ -1063,7 +1056,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -1073,7 +1073,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Return a listing of hot posts",
+        "summary": "Hot Posts",
+        "description": "Return a listing of hot posts",
         "security": [
           {
             "BearerAuth": []
@@ -1117,7 +1118,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -1127,7 +1135,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Return a listing of new posts",
+        "summary": "New Posts",
+        "description": "Return a listing of new posts",
         "security": [
           {
             "BearerAuth": []
@@ -1171,7 +1180,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -1181,7 +1197,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Return a listing of top posts",
+        "summary": "Top Posts",
+        "description": "Return a listing of top posts",
         "security": [
           {
             "BearerAuth": []
@@ -1242,7 +1259,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           }
         }
       }
@@ -1285,6 +1309,16 @@
           },
           "400": {
             "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1344,6 +1378,16 @@
           },
           "400": {
             "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1415,6 +1459,16 @@
           "400": {
             "description": "Invalid userName supplied"
           },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1466,6 +1520,16 @@
           },
           "400": {
             "description": "Invalid userName supplied"
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found",
@@ -1519,6 +1583,16 @@
           "400": {
             "description": "Invalid userName supplied"
           },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1570,6 +1644,16 @@
           },
           "400": {
             "description": "Invalid userName supplied"
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found",
@@ -1641,7 +1725,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found",
@@ -1713,7 +1804,14 @@
             }
           },
           "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
           },
           "404": {
             "description": "Not found",
@@ -1733,7 +1831,7 @@
         "tags": [
           "Users"
         ],
-        "summary": "",
+        "summary": "Check UserName available",
         "description": "Check whether a userName is available for registration.",
         "parameters": [
           {
@@ -1929,14 +2027,6 @@
           "Search"
         ],
         "description": "get trending searches day by day",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "successful operation",
