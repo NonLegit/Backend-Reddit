@@ -27,7 +27,7 @@ module.exports = class Email {
             // secure: false,
             auth: {
                 user: process.env.NONLEGITEMAIL,
-                pass: process.env.NONLEGITPASSWORD
+                pass: process.env.NONLEGITPASSWORD,
                 //user: testAccount.user,
                 //pass: testAccount.pass,
             },
@@ -39,7 +39,7 @@ module.exports = class Email {
 
     // Send the actual email
     async sendPasswordReset(user, url) {
-      //let testAccount = await nodemailer.createTestAccount();
+        //let testAccount = await nodemailer.createTestAccount();
         const mailOptions = {
             from: this.from,
             to: user.email,
@@ -51,7 +51,22 @@ module.exports = class Email {
                ${url}`,
         };
 
-        const transporter =  this.newTransport();
+        const transporter = this.newTransport();
+        await transporter.sendMail(mailOptions);
+    }
+    async sendUserName(user) {
+        //let testAccount = await nodemailer.createTestAccount();
+        const mailOptions = {
+            from: this.from,
+            to: user.email,
+            subject: "So you wanna know your Reddit username, huh?",
+            text: `Hi there,
+            You forgot it didn't you? Hey, it happens. Here you go:
+            Your username is ${user.userName}
+            (Username checks out, nicely done.) `,
+        };
+
+        const transporter = this.newTransport();
         await transporter.sendMail(mailOptions);
     }
 };
