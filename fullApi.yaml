@@ -244,65 +244,66 @@ paths:
         #       schema:
         #           $ref: '#/components/schemas/error'
 
-  /users/reset_username/{token}:
-    description: User Resource
-    post:
-      tags:
-        - "Users"
-      description: change forgotten userName
-      summary: Password reset
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - in: path
-          name: token
-          description: reset token
-          required: true
-          schema:
-            type: string
+  #/users/reset_username/{token}:
+  #  description: User Resource
+  #  post:
+  #    tags:
+  #      - "Users"
+  #    description: change forgotten userName
+  #    summary: Password reset
+  #    security:
+  #      - BearerAuth: []
+  #      - cookieAuth: []
+  #    parameters:
+  #       - in: path
+  #         name: token
+  #         description: reset token
+  #         required: true
+  #         schema:
+  #           type: string
 
-      requestBody:
-        description: new user registrated
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userName:
-                  type: string
-                  example: userName
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  token:
-                    type: string
-                  expiresIn:
-                    type: string
-                    format: date-time
+  #     requestBody:
+  #       description: new user registrated
+  #       required: true
+  #       content:
+  #         application/json:
+  #           schema:
+  #             type: object
+  #             properties:
+  #               userName:
+  #                 type: string
+  #                 example: userName
+  #     responses:
+  #       200:
+  #         description: Success operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: success
+  #                 token:
+  #                   type: string
+  #                 expiresIn:
+  #                   type: string
+  #                   format: date-time
 
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  message:
-                    type: string
-                    example: Token is invalid or has expired
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 message:
+  #                   type: string
+  #                   example: Token is invalid or has expired
+  # 
   /users/reset_password/{token}:
     description: User Resource
     post:
@@ -330,6 +331,9 @@ paths:
               type: object
               properties:
                 password:
+                  type: string
+                  example: Aa1234**
+                confirmPassword:
                   type: string
                   example: Aa1234**
       responses:
