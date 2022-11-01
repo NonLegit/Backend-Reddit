@@ -18,7 +18,7 @@ app.use(mongoSanitize());
 //app.use(express.static(`${__dirname}/public`));
 
 // 3) ROUTES
-app.use("/api/v1/user", userRouter);
+app.use("/api/v1/users", userRouter);
 
 app.all("*", (req, res, next) => {
     res.status(200).send("success ");

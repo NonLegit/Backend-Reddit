@@ -33,7 +33,7 @@ class Repository {
     }
     async getOne(query, popOptions) {
         try {
-            let tempDoc = Model.find(query);
+            let tempDoc = this.Model.findOne(query);
             if (popOptions) tempDoc = tempDoc.populate(popOptions);
             const doc = await tempDoc;
 
@@ -47,7 +47,7 @@ class Repository {
             }
             const response = {
                 status: "success",
-                statusCode: 201,
+                statusCode: 200,
                 doc,
             };
             return response;
@@ -62,7 +62,7 @@ class Repository {
     }
     async updateOne(id, data) {
         try {
-            const doc = await Model.findByIdAndUpdate(id, data, {
+            const doc = await this.Model.findByIdAndUpdate(id, data, {
                 new: true,
                 runValidators: true,
             });
@@ -94,7 +94,7 @@ class Repository {
     }
     async deleteOne(id) {
         try {
-            const doc = await Model.findByIdAndDelete(id);
+            const doc = await this.Model.findByIdAndDelete(id);
             if (!doc) {
                 const response = {
                     status: "fail",
