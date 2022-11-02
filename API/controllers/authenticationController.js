@@ -6,10 +6,10 @@ class AuthenticationController {
         this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
-        this.logout = this.logout.bind(this);
+        this.logOut = this.logOut.bind(this);
     }
 
-    createCookie(res, token,statusCode) {
+    createCookie(res, token, statusCode) {
         const cookieOptions = {
             expires: new Date(
                 Date.now() +
@@ -22,9 +22,8 @@ class AuthenticationController {
         res.cookie("jwt", token, cookieOptions);
         res.status(statusCode).json({
             token,
-            expiresIn:process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+            expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
         });
-
     }
     async signUp(req, res, next) {
         const email = req.body.email;
@@ -43,7 +42,7 @@ class AuthenticationController {
             );
             if (response.status === 201) {
                 //res.status(201).json(response.body);
-                this.createCookie(res, response.body.token,201);
+                this.createCookie(res, response.body.token, 201);
             } else {
                 res.status(response.status).json(response.body);
             }
@@ -61,17 +60,18 @@ class AuthenticationController {
             const response = await this.UserServices.logIn(userName, password);
             if (response.status === 200) {
                 //res.status(201).json(response.body);
-                this.createCookie(res, response.body.token,200);
+                this.createCookie(res, response.body.token, 200);
             } else {
                 res.status(response.status).json(response.body);
             }
         }
     }
-    logout(req, res) {
-        res.cookie("jwt", "loggedout", {
-            expires: new Date(Date.now() + 10 * 1000),
-            httpOnly: true,
-        });
+    logOut(req, res) {
+        res.clearCookie("jwt");
+        // res.cookie("jwt", "loggedout", {
+        //     expires: new Date(Date.now() + 10 * 1000),
+        //     httpOnly: true,
+        // });
         res.status(200).json({
             status: "success",
         });
