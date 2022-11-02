@@ -146,6 +146,11 @@ paths:
       responses:
         201:
           description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -336,6 +341,11 @@ paths:
       responses:
         200:
           description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
           content:
             application/json:
               schema:
