@@ -1,11 +1,15 @@
 //const User = require('../models/userModel');
 //const Repository = require('../data_access/repository');
+const jwt = require("jsonwebtoken");
+
 class UserService {
     constructor(User, UserRepository, emailServices) {
         this.User = User; // can be mocked in unit testing
         this.userRepository = UserRepository; // can be mocked in unit testing
         this.emailServices = emailServices;
         this.createUser = this.createUser.bind(this);
+        this.createToken = this.createToken.bind(this);
+        this.signUp = this.signUp.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
     }
@@ -21,6 +25,40 @@ class UserService {
                 err,
             };
             return error;
+        }
+    }
+    createToken(id) {
+        // what to put in token ?
+        const token = jwt.sign({ id }, process.env.JWT_SECRET, {
+            expiresIn: process.env.JWT_EXPIRES_IN,
+        });
+        return token;
+    }
+    async signUp(email, userName, password) {
+        const data = {
+            email: email,
+            userName: userName,
+            password: password,
+        };
+        let user = await this.userRepository.createOne(data);
+        if (user.status === "fail") {
+            // user with this email or username is exists
+            const response = {
+                status: 400,
+                body: {
+                    errorMessage: "User already Exists",
+                },
+            };
+            return response;
+        } else {
+            const token = this.createToken(user.doc._id);
+            const response = {
+                status: 201,
+                body: {
+                    token: token,
+                },
+            };
+            return response;
         }
     }
     async forgotUserName(email) {

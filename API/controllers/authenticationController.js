@@ -1,11 +1,51 @@
 class AuthenticationController {
     constructor(UserServices) {
         this.UserServices = UserServices; // can be mocked in unit testing
+        this.signUp = this.signUp.bind(this);
+        this.createCookie = this.createCookie.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
         this.logout = this.logout.bind(this);
     }
 
+    createCookie(res, token) {
+        const cookieOptions = {
+            expires: new Date(
+                Date.now() +
+                    process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+            ),
+            httpOnly: true,
+        };
+        if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+        res.cookie("jwt", token, cookieOptions);
+        res.status(201).json({
+            token,
+        });
+    }
+    async signUp(req, res, next) {
+        const email = req.body.email;
+        const userName = req.body.userName;
+        const password = req.body.password;
+        if (!email || !userName || !password) {
+            // bad request
+            res.status(400).json({
+                errorMessage: "Provide username, email and password",
+            });
+        } else {
+            const response = await this.UserServices.signUp(
+                email,
+                userName,
+                password
+            );
+            if (response.status === 201) {
+                //res.status(201).json(response.body);
+                this.createCookie(res, response.body.token);
+            } else {
+                res.status(response.status).json(response.body);
+            }
+        }
+    }
     logout(req, res) {
         res.cookie("jwt", "loggedout", {
             expires: new Date(Date.now() + 10 * 1000),

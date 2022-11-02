@@ -1,3 +1,4 @@
+const { MongooseError } = require("mongoose");
 const APIFeatures = require("./apiFeatures");
 
 class Repository {
@@ -23,10 +24,11 @@ class Repository {
                 return response;
             }
         } catch (err) {
+            console.log("MongooseError: " + err);
             const response = {
                 status: "fail",
                 statusCode: 400,
-                err: "user already exists",
+                err: err,
             };
             return response;
         }
