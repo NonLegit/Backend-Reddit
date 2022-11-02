@@ -21,6 +21,7 @@ const router = express.Router();
 // test data models
 router.post("/create", userControllerObj.createUser);
 router.post("/signup", authenticationControllerObj.signUp);
+router.post("/login", authenticationControllerObj.logIn);
 router.post("/forgot_username", authenticationControllerObj.forgotUserName);
 router.post("/forgot_password", authenticationControllerObj.forgotPassword);
 module.exports = router;

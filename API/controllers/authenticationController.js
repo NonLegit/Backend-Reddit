@@ -1,14 +1,15 @@
 class AuthenticationController {
     constructor(UserServices) {
         this.UserServices = UserServices; // can be mocked in unit testing
-        this.signUp = this.signUp.bind(this);
         this.createCookie = this.createCookie.bind(this);
+        this.signUp = this.signUp.bind(this);
+        this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
         this.logout = this.logout.bind(this);
     }
 
-    createCookie(res, token) {
+    createCookie(res, token,statusCode) {
         const cookieOptions = {
             expires: new Date(
                 Date.now() +
@@ -19,9 +20,11 @@ class AuthenticationController {
         if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
         res.cookie("jwt", token, cookieOptions);
-        res.status(201).json({
+        res.status(statusCode).json({
             token,
+            expiresIn:process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
         });
+
     }
     async signUp(req, res, next) {
         const email = req.body.email;
@@ -40,7 +43,25 @@ class AuthenticationController {
             );
             if (response.status === 201) {
                 //res.status(201).json(response.body);
-                this.createCookie(res, response.body.token);
+                this.createCookie(res, response.body.token,201);
+            } else {
+                res.status(response.status).json(response.body);
+            }
+        }
+    }
+    async logIn(req, res, next) {
+        const userName = req.body.userName;
+        const password = req.body.password;
+        if (!userName || !password) {
+            // bad request
+            res.status(400).json({
+                errorMessage: "Provide username and password",
+            });
+        } else {
+            const response = await this.UserServices.logIn(userName, password);
+            if (response.status === 200) {
+                //res.status(201).json(response.body);
+                this.createCookie(res, response.body.token,200);
             } else {
                 res.status(response.status).json(response.body);
             }

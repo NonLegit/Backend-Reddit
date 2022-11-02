@@ -33,9 +33,9 @@ class Repository {
             return response;
         }
     }
-    async getOne(query, popOptions) {
+    async getOne(query, select, popOptions) {
         try {
-            let tempDoc = this.Model.findOne(query);
+            let tempDoc = this.Model.findOne(query).select(select);
             if (popOptions) tempDoc = tempDoc.populate(popOptions);
             const doc = await tempDoc;
 

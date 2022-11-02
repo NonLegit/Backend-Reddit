@@ -1,6 +1,7 @@
 //const User = require('../models/userModel');
 //const Repository = require('../data_access/repository');
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
 class UserService {
     constructor(User, UserRepository, emailServices) {
@@ -10,6 +11,7 @@ class UserService {
         this.createUser = this.createUser.bind(this);
         this.createToken = this.createToken.bind(this);
         this.signUp = this.signUp.bind(this);
+        this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
     }
@@ -35,12 +37,12 @@ class UserService {
         return token;
     }
     async signUp(email, userName, password) {
-        const data = {
+        const userData = {
             email: email,
             userName: userName,
             password: password,
         };
-        let user = await this.userRepository.createOne(data);
+        let user = await this.userRepository.createOne(userData);
         if (user.status === "fail") {
             // user with this email or username is exists
             const response = {
@@ -61,9 +63,48 @@ class UserService {
             return response;
         }
     }
+    async logIn(userName, password) {
+        let user = await this.userRepository.getOne(
+            { userName: userName },
+            "+password",
+            ""
+        );
+        if (user.status === "fail") {
+            const response = {
+                status: 400,
+                body: {
+                    errorMessage: "Invalid username or password",
+                },
+            };
+            return response;
+        } else {
+            if (await user.doc.checkPassword(password, user.doc.password)) {
+                const token = this.createToken(user.doc._id);
+                const response = {
+                    status: 200,
+                    body: {
+                        token: token,
+                    },
+                };
+                return response;
+            } else {
+                const response = {
+                    status: 400,
+                    body: {
+                        errorMessage: "Invalid username or password",
+                    },
+                };
+                return response;
+            }
+        }
+    }
     async forgotUserName(email) {
         try {
-            let user = await this.userRepository.getOne({ email: email }, "");
+            let user = await this.userRepository.getOne(
+                { email: email },
+                "",
+                ""
+            );
             if (user.statusCode === 200) {
                 await this.emailServices.sendUserName(user.doc);
                 const response = {

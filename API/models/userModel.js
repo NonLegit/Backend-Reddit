@@ -165,6 +165,12 @@ userSchema.methods.createPasswordResetToken = function () {
 
     return resetToken;
 };
+userSchema.methods.checkPassword = async function (
+    enteredPassword,
+    truePassword
+) {
+    return await bcrypt.compare(enteredPassword, truePassword);
+};
 const User = mongoose.model("User", userSchema);
 
 // singleton User model
