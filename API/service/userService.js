@@ -2,6 +2,7 @@
 //const Repository = require('../data_access/repository');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 
 class UserService {
     constructor(User, UserRepository, emailServices) {
@@ -14,6 +15,7 @@ class UserService {
         this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
+        this.resetPassword = this.resetPassword.bind(this);
     }
     async createUser(data) {
         try {
@@ -172,6 +174,43 @@ class UserService {
                 },
             };
             return error;
+        }
+    }
+    async resetPassword(resetToken, password) {
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+        let user = await this.userRepository.getOne(
+            {
+                passwordResetToken: hashedToken,
+                passwordResetExpires: { $gt: Date.now() },
+            },
+            "",
+            ""
+        );
+        if (user.status === "fail") {
+            // invalid token or time passed
+            const response = {
+                status: 400,
+                body: {
+                    errorMessage: "token is invalid or has expired ",
+                },
+            };
+            return response;
+        } else {
+            user.doc.password = password;
+            user.doc.passwordResetToken = undefined;
+            user.doc.passwordResetExpires = undefined;
+            await user.doc.save();
+            const token = this.createToken(user.doc._id);
+            const response = {
+                status: 200,
+                body: {
+                    token: token,
+                },
+            };
+            return response;
         }
     }
 }

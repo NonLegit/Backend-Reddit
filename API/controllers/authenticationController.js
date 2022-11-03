@@ -6,6 +6,7 @@ class AuthenticationController {
         this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
+        this.resetPassword = this.resetPassword.bind(this);
         this.logOut = this.logOut.bind(this);
     }
 
@@ -18,7 +19,6 @@ class AuthenticationController {
             httpOnly: true,
         };
         if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
-
         res.cookie("jwt", token, cookieOptions);
         res.status(statusCode).json({
             token,
@@ -85,7 +85,7 @@ class AuthenticationController {
                 errorMessage: "Provide username and email",
             });
         } else {
-            const response = await this.UserServices.forgetPassword(
+            const response = await this.UserServices.forgotPassword(
                 userName,
                 email
             );
@@ -103,6 +103,28 @@ class AuthenticationController {
         } else {
             const response = await this.UserServices.forgotUserName(email);
             res.status(response.status).json(response.body);
+        }
+    }
+    async resetPassword(req, res, next) {
+        const resetToken = req.params.token;
+        const password = req.body.password;
+        const confirmPassword = req.body.confirmPassword;
+        if (!password || !confirmPassword || password !== confirmPassword) {
+            res.status(400).json({
+                errorMessage: "Provide correct Passwords",
+            });
+        } else {
+            const response = await this.UserServices.resetPassword(
+                resetToken,
+                password
+            );
+            if (response.status == 200) {
+                this.createCookie(res, response.body.token, 200);
+            } else {
+                res.status(response.status).json(response.body);
+            }
+
+            //res.status(response.status).json(response.body);
         }
     }
 }
