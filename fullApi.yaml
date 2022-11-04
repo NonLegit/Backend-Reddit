@@ -5977,9 +5977,15 @@ components:
         url:
           type: string
           description: A valid URL in case the kind is link
-        sr:
+        owner:
           type: string
-          description: subreddit name
+          description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+        ownerModel:
+          type: string
+          enum: 
+            - User
+            - Subreddit
+          description: Determines wether the post belongs to a subreddit or a user
         nsfw:
           type: boolean
         spoiler:
@@ -5991,11 +5997,20 @@ components:
           type: string
         flairText:
           type: string
+        suggestedSort:
+          type: string
+          enum:
+            - top
+            - new
+            - best
+            - old
+        scheduled:
+          type: boolean
 
     Post:
       type: object
       properties:
-        creator:
+        author:
           type: string
           description: The name of the user who created the post
         owner:
@@ -6022,6 +6037,12 @@ components:
         votes:
           type: integer
           description: total number of votes
+        shareCount:
+          type: integer
+          description: total number of shares
+        views:
+          type: integer
+          description: view count
         commentCount:
           type: integer
           description: total number of comments
