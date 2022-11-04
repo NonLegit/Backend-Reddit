@@ -4,24 +4,14 @@ dotenv.config({ path: "config/config.env" });
 console.log("secret " + process.env.JWT_SECRET);
 const UserService = require("./../../service/userService");
 
-const RepositoryObj = {
-    createOne: (userData) => {
-        const response = {
-            status: "success",
-            statusCode: 201,
-            doc: {
-                _id: "1",
-            },
-        };
-        return response;
-    },
-};
 const emailServiceObj = {
     sendPasswordReset: (user, resetURL) => {
         return true;
     },
+    sendUserName: (user) => {
+        return true;
+    },
 };
-const userServiceObj = new UserService("", RepositoryObj, emailServiceObj);
 
 describe("Authentication Test", () => {
     describe("Sign-up services Test", () => {
@@ -144,6 +134,50 @@ describe("Authentication Test", () => {
         });
     });
 
+    describe("Forgot-username services Test", () => {
+        it("first test (success operation of database)", async () => {
+            const RepositoryObj = {
+                getOne: (userData) => {
+                    const response = {
+                        status: "success",
+                        statusCode: 200,
+                        doc: {
+                            _id: "1",
+                        },
+                    };
+                    return response;
+                },
+            };
+            const userServiceObj = new UserService(
+                "",
+                RepositoryObj,
+                emailServiceObj
+            );
+            const output = await userServiceObj.forgotUserName("");
+            assert.equal(output.status, 204);
+        });
+        it("secone test(fao; operation of database)", async () => {
+            const RepositoryObj = {
+                getOne: (userData) => {
+                    const response = {
+                        status: "success",
+                        statusCode: 404,
+                        doc: {
+                            _id: "1",
+                        },
+                    };
+                    return response;
+                },
+            };
+            const userServiceObj = new UserService(
+                "",
+                RepositoryObj,
+                emailServiceObj
+            );
+            const output = await userServiceObj.forgotUserName("");
+            assert.equal(output.status, 404);
+        });
+    });
     describe("Forgot-password services Test", () => {
         it("first test (success operation of database)", async () => {
             const RepositoryObj = {
@@ -222,6 +256,61 @@ describe("Authentication Test", () => {
             );
             const output = await userServiceObj.forgotPassword("", "");
             assert.equal(output.status, 404);
+            assert.notEqual(output.body.token, false);
+        });
+    });
+    describe("reset-password services Test", () => {
+        it("first test (success operation of database)", async () => {
+            const RepositoryObj = {
+                getOne: (userData) => {
+                    const response = {
+                        status: "success",
+                        statusCode: 200,
+                        doc: {
+                            _id: "1",
+                            save: (password, passwordDB) => {
+                                return true;
+                            },
+                        },
+                    };
+                    return response;
+                },
+            };
+            const userServiceObj = new UserService(
+                "",
+                RepositoryObj,
+                emailServiceObj
+            );
+            const output = await userServiceObj.resetPassword("", "");
+            assert.equal(output.status, 200);
+        });
+
+        it("second test(fao; operation of database)", async () => {
+            const RepositoryObj = {
+                getOne: (userData) => {
+                    const response = {
+                        status: "fail",
+                        statusCode: 404,
+                        doc: {
+                            _id: "1",
+                            save: (password, passwordDB) => {
+                                return true;
+                            },
+                            createPasswordResetToken: () => {
+                                return true;
+                            },
+                        },
+                    };
+                    return response;
+                },
+            };
+            const userServiceObj = new UserService(
+                "",
+                RepositoryObj,
+                emailServiceObj
+            );
+            const output = await userServiceObj.resetPassword("", "");
+            assert.equal(output.status, 400);
             assert.notEqual(output.body.token, false);
         });
     });
