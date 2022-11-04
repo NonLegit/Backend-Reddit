@@ -16,6 +16,8 @@ class UserService {
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
+        this.getUser = this.getUser.bind(this);
+        this.decodeToken = this.decodeToken.bind(this);
     }
     async createUser(data) {
         try {
@@ -212,6 +214,17 @@ class UserService {
             };
             return response;
         }
+    }
+    async decodeToken(token) {
+        const decoded = await promisify(jwt.verify)(
+            token,
+            process.env.JWT_SECRET
+        );
+        return decoded.id;
+    }
+    async getUser(id) {
+        let user = await this.userRepository.getOne({ _id: id }, "", "");
+        return user;
     }
 }
 //export default UserService;

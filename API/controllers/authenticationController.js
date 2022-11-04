@@ -8,6 +8,7 @@ class AuthenticationController {
         this.forgotUserName = this.forgotUserName.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
         this.logOut = this.logOut.bind(this);
+        this.authorize = this.authorize.bind(this);
     }
 
     createCookie(res, token, statusCode) {
@@ -125,6 +126,23 @@ class AuthenticationController {
             }
 
             //res.status(response.status).json(response.body);
+        }
+    }
+    async authorize(req, res, next) {
+        const token = req.cookie.jwt;
+        if (!token) {
+            res.status(401).json({
+                errorMessage: "Unauthorized",
+            });
+            return next();
+        }
+        const userId = await this.UserServices.decodeToken(token);
+        const user = await this.UserServices.getUser(userId);
+        if (user.status === "fail") {
+            res.status(404).json({
+                errorMessage: "User not found",
+            });
+            return next();
         }
     }
 }
