@@ -22,6 +22,7 @@ class AuthenticationController {
         if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
         res.cookie("jwt", token, cookieOptions);
         res.status(statusCode).json({
+            status: "success",
             token,
             expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
         });
@@ -33,6 +34,7 @@ class AuthenticationController {
         if (!email || !userName || !password) {
             // bad request
             res.status(400).json({
+                status: "fail",
                 errorMessage: "Provide username, email and password",
             });
         } else {
@@ -55,6 +57,7 @@ class AuthenticationController {
         if (!userName || !password) {
             // bad request
             res.status(400).json({
+                status: "fail",
                 errorMessage: "Provide username and password",
             });
         } else {
@@ -83,6 +86,7 @@ class AuthenticationController {
         if (!userName || !email) {
             // Bad Request , Send APP Error in error handling class , TODO: error-handeling
             res.status(400).json({
+                status: "fail",
                 errorMessage: "Provide username and email",
             });
         } else {
@@ -99,6 +103,7 @@ class AuthenticationController {
         if (!email) {
             // Bad Request , Send APP Error in error handling class , TODO: error-handeling
             res.status(400).json({
+                status: "fail",
                 errorMessage: "Provide email",
             });
         } else {
@@ -112,6 +117,7 @@ class AuthenticationController {
         const confirmPassword = req.body.confirmPassword;
         if (!password || !confirmPassword || password !== confirmPassword) {
             res.status(400).json({
+                status: "fail",
                 errorMessage: "Provide correct Passwords",
             });
         } else {
@@ -132,6 +138,7 @@ class AuthenticationController {
         const token = req.cookie.jwt;
         if (!token) {
             res.status(401).json({
+                status: "fail",
                 errorMessage: "Unauthorized",
             });
             return next();
@@ -140,6 +147,7 @@ class AuthenticationController {
         const user = await this.UserServices.getUser(userId);
         if (user.status === "fail") {
             res.status(404).json({
+                status: "fail",
                 errorMessage: "User not found",
             });
             return next();

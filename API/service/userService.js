@@ -52,6 +52,7 @@ class UserService {
             const response = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: "User already Exists",
                 },
             };
@@ -61,6 +62,7 @@ class UserService {
             const response = {
                 status: 201,
                 body: {
+                    status: "success",
                     token: token,
                 },
             };
@@ -77,6 +79,7 @@ class UserService {
             const response = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: "Invalid username or password",
                 },
             };
@@ -87,6 +90,7 @@ class UserService {
                 const response = {
                     status: 200,
                     body: {
+                        status: "success",
                         token: token,
                     },
                 };
@@ -95,6 +99,7 @@ class UserService {
                 const response = {
                     status: 400,
                     body: {
+                        status: "fail",
                         errorMessage: "Invalid username or password",
                     },
                 };
@@ -122,6 +127,7 @@ class UserService {
                 const response = {
                     status: 404,
                     body: {
+                        status: "fail",
                         errorMessage: "User Not Found",
                     },
                 };
@@ -162,6 +168,7 @@ class UserService {
                 const response = {
                     status: 404,
                     body: {
+                        status: "fail",
                         errorMessage: "User Not Found",
                     },
                 };
@@ -172,6 +179,7 @@ class UserService {
             const error = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: err,
                 },
             };
@@ -196,6 +204,7 @@ class UserService {
             const response = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: "token is invalid or has expired ",
                 },
             };
