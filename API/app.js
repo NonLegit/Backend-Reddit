@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 
 const mongoSanitize = require("express-mongo-sanitize");
 

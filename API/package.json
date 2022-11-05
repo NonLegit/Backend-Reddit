@@ -4,7 +4,7 @@
   "description": "backend api",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --recursive --exit",
+    "test": "mocha --timeout 1000000 --recursive --exit",
     "start": "nodemon server.js"
   },
   "author": "",
