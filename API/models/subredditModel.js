@@ -57,9 +57,9 @@ const subredditSchema = new mongoose.Schema({
     required: [true, "subreddit must have a type"],
     default: "Public",
   },
-  NSFW: {
+  nsfw: {
     type: Boolean,
-    required: false,
+    required: true,
   },
   postType: {
     type: String,
@@ -72,7 +72,7 @@ const subredditSchema = new mongoose.Schema({
     title: {
       type: String,
       trim: true,
-      required: true,
+      required: false,
     },
     description: {
       type: String,
@@ -113,14 +113,12 @@ const subredditSchema = new mongoose.Schema({
   icon: {
     type: String,
     required: false,
-    trim: true,
-    // unique:true,
+    trim: true, // additional work here (not now)
   },
   backgroundImage: {
     type: String,
     required: false,
-    trim: true,
-    // unique:true,
+    trim: true, // additional work here (not now)
   },
   usersCount: {
     type: Number,
@@ -132,43 +130,55 @@ const subredditSchema = new mongoose.Schema({
     default: Date.now(),
     select: false,
   },
-  topics: [String],
+  topics: {
+    type: [{ type: String }],
+    validate: [topicsLimit, "{PATH} exceeds the limit of 25"],
+  },
   // Relationships attributes
 
-  owner: { type: String }, //subreddit owner (first mod) by time of being mod
-  members: [
+  owner: { type: String, required: true }, //subreddit owner (first mod) by time of being mod
+
+  moderators: [
     {
-      username: { type: String, unique: true, trim: true },
-      is_mod: { type: Boolean, default: false },
+      type: Object,
+      username: { type: String, required: false },
       mod_time: { type: Date, default: Date.now() },
+      permissions: {
+        type: Object,
+        required: false,
+        all: { type: Boolean },
+        access: { type: Boolean },
+        config: { type: Boolean },
+        flair: { type: Boolean },
+        posts: { type: Boolean },
+      },
     },
   ],
 
   posts: [
     {
-      post_id: { type: String, unique: true, trim: true },
+      post_id: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "post",
+        required: false,
+        trim: true,
+      },
       is_scheduled: { type: Boolean, default: false },
       schaduled_time: { type: Date, default: Date.now() },
     },
   ],
-  flairs: [String],
-  baned: [
+  flairIds: [
     {
-      userName: { type: String, unique: true, trim: true },
-      banReason: { type: String, trim: true },
-      ban_type: { type: String },
-      Note: { type: String },
-      duration: {
-        startTime: { type: Date },
-        endTime: { type: Date },
-      },
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "flair",
     },
   ],
-  muted: [
+  punishers: [
     {
-      userName: { type: String, unique: true, trim: true },
-      muteReason: { type: String, trim: true },
-      mute_type: { type: String },
+      userName: { type: String, required: false, trim: true },
+      type: { type: String, enum: ["baned", "muted"] },
+      punishReason: { type: String, trim: true },
+      punish_type: { type: String },
       Note: { type: String },
       duration: {
         startTime: { type: Date },
@@ -177,6 +187,10 @@ const subredditSchema = new mongoose.Schema({
     },
   ],
 });
+
+function topicsLimit(val) {
+  return val.length <= 25;
+}
 
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 

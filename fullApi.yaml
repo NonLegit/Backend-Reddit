@@ -3377,6 +3377,8 @@ paths:
             schema:
               type: object
               properties:
+                owner:
+                  type: string
                 name:
                   type: string
                 type:
