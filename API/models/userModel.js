@@ -171,6 +171,17 @@ userSchema.methods.checkPassword = async function (
 ) {
     return await bcrypt.compare(enteredPassword, truePassword);
 };
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+    if (this.lastUpdatedPassword) {
+        const changedTimestamp = parseInt(
+            this.lastUpdatedPassword.getTime() / 1000,
+            10
+        );
+
+        return JWTTimestamp < changedTimestamp;
+    }
+    return false;
+};
 const User = mongoose.model("User", userSchema);
 
 // singleton User model

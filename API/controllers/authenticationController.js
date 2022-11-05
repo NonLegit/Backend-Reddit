@@ -135,22 +135,38 @@ class AuthenticationController {
         }
     }
     async authorize(req, res, next) {
-        const token = req.cookie.jwt;
+        let token;
+        if (req.cookies.jwt) {
+            token = req.cookies.jwt;
+        }
+        console.log(token);
         if (!token) {
             res.status(401).json({
                 status: "fail",
                 errorMessage: "Unauthorized",
             });
-            return next();
-        }
-        const userId = await this.UserServices.decodeToken(token);
-        const user = await this.UserServices.getUser(userId);
-        if (user.status === "fail") {
-            res.status(404).json({
-                status: "fail",
-                errorMessage: "User not found",
-            });
-            return next();
+        } else {
+            const decoded = await this.UserServices.decodeToken(token);
+            const userId = decoded.id;
+            const time = decoded.iat;
+            const user = await this.UserServices.getUser(userId);
+            if (user.status === "fail") {
+                res.status(404).json({
+                    status: "fail",
+                    errorMessage: "User not found",
+                });
+            } else {
+                if (user.doc.changedPasswordAfter(time)) {
+                    res.status(400).json({
+                        status: "fail",
+                        errorMessage:
+                            "Password is changed , Please login again",
+                    });
+                } else {
+                    req.user = user.doc;
+                    next();
+                }
+            }
         }
     }
 }

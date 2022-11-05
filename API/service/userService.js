@@ -3,6 +3,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { promisify } = require("util");
 
 class UserService {
     constructor(User, UserRepository, emailServices) {
@@ -229,7 +230,7 @@ class UserService {
             token,
             process.env.JWT_SECRET
         );
-        return decoded.id;
+        return decoded;
     }
     async getUser(id) {
         let user = await this.userRepository.getOne({ _id: id }, "", "");

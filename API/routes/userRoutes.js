@@ -25,6 +25,9 @@ router.post("/login", authenticationControllerObj.logIn);
 router.post("/logout", authenticationControllerObj.logOut);
 router.post("/forgot_username", authenticationControllerObj.forgotUserName);
 router.post("/forgot_password", authenticationControllerObj.forgotPassword);
-router.post("/reset_password/:token", authenticationControllerObj.resetPassword);
+router.post(
+    "/reset_password/:token",
+    authenticationControllerObj.resetPassword
+);
 
 module.exports = router;
