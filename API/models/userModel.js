@@ -167,7 +167,7 @@ const userSchema = new mongoose.Schema({
             },
         },
     ],
-     voteComment: [
+    voteComment: [
         {
             posts: {
                 type: mongoose.Schema.ObjectId,
