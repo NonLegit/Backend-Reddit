@@ -11,9 +11,9 @@ const subredditControllerObj = new subredditController(subredditServiceObj);
 const router = express.Router();
 
 // test data models
-router.post("/", subredditControllerObj.createSubreddit);
-router.patch("/:subredditName/:username", subredditControllerObj.updateSubredditSettings);  // *TODO: need edit here
+router.post("/:id", subredditControllerObj.createSubreddit);
+router.patch("/:subredditName/:id", subredditControllerObj.updateSubredditSettings);
 router.get("/:subredditName", subredditControllerObj.getSubredditSettings);
-router.delete("/:subredditName/:username", subredditControllerObj.deleteSubreddit);         //*TODO: need edit here
+router.delete("/:subredditName/:id", subredditControllerObj.deleteSubreddit);
 
 module.exports = router;

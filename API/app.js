@@ -1,7 +1,5 @@
 const express = require("express");
 const morgan = require("morgan");
-const cookieParser = require("cookie-parser");
-
 const mongoSanitize = require("express-mongo-sanitize");
 
 const userRouter = require("./routes/userRoutes");
@@ -14,7 +12,6 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(express.json({ limit: "10kb" }));
-app.use(cookieParser());
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 

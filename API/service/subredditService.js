@@ -35,9 +35,10 @@ class subredditService {
       return error;
     }
   }
+
   async updateSubreddit(filter, data) {
     try {
-      let response = await this.subredditRepository.updateOne(filter, data);
+      let response = await this.subredditRepository.updateOneByQuery(filter, data);
       return response;
     } catch (err) {
       console.log("catch error here" + err);
@@ -49,12 +50,34 @@ class subredditService {
       return error;
     }
   }
+
   async getSubreddit(query) {
     try {
       let response = await this.subredditRepository.getOne(query, "", "");
       return response;
     } catch (err) {
       console.log("catch error here" + err);
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
+  }
+  
+  async isModerator(subredditName, userID) {
+    try {
+      let ismoderator = await this.getSubreddit(
+        {
+          name: subredditName,
+          "moderators.username": userID,
+        },
+        "",
+        ""
+      );
+      return ismoderator;
+    } catch (err) {
       const error = {
         status: "fail",
         statusCode: 400,

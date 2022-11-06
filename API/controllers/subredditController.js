@@ -1,7 +1,7 @@
 class subredditController {
   constructor(subredditServices) {
     console.log("from controller" + subredditServices);
-    this.subredditServices = subredditServices; // can be mocked in* TODO: unit testing
+    this.subredditServices = subredditServices; // can be mocked in unit testing
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
@@ -9,8 +9,11 @@ class subredditController {
   }
   async createSubreddit(req, res, next) {
     let data = req.body;
+    // let userID = req.params._id;
+    let userId = req.params.id;
+    data.owner = userId;
+    console.log(userId);
     try {
-      // const user = req.user;  *TODO: need token middleware  
       let subreddit = await this.subredditServices.createSubreddit(data);
       if (subreddit.status === "success") {
         let updateModerators = await this.subredditServices.updateSubreddit(
@@ -18,7 +21,7 @@ class subredditController {
           {
             $push: {
               moderators: {
-                username: data.owner,
+                username: userId,
                 mod_time: Date.now(),
                 permissions: {
                   all: true,
@@ -58,21 +61,18 @@ class subredditController {
   async updateSubredditSettings(req, res, next) {
     let subredditName = req.params.subredditName;
     let data = req.body;
-    let user = req.params.username;
+    // let userId = req.params._id;
+    let userId = req.params.id;
 
     try {
-      //check user is moderator or not ?
-      let ismoderator = await this.subredditServices.getSubreddit(
-        {
-          name: subredditName,
-          "moderators.username": user,
-        },
-        "",
-        ""
+      //check user is moderator or not
+      let canUpdate = await this.subredditServices.isModerator(
+        subredditName,
+        userId
       );
-      if (ismoderator.status === "fail") {
-        res.status(ismoderator.statusCode).json({
-          status: ismoderator.statusCode,
+      if (canUpdate.status==="fail") {
+        res.status(canUpdate.statusCode).json({
+          status: canUpdate.statusCode,
           message: "you are not moderator to this subreddit",
         });
       } else {
@@ -120,21 +120,18 @@ class subredditController {
 
   async deleteSubreddit(req, res, next) {
     let subredditName = req.params.subredditName;
-    let user = req.params.username;
+    // let userId = req.params._id;
+    let userId = req.params._id;
     try {
-      //check user is moderator or not ?
-      let ismoderator = await this.subredditServices.getSubreddit(
-        {
-          name: subredditName,
-          owner: user,
-        },
-        "",
-        ""
+      //check user is moderator or not
+      let canDelete = await this.subredditServices.isModerator(
+        subredditName,
+        userId
       );
-      if (ismoderator.status === "fail") {
-        res.status(ismoderator.statusCode).json({
-          status: ismoderator.statusCode,
-          message: "you are not moderator to this subreddit",
+      if (canDelete.status==="fail") {
+        res.status(canDelete.statusCode).json({
+          status: canDelete.statusCode,
+          message: "you are not the owner to this subreddit",
         });
       } else {
         let response = await this.subredditServices.deleteSubreddit(

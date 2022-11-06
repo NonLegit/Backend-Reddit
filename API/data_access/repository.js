@@ -1,4 +1,3 @@
-const { MongooseError } = require("mongoose");
 const APIFeatures = require("./apiFeatures");
 
 class Repository {
@@ -27,7 +26,7 @@ class Repository {
       console.log(err);
       const response = {
         status: "fail",
-        statusCode: 401,
+        statusCode: 400,
         err: err,
       };
       return response;
@@ -64,7 +63,39 @@ class Repository {
   }
   async updateOne(id, data) {
     try {
-      const doc = await this.Model.findOneAndUpdate(id, data, {
+      const doc = await this.Model.findByIAndUpdate(id, data, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!doc) {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          err: "cannot found document",
+        };
+        return response;
+      }
+      const response = {
+        status: "success",
+        statusCode: 200,
+        data: {
+          data: doc,
+        },
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        error: true,
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+  async updateOneByQuery(filter, data) {
+    try {
+      const doc = await this.Model.findOneAndUpdate(filter, data, {
         new: true,
       });
 
@@ -92,11 +123,10 @@ class Repository {
       };
       return response;
     }
-
   }
-  async deleteOne(filter,options) {
+  async deleteOne(filter, options) {
     try {
-      const doc = await this.Model.findOneAndDelete(filter,options);
+      const doc = await this.Model.findOneAndDelete(filter, options);
       if (!doc) {
         const response = {
           status: "fail",
@@ -118,7 +148,7 @@ class Repository {
         err,
       };
       return response;
-}
+    }
   }
 
   async getAll(filter, query) {

@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Mockgoose = require("mockgoose").Mockgoose;
 const dotenv = require("dotenv");
 
 process.on("uncaughtException", (err) => {
@@ -16,20 +15,8 @@ const app = require("./app");
 //   process.env.DATABASE_PASSWORD
 // );
 
-if (process.env.NODE_ENV === "test") {
-    const DB = process.env.DATABASE_LOCAL;
-    const mockgoose = new Mockgoose(mongoose);
-    mockgoose.prepareStorage().then(() => {
-        mongoose
-            .connect(DB)
-            .then(() =>
-                console.log("Fake DB connection for testing successful!")
-            );
-    });
-} else {
-    const DB = process.env.DATABASE_LOCAL;
-    mongoose.connect(DB).then(() => console.log("DB connection successful!"));
-}
+const DB = process.env.DATABASE_LOCAL;
+mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 
 const port = process.env.PORT || 8000;
 const server = app.listen(port, () => {

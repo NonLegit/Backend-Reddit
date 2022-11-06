@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
+// *TODO: change all ids to objectid after merging with dev branch
+//    *TODO: postId
+//    *TODO: owner
+//    *TODO: moderators.username
+// ! Dont forget to push again
+
 const subredditSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -113,12 +119,12 @@ const subredditSchema = new mongoose.Schema({
   icon: {
     type: String,
     required: false,
-    trim: true, // additional work here (not now)
+    trim: true, // *TODO: it will be unique with time stamp and username
   },
   backgroundImage: {
     type: String,
     required: false,
-    trim: true, // additional work here (not now)
+    trim: true, // *TODO: it will be unique with time stamp and username
   },
   usersCount: {
     type: Number,
@@ -134,16 +140,23 @@ const subredditSchema = new mongoose.Schema({
     type: [{ type: String }],
     validate: [topicsLimit, "{PATH} exceeds the limit of 25"],
   },
+  
   // Relationships attributes
 
-  owner: { type: mongoose.SchemaTypes.ObjectId, ref: "User", required: true }, //subreddit owner (first mod) by time of being mod
+  owner: {
+    // type: mongoose.SchemaTypes.ObjectId,
+    // ref: "User",
+    type: String,
+    required: true,
+  }, //subreddit owner (first mod) by time of being mod
 
   moderators: [
     {
       type: Object,
-      username: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: "User",
+      userId: {
+        // type: mongoose.SchemaTypes.ObjectId,
+        // ref: "User",
+        type: String,
         required: false,
       },
       mod_time: { type: Date, default: Date.now() },
@@ -161,11 +174,10 @@ const subredditSchema = new mongoose.Schema({
 
   posts: [
     {
-      post_id: {
+      postId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Post",
         required: false,
-        trim: true,
       },
       is_scheduled: { type: Boolean, default: false },
       schaduled_time: { type: Date, default: Date.now() },
@@ -174,12 +186,12 @@ const subredditSchema = new mongoose.Schema({
   flairIds: [
     {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: "Flair",
+      ref: "flair",
     },
   ],
   punishers: [
     {
-      userName: {
+      userIds: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
