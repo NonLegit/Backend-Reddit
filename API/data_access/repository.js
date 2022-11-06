@@ -1,3 +1,4 @@
+const { MongooseError } = require("mongoose");
 const APIFeatures = require("./apiFeatures");
 
 class Repository {
@@ -91,6 +92,7 @@ class Repository {
       };
       return response;
     }
+
   }
   async deleteOne(filter,options) {
     try {
@@ -116,7 +118,7 @@ class Repository {
         err,
       };
       return response;
-    }
+}
   }
 
   async getAll(filter, query) {

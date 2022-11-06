@@ -1,10 +1,12 @@
+const crypto = require("crypto");
 const mongoose = require("mongoose");
 const validator = require("validator");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
-        unique: true,
+        unique: [true, "this username is already exists"],
         required: [true, "Enter unique username"],
     },
     displayName: {
@@ -15,7 +17,7 @@ const userSchema = new mongoose.Schema({
     email: {
         type: String,
         required: [true, "Provide email"],
-        unique: true,
+        unique: [true, "this email is already exists"],
         lowercase: true,
         validate: [validator.isEmail, " Provide valid email"],
     },
@@ -26,6 +28,14 @@ const userSchema = new mongoose.Schema({
         select: false,
     },
     lastUpdatedPassword: {
+        type: Date,
+        required: false,
+    },
+    passwordResetToken: {
+        type: String,
+        required: false,
+    },
+    passwordResetExpires: {
         type: Date,
         required: false,
     },
@@ -128,6 +138,50 @@ const userSchema = new mongoose.Schema({
     },
 });
 
+userSchema.pre("save", async function (next) {
+    // Only run this function if password was actually modified
+    if (!this.isModified("password")) return next();
+
+    // Hash the password with cost of 12
+    this.password = await bcrypt.hash(this.password, 12);
+    this.lastUpdatedPassword = Date.now() - 1000;
+    next();
+});
+userSchema.pre(/^find/, function (next) {
+    // this points to the current query
+    this.find({ accountActivated: { $ne: false } });
+    next();
+});
+
+userSchema.methods.createPasswordResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString("hex");
+
+    this.passwordResetToken = crypto
+        .createHash("sha256")
+        .update(resetToken)
+        .digest("hex");
+
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes only
+
+    return resetToken;
+};
+userSchema.methods.checkPassword = async function (
+    enteredPassword,
+    truePassword
+) {
+    return await bcrypt.compare(enteredPassword, truePassword);
+};
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+    if (this.lastUpdatedPassword) {
+        const changedTimestamp = parseInt(
+            this.lastUpdatedPassword.getTime() / 1000,
+            10
+        );
+
+        return JWTTimestamp < changedTimestamp;
+    }
+    return false;
+};
 const User = mongoose.model("User", userSchema);
 
 // singleton User model

@@ -8,20 +8,17 @@ class userController {
         let data = req.body;
         try {
             let user = await this.userServices.createUser(data);
-            if(user.status ==='success')
-            {
+            if (user.status === "success") {
                 res.status(user.statusCode).json({
                     status: user.status,
                     user: user.doc,
                 });
-            }
-            else{
+            } else {
                 res.status(user.statusCode).json({
                     status: user.status,
                     message: user.err,
                 });
             }
-
         } catch (err) {
             console.log("error in userservices " + err);
             res.status(500).json({
