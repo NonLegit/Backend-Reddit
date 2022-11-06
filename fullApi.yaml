@@ -68,7 +68,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: invaild userName or password
         400:
@@ -81,7 +81,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: provide userName and password
   /users/logout:
@@ -174,7 +174,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: userName already exists
 
@@ -370,7 +370,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: Token is invalid or has expired
 
@@ -440,7 +440,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: not modified
         401:
@@ -485,7 +485,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
@@ -528,7 +528,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
@@ -569,7 +569,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user is not a friend of you
         404:
@@ -582,7 +582,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
@@ -926,7 +926,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    $ref: "#/components/schemas/Friend"
 
         "400":
           description: Bad Request
@@ -1006,10 +1012,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                description: array of posts
-                items:
-                  $ref: "#/components/schemas/Post"
+                  $ref: "#/components/schemas/upvotes"
             application/xml:
               schema:
                 type: array
@@ -1170,9 +1173,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                    $ref: "#/components/schemas/upvotes"
         "401":
           description: Authorization Required
           content:
@@ -1217,9 +1218,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                  $ref: "#/components/schemas/upvotes"
         "401":
           description: Authorization Required
           content:
@@ -1696,7 +1695,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: Subreddit not found
 
@@ -1746,7 +1745,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
     delete:
@@ -1841,7 +1840,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
 
@@ -1898,7 +1897,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
   /posts/{postId}/unhide:
@@ -1937,7 +1936,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
   /posts/{postId}/save:
@@ -2266,7 +2265,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
   /posts/{postId}/unspoiler:
@@ -2307,7 +2306,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
 
@@ -2355,7 +2354,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: "you already upvote (downvote) post"
         404:
@@ -2368,7 +2367,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
 
@@ -2509,7 +2508,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: comment not found
     delete:
@@ -2984,7 +2983,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: "you already upvote (downvote) comment"
         404:
@@ -2997,7 +2996,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: comment not found
   /comments/{commentId}/spam:
@@ -4110,7 +4109,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
         400:
@@ -4123,7 +4122,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: The user doesn't have access to the subreddit
 
@@ -4188,7 +4187,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: id not found
         401:
@@ -4240,7 +4239,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
   /subreddits/{subredditName}/new:
@@ -4289,7 +4288,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
   /subreddits/{subredditName}/top:
@@ -4351,7 +4350,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
 
@@ -4732,7 +4731,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: category not found
 
@@ -5398,7 +5397,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
@@ -5470,7 +5469,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not a moderator
         401:
@@ -5557,7 +5556,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not a moderator
         404:
@@ -5570,7 +5569,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
@@ -5633,7 +5632,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not owner of this post
         401:
@@ -5711,7 +5710,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not owner of this post
         404:
@@ -5724,7 +5723,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
@@ -5768,6 +5767,8 @@ components:
     error:
       type: object
       properties:
+        status:
+          type: string
         errorMessage:
           type: string
 
@@ -5932,10 +5933,50 @@ components:
         displayName:
           type: string
           example: "firstname secondname"
-        karma:
+        postKarma:
           type: integer
           example: 1
-
+        commentKarma:
+          type: integer
+          example: 1
+    Friend:
+      type: object
+      properties:
+        id:
+          type: string
+          format: int64
+          example: 10
+        userName:
+          type: string
+          example: uniqueuser
+        profilePicture:
+          type: string
+          example: img.png
+        contentvisibility:
+          type: boolean
+          example: true
+        canbeFollowed:
+          type: boolean
+          example: true
+        followersCount:
+          type: integer
+          example: 0
+        friendsCount:
+          type: integer
+          example: 0
+        gender:
+          type: string
+          example: male
+        displayName:
+          type: string
+          example: "firstname secondname"
+        postKarma:
+          type: integer
+          example: 1
+        commentKarma:
+          type: integer
+          example: 1
+          
     Subreddit:
       type: object
       properties:
@@ -6133,6 +6174,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Post"
+        count:
+          type: integer
 
     downvotes:
       type: object

@@ -18,10 +18,16 @@ const userControllerObj = new userController(userServiceObj);
 
 const router = express.Router();
 
-// test data models
-router.post("/create", userControllerObj.createUser);
+// Non authorized Endpoints
+//router.post("/create", userControllerObj.createUser);
 router.post("/signup", authenticationControllerObj.signUp);
 router.post("/login", authenticationControllerObj.logIn);
+router.post("/logout", authenticationControllerObj.logOut);
 router.post("/forgot_username", authenticationControllerObj.forgotUserName);
 router.post("/forgot_password", authenticationControllerObj.forgotPassword);
+router.post(
+    "/reset_password/:token",
+    authenticationControllerObj.resetPassword
+);
+
 module.exports = router;

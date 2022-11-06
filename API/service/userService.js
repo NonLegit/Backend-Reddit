@@ -2,6 +2,8 @@
 //const Repository = require('../data_access/repository');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const { promisify } = require("util");
 
 class UserService {
     constructor(User, UserRepository, emailServices) {
@@ -14,6 +16,9 @@ class UserService {
         this.logIn = this.logIn.bind(this);
         this.forgotPassword = this.forgotPassword.bind(this);
         this.forgotUserName = this.forgotUserName.bind(this);
+        this.resetPassword = this.resetPassword.bind(this);
+        this.getUser = this.getUser.bind(this);
+        this.decodeToken = this.decodeToken.bind(this);
     }
     async createUser(data) {
         try {
@@ -48,6 +53,7 @@ class UserService {
             const response = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: "User already Exists",
                 },
             };
@@ -57,6 +63,7 @@ class UserService {
             const response = {
                 status: 201,
                 body: {
+                    status: "success",
                     token: token,
                 },
             };
@@ -73,6 +80,7 @@ class UserService {
             const response = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: "Invalid username or password",
                 },
             };
@@ -83,6 +91,7 @@ class UserService {
                 const response = {
                     status: 200,
                     body: {
+                        status: "success",
                         token: token,
                     },
                 };
@@ -91,6 +100,7 @@ class UserService {
                 const response = {
                     status: 400,
                     body: {
+                        status: "fail",
                         errorMessage: "Invalid username or password",
                     },
                 };
@@ -118,6 +128,7 @@ class UserService {
                 const response = {
                     status: 404,
                     body: {
+                        status: "fail",
                         errorMessage: "User Not Found",
                     },
                 };
@@ -158,6 +169,7 @@ class UserService {
                 const response = {
                     status: 404,
                     body: {
+                        status: "fail",
                         errorMessage: "User Not Found",
                     },
                 };
@@ -168,11 +180,61 @@ class UserService {
             const error = {
                 status: 400,
                 body: {
+                    status: "fail",
                     errorMessage: err,
                 },
             };
             return error;
         }
+    }
+    async resetPassword(resetToken, password) {
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+        let user = await this.userRepository.getOne(
+            {
+                passwordResetToken: hashedToken,
+                passwordResetExpires: { $gt: Date.now() },
+            },
+            "",
+            ""
+        );
+        if (user.status === "fail") {
+            // invalid token or time passed
+            const response = {
+                status: 400,
+                body: {
+                    status: "fail",
+                    errorMessage: "token is invalid or has expired ",
+                },
+            };
+            return response;
+        } else {
+            user.doc.password = password;
+            user.doc.passwordResetToken = undefined;
+            user.doc.passwordResetExpires = undefined;
+            await user.doc.save();
+            const token = this.createToken(user.doc._id);
+            const response = {
+                status: 200,
+                body: {
+                    token: token,
+                },
+            };
+            return response;
+        }
+    }
+    async decodeToken(token) {
+        const decoded = await promisify(jwt.verify)(
+            token,
+            process.env.JWT_SECRET
+        );
+        return decoded;
+    }
+    async getUser(id) {
+        let user = await this.userRepository.getOne({ _id: id }, "", "");
+        return user;
     }
 }
 //export default UserService;
