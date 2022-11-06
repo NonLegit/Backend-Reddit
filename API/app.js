@@ -1,6 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+var cors = require("cors");
 
 const mongoSanitize = require("express-mongo-sanitize");
 
@@ -16,6 +17,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(cookieParser());
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
+app.use(cors());
 
 // Serving static files
 //app.use(express.static(`${__dirname}/public`));
