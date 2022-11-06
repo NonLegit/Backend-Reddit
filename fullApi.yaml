@@ -373,7 +373,33 @@ paths:
                   errorMessage:
                     type: string
                     example: Token is invalid or has expired
-
+                    
+  /users/me/:
+    description: User Resource
+    get:
+      tags:
+        - "Users"
+      description: Get me
+      summary: Get all information of me
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  
   /users/me/prefs:
     description: User Resource
     get:
@@ -6038,6 +6064,9 @@ components:
         commentKarma:
           type: integer
           example: 1
+        followed:
+          type: boolean
+          example: true
           
     Subreddit:
       type: object
