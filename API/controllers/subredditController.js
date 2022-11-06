@@ -1,7 +1,7 @@
 class subredditController {
   constructor(subredditServices) {
     console.log("from controller" + subredditServices);
-    this.subredditServices = subredditServices; // can be mocked in unit testing
+    this.subredditServices = subredditServices; // can be mocked in* TODO: unit testing
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
@@ -10,6 +10,7 @@ class subredditController {
   async createSubreddit(req, res, next) {
     let data = req.body;
     try {
+      // const user = req.user;  *TODO: need token middleware  
       let subreddit = await this.subredditServices.createSubreddit(data);
       if (subreddit.status === "success") {
         let updateModerators = await this.subredditServices.updateSubreddit(

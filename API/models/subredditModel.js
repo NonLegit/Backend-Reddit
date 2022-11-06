@@ -136,12 +136,16 @@ const subredditSchema = new mongoose.Schema({
   },
   // Relationships attributes
 
-  owner: { type: String, required: true }, //subreddit owner (first mod) by time of being mod
+  owner: { type: mongoose.SchemaTypes.ObjectId, ref: "User", required: true }, //subreddit owner (first mod) by time of being mod
 
   moderators: [
     {
       type: Object,
-      username: { type: String, required: false },
+      username: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
       mod_time: { type: Date, default: Date.now() },
       permissions: {
         type: Object,
@@ -159,7 +163,7 @@ const subredditSchema = new mongoose.Schema({
     {
       post_id: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "post",
+        ref: "Post",
         required: false,
         trim: true,
       },
@@ -170,12 +174,17 @@ const subredditSchema = new mongoose.Schema({
   flairIds: [
     {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: "flair",
+      ref: "Flair",
     },
   ],
   punishers: [
     {
-      userName: { type: String, required: false, trim: true },
+      userName: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+        trim: true,
+      },
       type: { type: String, enum: ["baned", "muted"] },
       punishReason: { type: String, trim: true },
       punish_type: { type: String },
