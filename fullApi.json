@@ -92,7 +92,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "provide userName and password"
                     }
@@ -112,7 +112,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "invaild userName or password"
                     }
@@ -254,7 +254,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "userName already exists"
                     }
@@ -430,7 +430,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "Token is invalid or has expired"
                     }
@@ -539,7 +539,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "not modified"
                     }
@@ -615,7 +615,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -685,7 +685,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -749,7 +749,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "user is not a friend of you"
                     }
@@ -772,7 +772,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -1318,7 +1318,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/User"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/Friend"
+                    }
+                  }
                 }
               }
             }
@@ -1455,11 +1464,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "description": "array of posts",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
-                  }
+                  "$ref": "#/components/schemas/upvotes"
                 }
               },
               "application/xml": {
@@ -1732,10 +1737,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
-                  }
+                  "$ref": "#/components/schemas/upvotes"
                 }
               }
             }
@@ -1811,10 +1813,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
-                  }
+                  "$ref": "#/components/schemas/upvotes"
                 }
               }
             }
@@ -2540,7 +2539,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "Subreddit not found"
                     }
@@ -2621,7 +2620,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -2772,7 +2771,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -2866,7 +2865,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -2931,7 +2930,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3436,7 +3435,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3503,7 +3502,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3579,7 +3578,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3599,7 +3598,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you already upvote (downvote) post"
                     }
@@ -3815,7 +3814,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "comment not found"
                     }
@@ -4548,7 +4547,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "comment not found"
                     }
@@ -4568,7 +4567,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you already upvote (downvote) comment"
                     }
@@ -6268,7 +6267,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "The user doesn't have access to the subreddit"
                     }
@@ -6288,7 +6287,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6386,7 +6385,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "id not found"
                     }
@@ -6466,7 +6465,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6546,7 +6545,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6643,7 +6642,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -7251,7 +7250,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "category not found"
                     }
@@ -8304,7 +8303,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -8413,7 +8412,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you are not a moderator"
                     }
@@ -8553,7 +8552,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you are not a moderator"
                     }
@@ -8576,7 +8575,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -8672,7 +8671,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you are not owner of this post"
                     }
@@ -8799,7 +8798,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "you are not owner of this post"
                     }
@@ -8822,7 +8821,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "message": {
+                    "errorMessage": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -8884,6 +8883,9 @@
       "error": {
         "type": "object",
         "properties": {
+          "status": {
+            "type": "string"
+          },
           "errorMessage": {
             "type": "string"
           }
@@ -9118,7 +9120,61 @@
             "type": "string",
             "example": "firstname secondname"
           },
-          "karma": {
+          "postKarma": {
+            "type": "integer",
+            "example": 1
+          },
+          "commentKarma": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
+      "Friend": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "int64",
+            "example": 10
+          },
+          "userName": {
+            "type": "string",
+            "example": "uniqueuser"
+          },
+          "profilePicture": {
+            "type": "string",
+            "example": "img.png"
+          },
+          "contentvisibility": {
+            "type": "boolean",
+            "example": true
+          },
+          "canbeFollowed": {
+            "type": "boolean",
+            "example": true
+          },
+          "followersCount": {
+            "type": "integer",
+            "example": 0
+          },
+          "friendsCount": {
+            "type": "integer",
+            "example": 0
+          },
+          "gender": {
+            "type": "string",
+            "example": "male"
+          },
+          "displayName": {
+            "type": "string",
+            "example": "firstname secondname"
+          },
+          "postKarma": {
+            "type": "integer",
+            "example": 1
+          },
+          "commentKarma": {
             "type": "integer",
             "example": 1
           }
@@ -9387,6 +9443,9 @@
             "items": {
               "$ref": "#/components/schemas/Post"
             }
+          },
+          "count": {
+            "type": "integer"
           }
         }
       },
