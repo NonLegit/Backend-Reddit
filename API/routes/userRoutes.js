@@ -1,5 +1,8 @@
 const express = require("express");
 const hpp = require("hpp");
+const passport = require("passport");
+const FacebookTokenStrategy = require("passport-facebook-token");
+
 const UserController = require("./../controllers/userController");
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
@@ -28,6 +31,35 @@ router.post("/forgot_password", authenticationControllerObj.forgotPassword);
 router.post(
     "/reset_password/:token",
     authenticationControllerObj.resetPassword
+);
+// facebook authentication
+passport.use(
+    new FacebookTokenStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID,
+            clientSecret: process.env.FACEBOOK_APP_SECRET,
+        },
+        async function (accessToken, refreshToken, profile, done) {
+        await authenticationControllerObj.facebookAuth(
+            accessToken,
+            refreshToken,
+            profile,
+            function (err, user) {
+                return done(err, user);
+            }
+        );
+    }
+  
+        // User.upsertFbUser(accessToken, refreshToken, profile, function(err, user) {
+        //     return done(err, user);
+        //   });
+    )
+);
+
+router.post(
+    "/facebook",
+    passport.authenticate("facebook-token", { session: false }),
+    authenticationControllerObj.facbookValidation
 );
 // authorize endpoints
 router.use(authenticationControllerObj.authorize);

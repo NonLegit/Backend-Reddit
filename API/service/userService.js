@@ -18,6 +18,7 @@ class UserService {
         this.forgotUserName = this.forgotUserName.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
         this.getUser = this.getUser.bind(this);
+        this.getUserByEmail = this.getUserByEmail.bind(this);
         this.decodeToken = this.decodeToken.bind(this);
         this.getPrefs = this.getPrefs.bind(this);
         this.updatePrefs = this.updatePrefs.bind(this);
@@ -235,8 +236,13 @@ class UserService {
         );
         return decoded;
     }
+    // should be generic
     async getUser(id) {
         let user = await this.userRepository.getOne({ _id: id }, "", "");
+        return user;
+    }
+    async getUserByEmail(email) {
+        let user = await this.userRepository.getOne({ email: email }, "", "");
         return user;
     }
     getPrefs(user) {
