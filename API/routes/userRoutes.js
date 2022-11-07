@@ -2,6 +2,7 @@ const express = require("express");
 const hpp = require("hpp");
 const passport = require("passport");
 const FacebookTokenStrategy = require("passport-facebook-token");
+const GooglePlusTokenStrategy = require("passport-google-plus-token");
 
 const UserController = require("./../controllers/userController");
 const AuthenticationController = require("./../controllers/AuthenticationController");
@@ -40,26 +41,46 @@ passport.use(
             clientSecret: process.env.FACEBOOK_APP_SECRET,
         },
         async function (accessToken, refreshToken, profile, done) {
-        await authenticationControllerObj.facebookAuth(
-            accessToken,
-            refreshToken,
-            profile,
-            function (err, user) {
-                return done(err, user);
-            }
-        );
-    }
-  
-        // User.upsertFbUser(accessToken, refreshToken, profile, function(err, user) {
-        //     return done(err, user);
-        //   });
+            await authenticationControllerObj.facebookAuth(
+                accessToken,
+                refreshToken,
+                profile,
+                function (err, user) {
+                    return done(err, user);
+                }
+            );
+        }
+    )
+);
+// google authentication
+passport.use(
+    new GooglePlusTokenStrategy(
+        {
+            clientID: process.env.GOOGLE_APP_ID,
+            clientSecret: process.env.GOOGLE_APP_SECRET,
+        },
+        async function (accessToken, refreshToken, profile, done) {
+            await authenticationControllerObj.facebookAuth(
+                accessToken,
+                refreshToken,
+                profile,
+                function (err, user) {
+                    return done(err, user);
+                }
+            );
+        }
     )
 );
 
 router.post(
     "/facebook",
     passport.authenticate("facebook-token", { session: false }),
-    authenticationControllerObj.facbookValidation
+    authenticationControllerObj.facebookValidation
+);
+router.post(
+    "/google",
+    passport.authenticate("google-plus-token", { session: false }),
+    authenticationControllerObj.facebookValidation
 );
 // authorize endpoints
 router.use(authenticationControllerObj.authorize);

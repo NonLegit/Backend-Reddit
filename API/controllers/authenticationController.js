@@ -10,7 +10,7 @@ class AuthenticationController {
         this.logOut = this.logOut.bind(this);
         this.authorize = this.authorize.bind(this);
         this.facebookAuth = this.facebookAuth.bind(this);
-        this.facbookValidation = this.facbookValidation.bind(this);
+        this.facebookValidation = this.facebookValidation.bind(this);
     }
 
     createCookie(res, token, statusCode) {
@@ -190,7 +190,7 @@ class AuthenticationController {
             done(null, response);
         }
     }
-    async facbookValidation(req, res, next) {
+    async facebookValidation(req, res, next) {
         let user = req.user;
         if (user.status == "fail") {
             // user should be created
