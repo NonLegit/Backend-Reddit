@@ -16,7 +16,7 @@ const emailServiceObj = new Email();
 const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 
 const authenticationControllerObj = new AuthenticationController(
-    userServiceObj
+  userServiceObj
 );
 const userControllerObj = new UserController(userServiceObj);
 
@@ -30,57 +30,57 @@ router.post("/logout", authenticationControllerObj.logOut);
 router.post("/forgot_username", authenticationControllerObj.forgotUserName);
 router.post("/forgot_password", authenticationControllerObj.forgotPassword);
 router.post(
-    "/reset_password/:token",
-    authenticationControllerObj.resetPassword
+  "/reset_password/:token",
+  authenticationControllerObj.resetPassword
 );
 // facebook authentication
 passport.use(
-    new FacebookTokenStrategy(
-        {
-            clientID: process.env.FACEBOOK_APP_ID,
-            clientSecret: process.env.FACEBOOK_APP_SECRET,
-        },
-        async function (accessToken, refreshToken, profile, done) {
-            await authenticationControllerObj.facebookAuth(
-                accessToken,
-                refreshToken,
-                profile,
-                function (err, user) {
-                    return done(err, user);
-                }
-            );
+  new FacebookTokenStrategy(
+    {
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+    },
+    async function (accessToken, refreshToken, profile, done) {
+      await authenticationControllerObj.facebookAuth(
+        accessToken,
+        refreshToken,
+        profile,
+        function (err, user) {
+          return done(err, user);
         }
-    )
+      );
+    }
+  )
 );
 // google authentication
 passport.use(
-    new GooglePlusTokenStrategy(
-        {
-            clientID: process.env.GOOGLE_APP_ID,
-            clientSecret: process.env.GOOGLE_APP_SECRET,
-        },
-        async function (accessToken, refreshToken, profile, done) {
-            await authenticationControllerObj.facebookAuth(
-                accessToken,
-                refreshToken,
-                profile,
-                function (err, user) {
-                    return done(err, user);
-                }
-            );
+  new GooglePlusTokenStrategy(
+    {
+      clientID: process.env.GOOGLE_APP_ID,
+      clientSecret: process.env.GOOGLE_APP_SECRET,
+    },
+    async function (accessToken, refreshToken, profile, done) {
+      await authenticationControllerObj.facebookAuth(
+        accessToken,
+        refreshToken,
+        profile,
+        function (err, user) {
+          return done(err, user);
         }
-    )
+      );
+    }
+  )
 );
 
 router.post(
-    "/facebook",
-    passport.authenticate("facebook-token", { session: false }),
-    authenticationControllerObj.facebookValidation
+  "/facebook",
+  passport.authenticate("facebook-token", { session: false }),
+  authenticationControllerObj.facebookValidation
 );
 router.post(
-    "/google",
-    passport.authenticate("google-plus-token", { session: false }),
-    authenticationControllerObj.facebookValidation
+  "/google",
+  passport.authenticate("google-plus-token", { session: false }),
+  authenticationControllerObj.facebookValidation
 );
 // authorize endpoints
 router.use(authenticationControllerObj.authorize);
@@ -89,22 +89,22 @@ router.use(authenticationControllerObj.authorize);
 //router.get("/me",userController.getMe);
 router.get("/me/prefs", userControllerObj.getPrefs);
 router.patch(
-    "/me/prefs",
-    hpp({
-        whitelist: [
-            "contentvisibility",
-            "canbeFollowed",
-            "nsfw",
-            "allowInboxMessage",
-            "allowMentions",
-            "allowCommentsOnPosts",
-            "allowUpvotesOnComments",
-            "allowUpvotesOnPosts",
-            "displayName",
-            "profilePicture",
-        ],
-    }),
-    userControllerObj.updatePrefs
+  "/me/prefs",
+  hpp({
+    whitelist: [
+      "contentvisibility",
+      "canbeFollowed",
+      "nsfw",
+      "allowInboxMessage",
+      "allowMentions",
+      "allowCommentsOnPosts",
+      "allowUpvotesOnComments",
+      "allowUpvotesOnPosts",
+      "displayName",
+      "profilePicture",
+    ],
+  }),
+  userControllerObj.updatePrefs
 );
 
 module.exports = router;

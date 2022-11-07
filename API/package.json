@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha --timeout 1000000 --recursive --exit",
-    "start": "nodemon server.js"
+    "start": "nodemon server.js",
+    "migrate":"migrate create new  -d mongodb://localhost:27017/redditDB",
+    "up":"migrate up new  -d mongodb://localhost:27017/redditDB"
   },
   "author": "",
   "license": "ISC",
@@ -25,6 +27,7 @@
     "hpp": "^0.2.3",
     "install": "^0.13.0",
     "jsonwebtoken": "^8.5.1",
+    "migrate-mongoose": "^4.0.0",
     "mocha": "^10.1.0",
     "mock-req-res": "^1.2.1",
     "mockgoose": "^8.0.4",
