@@ -1,14 +1,19 @@
 const express = require("express");
-const postController = require("../controllers/postController");
+const PostController = require("../controllers/postController");
+const Repository = require("../data_access/repository");
+const PostService = require("../service/postService");
+const Post = require("../models/postMddel");
 
-const postControllerObj = new postController();
+const postRepoObj = new Repository(Post);
+const postServiceObj = new PostService(Post, postRepoObj);
+const postControllerObj = new PostController(postServiceObj);
 
 const router = express.Router();
 
-router.route("/").post(postControllerObj.createPost());
+router.route("/").post(postControllerObj.createPost);
 router
-  .route("/:postID")
-  .patch(postControllerObj.updatePost())
-  .delete(postControllerObj.deletePost());
+    .route("/:postId")
+    .patch(postControllerObj.updatePost)
+    .delete(postControllerObj.deletePost);
 
 module.exports = router;

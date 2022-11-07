@@ -19,7 +19,7 @@ class Repository {
                 const response = {
                     status: "success",
                     statusCode: 201,
-                    doc: doc,
+                    data: doc,
                 };
                 return response;
             }
@@ -50,7 +50,7 @@ class Repository {
             const response = {
                 status: "success",
                 statusCode: 200,
-                doc,
+                data: doc,
             };
             return response;
         } catch (err) {
@@ -73,21 +73,19 @@ class Repository {
                 const response = {
                     status: "fail",
                     statusCode: 404,
-                    err: "cannot found document",
+                    err: "cannot find document",
                 };
                 return response;
             }
             const response = {
                 status: "success",
                 statusCode: 200,
-                data: {
-                    data: doc,
-                },
+                data: doc,
             };
             return response;
         } catch (err) {
             const response = {
-                error: true,
+                status: "fail",
                 statusCode: 400,
                 err,
             };
@@ -101,7 +99,7 @@ class Repository {
                 const response = {
                     status: "fail",
                     statusCode: 404,
-                    err: "cannot found document",
+                    err: "cannot find document",
                 };
                 return response;
             }
@@ -133,9 +131,7 @@ class Repository {
             const response = {
                 status: "success",
                 statusCode: 200,
-                data: {
-                    data: doc,
-                },
+                data: doc,
             };
             return response;
         } catch (err) {

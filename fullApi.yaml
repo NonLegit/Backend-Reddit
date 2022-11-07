@@ -90,7 +90,7 @@ paths:
       tags:
         - "Users"
       description: update token stored in user
-      summary: Log Out 
+      summary: Log Out
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -308,7 +308,7 @@ paths:
   #                 message:
   #                   type: string
   #                   example: Token is invalid or has expired
-  # 
+  #
   /users/reset_password/{token}:
     description: User Resource
     post:
@@ -1012,7 +1012,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/upvotes"
             application/xml:
               schema:
                 type: array
@@ -1173,7 +1173,7 @@ paths:
           content:
             application/json:
               schema:
-                    $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/upvotes"
         "401":
           description: Authorization Required
           content:
@@ -1218,7 +1218,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/upvotes"
         "401":
           description: Authorization Required
           content:
@@ -1688,6 +1688,7 @@ paths:
                       Post:
                         $ref: "#/components/schemas/PostCreate"
         404:
+          description: Fail operation
           content:
             application/json:
               schema:
@@ -5977,7 +5978,7 @@ components:
         commentKarma:
           type: integer
           example: 1
-          
+
     Subreddit:
       type: object
       properties:
@@ -6022,9 +6023,9 @@ components:
         owner:
           type: string
           description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
-        ownerModel:
+        ownerType:
           type: string
-          enum: 
+          enum:
             - User
             - Subreddit
           description: Determines wether the post belongs to a subreddit or a user
@@ -6032,7 +6033,7 @@ components:
           type: boolean
         spoiler:
           type: boolean
-        sendreplies:
+        sendReplies:
           type: boolean
           description: indicates whether the post accepts replies in private messages or not
         flairId:
@@ -6059,7 +6060,7 @@ components:
       type: object
       properties:
         _id:
-          type: String
+          type: string
         author:
           type: string
           description: The name of the user who created the post
@@ -6084,10 +6085,10 @@ components:
         images:
           type: array
           items:
-            type: String
+            type: string
           description: The images path(the kind must be image)
         video:
-          type: String
+          type: string
           description: The video path(the kind must be video)
         votes:
           type: integer
