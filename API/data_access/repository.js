@@ -62,9 +62,9 @@ class Repository {
       return response;
     }
   }
-  async updateOne(id, data) {
+  async updateOne(query, data) {
     try {
-      const doc = await this.Model.findByIdAndUpdate(id, data, {
+      const doc = await this.Model.findOneAndUpdate(query, data, {
         new: true,
         runValidators: true,
       });
@@ -73,25 +73,26 @@ class Repository {
         const response = {
           status: "fail",
           statusCode: 404,
-          err: "cannot find document",
+          err: "cannot found document",
         };
         return response;
       }
       const response = {
         status: "success",
         statusCode: 200,
-        doc: doc,
+        doc,
       };
       return response;
     } catch (err) {
       const response = {
-        status: "fail",
+        error: true,
         statusCode: 400,
         err,
       };
       return response;
     }
   }
+
   async deleteOne(id) {
     try {
       const doc = await this.Model.findByIdAndDelete(id);

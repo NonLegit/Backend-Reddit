@@ -373,7 +373,33 @@ paths:
                   errorMessage:
                     type: string
                     example: Token is invalid or has expired
-
+                    
+  /users/me/:
+    description: User Resource
+    get:
+      tags:
+        - "Users"
+      description: Get me
+      summary: Get all information of me
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+  
   /users/me/prefs:
     description: User Resource
     get:
@@ -967,6 +993,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
@@ -1006,18 +1044,25 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/upvotes"
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                  $ref: "#/components/schemas/upvotes"
         "400":
           description: Invalid userName supplied
         "404":
@@ -1047,13 +1092,32 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/comment"
+                properties:
+                  status: 
+                    type: string
+                    example: success
+                  comments:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userComment"
         "400":
           description: Invalid userName supplied
         "404":
@@ -1083,6 +1147,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
@@ -1120,6 +1196,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
       responses:
         "200":
           description: successful operation
@@ -1158,13 +1246,13 @@ paths:
         - in: query
           name: page
           description: The page number
-          required: true
+          required: false
           schema:
             type: integer
         - in: query
           name: limit
           description: The limit of each page
-          required: true
+          required: false
           schema:
             type: integer
       responses:
@@ -5978,7 +6066,10 @@ components:
         commentKarma:
           type: integer
           example: 1
-
+        followed:
+          type: boolean
+          example: true
+          
     Subreddit:
       type: object
       properties:
@@ -6040,7 +6131,7 @@ components:
           type: string
         flairText:
           type: string
-          description: Should be given if the user edited the flair text
+                    description: Should be given if the user edited the flair text
         suggestedSort:
           description: specified only in scheduled posts
           type: string
@@ -6056,6 +6147,95 @@ components:
           type: string
           description: The ID of the original post
 
+          
+    userPost:
+      type: object
+      properties:
+        creator:
+          type: string
+          description: The name of the user who created the post
+        owner:
+          type: string
+          description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+        ownerType:
+          type: string
+          enum:
+            - "Subreddit"
+            - "User"
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - link
+            - self
+            - image
+            - video
+        text:
+          type: string
+          description: the text of the post in case the kind is self
+        url:
+          type: string
+          description: A valid URL in case the kind is link
+        sr:
+          type: string
+          description: subreddit name
+        votes:
+          type: integer
+          description: total number of votes
+        commentCount:
+          type: integer
+          description: total number of comments
+        views:
+          type: integer
+          description: total number of views
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        suggestedSort:
+          type: string
+          enum:
+            - top
+            - new
+            - best
+            - old
+        nsfw:
+          type: boolean
+        spoiler:
+          type: boolean
+        sendReplies:
+          type: boolean
+          description: indicates whether the post accepts replies in private messages or not
+        locked:
+          type: boolean
+          description: whether the post can receive comments or not
+        flairId:
+          type: string
+        flairText:
+          type: string
+        postVoteStatus:
+          type: string
+          enum: 
+            - "1"
+            - "0"
+            - "-1"
+
+        sharedFrom:
+            type: string
+            description: post id if shared ,undefined if not shared
+        shareCount: 
+          type: integer
+          description: Total numbers of share
+        images:
+          type: array
+          items:
+            type: string
+            description: image url
+        video:
+          type: string
+        
+    
     Post:
       type: object
       properties:
@@ -6128,6 +6308,33 @@ components:
         flairText:
           type: string
 
+    userComment:
+      type: object
+      properties:
+        owner:
+          type: string
+          description: comment in subreddit or user
+        postId:
+          type: string
+          description: comment in subreddit or user
+        creator:
+          type: string
+          description: The name of the user who created the comment
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        votes:
+          type: integer
+          description: total number of votes
+        commentVoteStatus:
+          type: string
+          enum:
+            - "1"
+            - "0"
+            - "-1"
     comment:
       type: object
       properties:
@@ -6191,38 +6398,43 @@ components:
     overview:
       type: object
       properties:
+        status:
+          type: string
+          example: success
         comments:
           type: array
           items:
-            $ref: "#/components/schemas/comment"
+            $ref: "#/components/schemas/userComment"
         posts:
           type: array
           items:
-            $ref: "#/components/schemas/Post"
+            $ref: "#/components/schemas/userPost"
 
-        count:
-          type: integer
+
 
     upvotes:
       type: object
       properties:
-        Posts:
+        status:
+          type: string
+          example: success
+        posts:
           type: array
           items:
-            $ref: "#/components/schemas/Post"
-        count:
-          type: integer
+            $ref: "#/components/schemas/userPost"
+
 
     downvotes:
       type: object
       properties:
-        Posts:
+        status:
+          type: string
+          example: success
+        
+        posts:
           type: array
           items:
-            $ref: "#/components/schemas/Post"
-
-        count:
-          type: integer
+            $ref: "#/components/schemas/userPost"
 
     subbmitComment:
       type: object

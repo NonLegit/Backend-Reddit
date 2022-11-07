@@ -60,82 +60,127 @@ const userSchema = new mongoose.Schema({
     default: true,
   },
 
-  karma: {
-    type: Number,
-    default: 0,
-  },
-  profilePicture: {
-    type: String,
-    default: "default.png",
-    // it will be unique with time stamp and username
-    //unique: true,
-  },
-  // log out make active Now false and in log in make active now true
-  activeNow: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  gender: {
-    type: String,
-    enum: ["male", "female"],
-    default: "male",
-  },
-  description: {
-    type: String,
-    required: false,
-    trim: true,
-  },
-  followersCount: {
-    type: Number,
-    default: 0,
-  },
-  friendsCount: {
-    type: Number,
-    default: 0,
-  },
+    postKarma: {
+        type: Number,
+        default: 0,
+    },
+    commentKarma: {
+        type: Number,
+        default: 0,
+    },
+    profilePicture: {
+        type: String,
+        default: "default.png",
+        // it will be unique with time stamp and username
+        //unique: true,
+    },
+    // log out make active Now false and in log in make active now true
+    activeNow: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    gender: {
+        type: String,
+        enum: ["male", "female"],
+        default: "male",
+    },
+    description: {
+        type: String,
+        required: false,
+        trim: true,
+    },
+    followersCount: {
+        type: Number,
+        default: 0,
+    },
+    friendsCount: {
+        type: Number,
+        default: 0,
+    },
 
-  // user preferences
-  canbeFollowed: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  contentvisibility: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  nsfw: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowInboxMessage: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowMentions: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowCommentsOnPosts: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnComments: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnPosts: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
+    // user preferences
+    canbeFollowed: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    contentvisibility: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    nsfw: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    allowInboxMessage: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    allowMentions: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    allowCommentsOnPosts: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    allowUpvotesOnComments: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+    allowUpvotesOnPosts: {
+        type: Boolean,
+        required: false,
+        default: true,
+    },
+
+    /*
+    saved: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: "Post",
+        },
+    ],
+    hidden: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: "Post",
+        },
+    ],
+    votePost: [
+        {
+            posts: {
+                type: mongoose.Schema.ObjectId,
+                ref: "Post",
+            },
+            postVoteStatus: {
+                type: String,
+                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+                default: "0",
+            },
+        },
+    ],
+    voteComment: [
+        {
+            posts: {
+                type: mongoose.Schema.ObjectId,
+                ref: "Post",
+            },
+            commentVoteStatus: {
+                type: String,
+                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+                default: "0",
+            },
+        },
+    ],
+    */
 });
 
 userSchema.pre("save", async function (next) {

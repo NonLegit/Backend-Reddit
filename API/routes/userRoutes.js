@@ -1,6 +1,10 @@
 const express = require("express");
-//const userControllerObj = require("./test");
-const userController = require("./../controllers/userController");
+const hpp = require("hpp");
+const passport = require("passport");
+const FacebookTokenStrategy = require("passport-facebook-token");
+const GooglePlusTokenStrategy = require("passport-google-plus-token");
+
+const UserController = require("./../controllers/userController");
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
 const Repository = require("./../data_access/repository");
@@ -14,7 +18,7 @@ const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 const authenticationControllerObj = new AuthenticationController(
     userServiceObj
 );
-const userControllerObj = new userController(userServiceObj);
+const userControllerObj = new UserController(userServiceObj);
 
 const router = express.Router();
 
@@ -28,6 +32,79 @@ router.post("/forgot_password", authenticationControllerObj.forgotPassword);
 router.post(
     "/reset_password/:token",
     authenticationControllerObj.resetPassword
+);
+// facebook authentication
+passport.use(
+    new FacebookTokenStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID,
+            clientSecret: process.env.FACEBOOK_APP_SECRET,
+        },
+        async function (accessToken, refreshToken, profile, done) {
+            await authenticationControllerObj.facebookAuth(
+                accessToken,
+                refreshToken,
+                profile,
+                function (err, user) {
+                    return done(err, user);
+                }
+            );
+        }
+    )
+);
+// google authentication
+passport.use(
+    new GooglePlusTokenStrategy(
+        {
+            clientID: process.env.GOOGLE_APP_ID,
+            clientSecret: process.env.GOOGLE_APP_SECRET,
+        },
+        async function (accessToken, refreshToken, profile, done) {
+            await authenticationControllerObj.facebookAuth(
+                accessToken,
+                refreshToken,
+                profile,
+                function (err, user) {
+                    return done(err, user);
+                }
+            );
+        }
+    )
+);
+
+router.post(
+    "/facebook",
+    passport.authenticate("facebook-token", { session: false }),
+    authenticationControllerObj.facebookValidation
+);
+router.post(
+    "/google",
+    passport.authenticate("google-plus-token", { session: false }),
+    authenticationControllerObj.facebookValidation
+);
+// authorize endpoints
+router.use(authenticationControllerObj.authorize);
+
+// authorized endpoints
+//router.get("/me",userController.getMe);
+router.get("/me/prefs", userControllerObj.getPrefs);
+router.patch(
+    "/me/prefs",
+    hpp({
+        whitelist: [
+            "contentvisibility",
+            "canbeFollowed",
+            "nsfw",
+            "allowInboxMessage",
+            "allowMentions",
+            "allowCommentsOnPosts",
+            "allowUpvotesOnComments",
+            "allowUpvotesOnPosts",
+            "displayName",
+            "profilePicture",
+        ],
+    }),
+    userControllerObj.updatePrefs
 );
 
 module.exports = router;
