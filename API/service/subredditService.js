@@ -80,7 +80,7 @@ class subredditService {
     } catch (err) {
       const error = {
         status: "fail",
-        statusCode: 400,
+        statusCode: 401,
         err,
       };
       return error;

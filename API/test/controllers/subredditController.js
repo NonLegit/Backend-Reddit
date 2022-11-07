@@ -12,9 +12,10 @@ const app = require("./../../app");
 // const { stub, match } = require("sinon");
 // const proxyquire = require("proxyquire");
 
-  // ! testing is like a tree  (interesting)
-  // ? how can i deploy test enviroment ?
-  // *todo: dont forget to update referencing 
+// ! testing is like a tree  (interesting)
+// ? how can i deploy test enviroment ?
+// *todo: dont forget to update referencing
+// ! status codes 400 (Bad request)  and 404 (something not found)
 
 describe("Subreddit Controller Test", async () => {
   describe("Create subreddit Test", () => {
@@ -64,7 +65,6 @@ describe("Subreddit Controller Test", async () => {
     });
   });
 
-
   describe("get subreddit Test", () => {
     it("first test success", async () => {
       console.log("make request");
@@ -90,11 +90,15 @@ describe("Subreddit Controller Test", async () => {
 
   //! update subreddit
   describe("get subreddit Test", () => {
-    it("first test success", async () => {
+    it("first test success (provide a valid subreddit with true moderator)", async () => {
       console.log("make request");
       subredditName = "cmp2024 championship";
+      userId = "khalod";
       request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
+        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
+        .send({
+          nsfw: "true",
+        })
         .then((res) => {
           console.log(res.body.status);
           expect(res.body.status).to.equal("success");
@@ -102,12 +106,29 @@ describe("Subreddit Controller Test", async () => {
       console.log("end request");
     });
     it("second test (fail,subreddit not existed)", async () => {
-      subredditName = "cmp2024ExamsSolutions";
+      subredditName = "cmp2024ExamsExams";
+      userId = "khalod";
       request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
+        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
+        .send({
+          nsfw: "true",
+        })
         .then((res) => {
           assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 404);
+          assert.equal(res.status, 400);
+        });
+    });
+    it("third test (fail,subreddit existed but not valid moderator )", async () => {
+      subredditName = "cmp2024ExamsSolutions";
+      userId = "ahmed";
+      request(app)
+        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
+        .send({
+          nsfw: "true",
+        })
+        .then((res) => {
+          assert.equal(res.body.status, "fail");
+          assert.equal(res.status, 401);
         });
     });
   });
@@ -117,8 +138,9 @@ describe("Subreddit Controller Test", async () => {
     it("first test success", async () => {
       console.log("make request");
       subredditName = "cmp2024 championship";
+      userId = "khalod";
       request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
+        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
         .then((res) => {
           console.log(res.body.status);
           expect(res.body.status).to.equal("success");
@@ -126,14 +148,24 @@ describe("Subreddit Controller Test", async () => {
       console.log("end request");
     });
     it("second test (fail,subreddit not existed)", async () => {
-      subredditName = "cmp2024ExamsSolutions";
+      subredditName = "cmp2024ExamsExams";
+      userId = "khalod";
       request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
+        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
         .then((res) => {
           assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 404);
+          assert.equal(res.status, 400);
+        });
+    });
+    it("third test (fail,subreddit existed but not the owner)", async () => {
+      subredditName = "cmp2024ExamsSolutions";
+      userId = "khalod";
+      request(app)
+        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
+        .then((res) => {
+          assert.equal(res.body.status, "fail");
+          assert.equal(res.status, 401);
         });
     });
   });
-
 });

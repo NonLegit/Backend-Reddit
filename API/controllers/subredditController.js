@@ -7,10 +7,12 @@ class subredditController {
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
     this.updateSubredditSettings = this.updateSubredditSettings.bind(this);
   }
+  // ! todo: need some refractoring here 
   async createSubreddit(req, res, next) {
     let data = req.body;
-    // let userID = req.params._id;
-    let userId = req.params.id;
+    let userId = req.user._id;
+    console.log(req.user);
+    // let userId = req.params.id;
     data.owner = userId;
     console.log(userId);
     try {
@@ -61,8 +63,7 @@ class subredditController {
   async updateSubredditSettings(req, res, next) {
     let subredditName = req.params.subredditName;
     let data = req.body;
-    // let userId = req.params._id;
-    let userId = req.params.id;
+    let userId = req.user._id;
 
     try {
       //check user is moderator or not
@@ -70,7 +71,8 @@ class subredditController {
         subredditName,
         userId
       );
-      if (canUpdate.status==="fail") {
+      if (canUpdate.status === "fail") {
+        canUpdate.statusCode = 401;
         res.status(canUpdate.statusCode).json({
           status: canUpdate.statusCode,
           message: "you are not moderator to this subreddit",
@@ -121,14 +123,15 @@ class subredditController {
   async deleteSubreddit(req, res, next) {
     let subredditName = req.params.subredditName;
     // let userId = req.params._id;
-    let userId = req.params._id;
+    let userId = req.user._id;
     try {
       //check user is moderator or not
       let canDelete = await this.subredditServices.isModerator(
         subredditName,
         userId
       );
-      if (canDelete.status==="fail") {
+      if (canDelete.status === "fail") {
+        canDelete.statusCode = 401;
         res.status(canDelete.statusCode).json({
           status: canDelete.statusCode,
           message: "you are not the owner to this subreddit",
@@ -159,5 +162,7 @@ class subredditController {
     }
   }
 }
+
+
 //export default userController;
 module.exports = subredditController;

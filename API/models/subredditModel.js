@@ -140,12 +140,10 @@ const subredditSchema = new mongoose.Schema({
     type: [{ type: String }],
     validate: [topicsLimit, "{PATH} exceeds the limit of 25"],
   },
-  
   // Relationships attributes
-
   owner: {
-    // type: mongoose.SchemaTypes.ObjectId,
-    // ref: "User",
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "User",
     type: String,
     required: true,
   }, //subreddit owner (first mod) by time of being mod
@@ -154,8 +152,8 @@ const subredditSchema = new mongoose.Schema({
     {
       type: Object,
       userId: {
-        // type: mongoose.SchemaTypes.ObjectId,
-        // ref: "User",
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
         type: String,
         required: false,
       },
@@ -171,7 +169,6 @@ const subredditSchema = new mongoose.Schema({
       },
     },
   ],
-
   posts: [
     {
       postId: {

@@ -8,12 +8,27 @@ const RepositoryObj = new Repository(Subreddit);
 const subredditServiceObj = new subredditService(Subreddit, RepositoryObj);
 const subredditControllerObj = new subredditController(subredditServiceObj);
 
+const AuthenticationController = require("./../controllers/AuthenticationController");
+const User = require("./../models/userModel");
+const UserService = require("./../service/userService");
+
+const userRepo=new Repository(User);
+
+
+
+const userServiceObj = new UserService(User, userRepo, null);
+
+const authenticationControllerObj = new AuthenticationController(
+  userServiceObj
+);
+
 const router = express.Router();
 
 // test data models
-router.post("/:id", subredditControllerObj.createSubreddit);
-router.patch("/:subredditName/:id", subredditControllerObj.updateSubredditSettings);
+router.use(authenticationControllerObj.authorize);
+router.post("/", subredditControllerObj.createSubreddit);
+router.patch("/:subredditName", subredditControllerObj.updateSubredditSettings);
 router.get("/:subredditName", subredditControllerObj.getSubredditSettings);
-router.delete("/:subredditName/:id", subredditControllerObj.deleteSubreddit);
+router.delete("/:subredditName", subredditControllerObj.deleteSubreddit);
 
 module.exports = router;
