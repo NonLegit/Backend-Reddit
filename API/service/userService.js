@@ -18,7 +18,11 @@ class UserService {
         this.forgotUserName = this.forgotUserName.bind(this);
         this.resetPassword = this.resetPassword.bind(this);
         this.getUser = this.getUser.bind(this);
+        this.getUserByEmail = this.getUserByEmail.bind(this);
         this.decodeToken = this.decodeToken.bind(this);
+        this.getPrefs = this.getPrefs.bind(this);
+        this.updatePrefs = this.updatePrefs.bind(this);
+        this.filterObj = this.filterObj.bind(this);
     }
     async createUser(data) {
         try {
@@ -232,9 +236,58 @@ class UserService {
         );
         return decoded;
     }
+    // should be generic
     async getUser(id) {
         let user = await this.userRepository.getOne({ _id: id }, "", "");
         return user;
+    }
+    async getUserByEmail(email) {
+        let user = await this.userRepository.getOne({ email: email }, "", "");
+        return user;
+    }
+    getPrefs(user) {
+        let prefs = {
+            contentvisibility: user.contentvisibility,
+            canbeFollowed: user.canbeFollowed,
+            nsfw: user.nsfw,
+            allowInboxMessage: user.allowInboxMessage,
+            allowMentions: user.allowMentions,
+            allowCommentsOnPosts: user.allowCommentsOnPosts,
+            allowUpvotesOnComments: user.allowUpvotesOnComments,
+            allowUpvotesOnPosts: user.allowUpvotesOnPosts,
+            displayName: user.displayName,
+            profilePicture: user.profilePicture,
+        };
+        return prefs;
+    }
+    async updatePrefs(query, id) {
+        console.log(query);
+        const filteredBody = this.filterObj(
+            query,
+            "contentvisibility",
+            "canbeFollowed",
+            "nsfw",
+            "allowInboxMessage",
+            "allowMentions",
+            "allowCommentsOnPosts",
+            "allowUpvotesOnComments",
+            "allowUpvotesOnPosts",
+            "displayName",
+            "profilePicture"
+        );
+        console.log("a   ", filteredBody);
+        let user = await this.userRepository.updateOne(
+            { _id: id },
+            filteredBody
+        );
+        return this.getPrefs(user.doc);
+    }
+    filterObj(obj, ...allowedFields) {
+        const newObj = {};
+        Object.keys(obj).forEach((el) => {
+            if (allowedFields.includes(el)) newObj[el] = obj[el];
+        });
+        return newObj;
     }
 }
 //export default UserService;

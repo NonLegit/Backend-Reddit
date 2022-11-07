@@ -62,9 +62,9 @@ class Repository {
             return response;
         }
     }
-    async updateOne(id, data) {
+    async updateOne(query, data) {
         try {
-            const doc = await this.Model.findByIdAndUpdate(id, data, {
+            const doc = await this.Model.findOneAndUpdate(query, data, {
                 new: true,
                 runValidators: true,
             });
@@ -80,9 +80,8 @@ class Repository {
             const response = {
                 status: "success",
                 statusCode: 200,
-                data: {
-                    data: doc,
-                },
+                doc,
+            
             };
             return response;
         } catch (err) {

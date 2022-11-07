@@ -60,7 +60,11 @@ const userSchema = new mongoose.Schema({
         default: true,
     },
 
-    karma: {
+    postKarma: {
+        type: Number,
+        default: 0,
+    },
+    commentKarma: {
         type: Number,
         default: 0,
     },
@@ -136,6 +140,47 @@ const userSchema = new mongoose.Schema({
         required: false,
         default: true,
     },
+
+    /*
+    saved: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: "Post",
+        },
+    ],
+    hidden: [
+        {
+            type: mongoose.Schema.ObjectId,
+            ref: "Post",
+        },
+    ],
+    votePost: [
+        {
+            posts: {
+                type: mongoose.Schema.ObjectId,
+                ref: "Post",
+            },
+            postVoteStatus: {
+                type: String,
+                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+                default: "0",
+            },
+        },
+    ],
+    voteComment: [
+        {
+            posts: {
+                type: mongoose.Schema.ObjectId,
+                ref: "Post",
+            },
+            commentVoteStatus: {
+                type: String,
+                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+                default: "0",
+            },
+        },
+    ],
+    */
 });
 
 userSchema.pre("save", async function (next) {
