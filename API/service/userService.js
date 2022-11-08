@@ -19,6 +19,7 @@ class UserService {
     this.resetPassword = this.resetPassword.bind(this);
     this.getUser = this.getUser.bind(this);
     this.getUserByEmail = this.getUserByEmail.bind(this);
+    this.getUserByName = this.getUserByName.bind(this);
     this.decodeToken = this.decodeToken.bind(this);
     this.getPrefs = this.getPrefs.bind(this);
     this.updatePrefs = this.updatePrefs.bind(this);
@@ -236,6 +237,11 @@ class UserService {
   }
   async getUserByEmail(email) {
     let user = await this.userRepository.getOne({ email: email }, "", "");
+    return user;
+  }
+  async getUserByName(userName)
+  {
+    let user = await this.userRepository.getOne({ userName: userName }, "", "");
     return user;
   }
   getPrefs(user) {

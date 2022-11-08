@@ -5,6 +5,7 @@ class PostService {
     this.createPost = this.createPost.bind(this);
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
+    this.getUserPosts = this.getUserPosts.bind(this);
   }
 
   async createPost(data, user) {
@@ -20,7 +21,7 @@ class PostService {
           err: "Invalid post type",
         };
       }
-      
+
       //Add current user as author
       data.author = user._id;
 
@@ -100,6 +101,7 @@ class PostService {
       return error;
     }
   }
+  async getUserPosts() {}
 }
 
 module.exports = PostService;

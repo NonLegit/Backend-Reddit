@@ -43,7 +43,7 @@ class Repository {
   }
   async getOne(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select);
+      let tempDoc = this.Model.findOne(query).select(select + " -__v");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 

@@ -141,74 +141,72 @@ const userSchema = new mongoose.Schema({
     default: true,
   },
 
-  /*
-    saved: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: "Post",
-        },
-    ],
-    hidden: [
-        {
-            type: mongoose.Schema.ObjectId,
-            ref: "Post",
-        },
-    ],
-    votePost: [
-        {
-            posts: {
-                type: mongoose.Schema.ObjectId,
-                ref: "Post",
-            },
-            postVoteStatus: {
-                type: String,
-                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-                default: "0",
-            },
-        },
-    ],
-    voteComment: [
-        {
-            posts: {
-                type: mongoose.Schema.ObjectId,
-                ref: "Post",
-            },
-            commentVoteStatus: {
-                type: String,
-                enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-                default: "0",
-            },
-        },
-    ],
-    // me blocked or followed a user , take care of blocked state
-    meUserRelationship: [
-        {
-            userId: {
-                type: mongoose.Schema.ObjectId,
-                ref: "User",
-            },
-            status: {
-                type: String,
-                enum: ["friend", "blocked", "followed","none"], 
-                default: "none",
-            },
-        },
-    ],
-    // users blocked or followed me
-    userMeRelationship: [
-        {
-            userId: {
-                type: mongoose.Schema.ObjectId,
-                ref: "User",
-            },
-            status: {
-                type: String,
-                enum: ["friend", "blocked", "followed","none"], 
-                default: "none",
-            },
-        },
-    ],
-    */
+  saved: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Post",
+    },
+  ],
+  hidden: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Post",
+    },
+  ],
+  votePost: [
+    {
+      posts: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Post",
+      },
+      postVoteStatus: {
+        type: String,
+        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+        default: "0",
+      },
+    },
+  ],
+  voteComment: [
+    {
+      posts: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Comment",
+      },
+      commentVoteStatus: {
+        type: String,
+        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
+        default: "0",
+      },
+    },
+  ],
+  // me blocked or followed a user , take care of blocked state
+  meUserRelationship: [
+    {
+      userId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+      status: {
+        type: String,
+        enum: ["friend", "blocked", "followed", "none"],
+        default: "none",
+      },
+    },
+  ],
+  // users blocked or followed me
+  userMeRelationship: [
+    {
+      userId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+      status: {
+        type: String,
+        enum: ["friend", "blocked", "followed", "none"],
+        default: "none",
+      },
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {
