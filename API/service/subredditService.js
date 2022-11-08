@@ -8,6 +8,8 @@ class subredditService {
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubreddit = this.getSubreddit.bind(this);
     this.updateSubreddit = this.updateSubreddit.bind(this);
+    this.getCategoryPosts=this.getCategoryPosts.bind(this);
+
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
     this.flair = flair; // can be mocked in unit testing

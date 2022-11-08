@@ -5,8 +5,13 @@ const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoutes");
 const subredditRouter = require("./routes/subredditRoutes");
 const postRouter = require("./routes/postRoutes");
+const cors = require("cors");
 
 const app = express();
+
+app.use(mongoSanitize());
+app.use(cookieParser());
+app.use(cors());
 
 // Development logging
 if (process.env.NODE_ENV === "development") {
@@ -14,9 +19,7 @@ if (process.env.NODE_ENV === "development") {
 }
 app.use(express.json({ limit: "10kb" }));
 // Data sanitization against NoSQL query injection
-app.use(mongoSanitize());
-app.use(cookieParser());
-app.use(cors());
+
 
 // Serving static files
 //app.use(express.static(`${__dirname}/public`));

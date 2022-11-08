@@ -6,6 +6,7 @@ class subredditController {
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
     this.updateSubredditSettings = this.updateSubredditSettings.bind(this);
+    this.relevantPosts=this.relevantPosts.bind(this);
     //! ***************************
     this.createFlair = this.createFlair.bind(this);
     this.deleteFlair = this.deleteFlair.bind(this);
@@ -125,7 +126,6 @@ class subredditController {
 
   async deleteSubreddit(req, res, next) {
     let subredditName = req.params.subredditName;
-
     let userId = req.user._id;
     try {
       //check user is moderator or not

@@ -3,11 +3,15 @@ const APIFeatures = require("./apiFeatures");
 class Repository {
   constructor(model) {
     this.Model = model;
+    
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
+
+    this.updateOneByQuery=this.updateOneByQuery.bind(this);
+    this.deleteOneByQuery=this.deleteOneByQuery.bind(this);
 
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);

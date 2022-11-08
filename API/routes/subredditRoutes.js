@@ -35,7 +35,7 @@ router.patch("/:subredditName", subredditControllerObj.updateSubredditSettings);
 router.get("/:subredditName", subredditControllerObj.getSubredditSettings);
 router.delete("/:subredditName", subredditControllerObj.deleteSubreddit);
 router.get("/:subredditName/about/:location",subredditControllerObj.relevantPosts);
-router.get("/mine/{where}",subredditControllerObj)
+// router.get("/mine/:where",subredditControllerObj)
 
 router.route('/:subredditName/flair')
     .post(subredditControllerObj.createFlair)

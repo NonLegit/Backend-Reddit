@@ -10,7 +10,7 @@ class UserService {
         this.User = User; // can be mocked in unit testing
         this.userRepository = UserRepository; // can be mocked in unit testing
         this.emailServices = emailServices;
-        this.createUser = this.createUser.bind(this);
+        // this.createUser = this.createUser.bind(this);
         this.createToken = this.createToken.bind(this);
         this.signUp = this.signUp.bind(this);
         this.logIn = this.logIn.bind(this);
