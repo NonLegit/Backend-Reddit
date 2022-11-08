@@ -6,7 +6,10 @@ class subredditController {
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
     this.updateSubredditSettings = this.updateSubredditSettings.bind(this);
-    this.relevantPosts=this.relevantPosts.bind(this);
+    this.relevantPosts = this.relevantPosts.bind(this);
+    this.inviteModerator = this.inviteModerator.bind(this);
+    this.deletemoderator = this.deletemoderator.bind(this);
+    this.subredditsJoined = this.subredditsJoined.bind(this);
     //! ***************************
     this.createFlair = this.createFlair.bind(this);
     this.deleteFlair = this.deleteFlair.bind(this);
@@ -165,6 +168,60 @@ class subredditController {
     }
   }
 
+  async deletemoderator(req, res, next) {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let newModName = req.params.moderatorName;
+    console.log(newModName);
+    try {
+      let response = await this.subredditServices.deleteMod(
+        subredditName,
+        userId,
+        newModName
+      );
+      console.log(response);
+      if (response.status === "fail") {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.message,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.message,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+
+  async subredditsJoined(req, res) {
+    let userId = req.user._id;
+    let location = req.params.where;
+
+    try {
+      let response = await this.subredditServices.subredditsIamIn(
+        userId,
+        location
+      );
+      if (response.status === "fail") {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: "",
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          subreddits: response.doc,
+        });
+      }
+    } catch (err) {}
+  }
+
   async relevantPosts(req, res, next) {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -201,7 +258,45 @@ class subredditController {
           });
         }
       }
-    } catch (err) {}
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+
+  async inviteModerator(req, res) {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let newModName = req.params.moderatorName;
+    let data = req.body;
+
+    try {
+      let response = await this.subredditServices.inviteMod(
+        subredditName,
+        userId,
+        newModName,
+        data
+      );
+      console.log(response);
+      if (response.status === "fail") {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.message,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.message,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
   }
 
   // ! Doaa's controllers

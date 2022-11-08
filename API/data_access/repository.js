@@ -3,15 +3,15 @@ const APIFeatures = require("./apiFeatures");
 class Repository {
   constructor(model) {
     this.Model = model;
-    
+
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
 
-    this.updateOneByQuery=this.updateOneByQuery.bind(this);
-    this.deleteOneByQuery=this.deleteOneByQuery.bind(this);
+    this.updateOneByQuery = this.updateOneByQuery.bind(this);
+    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
@@ -41,12 +41,41 @@ class Repository {
       return response;
     }
   }
+
+  async getlist(query, select, popOptions) {
+    try {
+      let tempDoc = this.Model.find(query).select(select);
+      if (popOptions) tempDoc = tempDoc.populate(popOptions);
+      const doc = await tempDoc;
+      if (!doc) {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          err: "cannot found document",
+        };
+        return response;
+      }
+      const response = {
+        status: "success",
+        statusCode: 200,
+        doc,
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+
   async getOne(query, select, popOptions) {
     try {
       let tempDoc = this.Model.findOne(query).select(select);
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -72,7 +101,7 @@ class Repository {
   }
   async updateOne(id, data) {
     try {
-      const doc = await this.Model.findByIAndUpdate(id, data, {
+      const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
       });
@@ -156,15 +185,15 @@ class Repository {
     }
   }
 
-  async getAll(filter, query) {
+  async getAll(filter, query, popOptions) {
     try {
-      const features = new APIFeatures(Model.find(filter), query)
+      const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
         .limitFields()
         .paginate();
       // const doc = await features.query.explain();
-      const doc = await features.query;
+      let doc = await features.query.populate(popOptions);
       const response = {
         status: "success",
         statusCode: 200,
