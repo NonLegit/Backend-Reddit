@@ -4,6 +4,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoutes");
 const subredditRouter = require("./routes/subredditRoutes");
+const postRouter = require("./routes/postRoutes");
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.json({ limit: "10kb" }));
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 app.use(cookieParser());
+app.use(cors());
 
 // Serving static files
 //app.use(express.static(`${__dirname}/public`));
@@ -22,6 +24,7 @@ app.use(cookieParser());
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subreddit", subredditRouter);
+app.use("/api/v1/posts", postRouter);
 
 app.all("*", (req, res, next) => {
   res.status(200).send("success ");

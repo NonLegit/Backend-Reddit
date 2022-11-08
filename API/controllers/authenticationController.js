@@ -1,15 +1,17 @@
 class AuthenticationController {
-  constructor(UserServices) {
-    this.UserServices = UserServices; // can be mocked in unit testing
-    this.createCookie = this.createCookie.bind(this);
-    this.signUp = this.signUp.bind(this);
-    this.logIn = this.logIn.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this);
-    this.forgotUserName = this.forgotUserName.bind(this);
-    this.resetPassword = this.resetPassword.bind(this);
-    this.logOut = this.logOut.bind(this);
-    this.authorize = this.authorize.bind(this);
-  }
+    constructor(UserServices) {
+        this.UserServices = UserServices; // can be mocked in unit testing
+        this.createCookie = this.createCookie.bind(this);
+        this.signUp = this.signUp.bind(this);
+        this.logIn = this.logIn.bind(this);
+        this.forgotPassword = this.forgotPassword.bind(this);
+        this.forgotUserName = this.forgotUserName.bind(this);
+        this.resetPassword = this.resetPassword.bind(this);
+        this.logOut = this.logOut.bind(this);
+        this.authorize = this.authorize.bind(this);
+        this.facebookAuth = this.facebookAuth.bind(this);
+        this.facebookValidation = this.facebookValidation.bind(this);
+    }
 
   createCookie(res, token, statusCode) {
     const cookieOptions = {
@@ -164,6 +166,53 @@ class AuthenticationController {
       }
     }
   }
+    async facebookAuth(accessToken, refreshToken, profile, done) {
+        const email = profile.emails[o].value;
+        // find user in database
+        const user = await this.UserServices.getUserByEmail(email);
+        if (user.status === "fail") {
+            // user not found, signup new user
+            const response = {
+                status: "fail",
+                email: email,
+            };
+            done(null, response);
+        } else {
+            const response = {
+                status: "success",
+                user: user.doc,
+            };
+            done(null, response);
+        }
+    }
+    async facebookValidation(req, res, next) {
+        let user = req.user;
+        if (user.status == "fail") {
+            // user should be created
+            const userName = req.body.userName;
+            if (!userName) {
+                res.status(400).json({
+                    status: "fail",
+                    errorMessage: "provide userName",
+                });
+            } else {
+                const email = user.email;
+                let response = await this.UserServices.signUp(
+                    email,
+                    userName,
+                    "random passsword"
+                );
+                if (response.status === 201) {
+                    this.createCookie(res, response.body.token, 201);
+                } else {
+                    res.status(response.status).json(response.body);
+                }
+            }
+        } else {
+            const token = await this.UserServices.createToken(user.user._id);
+            this.createCookie(res, token, 200);
+        }
+    }
 }
 //export default AuthenticationController;
 module.exports = AuthenticationController;

@@ -1,8 +1,9 @@
-class userController {
+class UserController {
     constructor(UserServices) {
-        console.log("from controller" + UserServices);
         this.userServices = UserServices; // can be mocked in unit testing
         this.createUser = this.createUser.bind(this);
+        this.getPrefs = this.getPrefs.bind(this);
+        this.updatePrefs = this.updatePrefs.bind(this);
     }
     async createUser(req, res, next) {
         let data = req.body;
@@ -26,6 +27,23 @@ class userController {
             });
         }
     }
+    async getPrefs(req, res, next) {
+        console.log(req.user);
+        const prefs = this.userServices.getPrefs(req.user);
+        res.status(200).json({
+            status: "success",
+            prefs: prefs,
+        });
+    }
+    async updatePrefs(req, res, next) {
+        console.log(req.body);
+        const query = req.body;
+        const prefs = await this.userServices.updatePrefs(query,req.user._id);
+        res.status(200).json({
+            status: "success",
+            prefs: prefs,
+        });
+    }
 }
 //export default userController;
-module.exports = userController;
+module.exports = UserController;

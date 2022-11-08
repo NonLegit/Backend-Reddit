@@ -6,34 +6,25 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 
 class UserService {
-  constructor(User, UserRepository, emailServices) {
-    this.User = User; // can be mocked in unit testing
-    this.userRepository = UserRepository; // can be mocked in unit testing
-    this.emailServices = emailServices;
-    this.createUser = this.createUser.bind(this);
-    this.createToken = this.createToken.bind(this);
-    this.signUp = this.signUp.bind(this);
-    this.logIn = this.logIn.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this);
-    this.forgotUserName = this.forgotUserName.bind(this);
-    this.resetPassword = this.resetPassword.bind(this);
-    this.getUser = this.getUser.bind(this);
-    this.decodeToken = this.decodeToken.bind(this);
-  }
-  async createUser(data) {
-    try {
-      let user = await this.userRepository.createOne(data);
-      return user;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
+    constructor(User, UserRepository, emailServices) {
+        this.User = User; // can be mocked in unit testing
+        this.userRepository = UserRepository; // can be mocked in unit testing
+        this.emailServices = emailServices;
+        this.createUser = this.createUser.bind(this);
+        this.createToken = this.createToken.bind(this);
+        this.signUp = this.signUp.bind(this);
+        this.logIn = this.logIn.bind(this);
+        this.forgotPassword = this.forgotPassword.bind(this);
+        this.forgotUserName = this.forgotUserName.bind(this);
+        this.resetPassword = this.resetPassword.bind(this);
+        this.getUser = this.getUser.bind(this);
+        this.getUserByEmail = this.getUserByEmail.bind(this);
+        this.decodeToken = this.decodeToken.bind(this);
+        this.getPrefs = this.getPrefs.bind(this);
+        this.updatePrefs = this.updatePrefs.bind(this);
+        this.filterObj = this.filterObj.bind(this);
     }
-  }
+  
   createToken(id) {
     // what to put in token ?
     const token = jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -41,6 +32,7 @@ class UserService {
     });
     return token;
   }
+
   async signUp(email, userName, password) {
     const userData = {
       email: email,
@@ -183,53 +175,104 @@ class UserService {
       return error;
     }
   }
-  async resetPassword(resetToken, password) {
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-    let user = await this.userRepository.getOne(
-      {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() },
-      },
-      "",
-      ""
-    );
-    if (user.status === "fail") {
-      // invalid token or time passed
-      const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "token is invalid or has expired ",
-        },
-      };
-      return response;
-    } else {
-      user.doc.password = password;
-      user.doc.passwordResetToken = undefined;
-      user.doc.passwordResetExpires = undefined;
-      await user.doc.save();
-      const token = this.createToken(user.doc._id);
-      const response = {
-        status: 200,
-        body: {
-          token: token,
-        },
-      };
-      return response;
+    async resetPassword(resetToken, password) {
+        const hashedToken = crypto
+            .createHash("sha256")
+            .update(resetToken)
+            .digest("hex");
+        let user = await this.userRepository.getOne(
+            {
+                passwordResetToken: hashedToken,
+                passwordResetExpires: { $gt: Date.now() },
+            },
+            "",
+            ""
+        );
+        if (user.status === "fail") {
+            // invalid token or time passed
+            const response = {
+                status: 400,
+                body: {
+                    status: "fail",
+                    errorMessage: "token is invalid or has expired ",
+                },
+            };
+            return response;
+        } else {
+            user.doc.password = password;
+            user.doc.passwordResetToken = undefined;
+            user.doc.passwordResetExpires = undefined;
+            await user.doc.save();
+            const token = this.createToken(user.doc._id);
+            const response = {
+                status: 200,
+                body: {
+                    token: token,
+                },
+            };
+            return response;
+        }
     }
-  }
-  async decodeToken(token) {
-    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    return decoded;
-  }
-  async getUser(id) {
-    console.log(id);
-    let user = await this.userRepository.getOne({ _id: id }, "", "");
-    return user;
-  }
+    async decodeToken(token) {
+        const decoded = await promisify(jwt.verify)(
+            token,
+            process.env.JWT_SECRET
+        );
+        return decoded;
+    }
+    // should be generic
+    async getUser(id) {
+        let user = await this.userRepository.getOne({ _id: id }, "", "");
+        return user;
+    }
+    async getUserByEmail(email) {
+        let user = await this.userRepository.getOne({ email: email }, "", "");
+        return user;
+    }
+    getPrefs(user) {
+        let prefs = {
+            contentvisibility: user.contentvisibility,
+            canbeFollowed: user.canbeFollowed,
+            nsfw: user.nsfw,
+            allowInboxMessage: user.allowInboxMessage,
+            allowMentions: user.allowMentions,
+            allowCommentsOnPosts: user.allowCommentsOnPosts,
+            allowUpvotesOnComments: user.allowUpvotesOnComments,
+            allowUpvotesOnPosts: user.allowUpvotesOnPosts,
+            displayName: user.displayName,
+            profilePicture: user.profilePicture,
+        };
+        return prefs;
+    }
+    async updatePrefs(query, id) {
+        console.log(query);
+        const filteredBody = this.filterObj(
+            query,
+            "contentvisibility",
+            "canbeFollowed",
+            "nsfw",
+            "allowInboxMessage",
+            "allowMentions",
+            "allowCommentsOnPosts",
+            "allowUpvotesOnComments",
+            "allowUpvotesOnPosts",
+            "displayName",
+            "profilePicture"
+        );
+        console.log("a   ", filteredBody);
+        let user = await this.userRepository.updateOne(
+            { _id: id },
+            filteredBody
+        );
+        return this.getPrefs(user.doc);
+    }
+    filterObj(obj, ...allowedFields) {
+        const newObj = {};
+        Object.keys(obj).forEach((el) => {
+            if (allowedFields.includes(el)) newObj[el] = obj[el];
+        });
+        return newObj;
+    }
 }
 //export default UserService;
 module.exports = UserService;
