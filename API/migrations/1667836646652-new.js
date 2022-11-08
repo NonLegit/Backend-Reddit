@@ -33,7 +33,7 @@ async function up() {
   let postID = post._id;
   await User.findOneAndUpdate(
     { userName: "Ahmed" },
-    { $push: { votePost: { posts: postID, postVoteStatus: "1" },saved:{postID},hidden:{postID} } },
+    { $push: { votePost: { posts: postID, postVoteStatus: "1" },saved:postID,hidden:postID } },
     {
       new: true,
       runValidators: true,
