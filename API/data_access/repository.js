@@ -3,20 +3,23 @@ const APIFeatures = require("./apiFeatures");
 class Repository {
   constructor(model) {
     this.Model = model;
-    
+
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
 
-    this.updateOneByQuery=this.updateOneByQuery.bind(this);
-    this.deleteOneByQuery=this.deleteOneByQuery.bind(this);
+    this.updateOneByQuery = this.updateOneByQuery.bind(this);
+    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
     this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+
+    this.isValidId = this.isValidId.bind(this);
+    this.getById = this.getById.bind(this);
   }
 
   async createOne(data) {
@@ -43,7 +46,7 @@ class Repository {
   }
   async getOne(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select);
+      let tempDoc = this.Model.findOne(query).select(select + " -__v");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
@@ -70,9 +73,9 @@ class Repository {
       return response;
     }
   }
-  async updateOne(id, data) {
+  async updateOne(query, data) {
     try {
-      const doc = await this.Model.findByIAndUpdate(id, data, {
+      let doc = await this.Model.findOneAndUpdate(query, data, {
         new: true,
         runValidators: true,
       });
@@ -156,15 +159,15 @@ class Repository {
     }
   }
 
-  async getAll(filter, query) {
+  async getAll(filter, query,popOptions) {
     try {
-      const features = new APIFeatures(Model.find(filter), query)
+      const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
         .limitFields()
         .paginate();
       // const doc = await features.query.explain();
-      const doc = await features.query;
+      let doc = await features.query.populate(popOptions);
       const response = {
         status: "success",
         statusCode: 200,
@@ -322,6 +325,17 @@ class Repository {
       };
       return response;
     }
+  }
+
+  async getById(id, select) {
+    const doc = await this.Model.findById(id).select(select);
+    return doc;
+  }
+
+  async isValidId(id) {
+    const doc = await this.Model.findById(id);
+    if (!doc) return false;
+    return true;
   }
 }
 
