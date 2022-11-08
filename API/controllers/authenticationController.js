@@ -160,7 +160,7 @@ class AuthenticationController {
             errorMessage: "Password is changed , Please login again",
           });
         } else {
-          req.user = user.doc; // !
+          req.user = user.doc;
           next();
         }
       }

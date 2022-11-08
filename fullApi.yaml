@@ -148,6 +148,11 @@ paths:
       responses:
         201:
           description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -366,7 +371,161 @@ paths:
                   message:
                     type: string
                     example: Token is invalid or has expired
+  /users/google/:
+    description: User Resource
+    post:
+      tags:
+        - "Users"
+      description: google authentication
+      summary: google authentication
+      security:
+        - oAuthSample: 
+          - access_token
+      requestBody:
+        description: userName in case of signup
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: userName
+      responses:
+        200:
+          description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+                    format: date-time
+        201:
+          description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+                    format: date-time
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Token is invalid or has expired
 
+
+
+  /users/facebook/:
+    description: User Resource
+    post:
+      tags:
+        - "Users"
+      description: Facebook authentication
+      summary: Facebook authentication
+      security:
+        - oAuthSample: 
+          - access_token
+      requestBody:
+        description: userName in case of signup
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: userName
+      responses:
+        200:
+          description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+                    format: date-time
+        201:
+          description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  token:
+                    type: string
+                  expiresIn:
+                    type: string
+                    format: date-time
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Token is invalid or has expired
+
+                    
   /users/me/:
     description: User Resource
     get:
@@ -6567,6 +6726,15 @@ components:
       type: apiKey
       in: cookie
       name: jwt # cookie name
+    oAuthSample:    # <---- arbitrary name
+      type: oauth2
+      description: Facebook or google authentication
+      flows:
+        implicit:   # <---- OAuth flow(authorizationCode, implicit, password or clientCredentials)
+          authorizationUrl: /oauth/authorize
+          scopes:
+            access_token: token
+
 
   responses:
     UnauthorizedError:

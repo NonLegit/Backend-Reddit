@@ -46,7 +46,7 @@ class Repository {
   }
   async getOne(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select);
+      let tempDoc = this.Model.findOne(query).select(select + " -__v");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
@@ -73,10 +73,9 @@ class Repository {
       return response;
     }
   }
-  async updateOne(id, data) {
-    console.log(id, data);
+  async updateOne(query, data) {
     try {
-      const doc = await this.Model.findByIdAndUpdate(id, data, {
+      let doc = await this.Model.findOneAndUpdate(query, data, {
         new: true,
         runValidators: true,
       });
@@ -160,15 +159,15 @@ class Repository {
     }
   }
 
-  async getAll(filter, query) {
+  async getAll(filter, query,popOptions) {
     try {
-      const features = new APIFeatures(Model.find(filter), query)
+      const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
         .limitFields()
         .paginate();
       // const doc = await features.query.explain();
-      const doc = await features.query;
+      let doc = await features.query.populate(popOptions);
       const response = {
         status: "success",
         statusCode: 200,
