@@ -17,6 +17,9 @@ class Repository {
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
     this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+
+    this.isValidId = this.isValidId.bind(this);
+    this.getById = this.getById.bind(this);
   }
 
   async createOne(data) {
@@ -322,6 +325,17 @@ class Repository {
       };
       return response;
     }
+  }
+
+  async getById(id, select) {
+    const doc = await this.Model.findById(id).select(select);
+    return doc;
+  }
+
+  async isValidId(id) {
+    const doc = await this.Model.findById(id);
+    if (!doc) return false;
+    return true;
   }
 }
 

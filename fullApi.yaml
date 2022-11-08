@@ -551,7 +551,7 @@ paths:
                     $ref: "#/components/schemas/User"
         401:
           $ref: "#/components/responses/UnauthorizedError"
-  
+
   /users/me/prefs:
     description: User Resource
     get:
@@ -1184,7 +1184,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/upvotes"
         "400":
           description: Invalid userName supplied
         "404":
@@ -1228,7 +1228,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  status: 
+                  status:
                     type: string
                     example: success
                   comments:
@@ -6165,7 +6165,7 @@ components:
         followed:
           type: boolean
           example: true
-          
+
     Subreddit:
       type: object
       properties:
@@ -6243,7 +6243,6 @@ components:
           type: string
           description: The ID of the original post
 
-          
     userPost:
       type: object
       properties:
@@ -6312,15 +6311,15 @@ components:
           type: string
         postVoteStatus:
           type: string
-          enum: 
+          enum:
             - "1"
             - "0"
             - "-1"
 
         sharedFrom:
-            type: string
-            description: post id if shared ,undefined if not shared
-        shareCount: 
+          type: string
+          description: post id if shared ,undefined if not shared
+        shareCount:
           type: integer
           description: Total numbers of share
         images:
@@ -6330,8 +6329,7 @@ components:
             description: image url
         video:
           type: string
-        
-    
+
     Post:
       type: object
       properties:
@@ -6506,8 +6504,6 @@ components:
           items:
             $ref: "#/components/schemas/userPost"
 
-
-
     upvotes:
       type: object
       properties:
@@ -6519,14 +6515,13 @@ components:
           items:
             $ref: "#/components/schemas/userPost"
 
-
     downvotes:
       type: object
       properties:
         status:
           type: string
           example: success
-        
+
         posts:
           type: array
           items:
