@@ -6,6 +6,7 @@ var cors = require("cors");
 const mongoSanitize = require("express-mongo-sanitize");
 
 const userRouter = require("./routes/userRoutes");
+const postRouter = require("./routes/postRoutes");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use(cors());
 
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/posts", postRouter);
 
 app.all("*", (req, res, next) => {
     res.status(200).send("success ");
