@@ -4,8 +4,10 @@ const passport = require("passport");
 const FacebookTokenStrategy = require("passport-facebook-token");
 const GooglePlusTokenStrategy = require("passport-google-plus-token");
 
-const UserController = require("./../controllers/userController");
-const AuthenticationController = require("./../controllers/AuthenticationController");
+//const UserController = require("./../controllers/userController");
+//const AuthenticationController = require("./../controllers/AuthenticationController");
+const userControllerObj = require("./../controllers/UserControllerObj");
+const authenticationControllerObj = require("./../controllers/AuthenticationControllerObj");
 const PostController = require("./../controllers/postController");
 const User = require("./../models/userModel");
 const Repository = require("./../data_access/repository");
@@ -21,11 +23,11 @@ const RepositoryObj = new Repository(User);
 const emailServiceObj = new Email();
 const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 
-const authenticationControllerObj = new AuthenticationController(
-  userServiceObj
-);
+// const authenticationControllerObj = new AuthenticationController(
+//   userServiceObj
+// );
 const postControllerObj = new PostController(postServiceObj, userServiceObj);
-const userControllerObj = new UserController(userServiceObj);
+//const userControllerObj = new UserController(userServiceObj);
 
 const router = express.Router();
 
@@ -114,5 +116,8 @@ router.patch(
   userControllerObj.updatePrefs
 );
 router.get("/:userName/post", postControllerObj.userPosts);
-
+router.get("/saved", postControllerObj.getSavedPosts);
+router.get("/hidden", postControllerObj.getHiddenPosts);
+router.get("/upvoted", postControllerObj.userUpvotedPosts);
+router.get("/downvoted", postControllerObj.userDownvotedPosts);
 module.exports = router;
