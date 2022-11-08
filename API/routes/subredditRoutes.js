@@ -4,9 +4,13 @@ const subredditController = require("./../controllers/subredditController");
 const Subreddit = require("./../models/subredditModel");
 const Repository = require("./../data_access/repository");
 const subredditService = require("../service/subredditService");
-const RepositoryObj = new Repository(Subreddit);
-const subredditServiceObj = new subredditService(Subreddit, RepositoryObj);
+// !=================================
+const SubredditRepositoryObj = new Repository(Subreddit);
+const Flair = require('./../models/flairModel');//model
+const FlairRepositoryObj = new Repository(Flair);//dataaccedss send model
+const subredditServiceObj = new subredditService(Subreddit, SubredditRepositoryObj,Flair,FlairRepositoryObj);
 const subredditControllerObj = new subredditController(subredditServiceObj);
+// !=================================
 
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
@@ -30,5 +34,17 @@ router.post("/", subredditControllerObj.createSubreddit);
 router.patch("/:subredditName", subredditControllerObj.updateSubredditSettings);
 router.get("/:subredditName", subredditControllerObj.getSubredditSettings);
 router.delete("/:subredditName", subredditControllerObj.deleteSubreddit);
+router.get("/:subredditName/about/:location",subredditControllerObj.relevantPosts);
+router.get("/mine/{where}",subredditControllerObj)
+
+router.route('/:subredditName/flair')
+    .post(subredditControllerObj.createFlair)
+   .get(subredditControllerObj.getFlairs);
+router.route('/:subredditName/flair/:flairId')
+    .get(subredditControllerObj.getFlair)
+    .patch(subredditControllerObj.updateFlair)
+    .delete(subredditControllerObj.deleteFlair);
+
+
 
 module.exports = router;

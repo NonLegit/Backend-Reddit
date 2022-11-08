@@ -144,7 +144,6 @@ const subredditSchema = new mongoose.Schema({
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "User",
-    type: String,
     required: true,
   }, //subreddit owner (first mod) by time of being mod
 
@@ -154,7 +153,6 @@ const subredditSchema = new mongoose.Schema({
       userId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
-        type: String,
         required: false,
       },
       mod_time: { type: Date, default: Date.now() },
@@ -172,12 +170,15 @@ const subredditSchema = new mongoose.Schema({
   posts: [
     {
       postId: {
+        // ref post => (nsfw ,spoiler)
         type: mongoose.SchemaTypes.ObjectId,
         ref: "Post",
         required: false,
       },
       is_scheduled: { type: Boolean, default: false },
       schaduled_time: { type: Date, default: Date.now() },
+      category: { type: String, enum: ["spam", "edited", "unmoderated"] },
+      spamCount: { type: Number, default: 0 },
     },
   ],
   flairIds: [

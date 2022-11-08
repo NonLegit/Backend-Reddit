@@ -6,15 +6,19 @@ class subredditController {
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
     this.updateSubredditSettings = this.updateSubredditSettings.bind(this);
+    //! ***************************
+    this.createFlair = this.createFlair.bind(this);
+    this.deleteFlair = this.deleteFlair.bind(this);
+    this.updateFlair = this.updateFlair.bind(this);
+    this.getFlair = this.getFlair.bind(this);
+    this.getFlairs = this.getFlairs.bind(this);
   }
-  // ! todo: need some refractoring here 
+  // ! todo: need some refractoring here
   async createSubreddit(req, res, next) {
     let data = req.body;
     let userId = req.user._id;
-    console.log(req.user);
-    // let userId = req.params.id;
+
     data.owner = userId;
-    console.log(userId);
     try {
       let subreddit = await this.subredditServices.createSubreddit(data);
       if (subreddit.status === "success") {
@@ -106,7 +110,6 @@ class subredditController {
     let subreddit = await this.subredditServices.getSubreddit({
       name: subredditName,
     });
-    console.log(subreddit);
     if (subreddit.status === "fail") {
       res.status(subreddit.statusCode).json({
         status: subreddit.statusCode,
@@ -122,7 +125,7 @@ class subredditController {
 
   async deleteSubreddit(req, res, next) {
     let subredditName = req.params.subredditName;
-    // let userId = req.params._id;
+
     let userId = req.user._id;
     try {
       //check user is moderator or not
@@ -161,8 +164,180 @@ class subredditController {
       });
     }
   }
-}
 
+  async relevantPosts(req, res, next) {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let category = req.params.location;
+    try {
+      let canGet = await this.subredditServices.isModerator(
+        subredditName,
+        userId
+      );
+      if (canGet.status === "fail") {
+        canGet.statusCode = 401;
+        res.status(canGet.statusCode).json({
+          status: canGet.statusCode,
+          message: "you are not moderator to this subreddit",
+        });
+      } else {
+        // * get posts marked with this category
+        let response = await this.subredditServices.getCategoryPosts(
+          {
+            name: subredditName,
+            "posts.category": category,
+          },
+          posts
+        );
+        if (response.status === "fail") {
+          res.status(response.statusCode).json({
+            status: response.statusCode,
+            message: response.err,
+          });
+        } else {
+          res.status(response.statusCode).json({
+            status: response.status,
+            response: subreddit.doc,
+          });
+        }
+      }
+    } catch (err) {}
+  }
+
+  // ! Doaa's controllers
+  async createFlair(req, res) {
+    let data = req.body;
+    let subredditName = req.params.subredditName;
+    try {
+      //  console.log('here2');
+      let flair = await this.subredditServices.createFlair(subredditName, data);
+      if (flair.status === "success") {
+        res.status(flair.statusCode).json({
+          status: flair.status,
+          data: flair.doc,
+        });
+      } else {
+        res.status(flair.statusCode).json({
+          status: flair.statusCode,
+          errorMessage: flair.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+  async updateFlair(req, res) {
+    let flairId = req.params.flairId;
+    let subredditName = req.params.subredditName;
+    //   console.log('hello');
+    let data = req.body;
+    try {
+      let response = await this.subredditServices.updateFlair(
+        subredditName,
+        flairId,
+        data
+      );
+      if (response.status === "success") {
+        res.status(response.statusCode).json({
+          status: response.status,
+          data: response.doc,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.status,
+          errorMessage: response.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+  async deleteFlair(req, res) {
+    let flairId = req.params.flairId;
+    let subredditName = req.params.subredditName;
+    // console.log('HII there ❌');
+    //console.log(subredditName);
+    //deleteSubreddit(subredditName)
+    try {
+      let response = await this.subredditServices.deleteFlair(
+        subredditName,
+        flairId
+      );
+      if (response.status === "success") {
+        res.status(response.statusCode).json({
+          status: response.status,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          errorMessage: response.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+  async getFlair(req, res) {
+    let flairId = req.params.flairId;
+    let subredditName = req.params.subredditName;
+    try {
+      let response = await this.subredditServices.getFlair(
+        subredditName,
+        flairId
+      );
+      if (response.status === "success") {
+        res.status(response.statusCode).json({
+          status: response.status,
+          data: response.doc,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          errorMessage: response.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+
+  async getFlairs(req, res) {
+    let subredditName = req.params.subredditName;
+    try {
+      let response = await this.subredditServices.getFlairs(subredditName);
+      // console.log( response);
+      if (response.status === "success") {
+        res.status(response.statusCode).json({
+          status: response.status,
+          data: response.doc,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          errorMessage: response.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+  //   async getFlairs(req, res) {
+}
 
 //export default userController;
 module.exports = subredditController;
