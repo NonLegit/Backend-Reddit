@@ -6,10 +6,16 @@ const GooglePlusTokenStrategy = require("passport-google-plus-token");
 
 const UserController = require("./../controllers/userController");
 const AuthenticationController = require("./../controllers/AuthenticationController");
+const PostController = require("./../controllers/postController");
 const User = require("./../models/userModel");
 const Repository = require("./../data_access/repository");
 const UserService = require("./../service/userService");
 const Email = require("./../service/emailService");
+const PostService = require("../service/postService");
+const Post = require("../models/postModel");
+
+const postRepoObj = new Repository(Post);
+const postServiceObj = new PostService(Post, postRepoObj);
 
 const RepositoryObj = new Repository(User);
 const emailServiceObj = new Email();
@@ -18,9 +24,14 @@ const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 const authenticationControllerObj = new AuthenticationController(
   userServiceObj
 );
+const postControllerObj = new PostController(
+  postServiceObj,
+  userServiceObj
+);
 const userControllerObj = new UserController(userServiceObj);
 
 const router = express.Router();
+
 
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
@@ -85,6 +96,7 @@ router.post(
 // authorize endpoints
 router.use(authenticationControllerObj.authorize);
 
+
 // authorized endpoints
 //router.get("/me",userController.getMe);
 router.get("/me/prefs", userControllerObj.getPrefs);
@@ -106,5 +118,6 @@ router.patch(
   }),
   userControllerObj.updatePrefs
 );
+router.get("/:userName/posts",postControllerObj.userPosts);
 
 module.exports = router;

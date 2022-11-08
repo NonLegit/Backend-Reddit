@@ -60,7 +60,7 @@ class PostController {
   }
   async userPosts(req, res, next) {
     // i have user id
-    const me = req.user;
+    let me = req.user;
     if (!req.params.userName) {
       res.status(400).json({
         status: "fail",
@@ -68,17 +68,22 @@ class PostController {
       });
     } else {
       const userName = req.params.userName;
-      let user = await this.userServices.getUserByName(userName);
+      let user = await this.userServices.getUserByName(userName,"");
       // get id of user with its name
       let userId = user.doc._id;
 
       // check if this user block me or i blocked him in order to show posts , TODO
 
       // get post which he creates
-      let posts = await this.postServices.getUserPosts();
+      let posts = await this.postServices.getUserPosts(userId);
 
-
-      // get vote of me if these post i vote on it 
+      // get vote of me if these post i vote on it
+      posts = this.postServices.setVotePostStatus(me,posts);
+      console.log(posts[0]);
+      res.status(200).json({
+        status: "success",
+        posts: posts,
+      });
     }
   }
 }

@@ -20,14 +20,14 @@
     }
   ],
   "paths": {
-    "/users/login": {
+    "/user/login": {
       "description": "User Resource",
       "post": {
         "tags": [
           "Users"
         ],
         "description": "Get authenticated to access our api services later.",
-        "summary": "User Login",
+        "summary": "User authentication",
         "requestBody": {
           "description": "get authenticated using userName & password",
           "required": true,
@@ -92,7 +92,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "provide userName and password"
                     }
@@ -112,7 +112,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "invaild userName or password"
                     }
@@ -124,7 +124,7 @@
         }
       }
     },
-    "/users/logout": {
+    "/user/logout": {
       "description": "User Resource",
       "post": {
         "tags": [
@@ -178,14 +178,14 @@
         }
       }
     },
-    "/users/signup": {
+    "/user/signup": {
       "description": "User Resource",
       "post": {
         "tags": [
           "Users"
         ],
         "description": "signup as user in reddit",
-        "summary": "User SignUP",
+        "summary": "User registration",
         "requestBody": {
           "description": "new user registrated",
           "required": true,
@@ -254,7 +254,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "userName already exists"
                     }
@@ -266,14 +266,14 @@
         }
       }
     },
-    "/users/forgot_username": {
+    "/user/forgotuserName": {
       "post": {
         "tags": [
           "Users"
         ],
         "summary": "Forgot userName",
         "requestBody": {
-          "description": "user's email",
+          "description": "Send the post/comment id",
           "content": {
             "application/json": {
               "schema": {
@@ -305,14 +305,14 @@
         }
       }
     },
-    "/users/forgot_password": {
+    "/user/forgotPassword": {
       "post": {
         "tags": [
           "Users"
         ],
-        "summary": "Forgot Password",
+        "summary": "Forgot password",
         "requestBody": {
-          "description": "user's email and username",
+          "description": "Send the post/comment id",
           "content": {
             "application/json": {
               "schema": {
@@ -353,8 +353,16 @@
         "tags": [
           "Users"
         ],
-        "description": "change forgotten password",
+        "description": "change forgotten userName",
         "summary": "Password reset",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
         "parameters": [
           {
             "in": "path",
@@ -367,20 +375,16 @@
           }
         ],
         "requestBody": {
-          "description": "new Password and confirmPassword",
+          "description": "new user registrated",
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "password": {
+                  "userName": {
                     "type": "string",
-                    "example": "Aa1234**"
-                  },
-                  "confirmPassword": {
-                    "type": "string",
-                    "example": "Aa1234**"
+                    "example": "userName"
                   }
                 }
               }
@@ -389,6 +393,116 @@
         },
         "responses": {
           "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Token is invalid or has expired"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/google/": {
+      "description": "User Resource",
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "google authentication",
+        "summary": "google authentication",
+        "security": [
+          {
+            "oAuthSample": [
+              "access_token"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "userName in case of signup",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "type": "string",
+                    "example": "userName"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "jwt=abcde12345; expires = time ; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
             "description": "Success operation",
             "headers": {
               "Set-Cookie": {
@@ -430,7 +544,125 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
+                      "type": "string",
+                      "example": "Token is invalid or has expired"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/facebook/": {
+      "description": "User Resource",
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Facebook authentication",
+        "summary": "Facebook authentication",
+        "security": [
+          {
+            "oAuthSample": [
+              "access_token"
+            ]
+          }
+        ],
+        "requestBody": {
+          "description": "userName in case of signup",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "type": "string",
+                    "example": "userName"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "jwt=abcde12345; expires = time ; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Success operation",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "jwt=abcde12345; expires = time ; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
                       "type": "string",
                       "example": "Token is invalid or has expired"
                     }
@@ -581,7 +813,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "not modified"
                     }
@@ -596,7 +828,7 @@
         }
       }
     },
-    "/users/me/friends/{userName}": {
+    "/user/me/friends/{userName}": {
       "description": "User Resource",
       "get": {
         "tags": [
@@ -657,7 +889,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -727,7 +959,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -791,7 +1023,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "user is not a friend of you"
                     }
@@ -814,7 +1046,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "user not found"
                     }
@@ -826,7 +1058,7 @@
         }
       }
     },
-    "/users/{userName}/block_user": {
+    "/user/{userName}/blockUser": {
       "post": {
         "tags": [
           "Users"
@@ -919,7 +1151,7 @@
         }
       }
     },
-    "/users/{userName}/unblock_user": {
+    "/user/{userName}/unblockUser": {
       "post": {
         "tags": [
           "Users"
@@ -992,7 +1224,7 @@
         }
       }
     },
-    "/users/{userName}/follow": {
+    "/user/{userName}/follow": {
       "post": {
         "tags": [
           "Users"
@@ -1064,13 +1296,12 @@
         }
       }
     },
-    "/users/best": {
+    "/user/best": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "Best Posts",
-        "description": "Return a listing of posts according to user preferences",
+        "summary": "Return a listing of posts according to user preferences",
         "security": [
           {
             "BearerAuth": []
@@ -1114,25 +1345,17 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/users/hot": {
+    "/user/hot": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "Hot Posts",
-        "description": "Return a listing of hot posts",
+        "summary": "Return a listing of hot posts",
         "security": [
           {
             "BearerAuth": []
@@ -1176,25 +1399,17 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/users/new": {
+    "/user/new": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "New Posts",
-        "description": "Return a listing of new posts",
+        "summary": "Return a listing of new posts",
         "security": [
           {
             "BearerAuth": []
@@ -1238,25 +1453,17 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/users/top": {
+    "/user/top": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "Top Posts",
-        "description": "Return a listing of top posts",
+        "summary": "Return a listing of top posts",
         "security": [
           {
             "BearerAuth": []
@@ -1317,19 +1524,12 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
-    "/users/{userName}/about": {
+    "/user/{userName}/about": {
       "get": {
         "tags": [
           "Users"
@@ -1360,32 +1560,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "user": {
-                      "$ref": "#/components/schemas/Friend"
-                    }
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
           "400": {
             "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
             "content": {
               "application/json": {
                 "schema": {
@@ -1407,7 +1588,7 @@
         }
       }
     },
-    "/users/{userName}/overview": {
+    "/user/{userName}/overview": {
       "get": {
         "tags": [
           "Users"
@@ -1471,16 +1652,6 @@
               }
             }
           },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1494,7 +1665,7 @@
         }
       }
     },
-    "/users/{userName}/posts": {
+    "/user/{userName}/post": {
       "get": {
         "tags": [
           "Users"
@@ -1550,16 +1721,6 @@
           "400": {
             "description": "Invalid userName supplied"
           },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1573,7 +1734,7 @@
         }
       }
     },
-    "/users/{userName}/comments": {
+    "/user/{userName}/comments": {
       "get": {
         "tags": [
           "Users"
@@ -1641,16 +1802,6 @@
           "400": {
             "description": "Invalid userName supplied"
           },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1664,7 +1815,7 @@
         }
       }
     },
-    "/users/{userName}/upvoted": {
+    "/user/{userName}/upvoted": {
       "get": {
         "tags": [
           "Users"
@@ -1721,16 +1872,6 @@
           "400": {
             "description": "Invalid userName supplied"
           },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1744,7 +1885,7 @@
         }
       }
     },
-    "/users/{userName}/downvoted": {
+    "/user/{userName}/downvoted": {
       "get": {
         "tags": [
           "Users"
@@ -1801,16 +1942,6 @@
           "400": {
             "description": "Invalid userName supplied"
           },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
           "404": {
             "description": "Not found",
             "content": {
@@ -1824,7 +1955,7 @@
         }
       }
     },
-    "/users/{userName}/saved": {
+    "/user/{userName}/saved": {
       "get": {
         "tags": [
           "Users"
@@ -1900,7 +2031,7 @@
         }
       }
     },
-    "/users/{userName}/hidden": {
+    "/user/{userName}/hidden": {
       "get": {
         "tags": [
           "Users"
@@ -1976,12 +2107,12 @@
         }
       }
     },
-    "/users/{userName}/username_available": {
+    "/user/{userName}/userNameAvailable": {
       "get": {
         "tags": [
           "Users"
         ],
-        "summary": "Check UserName available",
+        "summary": "",
         "description": "Check whether a userName is available for registration.",
         "parameters": [
           {
@@ -2013,6 +2144,183 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/randomCategory": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get communities from a random category",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "number of subreddits",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "number of the page",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "description": "some (not all) info about the subreddit ti be shown",
+                  "items": {
+                    "$ref": "#/components/schemas/reducedSubredditInfo"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories/{categoryId}/Subreddits": {
+      "description": "Post Resource",
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "description": "Get list of Communities belong to specific_category",
+        "summary": "Get Communities in specific_category",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "categoryId",
+            "description": "category id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "maximum number of retreived subreddits",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 20
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": " page number, 1 for first group 2 for second group and so on",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "description": "sort subreddits by (rank - membersCount)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "rank"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "subreddits": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subreddit"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "category not found"
+                    }
+                  }
                 }
               }
             }
@@ -2174,9 +2482,18 @@
     "/search/trending": {
       "get": {
         "tags": [
-          "Search"
+          "Search",
+          "Posts"
         ],
         "description": "get trending searches day by day",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "successful operation",
@@ -2204,7 +2521,70 @@
         }
       }
     },
-    "/subreddits/{subredditName}/flairs": {
+    "/post/{postId}/SuggestedSort": {
+      "post": {
+        "tags": [
+          "Posts"
+        ],
+        "summary": "sort comments",
+        "description": "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort.",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "description": "post id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/suggestedSort"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Invalid post id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddit/{subredditName}/flair": {
       "post": {
         "tags": [
           "Subreddit",
@@ -2366,7 +2746,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/flairs/{flairId}": {
+    "/subreddit/{subredditName}/flair/{flairId}": {
       "patch": {
         "tags": [
           "Flair"
@@ -2617,13 +2997,13 @@
         }
       }
     },
-    "/posts": {
+    "/post": {
       "post": {
         "tags": [
           "Posts"
         ],
         "summary": "Submit a post to a subreddit",
-        "description": "Submit will create a post in the subreddit \"sr\" with the title \"title\". If kind is \"link\", then url is expected to be a valid URL to link to. Otherwise, \"text\", if present, will be the body of the post.",
+        "description": "Create a post in a subreddit or user profile according to ownerModel.",
         "requestBody": {
           "description": "The post to be submitted",
           "content": {
@@ -2655,8 +3035,13 @@
                       "type": "string",
                       "example": "success"
                     },
-                    "Post": {
-                      "$ref": "#/components/schemas/PostCreate"
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "Post": {
+                          "$ref": "#/components/schemas/PostCreate"
+                        }
+                      }
                     }
                   }
                 }
@@ -2664,7 +3049,7 @@
             }
           },
           "404": {
-            "description": "fail operation",
+            "description": "Fail operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -2674,7 +3059,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "Subreddit not found"
                     }
@@ -2686,7 +3071,7 @@
         }
       }
     },
-    "/posts/{postId}": {
+    "/post/{postId}": {
       "patch": {
         "tags": [
           "Posts"
@@ -2755,7 +3140,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -2837,7 +3222,7 @@
         }
       }
     },
-    "/posts/{postId}/follow_post": {
+    "/post/{postId}/followPost": {
       "post": {
         "tags": [
           "Posts"
@@ -2906,7 +3291,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -2918,35 +3303,7 @@
         }
       }
     },
-    "/posts/random": {
-      "get": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Returns a random post",
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Post"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/hide": {
+    "/post/{postId}/hide": {
       "post": {
         "tags": [
           "Posts"
@@ -3000,7 +3357,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3012,7 +3369,7 @@
         }
       }
     },
-    "/posts/{postId}/unhide": {
+    "/post/{postId}/unhide": {
       "post": {
         "tags": [
           "Posts"
@@ -3065,7 +3422,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3077,7 +3434,35 @@
         }
       }
     },
-    "/posts/{postId}/save": {
+    "/post/random": {
+      "get": {
+        "tags": [
+          "Posts"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Returns a random post",
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{postId}/save": {
       "post": {
         "tags": [
           "Posts"
@@ -3150,7 +3535,7 @@
         }
       }
     },
-    "/posts/{postId}/unsave": {
+    "/post/{postId}/unsave": {
       "post": {
         "tags": [
           "Posts"
@@ -3223,7 +3608,7 @@
         }
       }
     },
-    "/posts/{postId}/marknsfw": {
+    "/post/{postId}/marknsfw": {
       "patch": {
         "tags": [
           "Posts"
@@ -3296,7 +3681,7 @@
         }
       }
     },
-    "/posts/{postId}/unmarknsfw": {
+    "/post/{postId}/unmarknsfw": {
       "patch": {
         "tags": [
           "Posts"
@@ -3369,7 +3754,7 @@
         }
       }
     },
-    "/posts/{postId}/lock_comments": {
+    "/post/{postId}/lockComments": {
       "patch": {
         "tags": [
           "Posts"
@@ -3442,7 +3827,7 @@
         }
       }
     },
-    "/posts/{postId}/unlock_comments": {
+    "/post/{postId}/unlockComments": {
       "patch": {
         "tags": [
           "Posts"
@@ -3515,141 +3900,7 @@
         }
       }
     },
-    "/posts/{postId}/spoiler": {
-      "description": "Post Resource",
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "mark post as spoiler (by author or the subreddit moderator)",
-        "summary": "Spoil Post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "post id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/unspoiler": {
-      "description": "Post Resource",
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "mark post as unspoiler (by author or the subreddit moderator)",
-        "summary": "unSpoil Post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "post id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/vote": {
+    "/post/{postId}/vote": {
       "description": "Post Resource",
       "post": {
         "tags": [
@@ -3713,7 +3964,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "post not found"
                     }
@@ -3733,7 +3984,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you already upvote (downvote) post"
                     }
@@ -3745,7 +3996,141 @@
         }
       }
     },
-    "/posts/{postId}/spam": {
+    "/post/{postId}/spoiler": {
+      "description": "Post Resource",
+      "patch": {
+        "tags": [
+          "Posts"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "mark post as spoiler (by author or the subreddit moderator)",
+        "summary": "Spoil Post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "description": "post id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{postId}/unspoiler": {
+      "description": "Post Resource",
+      "patch": {
+        "tags": [
+          "Posts"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "description": "mark post as unspoiler (by author or the subreddit moderator)",
+        "summary": "unSpoil Post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "description": "post id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post/{postId}/spam": {
       "patch": {
         "tags": [
           "Posts"
@@ -3817,70 +4202,7 @@
         }
       }
     },
-    "/posts/{postId}/suggested_sort": {
-      "post": {
-        "tags": [
-          "Posts"
-        ],
-        "summary": "sort comments",
-        "description": "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort.",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "post id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/suggestedSort"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Invalid post id",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/comments/{commentId}": {
+    "/comment/{commentId}": {
       "patch": {
         "tags": [
           "Comments"
@@ -3949,7 +4271,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "comment not found"
                     }
@@ -4031,7 +4353,7 @@
         }
       }
     },
-    "/comments": {
+    "/comment": {
       "post": {
         "tags": [
           "Comments"
@@ -4093,7 +4415,7 @@
         }
       }
     },
-    "/comments/suggested_tags": {
+    "/comment/suggestedTags": {
       "get": {
         "tags": [
           "Comments"
@@ -4180,7 +4502,7 @@
         }
       }
     },
-    "/comments/{commentId}/save": {
+    "/comment/{commentId}/save": {
       "post": {
         "tags": [
           "Comments"
@@ -4253,7 +4575,7 @@
         }
       }
     },
-    "/comments/{commentId}/unsave": {
+    "/comment/{commentId}/unsave": {
       "post": {
         "tags": [
           "Comments"
@@ -4326,7 +4648,7 @@
         }
       }
     },
-    "/comments/{commentId}/marknsfw": {
+    "/comment/{commentId}/marknsfw": {
       "patch": {
         "tags": [
           "Comments"
@@ -4399,7 +4721,7 @@
         }
       }
     },
-    "/comments/{commentId}/unmarknsfw": {
+    "/comment/{commentId}/unmarknsfw": {
       "patch": {
         "tags": [
           "Comments"
@@ -4472,7 +4794,7 @@
         }
       }
     },
-    "/comments/{commentId}/lock_comments": {
+    "/comment/{commentId}/lockComments": {
       "patch": {
         "tags": [
           "Comments"
@@ -4545,7 +4867,7 @@
         }
       }
     },
-    "/comments/{commentId}/unlock_comments": {
+    "/comment/{commentId}/unlockComments": {
       "patch": {
         "tags": [
           "Comments"
@@ -4618,7 +4940,7 @@
         }
       }
     },
-    "/comments/{commentId}/vote": {
+    "/comment/{commentId}/vote": {
       "description": "Comment Resource",
       "post": {
         "tags": [
@@ -4682,7 +5004,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "comment not found"
                     }
@@ -4702,7 +5024,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you already upvote (downvote) comment"
                     }
@@ -4714,7 +5036,7 @@
         }
       }
     },
-    "/comments/{commentId}/spam": {
+    "/comment/{commentId}/spam": {
       "patch": {
         "tags": [
           "Comments"
@@ -4786,7 +5108,7 @@
         }
       }
     },
-    "/comments/{postId}": {
+    "/comment/{postId}": {
       "get": {
         "tags": [
           "Comments"
@@ -4912,7 +5234,7 @@
         }
       }
     },
-    "/comments/more_children": {
+    "/comment/moreChildren": {
       "get": {
         "tags": [
           "Comments"
@@ -5034,7 +5356,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/comments/{postId}": {
+    "/subreddit/{subredditName}/comment/{postId}": {
       "get": {
         "tags": [
           "Comments",
@@ -5169,7 +5491,7 @@
         }
       }
     },
-    "/subreddits": {
+    "/subreddit": {
       "post": {
         "tags": [
           "Subreddit"
@@ -5190,6 +5512,9 @@
               "schema": {
                 "type": "object",
                 "properties": {
+                  "owner": {
+                    "type": "string"
+                  },
                   "name": {
                     "type": "string"
                   },
@@ -5269,7 +5594,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}": {
+    "/subreddit/{subredditName}": {
       "get": {
         "tags": [
           "Subreddit"
@@ -5505,7 +5830,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/moderators/{moderatorName}": {
+    "/subreddit/{subredditName}/moderator/{moderatorName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -5786,7 +6111,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/ban/{userName}": {
+    "/subreddit/{subredditName}/ban/user/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -5968,7 +6293,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/unban/{userName}": {
+    "/subreddit/{subredditName}/unban/user/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -6020,7 +6345,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/mute/{userName}": {
+    "/subreddit/{subredditName}/mute/user/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -6201,7 +6526,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/unmute/{userName}": {
+    "/subreddit/{subredditName}/unmute/user/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -6252,7 +6577,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/posts/{postId}/approve": {
+    "/subreddit/{subredditName}/post/{postId}/approve": {
       "patch": {
         "tags": [
           "Subreddit"
@@ -6333,7 +6658,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/subscribe": {
+    "/subreddit/subscribe": {
       "post": {
         "tags": [
           "Subreddit"
@@ -6348,17 +6673,6 @@
         ],
         "summary": "Subscribe to or unsubscribe from a subreddit",
         "description": "To subscribe, sub should be true. To unsubscribe, sub should be false. Use either subreddit to provide the name of subreddit or sr to provide its id. The user must have access to the subreddit to be able to subscribe to it",
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "description": "id of the subreddit",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "application/json": {
@@ -6367,6 +6681,13 @@
                 "properties": {
                   "sub": {
                     "type": "boolean"
+                  },
+                  "subreddit": {
+                    "type": "string",
+                    "example": "subreddit"
+                  },
+                  "sr": {
+                    "type": "string"
                   }
                 }
               }
@@ -6402,7 +6723,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "The user doesn't have access to the subreddit"
                     }
@@ -6422,7 +6743,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6434,7 +6755,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/{location}": {
+    "/subreddit/{subredditName}/about/{location}": {
       "get": {
         "tags": [
           "Subreddit"
@@ -6520,7 +6841,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "id not found"
                     }
@@ -6532,7 +6853,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/hot": {
+    "/subreddit/{subredditName}/hot": {
       "get": {
         "tags": [
           "Subreddit"
@@ -6600,7 +6921,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6612,7 +6933,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/new": {
+    "/subreddit/{subredditName}/new": {
       "get": {
         "tags": [
           "Subreddit"
@@ -6680,7 +7001,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6692,7 +7013,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/top": {
+    "/subreddit/{subredditName}/top": {
       "get": {
         "tags": [
           "Subreddit"
@@ -6777,7 +7098,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "subreddit not found"
                     }
@@ -6789,7 +7110,7 @@
         }
       }
     },
-    "/subreddits/mine/{where}": {
+    "/subreddit/mine/{where}": {
       "description": "Get Subreddits",
       "get": {
         "tags": [
@@ -6876,7 +7197,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/search": {
+    "/subreddit/{subredditName}/search": {
       "get": {
         "tags": [
           "Search",
@@ -7001,7 +7322,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/banned": {
+    "/subreddit/{subredditName}/about/banned": {
       "get": {
         "tags": [
           "Subreddit"
@@ -7064,7 +7385,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/moderators": {
+    "/subreddit/{subredditName}/about/moderators": {
       "get": {
         "tags": [
           "Subreddit"
@@ -7127,7 +7448,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/muted": {
+    "/subreddit/{subredditName}/about/muted": {
       "get": {
         "tags": [
           "Subreddit"
@@ -7190,7 +7511,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/accept_moderator_invite": {
+    "/subreddit/{subredditName}/acceptModeratorInvite": {
       "post": {
         "tags": [
           "Subreddit"
@@ -7254,7 +7575,7 @@
         }
       }
     },
-    "/subreddits/leave_moderator": {
+    "/subreddit/leaveModerator": {
       "post": {
         "tags": [
           "Subreddit"
@@ -7296,190 +7617,7 @@
         }
       }
     },
-    "/subreddits/leaderboard/{category}": {
-      "get": {
-        "tags": [
-          "Subreddits"
-        ],
-        "description": "Get list of Communities belong to specific_category",
-        "summary": "Get Communities in specific_category",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "category",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "limit",
-            "description": "maximum number of retreived subreddits",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 20
-            }
-          },
-          {
-            "in": "query",
-            "name": "page",
-            "description": " page number, 1 for first group 2 for second group and so on",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "example": 1
-            }
-          },
-          {
-            "in": "query",
-            "name": "sort",
-            "description": "sort subreddits by (rank - membersCount)",
-            "required": false,
-            "schema": {
-              "type": "string",
-              "example": "rank"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "subreddits": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/Subreddit"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "category not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subreddits/leaderboard/random": {
-      "get": {
-        "tags": [
-          "Subreddits"
-        ],
-        "summary": "Get communities from a random category",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "number of subreddits",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          },
-          {
-            "name": "page",
-            "in": "query",
-            "description": "number of the page",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "random_category": {
-                      "type": "string"
-                    },
-                    "communities": {
-                      "type": "array",
-                      "description": "some (not all) info about the subreddit to be shown",
-                      "items": {
-                        "$ref": "#/components/schemas/reducedSubredditInfo"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/messages/read_all_messages": {
+    "/message/markAllAsRead": {
       "post": {
         "tags": [
           "Private messages"
@@ -7540,7 +7678,7 @@
         }
       }
     },
-    "/messages/sent": {
+    "/message/sent": {
       "get": {
         "tags": [
           "Private messages"
@@ -7611,7 +7749,7 @@
         }
       }
     },
-    "/messages/post_replies": {
+    "/message/postReplies": {
       "get": {
         "tags": [
           "Messages"
@@ -7671,7 +7809,7 @@
         }
       }
     },
-    "/messages/comments": {
+    "/message/comments": {
       "get": {
         "tags": [
           "Messages"
@@ -7731,7 +7869,7 @@
         }
       }
     },
-    "/messages/mentions": {
+    "/message/mentions": {
       "get": {
         "tags": [
           "Messages"
@@ -7794,7 +7932,7 @@
         }
       }
     },
-    "/messages/inbox": {
+    "/message/inbox": {
       "get": {
         "tags": [
           "Private messages"
@@ -7848,7 +7986,7 @@
         }
       }
     },
-    "/messages/unread": {
+    "/message/unread": {
       "get": {
         "tags": [
           "Private messages"
@@ -7902,7 +8040,7 @@
         }
       }
     },
-    "/messages": {
+    "/message": {
       "description": "Message Resource",
       "post": {
         "tags": [
@@ -8004,7 +8142,7 @@
         }
       }
     },
-    "/messages/{messageid}": {
+    "/message/{messageid}": {
       "description": "Message Resource",
       "delete": {
         "tags": [
@@ -8081,7 +8219,7 @@
         }
       }
     },
-    "/messages/{messageId}/unread_message": {
+    "/message/{messageId}/unreadMessage": {
       "patch": {
         "tags": [
           "Private messages"
@@ -8155,7 +8293,7 @@
         }
       }
     },
-    "/users/notifications": {
+    "/user/notification": {
       "get": {
         "tags": [
           "Notifications"
@@ -8187,15 +8325,6 @@
             "schema": {
               "type": "integer"
             }
-          },
-          {
-            "in": "query",
-            "name": "is_deleted",
-            "description": "To determine the view",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
           }
         ],
         "responses": {
@@ -8218,7 +8347,7 @@
         }
       }
     },
-    "/users/{userName}/{fileName}": {
+    "/user/{userName}/{fileName}": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -8438,7 +8567,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -8450,7 +8579,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/{fileName}": {
+    "/subreddit/{subredditName}/{fileName}": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -8547,7 +8676,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you are not a moderator"
                     }
@@ -8687,7 +8816,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you are not a moderator"
                     }
@@ -8710,7 +8839,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -8722,7 +8851,7 @@
         }
       }
     },
-    "/posts/{postId}/{fileName}": {
+    "/post/{postId}/{fileName}": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -8806,7 +8935,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you are not owner of this post"
                     }
@@ -8933,7 +9062,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "you are not owner of this post"
                     }
@@ -8956,7 +9085,7 @@
                       "type": "string",
                       "example": "fail"
                     },
-                    "errorMessage": {
+                    "message": {
                       "type": "string",
                       "example": "file not found"
                     }
@@ -9018,9 +9147,6 @@
       "error": {
         "type": "object",
         "properties": {
-          "status": {
-            "type": "string"
-          },
           "errorMessage": {
             "type": "string"
           }
@@ -9255,7 +9381,7 @@
             "type": "string",
             "example": "firstname secondname"
           },
-          "postKarma": {
+          "karma": {
             "type": "integer",
             "example": 1
           },
@@ -9372,9 +9498,17 @@
             "type": "string",
             "description": "A valid URL in case the kind is link"
           },
-          "sr": {
+          "owner": {
             "type": "string",
-            "description": "subreddit name"
+            "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead"
+          },
+          "ownerType": {
+            "type": "string",
+            "enum": [
+              "User",
+              "Subreddit"
+            ],
+            "description": "Determines wether the post belongs to a subreddit or a user"
           },
           "nsfw": {
             "type": "boolean"
@@ -9382,7 +9516,7 @@
           "spoiler": {
             "type": "boolean"
           },
-          "sendreplies": {
+          "sendReplies": {
             "type": "boolean",
             "description": "indicates whether the post accepts replies in private messages or not"
           },
@@ -9390,7 +9524,26 @@
             "type": "string"
           },
           "flairText": {
-            "type": "string"
+            "type": "string",
+            "description": "Should be given if the user edited the flair text"
+          },
+          "suggestedSort": {
+            "description": "specified only in scheduled posts",
+            "type": "string",
+            "enum": [
+              "top",
+              "new",
+              "best",
+              "old"
+            ]
+          },
+          "scheduled": {
+            "type": "boolean",
+            "description": "Should be true if the post is scheduled and createdAt should be the scheduled time"
+          },
+          "sharedFrom": {
+            "type": "string",
+            "description": "The ID of the original post"
           }
         }
       },
@@ -9513,7 +9666,10 @@
       "Post": {
         "type": "object",
         "properties": {
-          "creator": {
+          "_id": {
+            "type": "string"
+          },
+          "author": {
             "type": "string",
             "description": "The name of the user who created the post"
           },
@@ -9541,13 +9697,28 @@
             "type": "string",
             "description": "A valid URL in case the kind is link"
           },
-          "sr": {
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The images path(the kind must be image)"
+          },
+          "video": {
             "type": "string",
-            "description": "subreddit name"
+            "description": "The video path(the kind must be video)"
           },
           "votes": {
             "type": "integer",
             "description": "total number of votes"
+          },
+          "shareCount": {
+            "type": "integer",
+            "description": "total number of shares"
+          },
+          "views": {
+            "type": "integer",
+            "description": "view count"
           },
           "commentCount": {
             "type": "integer",
@@ -10033,6 +10204,18 @@
         "type": "apiKey",
         "in": "cookie",
         "name": "jwt"
+      },
+      "oAuthSample": {
+        "type": "oauth2",
+        "description": "Facebook or google authentication",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "/oauth/authorize",
+            "scopes": {
+              "access_token": "token"
+            }
+          }
+        }
       }
     },
     "responses": {

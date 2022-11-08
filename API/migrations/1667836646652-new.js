@@ -15,9 +15,9 @@ async function up() {
     email: "ahmedsabry@gmail.com",
     password: "12345678",
   });
-  userAhmed = await User.findOne({ userName: "Ahmed" });
+  let userAhmed = await User.findOne({ userName: "Ahmed" });
 
-  await Post.create({
+  let post = await Post.create({
     title: "kiro post",
     kind: "self",
     text: "this is a test post",
@@ -30,6 +30,15 @@ async function up() {
     suggestedSort: "top",
     scheduled: false,
   });
+  let postID = post._id;
+  await User.findOneAndUpdate(
+    { userName: "Ahmed" },
+    { $push: { votePost: { posts: postID, postVoteStatus: "1" },saved:{postID},hidden:{postID} } },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 }
 
 /**

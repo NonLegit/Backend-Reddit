@@ -72,7 +72,7 @@ class Repository {
   }
   async updateOne(query, data) {
     try {
-      const doc = await this.Model.findOneAndUpdate(query, data, {
+      let doc = await this.Model.findOneAndUpdate(query, data, {
         new: true,
         runValidators: true,
       });
@@ -156,15 +156,15 @@ class Repository {
     }
   }
 
-  async getAll(filter, query) {
+  async getAll(filter, query,popOptions) {
     try {
-      const features = new APIFeatures(Model.find(filter), query)
+      const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
         .limitFields()
         .paginate();
       // const doc = await features.query.explain();
-      const doc = await features.query;
+      let doc = await features.query.populate(popOptions);
       const response = {
         status: "success",
         statusCode: 200,

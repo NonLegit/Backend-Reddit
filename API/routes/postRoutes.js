@@ -28,4 +28,5 @@ router
   .patch(postControllerObj.updatePost)
   .delete(postControllerObj.deletePost);
 
+
 module.exports = router;

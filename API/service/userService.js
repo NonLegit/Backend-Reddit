@@ -239,9 +239,9 @@ class UserService {
     let user = await this.userRepository.getOne({ email: email }, "", "");
     return user;
   }
-  async getUserByName(userName)
+  async getUserByName(userName,popOptions)
   {
-    let user = await this.userRepository.getOne({ userName: userName }, "", "");
+    let user = await this.userRepository.getOne({ userName: userName }, "", popOptions);
     return user;
   }
   getPrefs(user) {
