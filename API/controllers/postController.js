@@ -7,23 +7,37 @@ class PostController {
   }
 
   async createPost(req, res) {
-    const user = req.user;
-    const post = await this.postServices.createPost(req.body, user);
-    if (post.status === "success") {
-      res.status(post.statusCode).json({
-        status: "success",
-        data: post.doc,
-      });
-    } else {
-      res.status(post.statusCode).json({
+    try {
+      //Add current user as author
+      const user = req.user;
+      req.body.author = user._id;
+
+      const post = await this.postServices.createPost(req.body);
+      if (post.status === "success") {
+        res.status(post.statusCode).json({
+          status: "success",
+          data: post.doc,
+        });
+      } else {
+        res.status(post.statusCode).json({
+          status: "fail",
+          message: post.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in Post controller" + err);
+      res.status(500).json({
         status: "fail",
-        message: post.err,
       });
     }
   }
+
   async deletePost(req, res) {
     const user = req.user;
-    const deleted = await this.postServices.deletePost(req.params.postId, user);
+    const deleted = await this.postServices.deletePost(
+      req.params.postId,
+      user._id
+    );
     if (deleted.status === "success") {
       res.status(deleted.statusCode).json({
         status: "success",
@@ -42,7 +56,7 @@ class PostController {
     const updated = await this.postServices.updatePost(
       req.params.postId,
       req.body,
-      user
+      user._id
     );
     if (updated.status === "success") {
       res.status(updated.statusCode).json({

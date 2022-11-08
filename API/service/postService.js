@@ -1,13 +1,22 @@
 class PostService {
-  constructor(Post, postRepository) {
+  constructor(Post, postRepository, subredditRepository, flairRepository) {
     this.Post = Post;
     this.postRepository = postRepository;
+    this.subredditRepository = subredditRepository;
+    this.f;
     this.createPost = this.createPost.bind(this);
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
+    this.checkFlair = this.checkFlair.bind(this);
   }
 
-  async createPost(data, user) {
+  async checkFlair(subredditId, flairId){
+    const flairs = (await this.subredditRepository.getById(subredditId, "flairs")).flairs;
+    if(!flairs || !flairs.includes(flairId)) return false;
+    return true;
+  }
+
+  async createPost(data) {
     try {
       const validType =
         (data.kind === "link" && data.url) ||
@@ -20,12 +29,33 @@ class PostService {
           err: "Invalid post type",
         };
       }
-      
-      //Add current user as author
-      data.author = user._id;
 
-      //validate subreddit
-
+      //validate owner id
+      if (data.ownerType === "User") {
+        if (!data.author.equals(data.owner))
+          return {
+            status: "fail",
+            statusCode: 400,
+            err: "Author id must be the same as Owner id",
+          };
+      }
+      //validate subreddit if the post is created in one
+      else {
+        if (!(await this.subredditRepository.isValidId(data.owner)))
+          return {
+            status: "fail",
+            statusCode: 404,
+            err: "Subreddit not found",
+          };
+      }
+      //validate flair id and make sure it's withing the subreddit
+      if (data.flair && !await this.checkFlair(data.owner, data.flair))
+        return{
+          status: "fail",
+          statusCode: 400,
+          err: "Invalid flair Id"
+        };
+        
       //shared
       //scheduled
 
@@ -41,20 +71,30 @@ class PostService {
     }
   }
 
+  //Assumed postId is a valid id
   async isAuthor(postId, userId) {
-    const author = (await this.Post.findById(postId).select("author")).author;
+    //const author = (await this.Post.findById(postId).select("author")).author;
+    const author = (await this.postRepository.getById(postId, "author")).author;
     return author.equals(userId);
   }
 
   async isEditable(postId) {
-    const post = await this.Post.findById(postId).select("kind sharedFrom");
+    //const post = await this.Post.findById(postId).select("kind sharedFrom");
+    const post = await this.postRepository.getById(postId, "kind sharedFrom");
     if (post.kind !== "self" || post.sharedFrom) return false;
     return true;
   }
 
-  async updatePost(id, data, user) {
+  async updatePost(id, data, userId) {
     try {
-      if (!(await this.isAuthor(id, user._id))) {
+      const validId = await this.postRepository.isValidId(id);
+      if (!validId)
+        return {
+          status: "fail",
+          statusCode: 404,
+          err: "Post not found",
+        };
+      if (!(await this.isAuthor(id, userId))) {
         return {
           status: "fail",
           statusCode: 401,
@@ -80,9 +120,16 @@ class PostService {
     }
   }
 
-  async deletePost(id, user) {
+  async deletePost(id, userId) {
     try {
-      if (!(await this.isAuthor(id, user._id))) {
+      const validId = await this.postRepository.isValidId(id);
+      if (!validId)
+        return {
+          status: "fail",
+          statusCode: 404,
+          err: "Post not found",
+        };
+      if (!(await this.isAuthor(id, userId))) {
         return {
           status: "fail",
           statusCode: 401,

@@ -3,9 +3,18 @@ const PostController = require("../controllers/postController");
 const Repository = require("../data_access/repository");
 const PostService = require("../service/postService");
 const Post = require("../models/postModel");
+const Subreddit = require("../models/subredditModel");
+const Flair = require("../models/flairModel");
 
 const postRepoObj = new Repository(Post);
-const postServiceObj = new PostService(Post, postRepoObj);
+const subredditRepoObj = new Repository(Subreddit);
+const flairRepoObj = new Repository(Flair);
+const postServiceObj = new PostService(
+  Post,
+  postRepoObj,
+  subredditRepoObj,
+  flairRepoObj
+);
 const postControllerObj = new PostController(postServiceObj);
 
 //using authorization functionality

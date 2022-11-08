@@ -3,20 +3,23 @@ const APIFeatures = require("./apiFeatures");
 class Repository {
   constructor(model) {
     this.Model = model;
-    
+
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
 
-    this.updateOneByQuery=this.updateOneByQuery.bind(this);
-    this.deleteOneByQuery=this.deleteOneByQuery.bind(this);
+    this.updateOneByQuery = this.updateOneByQuery.bind(this);
+    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
     this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+
+    this.isValidId = this.isValidId.bind(this);
+    this.getById = this.getById.bind(this);
   }
 
   async createOne(data) {
@@ -71,8 +74,9 @@ class Repository {
     }
   }
   async updateOne(id, data) {
+    console.log(id, data);
     try {
-      const doc = await this.Model.findByIAndUpdate(id, data, {
+      const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
       });
@@ -322,6 +326,17 @@ class Repository {
       };
       return response;
     }
+  }
+
+  async getById(id, select) {
+    const doc = await this.Model.findById(id).select(select);
+    return doc;
+  }
+
+  async isValidId(id) {
+    const doc = await this.Model.findById(id);
+    if (!doc) return false;
+    return true;
   }
 }
 
