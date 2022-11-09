@@ -97,7 +97,7 @@ class PostController {
 
       // get vote of me if these post i vote on it
       posts = this.postServices.setVotePostStatus(me, posts);
-      console.log(posts[0]);
+      //console.log(posts[0]);
       res.status(200).json({
         status: "success",
         posts: posts,
@@ -111,7 +111,6 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved", "-__v");
-    console.log(me);
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.saved);
@@ -127,7 +126,6 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved", "-__v");
-    console.log(me);
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.saved);
@@ -143,7 +141,6 @@ class PostController {
 
     // get post which he creates
     await me.populate("votePost.posts", "-__v");
-    console.log(me);
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
@@ -157,10 +154,9 @@ class PostController {
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
     await me.populate("votePost.posts", "-__v");
-    console.log(me);
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
-    let posts = this.postServices.selectPostsWithVotes(me.votePost, "0");
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
     res.status(200).json({
       status: "success",
       posts: posts,

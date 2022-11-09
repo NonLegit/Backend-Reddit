@@ -163,7 +163,7 @@ class PostService {
     for (var i = 0; i < user.votePost.length; i++) {
       hash[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
     }
-    console.log(hash);
+   // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
       try {

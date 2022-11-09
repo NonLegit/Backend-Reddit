@@ -207,6 +207,12 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  subreddits: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Subreddit",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {

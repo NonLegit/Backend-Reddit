@@ -140,7 +140,6 @@ class AuthenticationController {
     if (req.cookies.jwt) {
       token = req.cookies.jwt;
     }
-    console.log(token);
     if (!token) {
       res.status(401).json({
         status: "fail",
