@@ -183,7 +183,10 @@ class PostService {
     let newPost = [];
     posts.forEach((element) => {
       if (element.postVoteStatus === votetype) {
-        let newElement = element.posts.toObject();
+        let newElement;
+        try {
+          newElement = element.posts.toObject();
+        } catch (err) {}
         newElement["postVoteStatus"] = votetype;
         newPost.push(newElement);
       }

@@ -23,6 +23,7 @@
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.6.0",
     "fs": "^0.0.1-security",
+    "google-auth-library": "^8.7.0",
     "helmet": "^6.0.0",
     "hpp": "^0.2.3",
     "install": "^0.13.0",

@@ -72,5 +72,51 @@ describe("User Post Test", () => {
         expect(result[1].postVoteStatus).to.equal("0");
       });
     });
+    describe("selectPostsWithVotes function ", () => {
+      const postservices = new PostService("", "", "", "");
+      it("first test,", () => {
+        let Posts = [
+          {
+            posts: { id: "1" },
+            postVoteStatus: "1",
+          },
+          {
+            posts: { id: "1" },
+            postVoteStatus: "0",
+          },
+          {
+            posts: { id: "1" },
+            postVoteStatus: "0",
+          },
+          {
+            posts: { id: "1" },
+            postVoteStatus: "0",
+          },
+        ];
+        const result = postservices.selectPostsWithVotes(Posts, "1");
+
+        expect(result.length).to.equal(1);
+      });
+      it("second test", () => {
+        let posts = [];
+        let user = { votePost: [] };
+        const result = postservices.setVotePostStatus(user, posts);
+        expect(result.length).to.equal(0);
+      });
+      it("third test", () => {
+        let posts = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+        ];
+        let user = { votePost: [] };
+        const result = postservices.setVotePostStatus(user, posts);
+        expect(result[0].postVoteStatus).to.equal("0");
+        expect(result[1].postVoteStatus).to.equal("0");
+      });
+    });
   });
 });

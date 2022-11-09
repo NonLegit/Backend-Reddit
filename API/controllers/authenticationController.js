@@ -1,3 +1,5 @@
+const { OAuth2Client } = require("google-auth-library");
+
 class AuthenticationController {
   constructor(UserServices) {
     this.UserServices = UserServices; // can be mocked in unit testing
@@ -11,6 +13,7 @@ class AuthenticationController {
     this.authorize = this.authorize.bind(this);
     this.facebookAuth = this.facebookAuth.bind(this);
     this.facebookValidation = this.facebookValidation.bind(this);
+    this.googleAuth = this.googleAuth.bind(this);
   }
 
   createCookie(res, token, statusCode) {
@@ -167,7 +170,7 @@ class AuthenticationController {
     }
   }
   async facebookAuth(accessToken, refreshToken, profile, done) {
-    const email = profile.emails[o].value;
+    const email = profile.emails[0].value;
     // find user in database
     const user = await this.UserServices.getUserByEmail(email);
     if (user.status === "fail") {
@@ -211,6 +214,55 @@ class AuthenticationController {
     } else {
       const token = await this.UserServices.createToken(user.user._id);
       this.createCookie(res, token, 200);
+    }
+  }
+  async googleAuth(req, res, next) {
+    const oAuth2Client = new OAuth2Client();
+    if (!req.body.tokenId) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "provide token",
+      });
+    } else {
+      try {
+        const token = req.body.tokenId;
+        const key = await oAuth2Client.verifyIdToken({
+          idToken: token,
+          requiredAudience: process.env.GOOGLE_APP_ID,
+        });
+        const payload = key.getPayload();
+        const email = payload["email"];
+        const user = await this.UserServices.getUserByEmail(email);
+        if (user.status === "fail") {
+          // user not found, signup new user
+          const userName = req.body.userName;
+          if (!userName) {
+            res.status(400).json({
+              status: "fail",
+              errorMessage: "provide userName",
+            });
+          } else {
+            let response = await this.UserServices.signUp(
+              email,
+              userName,
+              "random passsword"
+            );
+            if (response.status === 201) {
+              this.createCookie(res, response.body.token, 201);
+            } else {
+              res.status(response.status).json(response.body);
+            }
+          }
+        } else {
+          const token = await this.UserServices.createToken(user.doc._id);
+          this.createCookie(res, token, 200);
+        }
+      } catch (error) {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: "provide valid token",
+        });
+      }
     }
   }
 }

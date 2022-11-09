@@ -376,5 +376,4 @@ describe("User Services Test", () => {
       assert.equal(result.nsfw, true);
     });
   });
-  
 });
