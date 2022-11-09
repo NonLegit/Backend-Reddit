@@ -24,6 +24,9 @@ class UserService {
     this.getPrefs = this.getPrefs.bind(this);
     this.updatePrefs = this.updatePrefs.bind(this);
     this.filterObj = this.filterObj.bind(this);
+
+    this.isAvailable = this.isAvailable.bind(this);
+    this.subscribe = this.subscribe.bind(this);
   }
   async createUser(data) {
     try {
@@ -239,9 +242,12 @@ class UserService {
     let user = await this.userRepository.getOne({ email: email }, "", "");
     return user;
   }
-  async getUserByName(userName,popOptions)
-  {
-    let user = await this.userRepository.getOne({ userName: userName }, "", popOptions);
+  async getUserByName(userName, popOptions) {
+    let user = await this.userRepository.getOne(
+      { userName: userName },
+      "",
+      popOptions
+    );
     return user;
   }
   getPrefs(user) {
@@ -284,6 +290,34 @@ class UserService {
       if (allowedFields.includes(el)) newObj[el] = obj[el];
     });
     return newObj;
+  }
+
+  async isAvailable(username) {
+    const found = await this.userRepository.getByQuery(
+      { userName: username },
+      "_id"
+    );
+    return !found;
+  }
+
+  async subscribe(userId, subredditId, action) {
+    const alreadySubscribed = await this.userRepository.getByQuery(
+      { _id: userId, subscribed: subredditId },
+      "_id"
+    );
+    console.log(alreadySubscribed);
+    //In order to subscribe, user should not be already subscribed
+    if (action==="sub" && !alreadySubscribed) {
+      return await this.userRepository.push(userId, {
+        subscribed: subredditId,
+      });
+    //In order to unsubscribe, user should be already subscribed
+    } else if (action==="unsub" && alreadySubscribed) {
+      return await this.userRepository.pull(userId, {
+        subscribed: subredditId,
+      });
+    }
+    return false;
   }
 }
 //export default UserService;

@@ -26,7 +26,7 @@ app.use(express.json({ limit: "10kb" }));
 
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
-app.use("/api/v1/subreddit", subredditRouter);
+app.use("/api/v1/subreddits", subredditRouter);
 app.use("/api/v1/posts", postRouter);
 
 app.all("*", (req, res, next) => {

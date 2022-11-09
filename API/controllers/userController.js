@@ -4,6 +4,7 @@ class UserController {
     this.createUser = this.createUser.bind(this);
     this.getPrefs = this.getPrefs.bind(this);
     this.updatePrefs = this.updatePrefs.bind(this);
+    this.usernameAvailable = this.usernameAvailable.bind(this);
   }
   async createUser(req, res, next) {
     let data = req.body;
@@ -43,6 +44,28 @@ class UserController {
       status: "success",
       prefs: prefs,
     });
+  }
+
+  async usernameAvailable(req, res) {
+    if (!req.query.userName) {
+      res.status(400).json({
+        status: "fail",
+        message: "userName query paramater is required",
+      });
+      return;
+    }
+    const available = await this.userServices.isAvailable(req.query.userName);
+    if (available) {
+      res.status(200).json({
+        status: "success",
+        available: true,
+      });
+    } else {
+      res.status(200).json({
+        status: "success",
+        available: false,
+      });
+    }
   }
 }
 //export default userController;

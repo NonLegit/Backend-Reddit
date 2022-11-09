@@ -73,15 +73,14 @@ class PostService {
     }
   }
 
-  //Assumed postId is a valid id
+  //Assumes postId is a valid id
   async isAuthor(postId, userId) {
-    //const author = (await this.Post.findById(postId).select("author")).author;
     const author = (await this.postRepository.getById(postId, "author")).author;
     return author.equals(userId);
   }
 
+  //Assumes postId is a valid id
   async isEditable(postId) {
-    //const post = await this.Post.findById(postId).select("kind sharedFrom");
     const post = await this.postRepository.getById(postId, "kind sharedFrom");
     if (post.kind !== "self" || post.sharedFrom) return false;
     return true;

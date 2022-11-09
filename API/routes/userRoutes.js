@@ -24,14 +24,12 @@ const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 const authenticationControllerObj = new AuthenticationController(
   userServiceObj
 );
-const postControllerObj = new PostController(
-  postServiceObj,
-  userServiceObj
-);
+const postControllerObj = new PostController(postServiceObj, userServiceObj);
 const userControllerObj = new UserController(userServiceObj);
 
 const router = express.Router();
 
+router.route("/username_available").get(userControllerObj.usernameAvailable);
 
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
@@ -96,7 +94,6 @@ router.post(
 // authorize endpoints
 router.use(authenticationControllerObj.authorize);
 
-
 // authorized endpoints
 //router.get("/me",userController.getMe);
 router.get("/me/prefs", userControllerObj.getPrefs);
@@ -118,6 +115,6 @@ router.patch(
   }),
   userControllerObj.updatePrefs
 );
-router.get("/:userName/posts",postControllerObj.userPosts);
+router.get("/:userName/posts", postControllerObj.userPosts);
 
 module.exports = router;

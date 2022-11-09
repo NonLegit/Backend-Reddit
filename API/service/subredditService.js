@@ -1,14 +1,19 @@
 //const User = require('../models/userModel');
 //const Repository = require('../data_access/repository');
 class subredditService {
-  constructor(subreddit, subredditRepository, flair, flairRepository) {
+  constructor(
+    subreddit,
+    subredditRepository,
+    flair,
+    flairRepository
+  ) {
     this.subreddit = subreddit; // can be mocked in unit testing
     this.subredditRepository = subredditRepository; // can be mocked in unit testing
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubreddit = this.getSubreddit.bind(this);
     this.updateSubreddit = this.updateSubreddit.bind(this);
-    this.getCategoryPosts=this.getCategoryPosts.bind(this);
+    this.getCategoryPosts = this.getCategoryPosts.bind(this);
 
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
@@ -19,6 +24,9 @@ class subredditService {
     this.getFlair = this.getFlair.bind(this);
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
+
+    this.getSubreddit = this.getSubreddit.bind(this);
+    this.isBanned = this.isBanned.bind(this);
   }
   async createSubreddit(data) {
     try {
@@ -35,7 +43,10 @@ class subredditService {
   }
   async deleteSubreddit(filter, options) {
     try {
-      let response = await this.subredditRepository.deleteOneByQuery(filter, options);
+      let response = await this.subredditRepository.deleteOneByQuery(
+        filter,
+        options
+      );
       return response;
     } catch (err) {
       const error = {
@@ -101,9 +112,9 @@ class subredditService {
     }
   }
 
-  async getCategoryPosts(query,select){
+  async getCategoryPosts(query, select) {
     try {
-      let response = await this.subredditRepository.getOne(query,select, "");
+      let response = await this.subredditRepository.getOne(query, select, "");
       return response;
     } catch (err) {
       console.log("catch error here" + err);
@@ -282,6 +293,25 @@ class subredditService {
       };
       return error;
     }
+  }
+
+  async getSubreddit(subredditName) {
+    return await this.subredditRepository.getByQuery({ name: subredditName });
+  }
+
+  async isBanned(subredditId, userId) {
+    const punished = (
+      await this.subredditRepository.getById(subredditId, "punished")
+    ).punished;
+
+    let isBanned = false;
+    for (const { userId: bannedUser, type } of punished) {
+      if (type === "banned" && userId.equals(bannedUser)) {
+        isBanned = true;
+        break;
+      }
+    }
+    return isBanned;
   }
 }
 
