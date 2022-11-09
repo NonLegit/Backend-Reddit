@@ -13,9 +13,11 @@ class PostService {
     this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
   }
 
-  async checkFlair(subredditId, flairId){
-    const flairs = (await this.subredditRepository.getById(subredditId, "flairs")).flairs;
-    if(!flairs || !flairs.includes(flairId)) return false;
+  async checkFlair(subredditId, flairId) {
+    const flairs = (
+      await this.subredditRepository.getById(subredditId, "flairs")
+    ).flairs;
+    if (!flairs || !flairs.includes(flairId)) return false;
     return true;
   }
 
@@ -52,13 +54,13 @@ class PostService {
           };
       }
       //validate flair id and make sure it's withing the subreddit
-      if (data.flair && !await this.checkFlair(data.owner, data.flair))
-        return{
+      if (data.flair && !(await this.checkFlair(data.owner, data.flair)))
+        return {
           status: "fail",
           statusCode: 400,
-          err: "Invalid flair Id"
+          err: "Invalid flair Id",
         };
-        
+
       //shared
       //scheduled
 
@@ -164,23 +166,23 @@ class PostService {
     console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
-      newPosts[i] = newPosts[i].toObject();
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
       if (!hash[posts[i]._id]) {
         newPosts[i]["postVoteStatus"] = "0";
-        Object.assign(posts[i], {postVoteStatus: "0"});
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
         newPosts[i]["postVoteStatus"] = hash[posts[i]._id];
-        Object.assign(posts[i], {postVoteStatus: hash[posts[i]._id]});
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
     }
     return newPosts;
   }
-  selectPostsWithVotes(posts, votetype)
-  {
+  selectPostsWithVotes(posts, votetype) {
     let newPost = [];
-    posts.forEach(element => {
-      if(element.postVoteStatus === votetype)
-      {
+    posts.forEach((element) => {
+      if (element.postVoteStatus === votetype) {
         let newElement = element.posts.toObject();
         newElement["postVoteStatus"] = votetype;
         newPost.push(newElement);
