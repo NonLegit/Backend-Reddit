@@ -105,7 +105,7 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
-  contentvisibility: {
+  contentVisibility: {
     type: Boolean,
     required: false,
     default: true,
