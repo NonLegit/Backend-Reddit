@@ -97,7 +97,7 @@ router.post(
 router.use(authenticationControllerObj.authorize);
 
 // authorized endpoints
-//router.get("/me",userController.getMe);
+router.get("/me",userControllerObj.getMe);
 router.get("/me/prefs", userControllerObj.getPrefs);
 router.patch(
   "/me/prefs",

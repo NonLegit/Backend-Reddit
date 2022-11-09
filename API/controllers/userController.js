@@ -44,6 +44,29 @@ class UserController {
       prefs: prefs,
     });
   }
+  async getMe(req, res, next) {
+    const user = req.user;
+    const me = {
+      id: user._id,
+      userName: user.userName,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      contentVisibility: user.contentVisibility,
+      canbeFollowed: user.canbeFollowed,
+      lastUpdatedPassword: user.lastUpdatedPassword,
+      followersCount: user.followersCount,
+      friendsCount: user.friendsCount,
+      accountActivated: user.accountActivated,
+      gender: user.gender,
+      displayName: user.displayName,
+      postKarma: user.postKarma,
+      commentKarma: user.commentKarma,
+    };
+    res.status(200).json({
+      status: "success",
+      user: me,
+    });
+  }
 }
 //export default userController;
 module.exports = UserController;
