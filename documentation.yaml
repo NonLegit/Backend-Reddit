@@ -1221,7 +1221,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{userName}/upvoted:
+  /users/upvoted:
     get:
       tags:
         - Users
@@ -1231,11 +1231,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1270,7 +1265,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{userName}/downvoted:
+  /users/downvoted:
     get:
       tags:
         - Users
@@ -1280,11 +1275,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1318,7 +1308,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{userName}/saved:
+  /users/saved:
     get:
       tags:
         - Users
@@ -1327,11 +1317,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1363,7 +1348,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /users/{userName}/hidden:
+  /users/hidden:
     get:
       tags:
         - Users
@@ -1372,11 +1357,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
