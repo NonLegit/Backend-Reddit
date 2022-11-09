@@ -97,7 +97,7 @@ router.post(
 router.use(authenticationControllerObj.authorize);
 
 // authorized endpoints
-router.get("/me",userControllerObj.getMe);
+router.get("/me", userControllerObj.getMe);
 router.get("/me/prefs", userControllerObj.getPrefs);
 router.patch(
   "/me/prefs",
@@ -117,8 +117,8 @@ router.patch(
   }),
   userControllerObj.updatePrefs
 );
-router.get("/:userName/about",userControllerObj.about);
-router.get("/:userName/post", postControllerObj.userPosts);
+router.get("/:userName/about", userControllerObj.about);
+router.get("/:userName/posts", postControllerObj.userPosts);
 router.get("/saved", postControllerObj.getSavedPosts);
 router.get("/hidden", postControllerObj.getHiddenPosts);
 router.get("/upvoted", postControllerObj.userUpvotedPosts);
