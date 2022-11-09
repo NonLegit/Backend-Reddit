@@ -117,6 +117,7 @@ router.patch(
   }),
   userControllerObj.updatePrefs
 );
+router.get("/:userName/about",userControllerObj.about);
 router.get("/:userName/post", postControllerObj.userPosts);
 router.get("/saved", postControllerObj.getSavedPosts);
 router.get("/hidden", postControllerObj.getHiddenPosts);
