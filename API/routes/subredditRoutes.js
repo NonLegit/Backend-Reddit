@@ -51,6 +51,9 @@ router.delete(
   "/:subredditName/moderator/:moderatorName",
   subredditControllerObj.deletemoderator
 );
+router.patch(
+  "/:subredditName/moderator/:moderatorName",subredditControllerObj.updatePermissions
+);
 
 router
   .route("/:subredditName/flair")

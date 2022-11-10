@@ -5,167 +5,167 @@ const request = require("supertest");
 const dotenv = require("dotenv");
 dotenv.config({ path: "config/config.env" });
 process.env.NODE_ENV = "test";
-const server = require("./../../server");
+// const seeder = require("./../../models/seed");
 
 const app = require("./../../app");
-// const { mockRequest, mockResponse } = require("mock-req-res");
-// const { stub, match } = require("sinon");
-// const proxyquire = require("proxyquire");
 
-// ! testing is like a tree  (interesting)
-// ? how can i deploy test enviroment ?
-// *todo: dont forget to update referencing
-// ! status codes 400 (Bad request)  and 404 (something not found)
-
-describe("Subreddit Controller Test", async () => {
-  describe("Create subreddit Test", () => {
-    it("first test success", (done) => {
+describe("subreddit Controller (get subreddit) Test", () => {
+  describe("get subreddit Test", () => {
+    it("first test", (done) => {
+      //   request(app)
+      //     .post("/api/v1/users/login")
+      //     .send({
+      //       userName: "sabooor",
+      //       password: "sabry1234",
+      //     })
+      //     .then((res1) => {
+      //       // console.log(res1.body);
+      //       // console.log(res1.header);
+      //       // request(app)
+      //       //   .get("/api/v1/subreddit/cmp2024 chaship")
+      //       //   .send()
+      //       //   .then((res) => {
+      //       //     console.log(res.body);
+      //       //     expect(res.body.status).to.equal("success");
+      //       //     done();
+      //       //   })
+      //       //   .catch(err);
+      //       // {
+      //       //   console.log("err");
+      //       //   done();
+      //       // }
+      //       //done();
+      //     });
+      // });
       request(app)
-        .post("/api/v1/subreddit/khalod") //ask about id?
-        .send({
-          name: "cmp2024 championship",
-          type: "Public",
-          nsfw: true,
-        })
+        .get("/api/v1/subreddit/cmp2024 chaship")
+        .send()
         .then((res) => {
-          assert.equal(res.body.status, "success");
-          console.log("Passed from first test in create subreddit");
+          console.log(res.body);
+          expect(res.body.status).to.equal("success");
           done();
         })
-        .catch((err) => {
-          done(err);
-        });
-    });
-
-    it("second test (fail,not provide all body)", (done) => {
-      request(app)
-        .post("/api/v1/subreddit/khalod")
-        .send({
-          name: "cmp2024championship",
-          type: "Public",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          console.log("Passed from first test in sign");
-        });
-
-      request(app)
-        .post("/api/v1/subreddit/khalod")
-        .send({
-          type: "Public",
-          nsfw: true,
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          console.log("Passed from first test in sign");
-          done();
-        });
+        .catch(err);
+      {
+        console.log("err");
+        done();
+      }
     });
   });
-
-  describe("get subreddit Test", () => {
-    it("first test success", async () => {
-      console.log("make request");
-      subredditName = "cmp2024 championship";
-      request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
-        .then((res) => {
-          console.log(res.body.status);
-          expect(res.body.status).to.equal("success");
-        });
-      console.log("end request");
-    });
-    it("second test (fail,subreddit not existed)", async () => {
-      subredditName = "cmp2024ExamsSolutions";
-      request(app)
-        .get(`/api/v1/subreddit/${subredditName}`)
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 404);
-        });
-    });
-  });
-
-  //! update subreddit
-  describe("get subreddit Test", () => {
-    it("first test success (provide a valid subreddit with true moderator)", async () => {
-      console.log("make request");
-      subredditName = "cmp2024 championship";
-      userId = "khalod";
-      request(app)
-        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .send({
-          nsfw: "true",
-        })
-        .then((res) => {
-          console.log(res.body.status);
-          expect(res.body.status).to.equal("success");
-        });
-      console.log("end request");
-    });
-    it("second test (fail,subreddit not existed)", async () => {
-      subredditName = "cmp2024ExamsExams";
-      userId = "khalod";
-      request(app)
-        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .send({
-          nsfw: "true",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-        });
-    });
-    it("third test (fail,subreddit existed but not valid moderator )", async () => {
-      subredditName = "cmp2024ExamsSolutions";
-      userId = "ahmed";
-      request(app)
-        .patch(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .send({
-          nsfw: "true",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 401);
-        });
-    });
-  });
-
-  // ! delete subreddit
-  describe("get subreddit Test", () => {
-    it("first test success", async () => {
-      console.log("make request");
-      subredditName = "cmp2024 championship";
-      userId = "khalod";
-      request(app)
-        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .then((res) => {
-          console.log(res.body.status);
-          expect(res.body.status).to.equal("success");
-        });
-      console.log("end request");
-    });
-    it("second test (fail,subreddit not existed)", async () => {
-      subredditName = "cmp2024ExamsExams";
-      userId = "khalod";
-      request(app)
-        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-        });
-    });
-    it("third test (fail,subreddit existed but not the owner)", async () => {
-      subredditName = "cmp2024ExamsSolutions";
-      userId = "khalod";
-      request(app)
-        .delete(`/api/v1/subreddit/${subredditName}/${userId}`)
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 401);
-        });
-    });
-  });
+  // describe("user saved Test", () => {
+  //   it("first test", (done) => {
+  //     request(app)
+  //       .post("/api/v1/users/login")
+  //       .send({
+  //         email: "ahmedsabry@gmail.com",
+  //         userName: "Ahmed",
+  //         password: "12345678",
+  //       })
+  //       .then((res1) => {
+  //         request(app)
+  //           .get("/api/v1/users/saved")
+  //           .set("Cookie", res1.header["set-cookie"])
+  //           .send()
+  //           .then((res) => {
+  //             //console.log(res.body);
+  //             expect(res.body.posts.length).to.equal(3);
+  //             expect(res.body.posts[0].postVoteStatus).to.equal("1");
+  //             expect(res.body.posts[1].postVoteStatus).to.equal("-1");
+  //             expect(res.body.posts[2].postVoteStatus).to.equal("1");
+  //             done();
+  //           })
+  //           .catch(err);
+  //         {
+  //           done();
+  //           console.log("erro");
+  //         }
+  //       });
+  //   });
+  // });
+  // describe("user hidden Test", () => {
+  //   it("first test", (done) => {
+  //     request(app)
+  //       .post("/api/v1/users/login")
+  //       .send({
+  //         email: "ahmedsabry@gmail.com",
+  //         userName: "Ahmed",
+  //         password: "12345678",
+  //       })
+  //       .then((res1) => {
+  //         request(app)
+  //           .get("/api/v1/users/hidden")
+  //           .set("Cookie", res1.header["set-cookie"])
+  //           .send()
+  //           .then((res) => {
+  //             //console.log(res.body);
+  //             expect(res.body.posts.length).to.equal(3);
+  //             expect(res.body.posts[0].postVoteStatus).to.equal("1");
+  //             expect(res.body.posts[1].postVoteStatus).to.equal("-1");
+  //             expect(res.body.posts[2].postVoteStatus).to.equal("1");
+  //             done();
+  //           })
+  //           .catch(err);
+  //         {
+  //           done();
+  //           console.log("erro");
+  //         }
+  //       });
+  //   });
+  // });
+  // describe("user upvoted Test", () => {
+  //   it("first test", (done) => {
+  //     request(app)
+  //       .post("/api/v1/users/login")
+  //       .send({
+  //         email: "ahmedsabry@gmail.com",
+  //         userName: "Ahmed",
+  //         password: "12345678",
+  //       })
+  //       .then((res1) => {
+  //         request(app)
+  //           .get("/api/v1/users/upvoted")
+  //           .set("Cookie", res1.header["set-cookie"])
+  //           .send()
+  //           .then((res) => {
+  //             //console.log(res.body);
+  //             expect(res.body.posts.length).to.equal(2);
+  //             expect(res.body.posts[0].ownerType).to.equal("User");
+  //             done();
+  //           })
+  //           .catch(err);
+  //         {
+  //           done();
+  //           console.log("erro");
+  //         }
+  //       });
+  //   });
+  // });
+  // describe("user downvoted Test", () => {
+  //   it("first test", (done) => {
+  //     request(app)
+  //       .post("/api/v1/users/login")
+  //       .send({
+  //         email: "ahmedsabry@gmail.com",
+  //         userName: "Ahmed",
+  //         password: "12345678",
+  //       })
+  //       .then((res1) => {
+  //         request(app)
+  //           .get("/api/v1/users/downvoted")
+  //           .set("Cookie", res1.header["set-cookie"])
+  //           .send()
+  //           .then((res) => {
+  //             //console.log(res.body);
+  //             expect(res.body.posts.length).to.equal(1);
+  //             expect(res.body.posts[0].ownerType).to.equal("User");
+  //             done();
+  //           })
+  //           .catch(err);
+  //         {
+  //           done();
+  //           console.log("erro");
+  //         }
+  //       });
+  //   });
+  // });
 });

@@ -10,6 +10,7 @@ class subredditController {
     this.inviteModerator = this.inviteModerator.bind(this);
     this.deletemoderator = this.deletemoderator.bind(this);
     this.subredditsJoined = this.subredditsJoined.bind(this);
+    this.updatePermissions = this.updatePermissions.bind(this);
     //! ***************************
     this.createFlair = this.createFlair.bind(this);
     this.deleteFlair = this.deleteFlair.bind(this);
@@ -227,36 +228,22 @@ class subredditController {
     let userId = req.user._id;
     let category = req.params.location;
     try {
-      let canGet = await this.subredditServices.isModerator(
+      // * get posts marked with this category
+      let response = await this.subredditServices.getCategoryPosts(
         subredditName,
-        userId
+        userId,
+        category
       );
-      if (canGet.status === "fail") {
-        canGet.statusCode = 401;
-        res.status(canGet.statusCode).json({
-          status: canGet.statusCode,
-          message: "you are not moderator to this subreddit",
+      if (response.status === "fail") {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.err,
         });
       } else {
-        // * get posts marked with this category
-        let response = await this.subredditServices.getCategoryPosts(
-          {
-            name: subredditName,
-            "posts.category": category,
-          },
-          posts
-        );
-        if (response.status === "fail") {
-          res.status(response.statusCode).json({
-            status: response.statusCode,
-            message: response.err,
-          });
-        } else {
-          res.status(response.statusCode).json({
-            status: response.status,
-            response: subreddit.doc,
-          });
-        }
+        res.status(response.statusCode).json({
+          status: response.status,
+          response: subreddit.doc,
+        });
       }
     } catch (err) {
       console.log("error in subredditservices " + err);
@@ -289,6 +276,38 @@ class subredditController {
         res.status(response.statusCode).json({
           status: response.statusCode,
           message: response.message,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+
+  async updatePermissions(req, res) {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let newModName = req.params.moderatorName;
+    let data = req.body;
+
+    try {
+      let response = await this.subredditServices.updateModeratorSettings(
+        subredditName,
+        userId,
+        newModName,
+        data
+      );
+      if (response.status === "fail") {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          message: response.message,
+        });
+      } else {
+        res.status(response.statusCode).json({
+          status: response.statusCode,
+          doc: response.doc.moderators,
         });
       }
     } catch (err) {

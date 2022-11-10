@@ -134,7 +134,6 @@ class Repository {
       const doc = await this.Model.findOneAndUpdate(filter, data, {
         new: true,
       });
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -146,12 +145,12 @@ class Repository {
       const response = {
         status: "success",
         statusCode: 200,
-        data: doc,
+        doc,
       };
       return response;
     } catch (err) {
       const response = {
-        error: true,
+        status: "fail",
         statusCode: 400,
         err,
       };

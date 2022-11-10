@@ -20,6 +20,7 @@ class subredditService {
     this.getCategoryPosts = this.getCategoryPosts.bind(this);
     this.inviteMod = this.inviteMod.bind(this);
     this.deleteMod = this.deleteMod.bind(this);
+    this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
     this.flair = flair; // can be mocked in unit testing
@@ -119,7 +120,7 @@ class subredditService {
 
   async inviteMod(subredditName, userId, modName, data) {
     try {
-      //! check subreddit existed or not
+      // ! check subreddit existed or not
       let subredditExisted = await this.getSubreddit({ name: subredditName });
       if (subredditExisted.status === "fail") {
         const response = {
@@ -219,7 +220,6 @@ class subredditService {
 
   async deleteMod(subredditName, userId, modName) {
     try {
-      console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii 🚀");
       //! check subreddit existed or not
       let subredditExisted = await this.getSubreddit({ name: subredditName });
       if (subredditExisted.status === "fail") {
@@ -284,15 +284,13 @@ class subredditService {
               ) {
                 // ! remove him
                 console.log("success");
-                let removeHim =
-                  await this.subredditRepository.deleteOneByQuery(
-                    {
-                      name: subredditName,
-                      "moderators.username": userExisted.doc._id,
-                    },
-                    { $pull: { "moderators.username": userExisted.doc._id } }
-                  );
-                console.log(removeHim);
+                let removeHim = await this.subredditRepository.deleteOneByQuery(
+                  {
+                    name: subredditName,
+                    "moderators.username": userExisted.doc._id,
+                  },
+                  { $pull: { "moderators.username": userExisted.doc._id } }
+                );
                 if (removeHim.status === "fail") {
                   const response = {
                     status: "fail",
@@ -332,8 +330,29 @@ class subredditService {
 
   async getCategoryPosts(query, select) {
     try {
-      let response = await this.subredditRepository.getOne(query, select, "");
-      return response;
+      // ! check if user is mod first
+      let canGet = await this.subredditServices.isModerator(
+        subredditName,
+        userId
+      );
+      if (canGet.status === "fail") {
+        canGet.statusCode = 401;
+        res.status(canGet.statusCode).json({
+          status: canGet.statusCode,
+          message: "you are not moderator to this subreddit",
+        });
+      } else {
+        // ! get posts relevant to this category
+        let response = await this.subredditRepository.getOne(
+          {
+            name: subredditName,
+            "posts.category": category,
+          },
+          "posts",
+          ""
+        );
+        return response;
+      }
     } catch (err) {
       console.log("catch error here" + err);
       const error = {
@@ -347,7 +366,6 @@ class subredditService {
 
   async subredditsIamIn(userId, location) {
     try {
-      console.log("🚀🚀🚀🚀");
       if (location === "moderator") {
         //! get list of subreddits iam moderator in (easy)
         let subreddits = await this.subredditRepository.getlist(
@@ -355,7 +373,6 @@ class subredditService {
           "_id name backgroundImage usersCount description",
           ""
         );
-        console.log(subreddits);
         if (subreddits.status === "fail") {
           const error = {
             status: "fail",
@@ -372,7 +389,6 @@ class subredditService {
           "_id name backgroundImage usersCount description",
           "subreddits"
         );
-        console.log(subreddits);
         if (subreddits.status === "fail") {
           const error = {
             status: "fail",
@@ -386,11 +402,142 @@ class subredditService {
         const error = {
           status: "fail",
           statusCode: 400,
-          err: "invalid enum value",
+          message: "invalid enum value",
         };
         return error;
       }
-    } catch (error) {}
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
+  }
+
+  async updateModeratorSettings(subredditName, userId, modName, data) {
+    try {
+      //! check subreddit existed or not
+      let subredditExisted = await this.getSubreddit({ name: subredditName });
+      if (subredditExisted.status === "fail") {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit doesn't exist",
+        };
+        return response;
+      } else {
+        //! 2]check user is moderator
+        let canDelete = await this.subredditRepository.getOne(
+          { name: subredditName, "moderators.username": userId },
+          { "moderators.mod_time.$": 1 },
+          ""
+        );
+        if (canDelete.status === "fail") {
+          const response = {
+            status: "fail",
+            statusCode: 401,
+            message: "you are not moderator to this subreddit",
+          };
+          return response;
+        } else {
+          //! he is moderator and subreddit is existed => 3]check username existed
+          let userExisted = await this.userRepository.getOne(
+            {
+              userName: modName,
+            },
+            "",
+            ""
+          );
+          if (userExisted.status === "fail") {
+            const response = {
+              status: "fail",
+              statusCode: 404,
+              message: "this username doesn't exist",
+            };
+            return response;
+          } else {
+            // ! 4] check if he is mod to this subreddit
+            let UserIsMod = await this.subredditRepository.getOne(
+              {
+                name: subredditName,
+                "moderators.username": userExisted.doc._id,
+              },
+              { "moderators.mod_time.$": 1 },
+              ""
+            );
+            if (UserIsMod.status === "fail") {
+              const response = {
+                status: "fail",
+                statusCode: 404,
+                message: "this username is not moderator",
+              };
+              return response;
+            } else {
+              // ! check if iam mod before him or not
+              if (
+                parseInt(canDelete.doc.moderators[0]["mod_time"]) <=
+                parseInt(UserIsMod.doc.moderators[0]["mod_time"])
+              ) {
+                // ! update him
+                console.log("success");
+                let updateHim = await this.subredditRepository.updateOneByQuery(
+                  {
+                    name: subredditName,
+                    "moderators.username": userExisted.doc._id,
+                  },
+                  {
+                    $set: {
+                      "moderators.$.permissions": {
+                        all: data.permissions.all,
+                        access: data.permissions.access,
+                        config: data.permissions.config,
+                        flair: data.permissions.flair,
+                        posts: data.permissions.posts,
+                      },
+                    },
+                  }
+                );
+                console.log(updateHim);
+                if (updateHim.status === "fail") {
+                  const response = {
+                    status: "fail",
+                    statusCode: 404,
+                    message: "something went wrong",
+                  };
+                  return response;
+                } else {
+                  let updatedMod = await this.subredditRepository.getOne(
+                    {
+                      name: subredditName,
+                      "moderators.username": userExisted.doc._id,
+                    },
+                    { "moderators.$": 1 },
+                    ""
+                  );
+                  return updatedMod;
+                }
+              } else {
+                const response = {
+                  status: "fail",
+                  statusCode: 401,
+                  message: "cannot update moderator elder than you",
+                };
+                return response;
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        errorMessage: err,
+      };
+      return error;
+    }
   }
 
   //! Doaa's part
