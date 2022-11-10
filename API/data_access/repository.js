@@ -4,6 +4,7 @@ class Repository {
   constructor(model) {
     this.Model = model;
 
+
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
@@ -12,11 +13,16 @@ class Repository {
 
     this.updateOneByQuery = this.updateOneByQuery.bind(this);
     this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
+    this.updateOneByQuery = this.updateOneByQuery.bind(this);
+    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
     this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+
+    this.isValidId = this.isValidId.bind(this);
+    this.getById = this.getById.bind(this);
   }
 
   async createOne(data) {
@@ -73,7 +79,7 @@ class Repository {
 
   async getOne(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select);
+      let tempDoc = this.Model.findOne(query).select(select + " -__v");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
       if (!doc) {
@@ -99,7 +105,7 @@ class Repository {
       return response;
     }
   }
-  async updateOne(id, data) {
+  async updateOne(query, data) {
     try {
       const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
@@ -185,7 +191,9 @@ class Repository {
   }
 
   async getAll(filter, query, popOptions) {
+  async getAll(filter, query,popOptions) {
     try {
+      const features = new APIFeatures(this.Model.find(filter), query)
       const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
@@ -350,6 +358,17 @@ class Repository {
       };
       return response;
     }
+  }
+
+  async getById(id, select) {
+    const doc = await this.Model.findById(id).select(select);
+    return doc;
+  }
+
+  async isValidId(id) {
+    const doc = await this.Model.findById(id);
+    if (!doc) return false;
+    return true;
   }
 }
 
