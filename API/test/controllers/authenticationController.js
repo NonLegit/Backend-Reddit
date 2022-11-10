@@ -25,23 +25,21 @@ describe("Authentication Controller Test", async () => {
         .then((res) => {
           assert.equal(res.body.status, "success");
           console.log("Passed from first test in sign");
-          //done();
+          request(app)
+            .post("/api/v1/users/signup")
+            .send({
+              email: "ahmedsabry@gmail.com",
+              userName: "ahmed",
+              password: "12345678",
+            })
+            .then((res) => {
+              assert.equal(res.body.status, "fail");
+              console.log("Passed from first test in sign");
+            });
+          done();
         })
         .catch((err) => {
           done(err);
-        });
-
-      request(app)
-        .post("/api/v1/users/signup")
-        .send({
-          email: "ahmedsabry@gmail.com",
-          userName: "ahmed",
-          password: "12345678",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          console.log("Passed from first test in sign");
-          done();
         });
     });
     it("second test (fail,not provide all body)", (done) => {
@@ -54,26 +52,24 @@ describe("Authentication Controller Test", async () => {
         .then((res) => {
           assert.equal(res.body.status, "fail");
           assert.equal(res.status, 400);
-          console.log("Passed from first test in sign");
-        });
-
-      request(app)
-        .post("/api/v1/users/signup")
-        .send({
-          email: "kahled@gmail.com",
-          password: "12345678",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          console.log("Passed from first test in sign");
+          request(app)
+            .post("/api/v1/users/signup")
+            .send({
+              email: "kahled@gmail.com",
+              password: "12345678",
+            })
+            .then((res) => {
+              assert.equal(res.body.status, "fail");
+              assert.equal(res.status, 400);
+              console.log("Passed from first test in sign");
+            });
           done();
         });
     });
   });
 
   describe("login Test", () => {
-    it("first test success", async () => {
+    it("first test success",  (done) => {
       console.log("make request");
       request(app)
         .post("/api/v1/users/signup")
@@ -94,10 +90,10 @@ describe("Authentication Controller Test", async () => {
               console.log(res.body.status);
               expect(res.body.status).to.equal("success");
             });
+            done();
         });
-      console.log("end request");
     });
-    it("second test (fail,not provide all body)", async () => {
+    it("second test (fail,not provide all body)",  (done) => {
       request(app)
         .post("/api/v1/users/login")
         .send({
@@ -107,17 +103,17 @@ describe("Authentication Controller Test", async () => {
         .then((res) => {
           assert.equal(res.body.status, "fail");
           assert.equal(res.status, 400);
-        });
-
-      request(app)
-        .post("/api/v1/users/login")
-        .send({
-          email: "kahled@gmail.com",
-          password: "12345678",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
+          request(app)
+            .post("/api/v1/users/login")
+            .send({
+              email: "kahled@gmail.com",
+              password: "12345678",
+            })
+            .then((res) => {
+              assert.equal(res.body.status, "fail");
+              assert.equal(res.status, 400);
+            });
+          done();
         });
     });
   });

@@ -239,14 +239,17 @@ class UserService {
     let user = await this.userRepository.getOne({ email: email }, "", "");
     return user;
   }
-  async getUserByName(userName,popOptions)
-  {
-    let user = await this.userRepository.getOne({ userName: userName }, "", popOptions);
+  async getUserByName(userName, popOptions) {
+    let user = await this.userRepository.getOne(
+      { userName: userName },
+      "",
+      popOptions
+    );
     return user;
   }
   getPrefs(user) {
     let prefs = {
-      contentvisibility: user.contentvisibility,
+      contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
       allowInboxMessage: user.allowInboxMessage,
@@ -263,7 +266,7 @@ class UserService {
     console.log(query);
     const filteredBody = this.filterObj(
       query,
-      "contentvisibility",
+      "contentVisibility",
       "canbeFollowed",
       "nsfw",
       "allowInboxMessage",

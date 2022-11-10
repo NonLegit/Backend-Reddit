@@ -6,6 +6,10 @@ class PostController {
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
     this.userPosts = this.userPosts.bind(this);
+    this.getSavedPosts = this.getSavedPosts.bind(this);
+    this.getHiddenPosts = this.getHiddenPosts.bind(this);
+    this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
+    this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
   }
 
   async createPost(req, res) {
@@ -82,7 +86,7 @@ class PostController {
       });
     } else {
       const userName = req.params.userName;
-      let user = await this.userServices.getUserByName(userName,"");
+      let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
       let userId = user.doc._id;
 
@@ -92,13 +96,71 @@ class PostController {
       let posts = await this.postServices.getUserPosts(userId);
 
       // get vote of me if these post i vote on it
-      posts = this.postServices.setVotePostStatus(me,posts);
-      console.log(posts[0]);
+      posts = this.postServices.setVotePostStatus(me, posts);
+      //console.log(posts[0]);
       res.status(200).json({
         status: "success",
         posts: posts,
       });
     }
+  }
+  async getSavedPosts(req, res, next) {
+    let me = req.user;
+
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+
+    // get post which he creates
+    await me.populate("saved", "-__v");
+    // get vote of me if these post i vote on it
+    //posts = this.postServices.setVotePostStatus(me, posts);
+    let posts = this.postServices.setVotePostStatus(me, me.saved);
+    res.status(200).json({
+      status: "success",
+      posts: posts,
+    });
+  }
+  async getHiddenPosts(req, res, next) {
+    let me = req.user;
+
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+
+    // get post which he creates
+    await me.populate("saved", "-__v");
+    // get vote of me if these post i vote on it
+    //posts = this.postServices.setVotePostStatus(me, posts);
+    let posts = this.postServices.setVotePostStatus(me, me.saved);
+    res.status(200).json({
+      status: "success",
+      posts: posts,
+    });
+  }
+  async userUpvotedPosts(req, res, next) {
+    let me = req.user;
+
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+
+    // get post which he creates
+    await me.populate("votePost.posts", "-__v");
+    // get vote of me if these post i vote on it
+    //let posts = this.postServices.setVotePostStatus(me, me.votePost);
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
+    res.status(200).json({
+      status: "success",
+      posts: posts,
+    });
+  }
+  async userDownvotedPosts(req, res, next) {
+    let me = req.user;
+
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+    await me.populate("votePost.posts", "-__v");
+    // get vote of me if these post i vote on it
+    //let posts = this.postServices.setVotePostStatus(me, me.votePost);
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
+    res.status(200).json({
+      status: "success",
+      posts: posts,
+    });
   }
 }
 

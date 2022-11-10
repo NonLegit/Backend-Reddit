@@ -105,7 +105,7 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
-  contentvisibility: {
+  contentVisibility: {
     type: Boolean,
     required: false,
     default: true,
@@ -205,6 +205,12 @@ const userSchema = new mongoose.Schema({
         enum: ["friend", "blocked", "followed", "none"],
         default: "none",
       },
+    },
+  ],
+  subreddits: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Subreddit",
     },
   ],
 });

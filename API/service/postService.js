@@ -10,11 +10,14 @@ class PostService {
     this.checkFlair = this.checkFlair.bind(this);
     this.getUserPosts = this.getUserPosts.bind(this);
     this.setVotePostStatus = this.setVotePostStatus.bind(this);
+    this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
   }
 
-  async checkFlair(subredditId, flairId){
-    const flairs = (await this.subredditRepository.getById(subredditId, "flairs")).flairs;
-    if(!flairs || !flairs.includes(flairId)) return false;
+  async checkFlair(subredditId, flairId) {
+    const flairs = (
+      await this.subredditRepository.getById(subredditId, "flairs")
+    ).flairs;
+    if (!flairs || !flairs.includes(flairId)) return false;
     return true;
   }
 
@@ -51,13 +54,13 @@ class PostService {
           };
       }
       //validate flair id and make sure it's withing the subreddit
-      if (data.flair && !await this.checkFlair(data.owner, data.flair))
-        return{
+      if (data.flair && !(await this.checkFlair(data.owner, data.flair)))
+        return {
           status: "fail",
           statusCode: 400,
-          err: "Invalid flair Id"
+          err: "Invalid flair Id",
         };
-        
+
       //shared
       //scheduled
 
@@ -155,24 +158,40 @@ class PostService {
   }
   setVotePostStatus(user, posts) {
     // create map of posts voted by user
-
+    let newPosts = Array.from(posts);
     let hash = {};
     for (var i = 0; i < user.votePost.length; i++) {
       hash[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
     }
-    console.log(hash);
+   // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
-    for (var i = 0; i < posts.length; i++) {
-      posts[i] = posts[i].toObject();
+    for (var i = 0; i < newPosts.length; i++) {
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
       if (!hash[posts[i]._id]) {
-        posts[i]["postVoteStatus"] = "0";
+        newPosts[i]["postVoteStatus"] = "0";
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
-        posts[i]["postVoteStatus"] = hash[posts[i]._id];
-        Object.assign(posts[i], {postVoteStatus: hash[posts[i]._id]});
+        newPosts[i]["postVoteStatus"] = hash[posts[i]._id];
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
     }
-    console.log(posts[0].postVoteStatus);
-    return posts;
+    return newPosts;
+  }
+  selectPostsWithVotes(posts, votetype) {
+    let newPost = [];
+    posts.forEach((element) => {
+      if (element.postVoteStatus === votetype) {
+        let newElement;
+        try {
+          newElement = element.posts.toObject();
+        } catch (err) {}
+        newElement["postVoteStatus"] = votetype;
+        newPost.push(newElement);
+      }
+    });
+    return newPost;
   }
 }
 
