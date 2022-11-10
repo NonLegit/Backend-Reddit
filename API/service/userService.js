@@ -252,6 +252,7 @@ class UserService {
       contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
+      gender: user.gender,
       allowInboxMessage: user.allowInboxMessage,
       allowMentions: user.allowMentions,
       allowCommentsOnPosts: user.allowCommentsOnPosts,
@@ -259,6 +260,7 @@ class UserService {
       allowUpvotesOnPosts: user.allowUpvotesOnPosts,
       displayName: user.displayName,
       profilePicture: user.profilePicture,
+      description: user.description,
     };
     return prefs;
   }
@@ -269,13 +271,14 @@ class UserService {
       "contentVisibility",
       "canbeFollowed",
       "nsfw",
+      "gender",
       "allowInboxMessage",
       "allowMentions",
       "allowCommentsOnPosts",
       "allowUpvotesOnComments",
       "allowUpvotesOnPosts",
       "displayName",
-      "profilePicture"
+      "description"
     );
     console.log("a   ", filteredBody);
     let user = await this.userRepository.updateOne({ _id: id }, filteredBody);

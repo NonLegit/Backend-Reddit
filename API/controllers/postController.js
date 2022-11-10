@@ -85,6 +85,10 @@ class PostController {
         message: "Provide userName ",
       });
     } else {
+      let sortType = "New";
+      if (req.query.sort) {
+        sortType = req.query.sort;
+      }
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
@@ -93,10 +97,13 @@ class PostController {
       // check if this user block me or i blocked him in order to show posts , TODO
 
       // get post which he creates
-      let posts = await this.postServices.getUserPosts(userId);
+      let posts = await this.postServices.getUserPosts(userId, sortType);
 
       // get vote of me if these post i vote on it
       posts = this.postServices.setVotePostStatus(me, posts);
+      posts = this.postServices.setSavedPostStatus(me,posts);
+      posts = this.postServices.setHiddenPostStatus(me,posts);
+      posts = this.postServices.setPostOwnerData(posts);
       //console.log(posts[0]);
       res.status(200).json({
         status: "success",
@@ -111,9 +118,12 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved", "-__v");
+    //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.saved);
+    posts = this.postServices.removeHiddenPosts(me,posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
@@ -125,10 +135,11 @@ class PostController {
     // check if the owner of post block me or i blocked him in order to show posts , TODO
 
     // get post which he creates
-    await me.populate("saved", "-__v");
+    await me.populate("hidden", "-__v");
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
-    let posts = this.postServices.setVotePostStatus(me, me.saved);
+    let posts = this.postServices.setVotePostStatus(me, me.hidden);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
@@ -144,6 +155,9 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
+    posts = this.postServices.setSavedPostStatus(me,posts);
+    posts = this.postServices.setHiddenPostStatus(me,posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
@@ -157,6 +171,9 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
+    posts = this.postServices.setSavedPostStatus(me,posts);
+    posts = this.postServices.setHiddenPostStatus(me,posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,

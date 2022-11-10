@@ -92,6 +92,20 @@ module.exports = async function seeder() {
     suggestedSort: "top",
     scheduled: false,
   });
+  let post5 = await Post.create({
+    title: "ahmed post",
+    kind: "self",
+    text: "this is a test post 1",
+    author: user1._id,
+    owner: user1._id,
+    ownerType: "User",
+    nsfw: true,
+    spoiler: true,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes:5,
+  });
 
   await User.findOneAndUpdate(
     { userName: "Ahmed" },

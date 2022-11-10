@@ -11,6 +11,10 @@ class PostService {
     this.getUserPosts = this.getUserPosts.bind(this);
     this.setVotePostStatus = this.setVotePostStatus.bind(this);
     this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
+    this.setPostOwnerData = this.setPostOwnerData.bind(this);
+    this.removeHiddenPosts = this.removeHiddenPosts.bind(this);
+    this.setSavedPostStatus = this.setSavedPostStatus.bind(this);
+    this.setHiddenPostStatus = this.setHiddenPostStatus.bind(this);
   }
 
   async checkFlair(subredditId, flairId) {
@@ -152,9 +156,107 @@ class PostService {
       return error;
     }
   }
-  async getUserPosts(author) {
-    const posts = await this.postRepository.getAll({ author: author }, "", "");
-    return posts.doc;
+  async getUserPosts(author, sortType) {
+    if (sortType === "Hot") {
+      // algorithm
+    } else if (sortType === "Top") {
+      // sort by votes
+      console.log("Top");
+      const posts = await this.postRepository.getAll(
+        { author: author },
+        { sort: "-votes" },
+        "owner"
+      );
+      return posts.doc;
+    } else {
+      // sort by createdAt
+      const posts = await this.postRepository.getAll(
+        { author: author },
+        "",
+        "owner"
+      );
+      return posts.doc;
+    }
+  }
+  setPostOwnerData(posts) {
+    //let newPosts = Array.from(posts);
+    let newPosts = posts;
+    for (var i = 0; i < posts.length; i++) {
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (posts[i].ownerType === "User") {
+        newPosts[i]["name"] = posts[i].owner.userName;
+      } else {
+        newPosts[i]["name"] = posts[i].owner.name;
+      }
+      newPosts[i]["owner"] = posts[i].owner._id;
+    }
+    return newPosts;
+  }
+  removeHiddenPosts(user, posts) {
+    let hash = {};
+    let newPosts = [];
+    for (var i = 0; i < user.hidden.length; i++) {
+      hash[user.hidden[i]] = user.hidden[i];
+    }
+    for (var i = 0; i < posts.length; i++) {
+      try {
+        posts[i] = posts[i].toObject();
+      } catch (err) {}
+      if (hash[posts[i]._id]) {
+        posts[i] = undefined;
+      } else {
+        posts[i]["isHidden"] = false;
+        newPosts.push(posts[i]);
+      }
+    }
+    return newPosts;
+  }
+  setSavedPostStatus(user, posts) {
+    let newPosts = Array.from(posts);
+    let hash = {};
+    for (var i = 0; i < user.saved.length; i++) {
+      hash[user.saved[i]] = user.saved[i];
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newPosts.length; i++) {
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (hash[posts[i]._id]) {
+        newPosts[i]["isSaved"] = true;
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newPosts[i]["isSaved"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+    }
+    return newPosts;
+  }
+  setHiddenPostStatus(user, posts) {
+    let newPosts = Array.from(posts);
+    let hash = {};
+    for (var i = 0; i < user.hidden.length; i++) {
+      hash[user.hidden[i]] = user.hidden[i];
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newPosts.length; i++) {
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (hash[posts[i]._id]) {
+        newPosts[i]["isHidden"] = true;
+        newPosts[i]["isSaved"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newPosts[i]["isHidden"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+    }
+    return newPosts;
   }
   setVotePostStatus(user, posts) {
     // create map of posts voted by user
@@ -163,7 +265,7 @@ class PostService {
     for (var i = 0; i < user.votePost.length; i++) {
       hash[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
     }
-   // console.log(hash);
+    // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
       try {

@@ -88,6 +88,7 @@ const userSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
+    default: "",
     trim: true,
   },
   followersCount: {
@@ -211,6 +212,12 @@ const userSchema = new mongoose.Schema({
     {
       type: mongoose.Schema.ObjectId,
       ref: "Subreddit",
+    },
+  ],
+  savedComment: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Comment",
     },
   ],
 });

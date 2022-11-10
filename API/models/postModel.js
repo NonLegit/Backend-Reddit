@@ -127,7 +127,9 @@ const postSchema = new mongoose.Schema({
     default: false,
   },
 });
-
+postSchema.pre('find', function() {
+  this.populate('owner');
+});
 const Post = mongoose.model("Post", postSchema);
 
 module.exports = Post;

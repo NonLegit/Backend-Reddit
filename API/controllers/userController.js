@@ -62,6 +62,8 @@ class UserController {
       displayName: user.displayName,
       postKarma: user.postKarma,
       commentKarma: user.commentKarma,
+      createdAt:user.joinDate,
+      description:user.description,
     };
     res.status(200).json({
       status: "success",
@@ -101,6 +103,7 @@ class UserController {
           displayName: user.doc.displayName,
           postKarma: user.doc.postKarma,
           commentKarma: user.doc.commentKarma,
+          description:user.doc.description,
           isFollowed: isFollowed,
         };
         res.status(200).json({
