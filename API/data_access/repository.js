@@ -1,4 +1,5 @@
 const APIFeatures = require("./apiFeatures");
+const ObjectId = require("mongodb").ObjectId
 
 class Repository {
   constructor(model) {
@@ -350,6 +351,7 @@ class Repository {
   }
 
   async isValidId(id) {
+    if(!ObjectId.isValid(id)) return false;
     const doc = await this.Model.findById(id);
     if (!doc) return false;
     return true;

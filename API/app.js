@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/userRoutes");
 const subredditRouter = require("./routes/subredditRoutes");
 const postRouter = require("./routes/postRoutes");
+const commentRouter = require("./routes/commentRoutes");
 const cors = require("cors");
 
 const app = express();
@@ -28,6 +29,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subreddits", subredditRouter);
 app.use("/api/v1/posts", postRouter);
+app.use("/api/v1/comments", commentRouter);
 
 app.all("*", (req, res, next) => {
   res.status(200).send("success ");

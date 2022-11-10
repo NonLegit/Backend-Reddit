@@ -213,7 +213,6 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.ObjectId,
       ref: "Subreddit",
       required: true,
-      unique: true,
     },
   ],
 });

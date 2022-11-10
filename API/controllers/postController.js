@@ -10,24 +10,26 @@ class PostController {
 
   async createPost(req, res) {
     try {
-      //Add current user as author
-      const user = req.user;
-      req.body.author = user._id;
+      const data = req.body;
+      data.author = req.user._id;
 
-      const post = await this.postServices.createPost(req.body);
-      if (post.status === "success") {
-        res.status(post.statusCode).json({
-          status: "success",
-          data: post.doc,
-        });
-      } else {
-        res.status(post.statusCode).json({
+      const validPost = await this.postServices.isValidPost(data);
+      if (!validPost) {
+        res.status(400).json({
           status: "fail",
-          message: post.err,
+          message: "Invalid post request",
         });
+        return;
       }
+
+      const post = await this.postServices.createPost(data);
+
+      res.status(201).json({
+        status: "success",
+        data: post,
+      });
     } catch (err) {
-      console.log("error in Post controller" + err);
+      console.log(err);
       res.status(500).json({
         status: "fail",
       });
@@ -35,40 +37,94 @@ class PostController {
   }
 
   async deletePost(req, res) {
-    const user = req.user;
-    const deleted = await this.postServices.deletePost(
-      req.params.postId,
-      user._id
-    );
-    if (deleted.status === "success") {
-      res.status(deleted.statusCode).json({
+    try {
+      //validate request params
+      const id = req.params.postId;
+      if (!id) {
+        res.status(400).json({
+          status: "fail",
+          message: "Missing required parameter postId",
+        });
+        return;
+      }
+      const validId = await this.postServices.isValidId(id);
+      if (!validId) {
+        res.status(404).json({
+          status: "fail",
+          err: "Post not found",
+        });
+        return;
+      }
+
+      //validate the user
+      if (!(await this.postServices.isAuthor(id, req.user._id))) {
+        res.status(401).json({
+          status: "fail",
+          err: "User must be author",
+        });
+        return;
+      }
+
+      await this.postServices.deletePost(id);
+      res.status(204).json({
         status: "success",
-        data: deleted.doc,
+        data: null,
       });
-    } else {
-      res.status(deleted.statusCode).json({
+    } catch (err) {
+      res.status(500).json({
         status: "fail",
-        message: deleted.err,
+        message: "Internal server error" + err,
       });
     }
   }
 
   async updatePost(req, res) {
-    const user = req.user;
-    const updated = await this.postServices.updatePost(
-      req.params.postId,
-      req.body,
-      user._id
-    );
-    if (updated.status === "success") {
-      res.status(updated.statusCode).json({
+    try {
+      const id = req.params.postId;
+      const data = req.body;
+      if (!id || !data.text) {
+        res.status(400).json({
+          status: "fail",
+          message: "Missing required parameter",
+        });
+        return;
+      }
+      const validId = await this.postServices.isValidId(id);
+      if (!validId) {
+        res.status(404).json({
+          status: "fail",
+          err: "Post not found",
+        });
+        return;
+      }
+
+      //validate the user
+      if (!(await this.postServices.isAuthor(id, req.user._id))) {
+        res.status(401).json({
+          status: "fail",
+          err: "User must be author",
+        });
+        return;
+      }
+
+      if (!(await this.postServices.isEditable(id))) {
+        res.status(401).json({
+          status: "fail",
+          err: "Post isn't editable",
+        });
+        return;
+      }
+
+      const post = await this.postServices.updatePost(id, data);
+      res.status(200).json({
         status: "success",
-        data: updated.doc,
+        data: post,
       });
-    } else {
-      res.status(updated.statusCode).json({
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({
         status: "fail",
-        message: updated.err,
+        message: err,
       });
     }
   }
@@ -82,7 +138,7 @@ class PostController {
       });
     } else {
       const userName = req.params.userName;
-      let user = await this.userServices.getUserByName(userName,"");
+      let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
       let userId = user.doc._id;
 
@@ -92,7 +148,7 @@ class PostController {
       let posts = await this.postServices.getUserPosts(userId);
 
       // get vote of me if these post i vote on it
-      posts = this.postServices.setVotePostStatus(me,posts);
+      posts = this.postServices.setVotePostStatus(me, posts);
       console.log(posts[0]);
       res.status(200).json({
         status: "success",

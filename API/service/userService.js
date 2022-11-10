@@ -305,7 +305,6 @@ class UserService {
       { _id: userId, subscribed: subredditId },
       "_id"
     );
-    console.log(alreadySubscribed);
     //In order to subscribe, user should not be already subscribed
     if (action==="sub" && !alreadySubscribed) {
       return await this.userRepository.push(userId, {
