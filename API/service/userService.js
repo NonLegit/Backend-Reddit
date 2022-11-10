@@ -265,7 +265,6 @@ class UserService {
     return prefs;
   }
   async updatePrefs(query, id) {
-    console.log(query);
     const filteredBody = this.filterObj(
       query,
       "contentVisibility",
@@ -280,7 +279,6 @@ class UserService {
       "displayName",
       "description"
     );
-    console.log("a   ", filteredBody);
     let user = await this.userRepository.updateOne({ _id: id }, filteredBody);
     return this.getPrefs(user.doc);
   }

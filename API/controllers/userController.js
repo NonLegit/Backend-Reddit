@@ -29,7 +29,6 @@ class UserController {
     }
   }
   async getPrefs(req, res, next) {
-    console.log(req.user);
     const prefs = this.userServices.getPrefs(req.user);
     res.status(200).json({
       status: "success",
@@ -37,7 +36,6 @@ class UserController {
     });
   }
   async updatePrefs(req, res, next) {
-    console.log(req.body);
     const query = req.body;
     const prefs = await this.userServices.updatePrefs(query, req.user._id);
     res.status(200).json({
@@ -62,8 +60,8 @@ class UserController {
       displayName: user.displayName,
       postKarma: user.postKarma,
       commentKarma: user.commentKarma,
-      createdAt:user.joinDate,
-      description:user.description,
+      createdAt: user.joinDate,
+      description: user.description,
     };
     res.status(200).json({
       status: "success",
@@ -81,7 +79,6 @@ class UserController {
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
-      console.log(user);
       if (user.status !== "fail") {
         // check if i followed him
         const relation = me.meUserRelationship.find(
@@ -103,7 +100,7 @@ class UserController {
           displayName: user.doc.displayName,
           postKarma: user.doc.postKarma,
           commentKarma: user.doc.commentKarma,
-          description:user.doc.description,
+          description: user.doc.description,
           isFollowed: isFollowed,
         };
         res.status(200).json({
