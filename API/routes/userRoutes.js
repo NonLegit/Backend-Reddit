@@ -28,7 +28,7 @@ const postControllerObj = new PostController(
   postServiceObj,
   userServiceObj
 );
-const userControllerObj = new UserController(userServiceObj);
+const userControllerObj = new UserController(userServiceObj,postServiceObj);
 
 const router = express.Router();
 
@@ -118,6 +118,11 @@ router.patch(
   }),
   userControllerObj.updatePrefs
 );
-router.get("/:userName/posts",postControllerObj.userPosts);
+router.get("/:userName/posts", postControllerObj.userPosts);
+
+router.get("/best", userControllerObj.getBestPosts);
+router.get("/top", userControllerObj.getTopPosts);
+router.get("/hot", userControllerObj.getHotPosts);
+router.get("/new", userControllerObj.getNewPosts);
 
 module.exports = router;

@@ -10,6 +10,8 @@ class PostService {
     this.checkFlair = this.checkFlair.bind(this);
     this.getUserPosts = this.getUserPosts.bind(this);
     this.setVotePostStatus = this.setVotePostStatus.bind(this);
+  
+    this.getPosts = this.getPosts.bind(this);
   }
 
   async checkFlair(subredditId, flairId){
@@ -173,6 +175,21 @@ class PostService {
     }
     console.log(posts[0].postVoteStatus);
     return posts;
+  }
+  async getPosts(query, filter) {
+    try {
+     
+      const posts = await this.postRepository.getAll(filter, query);
+      
+      return posts;
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
   }
 }
 

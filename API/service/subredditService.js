@@ -19,6 +19,7 @@ class subredditService {
     this.getFlair = this.getFlair.bind(this);
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
+    this.checkSubreddit = this.checkSubreddit.bind(this);
   }
   async createSubreddit(data) {
     try {
@@ -118,32 +119,39 @@ class subredditService {
 
   //! Doaa's part
 
-  async createFlair(subredditName, data) {
+  async createFlair(subredditName, data,userId) {
     try {
+
+      let isModerator = await this.isModerator(subredditName,userId);
+      if (isModerator.status !== 'success') {
+        const error = {
+        status: "fail",
+        statusCode: 403,
+        err:"you are not a subreddti moderator",
+      };
+      // console.log(err);
+      return error;
+      }
+      let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
       let flair = await this.flairRepository.createOne(data);
 
-      //  console.log(flair);
+      
       if (flair.status !== "success") {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          errorMessage: flair.err,
-        };
-        return error;
+        return flair;
       }
-      // eslint-disable-next-line max-len, quotes
+     
       let addedTorefrencedFlairs =
         await this.subredditRepository.addToRefrenced(
-          { name: subredditName },
-          { $push: { flairs: flair.doc._id } }
+          {name: subredditName},
+          {$push: { "flairIds": flair.doc._id }}
         );
+      
       if (addedTorefrencedFlairs.status !== "success") {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          errorMessage: addedTorefrencedFlairs.err,
-        };
-        return error;
+        
+        return addedTorefrencedFlairs;
       }
 
       return flair;
@@ -151,7 +159,33 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
+      };
+      return error;
+    }
+  }
+  async checkSubreddit(subredditName) {
+    try {
+      let subreddit = await this.subredditRepository.getOne(
+        { name: subredditName }
+      );
+      //console.log(subreddit);
+      if (subreddit.status !== "success") {
+        const error = {
+          status: "Not Found",
+          statusCode: 404,
+          err: subreddit.err,
+        };
+        return error;
+      }
+
+      return subreddit;
+    } catch (err) {
+      console.log("catch error here" + err);
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
       };
       return error;
     }
@@ -160,22 +194,24 @@ class subredditService {
     try {
       let subreddit = await this.subredditRepository.getOne(
         { name: subredditName },
-        "flairs"
-      );
+        "flairIds"
+      ); 
+      console.log("yallllllllllllllllllllllllllllllllllllll");
+      console.log(subreddit);
       if (subreddit.status !== "success") {
         const error = {
           status: "Not Found",
           statusCode: 404,
-          errorMessage: subreddit.err,
+          err: subreddit.err,
         };
         return error;
       }
 
-      if (!subreddit.data.flairs.includes(flairId)) {
+      if (!subreddit.doc.flairIds.includes(flairId)) {
         const error = {
           status: "Not Found",
           statusCode: 404,
-          errorMessage: "Flair not in subreddit",
+          err: "Flair not in subreddit",
         };
         return error;
       }
@@ -185,25 +221,37 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
   }
-  async updateFlair(subredditName, flairId, data) {
+  async updateFlair(subredditName, flairId, data,userId) {
     try {
+      let isModerator = await this.isModerator(subredditName,userId);
+      if (isModerator.status !== 'success') {
+        const error = {
+        status: "fail",
+        statusCode: 403,
+        err:"you are not a subreddti moderator",
+      };
+      // console.log(err);
+      return error;
+      }
       let checkFlair = await this.checkFlair(subredditName, flairId);
+      console.log(checkFlair);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
       let response = await this.flairRepository.updateOne(flairId, data);
+      console.log(response);
       return response;
     } catch (err) {
       console.log("catch error here" + err);
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       // console.log(err);
       return error;
@@ -212,6 +260,16 @@ class subredditService {
 
   async deleteFlair(subredditName, flairId) {
     try {
+      let isModerator = await this.isModerator(subredditName,userId);
+      if (isModerator.status !== 'success') {
+        const error = {
+        status: "fail",
+        statusCode: 403,
+        err:"you are not a subreddti moderator",
+      };
+      // console.log(err);
+      return error;
+      }
       // eslint-disable-next-line max-len, quotes
       let checkFlair = await this.checkFlair(subredditName, flairId);
       if (checkFlair.status !== "success") {
@@ -219,13 +277,13 @@ class subredditService {
       }
       let response = await this.subredditRepository.removeFromRefrenced(
         { name: subredditName },
-        { $pull: { flairs: flairId } }
+        { $pull: { "flairIds": flairId } }
       );
       if (response.status !== "success") {
         const error = {
           status: "fail",
           statusCode: 400,
-          errorMessage: response.err,
+          err: response.err,
         };
         return error;
       }
@@ -235,7 +293,7 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
@@ -255,7 +313,7 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err: err,
       };
       return error;
     }
@@ -267,10 +325,10 @@ class subredditService {
       // eslint-disable-next-line max-len, quotes
       let response = await this.subredditRepository.getRefrenced(
         { name: subredditName },
-        "flairs"
+        "flairIds"
       );
 
-      //  console.log(response);
+       console.log(response);
 
       return response;
     } catch (err) {
@@ -278,11 +336,13 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
   }
+
+
 }
 
 module.exports = subredditService;

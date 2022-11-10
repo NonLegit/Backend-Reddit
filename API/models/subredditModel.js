@@ -184,7 +184,7 @@ const subredditSchema = new mongoose.Schema({
   flairIds: [
     {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: "flair",
+      ref: "Flair",
     },
   ],
   punishers: [
