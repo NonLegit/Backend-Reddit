@@ -1,4 +1,5 @@
 const APIFeatures = require("./apiFeatures");
+const ObjectId = require("mongodb").ObjectId
 
 class Repository {
   constructor(model) {
@@ -20,6 +21,8 @@ class Repository {
 
     this.isValidId = this.isValidId.bind(this);
     this.getById = this.getById.bind(this);
+    this.getByQuery = this.getByQuery.bind(this);
+    this.push = this.push.bind(this);
   }
 
   async createOne(data) {
@@ -159,7 +162,7 @@ class Repository {
     }
   }
 
-  async getAll(filter, query,popOptions) {
+  async getAll(filter, query, popOptions) {
     try {
       const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
@@ -328,14 +331,49 @@ class Repository {
   }
 
   async getById(id, select) {
-    const doc = await this.Model.findById(id).select(select);
-    return doc;
+    try {
+      const doc = await this.Model.findById(id).select(select);
+      return doc;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getByQuery(query, select) {
+    try {
+      let doc = this.Model.findOne(query);
+      if (select) doc = doc.select(select);
+
+      return await doc;
+    } catch (error) {
+      return null;
+    }
   }
 
   async isValidId(id) {
+    if(!ObjectId.isValid(id)) return false;
     const doc = await this.Model.findById(id);
     if (!doc) return false;
     return true;
+  }
+
+  async push(id, obj) {
+    try {
+      await this.Model.findOneAndUpdate({ _id: id }, { $push: obj });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async pull(id, obj) {
+    try {
+      await this.Model.findOneAndUpdate({ _id: id }, { $pull: obj });
+      return true;
+    } catch (error) {
+      console.log(error)
+      return false;
+    }
   }
 }
 

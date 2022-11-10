@@ -187,15 +187,14 @@ const subredditSchema = new mongoose.Schema({
       ref: "flair",
     },
   ],
-  punishers: [
+  punished: [
     {
-      userIds: {
+      userId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
-        trim: true,
       },
-      type: { type: String, enum: ["baned", "muted"] },
+      type: { type: String, enum: ["banned", "muted"], required: true },
       punishReason: { type: String, trim: true },
       punish_type: { type: String },
       Note: { type: String },
