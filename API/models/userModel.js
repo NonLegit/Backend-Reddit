@@ -105,7 +105,7 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
-  contentvisibility: {
+  contentVisibility: {
     type: Boolean,
     required: false,
     default: true,
@@ -213,6 +213,12 @@ const userSchema = new mongoose.Schema({
       type: mongoose.Schema.ObjectId,
       ref: "Subreddit",
       required: true,
+    },
+  ],
+  subreddits: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Subreddit",
     },
   ],
 });

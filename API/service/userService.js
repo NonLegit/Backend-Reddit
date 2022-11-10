@@ -252,7 +252,7 @@ class UserService {
   }
   getPrefs(user) {
     let prefs = {
-      contentvisibility: user.contentvisibility,
+      contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
       allowInboxMessage: user.allowInboxMessage,
@@ -269,7 +269,7 @@ class UserService {
     console.log(query);
     const filteredBody = this.filterObj(
       query,
-      "contentvisibility",
+      "contentVisibility",
       "canbeFollowed",
       "nsfw",
       "allowInboxMessage",

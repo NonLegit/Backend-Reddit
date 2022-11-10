@@ -1,6 +1,5 @@
 class subredditController {
-  constructor(subredditServices, userServices) {
-    console.log("from controller" + subredditServices);
+  constructor(subredditServices) {
     this.subredditServices = subredditServices; // can be mocked in unit testing
     this.userServices = userServices;
     this.createSubreddit = this.createSubreddit.bind(this);
