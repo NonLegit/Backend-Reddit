@@ -190,10 +190,9 @@ class Repository {
     }
   }
 
-  async getAll(filter, query, popOptions) {
+
   async getAll(filter, query,popOptions) {
     try {
-      const features = new APIFeatures(this.Model.find(filter), query)
       const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
         .sort()
