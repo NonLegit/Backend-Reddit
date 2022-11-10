@@ -1755,6 +1755,20 @@
           },
           {
             "in": "query",
+            "name": "sort",
+            "description": "The page number",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "New",
+                "Top",
+                "Hot"
+              ]
+            }
+          },
+          {
+            "in": "query",
             "name": "page",
             "description": "The page number",
             "required": false,
@@ -9289,6 +9303,17 @@
           "allowMentions": {
             "type": "boolean",
             "example": true
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "male",
+              "female"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "example": " info"
           }
         }
       },
@@ -9539,6 +9564,15 @@
           "commentKarma": {
             "type": "integer",
             "example": 1
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2022-10-22-06-12",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "example": " info"
           }
         }
       },
@@ -9593,6 +9627,15 @@
           "isFollowed": {
             "type": "boolean",
             "example": true
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2022-10-22-06-12",
+            "format": "date-time"
+          },
+          "description": {
+            "type": "string",
+            "example": " info"
           }
         }
       },
@@ -9891,6 +9934,18 @@
               "-1"
             ]
           },
+          "isSaved": {
+            "type": "boolean",
+            "example": true
+          },
+          "isHidden": {
+            "type": "boolean",
+            "example": true
+          },
+          "isSpam": {
+            "type": "boolean",
+            "example": true
+          },
           "sharedFrom": {
             "type": "string",
             "description": "post id if shared ,undefined if not shared"
@@ -9914,15 +9969,35 @@
       "userComment": {
         "type": "object",
         "properties": {
+          "parent": {
+            "type": "string",
+            "description": "id of post or comment who is parent of comment"
+          },
+          "parentType": {
+            "type": "string",
+            "description": "type of parent who  omments belongs to"
+          },
           "owner": {
             "type": "string",
-            "description": "comment in subreddit or user"
+            "description": "id of subreddit or user who owns post"
           },
-          "postId": {
+          "ownerType": {
             "type": "string",
-            "description": "comment in subreddit or user"
+            "enum": [
+              "User",
+              "Subreddit"
+            ],
+            "description": "type of owner who owns post"
           },
-          "creator": {
+          "post": {
+            "type": "string",
+            "description": "post id"
+          },
+          "title": {
+            "type": "string",
+            "description": "post title"
+          },
+          "author": {
             "type": "string",
             "description": "The name of the user who created the comment"
           },
@@ -9945,6 +10020,21 @@
               "0",
               "-1"
             ]
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "mentions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "userName of mentioned users"
+            }
+          },
+          "isSaved": {
+            "type": "boolean",
+            "example": false
           }
         }
       },
