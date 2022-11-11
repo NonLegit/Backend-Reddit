@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE_LOCAL;
   const mockgoose = new Mockgoose(mongoose);
   mockgoose.prepareStorage().then(() => {
+    console.log("helooooo");
     mongoose
       .connect(DB)
       .then(() => console.log("Fake DB connection for testing successful!"));

@@ -120,10 +120,10 @@ router.patch(
 router.get("/:userName/about", userControllerObj.about);
 router.get("/:userName/posts",  postControllerObj.userPosts);
 
-router.get("/best", userControllerObj.getBestPosts);
-router.get("/top", userControllerObj.getTopPosts);
-router.get("/hot", userControllerObj.getHotPosts);
-router.get("/new", userControllerObj.getNewPosts);
+router.get("/best", postControllerObj.getBestPosts);
+router.get("/top", postControllerObj.getTopPosts);
+router.get("/hot", postControllerObj.getHotPosts);
+router.get("/new", postControllerObj.getNewPosts);
 router.get("/saved", postControllerObj.getSavedPosts);
 router.get("/hidden", postControllerObj.getHiddenPosts);
 router.get("/upvoted", postControllerObj.userUpvotedPosts);

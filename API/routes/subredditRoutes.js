@@ -1,6 +1,8 @@
 const express = require("express");
 //const userControllerObj = require("./test");
 const subredditController = require("./../controllers/subredditController");
+const postController = require("./../controllers/postController");
+
 const Subreddit = require("./../models/subredditModel");
 const Repository = require("./../data_access/repository");
 const subredditService = require("../service/subredditService");
@@ -16,18 +18,20 @@ const SubredditRepositoryObj = new Repository(Subreddit);
 const Flair = require('./../models/flairModel');//model
 const FlairRepositoryObj = new Repository(Flair);//dataaccedss send model
 const subredditServiceObj = new subredditService(Subreddit, SubredditRepositoryObj,Flair,FlairRepositoryObj);
-const subredditControllerObj = new subredditController(subredditServiceObj,postServiceObj);
+const subredditControllerObj = new subredditController(subredditServiceObj);
 // !=================================
 
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
 const UserService = require("./../service/userService");
 
+
 const userRepo = new Repository(User);
 /////////////////////////////////////////////
 
 const userServiceObj = new UserService(User, userRepo, null);
 
+const postControllerObj = new postController(postServiceObj,userServiceObj);
 const authenticationControllerObj = new AuthenticationController(
   userServiceObj
 );
@@ -47,11 +51,10 @@ router.get("/:subredditName/about/:location",subredditControllerObj.relevantPost
 
 
 
-
-router.get('/:subredditName/trending', subredditControllerObj.getTrendingPosts);
-router.get('/:subredditName/top', subredditControllerObj.getTopPosts);
-router.get('/:subredditName/new', subredditControllerObj.getNewPosts);
-router.get('/:subredditName/hot', subredditControllerObj.getHotPosts);
+//router.get('/:subredditName/trending', postControllerObj.getTrendingPosts);
+router.get('/:subredditName/top', subredditControllerObj.getSubredditId,postControllerObj.getTopPosts);
+router.get('/:subredditName/new',subredditControllerObj.getSubredditId, postControllerObj.getNewPosts);
+router.get('/:subredditName/hot',subredditControllerObj.getSubredditId, postControllerObj.getHotPosts);
 
 
 router.route('/:subredditName/flair')

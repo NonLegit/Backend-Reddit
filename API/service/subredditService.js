@@ -69,6 +69,7 @@ class subredditService {
   async getSubreddit(query) {
     try {
       let response = await this.subredditRepository.getOne(query, "", "");
+      console.log(response);
       return response;
     } catch (err) {
       console.log("catch error here" + err);
@@ -83,14 +84,17 @@ class subredditService {
 
   async isModerator(subredditName, userID) {
     try {
+      console.log("///////////////////////////////////////////////////");
+      console.log(userID);
       let ismoderator = await this.getSubreddit(
         {
-          name: subredditName,
-          "moderators.username": userID,
-        },
-        "",
-        ""
+          "name": subredditName,
+          "owner": userID,
+        }
       );
+      console.log("hello");
+      console.log(ismoderator);
+      console.log("au revoir");
       return ismoderator;
     } catch (err) {
       const error = {
@@ -122,6 +126,11 @@ class subredditService {
   async createFlair(subredditName, data,userId) {
     try {
 
+      
+      let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
       let isModerator = await this.isModerator(subredditName,userId);
       if (isModerator.status !== 'success') {
         const error = {
@@ -132,10 +141,7 @@ class subredditService {
       // console.log(err);
       return error;
       }
-      let subreddit = await this.checkSubreddit(subredditName);
-      if (subreddit.status !== "success") {
-        return subreddit;
-      }
+      
       let flair = await this.flairRepository.createOne(data);
 
       
@@ -151,7 +157,7 @@ class subredditService {
       
       if (addedTorefrencedFlairs.status !== "success") {
         
-        return addedTorefrencedFlairs;
+        return flair;
       }
 
       return flair;
@@ -196,7 +202,7 @@ class subredditService {
         { name: subredditName },
         "flairIds"
       ); 
-      console.log("yallllllllllllllllllllllllllllllllllllll");
+      console.log(subredditName);
       console.log(subreddit);
       if (subreddit.status !== "success") {
         const error = {
@@ -206,7 +212,9 @@ class subredditService {
         };
         return error;
       }
-
+      console.log(subreddit.doc.flairIds);
+      console.log("here");
+      console.log(flairId);
       if (!subreddit.doc.flairIds.includes(flairId)) {
         const error = {
           status: "Not Found",
@@ -228,6 +236,10 @@ class subredditService {
   }
   async updateFlair(subredditName, flairId, data,userId) {
     try {
+      let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
       let isModerator = await this.isModerator(subredditName,userId);
       if (isModerator.status !== 'success') {
         const error = {
@@ -258,8 +270,12 @@ class subredditService {
     }
   }
 
-  async deleteFlair(subredditName, flairId) {
+  async deleteFlair(subredditName, flairId,userId) {
     try {
+       let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
       let isModerator = await this.isModerator(subredditName,userId);
       if (isModerator.status !== 'success') {
         const error = {
