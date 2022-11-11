@@ -4,15 +4,12 @@ class Repository {
   constructor(model) {
     this.Model = model;
 
-
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
 
-    this.updateOneByQuery = this.updateOneByQuery.bind(this);
-    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
     this.updateOneByQuery = this.updateOneByQuery.bind(this);
     this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
@@ -79,9 +76,10 @@ class Repository {
 
   async getOne(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select + " -__v");
+      let tempDoc = this.Model.findOne(query).select(select);
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
+      // console.log(doc);
       if (!doc) {
         const response = {
           status: "fail",
@@ -105,7 +103,7 @@ class Repository {
       return response;
     }
   }
-  async updateOne(query, data) {
+  async updateOne(id, data) {
     try {
       const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
@@ -155,6 +153,7 @@ class Repository {
       };
       return response;
     } catch (err) {
+      console.log(err);
       const response = {
         status: "fail",
         statusCode: 400,
@@ -190,8 +189,7 @@ class Repository {
     }
   }
 
-
-  async getAll(filter, query,popOptions) {
+  async getAll(filter, query, popOptions) {
     try {
       const features = new APIFeatures(this.Model.find(filter), query)
         .filter()

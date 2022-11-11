@@ -21,6 +21,8 @@ class subredditService {
     this.inviteMod = this.inviteMod.bind(this);
     this.deleteMod = this.deleteMod.bind(this);
     this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
+    this.isModerator = this.isModerator.bind(this);
+    this.isOwner = this.isOwner.bind(this);
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
     this.flair = flair; // can be mocked in unit testing
@@ -36,8 +38,18 @@ class subredditService {
   }
   async createSubreddit(data) {
     try {
-      let subreddit = await this.subredditRepository.createOne(data);
-      return subreddit;
+      let subredditExisted = await this.getSubreddit({ name: data.name });
+      if (subredditExisted.status === "fail") {
+        let subreddit = await this.subredditRepository.createOne(data);
+        return subreddit;
+      } else {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit already exists",
+        };
+        return response;
+      }
     } catch (err) {
       const error = {
         status: "fail",
@@ -99,22 +111,35 @@ class subredditService {
 
   async isModerator(subredditName, userID) {
     try {
-      let ismoderator = await this.getSubreddit(
+      let ismoderator = await this.subredditRepository.getOne(
         {
           name: subredditName,
           "moderators.username": userID,
         },
-        "",
+        { "moderators.$": 1 },
         ""
       );
-      return ismoderator;
+      if (ismoderator.status === "success") return true;
+      else return false;
     } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 401,
-        err,
-      };
-      return error;
+      return false;
+    }
+  }
+
+  async isOwner(subredditName, userID) {
+    try {
+      let isowner = await this.subredditRepository.getOne(
+        {
+          name: subredditName,
+          "moderators.username": userID,
+        },
+        { "moderators.$": 1 },
+        ""
+      );
+      if (isowner.status === "success") return true;
+      else return false;
+    } catch (err) {
+      return false;
     }
   }
 
@@ -132,7 +157,7 @@ class subredditService {
       } else {
         //! 2]check user is moderator
         let canInvite = await this.isModerator(subredditName, userId);
-        if (canInvite.status === "fail") {
+        if (!canInvite) {
           const response = {
             status: "fail",
             statusCode: 401,
@@ -161,7 +186,7 @@ class subredditService {
               subredditName,
               userExisted.doc._id
             );
-            if (UserIsMod.status === "fail") {
+            if (!UserIsMod) {
               // ! make him mod then
               let updateModerators = await this.updateSubreddit(
                 { name: subredditName },
@@ -252,6 +277,7 @@ class subredditService {
             "",
             ""
           );
+          console.log(userExisted.doc);
           if (userExisted.status === "fail") {
             const response = {
               status: "fail",
@@ -284,13 +310,14 @@ class subredditService {
               ) {
                 // ! remove him
                 console.log("success");
-                let removeHim = await this.subredditRepository.deleteOneByQuery(
+                let removeHim = await this.subredditRepository.updateOneByQuery(
                   {
                     name: subredditName,
                     "moderators.username": userExisted.doc._id,
                   },
                   { $pull: { "moderators.username": userExisted.doc._id } }
                 );
+                // consosle.log(removeHim);
                 if (removeHim.status === "fail") {
                   const response = {
                     status: "fail",
@@ -331,11 +358,8 @@ class subredditService {
   async getCategoryPosts(query, select) {
     try {
       // ! check if user is mod first
-      let canGet = await this.subredditServices.isModerator(
-        subredditName,
-        userId
-      );
-      if (canGet.status === "fail") {
+      let canGet = await this.isModerator(subredditName, userId);
+      if (!canGet) {
         canGet.statusCode = 401;
         res.status(canGet.statusCode).json({
           status: canGet.statusCode,
@@ -384,8 +408,8 @@ class subredditService {
         }
       } else if (location === "subscriber") {
         // ! get it from user
-        let subreddits = await this.subredditRepository.getlist(
-          { "subreddits.username": userId },
+        let subreddits = await this.userRepository.getlist(
+          { "_id": userId },
           "_id name backgroundImage usersCount description",
           "subreddits"
         );

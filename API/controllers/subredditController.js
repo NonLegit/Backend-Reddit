@@ -58,7 +58,7 @@ class subredditController {
       } else {
         res.status(subreddit.statusCode).json({
           status: subreddit.statusCode,
-          message: subreddit.err,
+          message: subreddit.message,
         });
       }
     } catch (err) {
@@ -74,32 +74,41 @@ class subredditController {
     let userId = req.user._id;
 
     try {
-      //check user is moderator or not
-      let canUpdate = await this.subredditServices.isModerator(
-        subredditName,
-        userId
-      );
-      if (canUpdate.status === "fail") {
-        canUpdate.statusCode = 401;
-        res.status(canUpdate.statusCode).json({
-          status: canUpdate.statusCode,
-          message: "you are not moderator to this subreddit",
+      let subreddit = await this.subredditServices.getSubreddit({
+        name: subredditName,
+      });
+      // console.log(subreddit);
+      if (subreddit.status === "fail") {
+        res.status(404).json({
+          status: 404,
+          message: "subreddit doesn't exist",
         });
       } else {
-        let response = await this.subredditServices.updateSubreddit(
-          { name: subredditName },
-          data
+        let canUpdate = await this.subredditServices.isModerator(
+          subredditName,
+          userId
         );
-        if (response.status === "success") {
-          res.status(response.statusCode).json({
-            status: response.status,
-            subreddit: response.data,
+        if (!canUpdate) {
+          res.status(401).json({
+            status: 401,
+            message: "you are not moderator to this subreddit",
           });
         } else {
-          res.status(response.statusCode).json({
-            status: response.statusCode,
-            message: response.err,
-          });
+          let response = await this.subredditServices.updateSubreddit(
+            { name: subredditName },
+            data
+          );
+          if (response.status === "success") {
+            res.status(response.statusCode).json({
+              status: response.status,
+              subreddit: response.doc,
+            });
+          } else {
+            res.status(response.statusCode).json({
+              status: response.statusCode,
+              message: response.err,
+            });
+          }
         }
       }
     } catch (err) {
@@ -132,32 +141,43 @@ class subredditController {
     let userId = req.user._id;
     try {
       //check user is moderator or not
-      let canDelete = await this.subredditServices.isModerator(
-        subredditName,
-        userId
-      );
-      if (canDelete.status === "fail") {
-        canDelete.statusCode = 401;
-        res.status(canDelete.statusCode).json({
-          status: canDelete.statusCode,
-          message: "you are not the owner to this subreddit",
+      let subreddit = await this.subredditServices.getSubreddit({
+        name: subredditName,
+      });
+      // console.log(subreddit);
+      if (subreddit.status === "fail") {
+        res.status(404).json({
+          status: 404,
+          message: "subreddit doesn't exist",
         });
       } else {
-        let response = await this.subredditServices.deleteSubreddit(
-          {
-            name: subredditName,
-          },
-          ""
+        let canDelete = await this.subredditServices.isOwner(
+          subredditName,
+          userId
         );
-        if (response.status === "success") {
-          res.status(response.statusCode).json({
-            status: response.status,
+        if (!canDelete) {
+          res.status(401).json({
+            status: 401,
+            message: "you are not the owner to this subreddit",
           });
         } else {
-          res.status(response.statusCode).json({
-            status: response.statusCode,
-            message: response.err,
-          });
+          let response = await this.subredditServices.deleteSubreddit(
+            {
+              name: subredditName,
+            },
+            ""
+          );
+          if (response.status === "success") {
+            console.log(response);
+            res.status(response.statusCode).json({
+              status: response.status,
+            });
+          } else {
+            res.status(response.statusCode).json({
+              status: response.statusCode,
+              message: response.err,
+            });
+          }
         }
       }
     } catch (err) {

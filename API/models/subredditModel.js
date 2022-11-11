@@ -140,6 +140,10 @@ const subredditSchema = new mongoose.Schema({
     type: [{ type: String }],
     validate: [topicsLimit, "{PATH} exceeds the limit of 25"],
   },
+  primaryTopic: {
+    type: String,
+    default: "Add a Primary Topic",
+  },
   // Relationships attributes
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
@@ -150,7 +154,7 @@ const subredditSchema = new mongoose.Schema({
   moderators: [
     {
       type: Object,
-      userId: {
+      username: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
@@ -167,24 +171,10 @@ const subredditSchema = new mongoose.Schema({
       },
     },
   ],
-  posts: [
-    {
-      postId: {
-        // ref post => (nsfw ,spoiler)
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: "Post",
-        required: false,
-      },
-      is_scheduled: { type: Boolean, default: false },
-      schaduled_time: { type: Date, default: Date.now() },
-      category: { type: String, enum: ["spam", "edited", "unmoderated"] },
-      spamCount: { type: Number, default: 0 },
-    },
-  ],
   flairIds: [
     {
       type: mongoose.SchemaTypes.ObjectId,
-      ref: "flair",
+      ref: "Flair",
     },
   ],
   punishers: [
