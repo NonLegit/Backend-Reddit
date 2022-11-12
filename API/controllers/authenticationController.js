@@ -1,6 +1,13 @@
 const { OAuth2Client } = require("google-auth-library");
-
+/**
+ * AuthenticationController Class which handles authentication and authorization of user in backend
+ */
 class AuthenticationController {
+  /**
+   * Constructor
+   * Depends on user services object
+   * @param {object} UserServices - user service object
+   */
   constructor(UserServices) {
     this.UserServices = UserServices; // can be mocked in unit testing
     this.createCookie = this.createCookie.bind(this);
@@ -15,7 +22,13 @@ class AuthenticationController {
     this.facebookValidation = this.facebookValidation.bind(this);
     this.googleAuth = this.googleAuth.bind(this);
   }
-
+  /**
+   * @property {Function} createCookie create cookie to store token and send to user
+   * @param {object} res - response to client
+   * @param {string} token - user token to put in cookie
+   * @param {number} statusCode - status code of respones
+   * @returns void
+   */
   createCookie(res, token, statusCode) {
     const cookieOptions = {
       expires: new Date(
@@ -31,6 +44,13 @@ class AuthenticationController {
       expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     });
   }
+  /**
+   * @property {Function} signUp signup new user in database
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async signUp(req, res, next) {
     const email = req.body.email;
     const userName = req.body.userName;
@@ -55,6 +75,13 @@ class AuthenticationController {
       }
     }
   }
+  /**
+   * @property {Function} logIn autheticate user by send cookie token to him
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async logIn(req, res, next) {
     const userName = req.body.userName;
     const password = req.body.password;
@@ -74,6 +101,12 @@ class AuthenticationController {
       }
     }
   }
+  /**
+   * @property {Function} logOut remove cookie of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @returns void
+   */
   logOut(req, res) {
     res.clearCookie("jwt");
     // res.cookie("jwt", "loggedout", {
@@ -84,6 +117,13 @@ class AuthenticationController {
       status: "success",
     });
   }
+  /**
+   * @property {Function} forgotPassword send reset token to user by email
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async forgotPassword(req, res, next) {
     const email = req.body.email;
     const userName = req.body.userName;
@@ -98,7 +138,13 @@ class AuthenticationController {
       res.status(response.status).json(response.body);
     }
   }
-
+  /**
+   * @property {Function} forgotUserName send username to user by email
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async forgotUserName(req, res, next) {
     const email = req.body.email;
     if (!email) {
@@ -112,6 +158,13 @@ class AuthenticationController {
       res.status(response.status).json(response.body);
     }
   }
+  /**
+   * @property {Function} resetPassword reset password of user with reset token
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async resetPassword(req, res, next) {
     const resetToken = req.params.token;
     const password = req.body.password;
@@ -135,6 +188,13 @@ class AuthenticationController {
       //res.status(response.status).json(response.body);
     }
   }
+  /**
+   * @property {Function} authorize check cookie sent by client inorder to validate user logged in
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async authorize(req, res, next) {
     let token;
     if (req.cookies.jwt) {
@@ -168,6 +228,14 @@ class AuthenticationController {
       }
     }
   }
+  /**
+   * @property {Function} facebookAuth facebook authentication signup or login
+   * @param {string} accessToken - token sent from client
+   * @param {string} refreshToken
+   * @param {object} profile - user profile on facebook
+   * @param {Function} done - callback function
+   * @returns void
+   */
   async facebookAuth(accessToken, refreshToken, profile, done) {
     const email = profile.emails[0].value;
     // find user in database
@@ -187,6 +255,13 @@ class AuthenticationController {
       done(null, response);
     }
   }
+  /**
+   * @property {Function} facebookValidation validate facebook user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async facebookValidation(req, res, next) {
     let user = req.user;
     if (user.status == "fail") {
@@ -215,6 +290,12 @@ class AuthenticationController {
       this.createCookie(res, token, 200);
     }
   }
+  /**
+   * @property {Function} googleAuth google authentication signup or login
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   */
   async googleAuth(req, res, next) {
     const oAuth2Client = new OAuth2Client();
     if (!req.body.tokenId) {
@@ -265,5 +346,5 @@ class AuthenticationController {
     }
   }
 }
-//export default AuthenticationController;
+
 module.exports = AuthenticationController;

@@ -5,8 +5,8 @@ const request = require("supertest");
 const dotenv = require("dotenv");
 dotenv.config({ path: "config/config.env" });
 process.env.NODE_ENV = "test";
-const seeder = require("./../../models/seed");
-
+//const seeder = require("./../../models/seed");
+const seeder = require("./seed");
 const app = require("./../../app");
 
 describe("Post Controller (user posts) Test", () => {
@@ -29,8 +29,8 @@ describe("Post Controller (user posts) Test", () => {
               .set("Cookie", res1.header["set-cookie"])
               .send()
               .then((res) => {
-                expect(res.body.posts.length).to.equal(1);
-                expect(res.body.posts[0].postVoteStatus).to.equal("0");
+                expect(res.body.posts.length).to.equal(2);
+                //expect(res.body.posts[0].postVoteStatus).to.equal("0");
                 done();
               })
               .catch(err);
@@ -59,10 +59,10 @@ describe("Post Controller (user posts) Test", () => {
             .send()
             .then((res) => {
               //console.log(res.body);
-              expect(res.body.posts.length).to.equal(3);
-              expect(res.body.posts[0].postVoteStatus).to.equal("1");
-              expect(res.body.posts[1].postVoteStatus).to.equal("-1");
-              expect(res.body.posts[2].postVoteStatus).to.equal("1");
+              expect(res.body.posts.length).to.equal(0);
+              // expect(res.body.posts[0].postVoteStatus).to.equal("1");
+              // expect(res.body.posts[1].postVoteStatus).to.equal("-1");
+              // expect(res.body.posts[2].postVoteStatus).to.equal("1");
               done();
             })
             .catch(err);

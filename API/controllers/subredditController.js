@@ -18,6 +18,12 @@ class subredditController {
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlair = this.getFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
+    // !============================
+    // this.getTopPosts = this.getTopPosts.bind(this);
+    // this.getTrendingPosts = this.getTrendingPosts.bind(this);
+    // this.getNewPosts = this.getNewPosts.bind(this);
+    // this.getHotPosts = this.getHotPosts.bind(this);
+    this.getSubredditId = this.getSubredditId.bind(this);
 
     this.subscribe = this.subscribe.bind(this);
   }
@@ -360,17 +366,18 @@ class subredditController {
   async createFlair(req, res) {
     let data = req.body;
     let subredditName = req.params.subredditName;
+     let userId = req.user._id;
     try {
       //  console.log('here2');
-      let flair = await this.subredditServices.createFlair(subredditName, data);
+      let flair = await this.subredditServices.createFlair(subredditName, data,userId);
       if (flair.status === "success") {
         res.status(flair.statusCode).json({
           status: flair.status,
-          data: flair.doc,
+          data: flair.doc, 
         });
       } else {
         res.status(flair.statusCode).json({
-          status: flair.statusCode,
+          status: flair.status,
           errorMessage: flair.err,
         });
       }
@@ -384,13 +391,16 @@ class subredditController {
   async updateFlair(req, res) {
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
+    let userId = req.user._id;
     //   console.log('hello');
     let data = req.body;
     try {
+      
       let response = await this.subredditServices.updateFlair(
         subredditName,
         flairId,
-        data
+        data,
+        userId
       );
       if (response.status === "success") {
         res.status(response.statusCode).json({
@@ -413,13 +423,15 @@ class subredditController {
   async deleteFlair(req, res) {
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
+     let userId = req.user._id;
     // console.log('HII there ❌');
     //console.log(subredditName);
     //deleteSubreddit(subredditName)
     try {
       let response = await this.subredditServices.deleteFlair(
         subredditName,
-        flairId
+        flairId,
+        userId
       );
       if (response.status === "success") {
         res.status(response.statusCode).json({
@@ -427,7 +439,7 @@ class subredditController {
         });
       } else {
         res.status(response.statusCode).json({
-          status: response.statusCode,
+          status: response.status,
           errorMessage: response.err,
         });
       }
@@ -453,7 +465,7 @@ class subredditController {
         });
       } else {
         res.status(response.statusCode).json({
-          status: response.statusCode,
+          status: response.status,
           errorMessage: response.err,
         });
       }
@@ -477,7 +489,7 @@ class subredditController {
         });
       } else {
         res.status(response.statusCode).json({
-          status: response.statusCode,
+          status: response.status,
           errorMessage: response.err,
         });
       }
@@ -488,6 +500,183 @@ class subredditController {
       });
     }
   }
+
+
+  async getSubredditId(req, res,next) {
+    
+    let subredditName = req.params.subredditName;
+    try {
+      let response = await this.subredditServices.getSubreddit({ name: subredditName });
+      console.log(response);
+      if (response.status === "success") {
+        req.toFilter = { owner: response.doc._id };
+        console.log(req.toFilter);
+        next();
+      } else {
+        res.status(response.statusCode).json({
+          status: response.status,
+          errorMessage: response.err,
+        });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+  
+// async getTopPosts(req, res) {
+  //   console.log("hereeeeeeeeeeeeeeeeeeeeeeeeeeee");
+  //   let subredditName = req.params.subredditName;
+    
+  //   try {
+  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
+    
+  //     // console.log(res.status);
+  //     // console.log(subreddit);
+  //     if (subreddit.status !== "success") {
+  //      return res.status(subreddit.statusCode).json({
+  //         status: subreddit.status,
+  //         errorMessage: subreddit.err,
+  //       });
+  //     }
+      
+  //     req.query.sort = '-votes';
+  //     // console.log(req.query);
+  //      console.log(req.query);
+
+  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
+  //     console.log( response);
+  //     if (response.status === "success") {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         data: response.doc,
+  //       });
+  //     } else {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         errorMessage: response.err,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log("error in subredditservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // }
+  // async getNewPosts(req, res) {
+  //   let subredditName = req.params.subredditName;
+  //   console.log("//////////////////////");
+  //   console.log(subredditName);
+
+  //   try {
+  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
+  //     console.log(subreddit);
+  //     console.log("///////////////////////////////");
+  //     console.log(subreddit.status !== "success");
+  //     if (subreddit.status !== "success") {
+  //      return res.status(subreddit.statusCode).json({
+  //         status: subreddit.status,
+  //         errorMessage: subreddit.err,
+  //       });
+  //       console.log(res);
+  //     }
+  //     req.query.sort = '-createdAt';
+  //     console.log("befor");
+  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
+  //     console.log("after");
+  //     // console.log( response);
+  //     if (response.status === "success") {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         data: response.doc,
+  //       });
+  //     } else {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         errorMessage: response.err,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log("error in subredditservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // }
+
+  //  async getTrendingPosts(req, res) {
+  //   let subredditName = req.params.subredditName;
+  //   console.log("here");
+  //   try {
+  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
+  //     if (subreddit.status !== "success") {
+  //       return res.status(subreddit.statusCode).json({
+  //         status: subreddit.status,
+  //         errorMessage: subreddit.err,
+  //       });
+  //     }
+  //     req.query.sort = '-views';
+  //     console.log(req.query);
+  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
+  //     // console.log( response);
+  //     if (response.status === "success") {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         data: response.doc,
+  //       });
+  //     } else {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         errorMessage: response.err,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log("error in subredditservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // }
+  //  async getHotPosts(req, res) {
+  //   let subredditName = req.params.subredditName;
+  //   console.log("here");
+  //   try {
+  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
+  //     console.log("not in here");
+  //     if (subreddit.status !== "success") {
+        
+  //       return res.status(subreddit.statusCode).json({
+  //         status: subreddit.status,
+  //         errorMessage: subreddit.err,
+  //       });
+  //     }
+  //     req.query.sort = '-createdAt,-votes,-commentCount';
+  //     console.log(req.query);
+  //     console.log(subreddit);
+  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
+  //     // console.log( response);
+  //     if (response.status === "success") {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         data: response.doc,
+  //       });
+  //     } else {
+  //       res.status(response.statusCode).json({
+  //         status: response.status,
+  //         errorMessage: response.err,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log("error in subredditservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // }
+  // //   async getFlairs(req, res) {
   //   async getFlairs(req, res) {
 
   async subscribe(req, res) {

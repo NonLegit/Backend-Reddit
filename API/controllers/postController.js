@@ -10,6 +10,11 @@ class PostController {
     this.getHiddenPosts = this.getHiddenPosts.bind(this);
     this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
     this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
+
+    this.getBestPosts = this.getBestPosts.bind(this);
+    this.getTopPosts = this.getTopPosts.bind(this);
+    this.getHotPosts = this.getHotPosts.bind(this);
+    this.getNewPosts = this.getNewPosts.bind(this);
   }
 
   async createPost(req, res) {
@@ -132,6 +137,13 @@ class PostController {
       });
     }
   }
+  /**
+   * @property {Function} userPosts  get created posts by user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userPosts(req, res, next) {
     // i have user id
     let me = req.user;
@@ -141,6 +153,10 @@ class PostController {
         message: "Provide userName ",
       });
     } else {
+      let sortType = "New";
+      if (req.query.sort) {
+        sortType = req.query.sort;
+      }
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
@@ -149,10 +165,14 @@ class PostController {
       // check if this user block me or i blocked him in order to show posts , TODO
 
       // get post which he creates
-      let posts = await this.postServices.getUserPosts(userId);
+      let posts = await this.postServices.getUserPosts(userId, sortType);
 
       // get vote of me if these post i vote on it
       posts = this.postServices.setVotePostStatus(me, posts);
+      posts = this.postServices.setSavedPostStatus(me, posts);
+      posts = this.postServices.setHiddenPostStatus(me, posts);
+      posts = this.postServices.setPostOwnerData(posts);
+      //console.log(posts[0]);
       
       res.status(200).json({
         status: "success",
@@ -160,6 +180,14 @@ class PostController {
       });
     }
   }
+  /**
+   *
+   * @property {Function} getSavedPosts  get saved posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getSavedPosts(req, res, next) {
     let me = req.user;
 
@@ -167,29 +195,47 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved", "-__v");
+    //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.saved);
+    posts = this.postServices.removeHiddenPosts(me, posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+  /**
+   * @property {Function} getHiddenPosts get hidden posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getHiddenPosts(req, res, next) {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
 
     // get post which he creates
-    await me.populate("saved", "-__v");
+    await me.populate("hidden", "-__v");
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
-    let posts = this.postServices.setVotePostStatus(me, me.saved);
+    let posts = this.postServices.setVotePostStatus(me, me.hidden);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+  /**
+   * @property {Function} userUpvotedPosts  get upvoted posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userUpvotedPosts(req, res, next) {
     let me = req.user;
 
@@ -200,11 +246,22 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
+    posts = this.postServices.setSavedPostStatus(me, posts);
+    posts = this.postServices.setHiddenPostStatus(me, posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+  /**
+   *
+   * @property {Function} userDownvotedPosts get downvoted posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userDownvotedPosts(req, res, next) {
     let me = req.user;
 
@@ -213,11 +270,111 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
+    posts = this.postServices.setSavedPostStatus(me, posts);
+    posts = this.postServices.setHiddenPostStatus(me, posts);
+    posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+
+   async getHotPosts(req, res) {
+      try { 
+          req.query.sort = '-createdAt,-votes,-commentCount';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query,req.toFilter);
+          // console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+          } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+              status: "fail",
+          });
+      }
+  }
+  async getNewPosts(req, res) {
+    try{
+          req.query.sort = '-createdAt';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query, req.toFilter);
+          // console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+      } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+          status: "fail",
+      });
+      }
+    }
+    async getTopPosts(req, res) {
+      try {
+          req.query.sort = '-votes';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query, req.toFilter);
+           console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+      } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+              status: "fail",
+      });
+      }
+    }
+  async getBestPosts(req, res) {
+    try {
+      req.query.sort = '-createdAt,-votes,-commentCount,-shareCount';
+      console.log(req.query);
+      let response = await this.postServices.getPosts(req.query, {});
+      // console.log( response);
+      if (response.status === "success") {
+          res.status(response.statusCode).json({
+          status: response.status,
+          data: response.doc,
+          });
+      } else {
+          res.status(response.statusCode).json({
+          status: response.status,
+          errorMessage: response.err,
+          });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+          status: "fail",
+      });
+  }
+}
 }
 
 module.exports = PostController;
