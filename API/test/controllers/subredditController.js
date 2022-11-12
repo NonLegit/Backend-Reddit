@@ -391,4 +391,23 @@ describe("Subreddit Controller (get subreddit) Test", () => {
         });
     });
   });
+  
+  // describe("Subscribe Test", () => {
+  //   it("successful subscribtion", async () => {
+  //     await seeder();
+  //     res = await request(app).post("/api/v1/users/login").send({
+  //       userName: "kirollos",
+  //       email: "kirollos@gmail.com",
+  //       password: "12345678",
+  //     });
+
+  //     subredditName = "cmp2024 championship";
+
+  //     res = await request(app)
+  //       .post(`/api/v1/subreddits/${subredditName}/subscribe`)
+  //       .set("Cookie", res.header["set-cookie"])
+  //       .send();
+  //     expect(res.status).to.equal(200);
+  //   });
+  // });
 });

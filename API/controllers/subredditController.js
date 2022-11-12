@@ -1,6 +1,7 @@
 class subredditController {
-  constructor(subredditServices) {
+  constructor(subredditServices, userServices) {
     this.subredditServices = subredditServices; // can be mocked in unit testing
+    this.userServices = userServices;
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
@@ -17,6 +18,8 @@ class subredditController {
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlair = this.getFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
+
+    this.subscribe = this.subscribe.bind(this);
   }
   // ! todo: need some refractoring here
 
@@ -190,6 +193,7 @@ class subredditController {
     }
   }
 
+  // TODO: Not Finalized (needs a small fix)
   async deletemoderator(req, res, next) {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -344,7 +348,6 @@ class subredditController {
   //   let userId = req.user._id;
   //   try {
 
-      
   //   } catch (err) {
   //     console.log("error in subredditservices " + err);
   //     res.status(500).json({
@@ -486,6 +489,56 @@ class subredditController {
     }
   }
   //   async getFlairs(req, res) {
+
+  async subscribe(req, res) {
+    //setting sub default behavior
+    const action = req.query.action || "sub";
+
+    //check if subreddit exists
+    const subreddit = await this.subredditServices.subExists(
+      req.params.subredditName,
+      "_id"
+    );
+    if (!subreddit) {
+      res.status(404).json({
+        status: "fail",
+        message: "Subreddit not found",
+      });
+      return;
+    }
+
+    //check if user is not banned
+    const banned = await this.subredditServices.isBanned(
+      subreddit._id,
+      req.user._id
+    );
+    if (banned) {
+      res.status(400).json({
+        status: "fail",
+        message: "User is banned from the subreddit",
+      });
+      return;
+    }
+
+    //subscribe or unsubscribe user according to sub
+    const success = await this.userServices.subscribe(
+      req.user._id,
+      subreddit._id,
+      action
+    );
+
+    if (!success) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid subscribtion action",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+    });
+  }
 }
 
 //export default userController;

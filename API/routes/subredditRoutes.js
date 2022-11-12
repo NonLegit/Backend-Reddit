@@ -1,10 +1,9 @@
 const express = require("express");
-//const userControllerObj = require("./test");
-const subredditController = require("./../controllers/subredditController");
 const Subreddit = require("./../models/subredditModel");
 const Repository = require("./../data_access/repository");
 const subredditService = require("../service/subredditService");
 const SubredditRepositoryObj = new Repository(Subreddit);
+const subredditController = require("./../controllers/subredditController");
 // !=================================
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
@@ -21,12 +20,17 @@ const subredditServiceObj = new subredditService(
   User,
   UserRepositoryObj
 );
-const subredditControllerObj = new subredditController(subredditServiceObj);
+
 // !=================================
 
 const userServiceObj = new UserService(User, UserRepositoryObj, null);
 
 const authenticationControllerObj = new AuthenticationController(
+  userServiceObj
+);
+
+const subredditControllerObj = new subredditController(
+  subredditServiceObj,
   userServiceObj
 );
 
@@ -52,7 +56,8 @@ router.delete(
   subredditControllerObj.deletemoderator
 );
 router.patch(
-  "/:subredditName/moderator/:moderatorName",subredditControllerObj.updatePermissions
+  "/:subredditName/moderator/:moderatorName",
+  subredditControllerObj.updatePermissions
 );
 // router.patch("/:subredditName/setPrimaryTopic",subredditController.setPrimaryTopic);
 
@@ -65,5 +70,9 @@ router
   .get(subredditControllerObj.getFlair)
   .patch(subredditControllerObj.updateFlair)
   .delete(subredditControllerObj.deleteFlair);
+
+router
+  .route("/:subredditName/subscribe")
+  .post(subredditControllerObj.subscribe);
 
 module.exports = router;

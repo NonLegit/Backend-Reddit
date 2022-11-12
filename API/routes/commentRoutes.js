@@ -1,20 +1,14 @@
 const express = require("express");
-const PostController = require("../controllers/postController");
+const CommentController = require("../controllers/commentController");
 const Repository = require("../data_access/repository");
-const PostService = require("../service/postService");
+const CommentService = require("../service/commentService");
+const Comment = require("../models/commentModel");
 const Post = require("../models/postModel");
-const Subreddit = require("../models/subredditModel");
-const Flair = require("../models/flairModel");
 
+const commentRepoObj = new Repository(Comment);
 const postRepoObj = new Repository(Post);
-const subredditRepoObj = new Repository(Subreddit);
-const flairRepoObj = new Repository(Flair);
-const postServiceObj = new PostService(
-  Post,
-  postRepoObj,
-  subredditRepoObj,
-  flairRepoObj
-);
+const commentServiceObj = new CommentService(Comment, commentRepoObj, postRepoObj);
+const commentControllerObj = new CommentController(commentServiceObj);
 
 //using authorization functionality
 const AuthenticationContoller = require("../controllers/authenticationController");
@@ -26,16 +20,14 @@ const emailServiceObj = new Email();
 const userServiceObj = new UserService(User, userRepoObj, emailServiceObj);
 const authentControllerObj = new AuthenticationContoller(userServiceObj);
 
-const postControllerObj = new PostController(postServiceObj, userServiceObj);
-
 const router = express.Router();
 
 router.use(authentControllerObj.authorize);
 
-router.route("/").post(postControllerObj.createPost);
+router.route("/").post(commentControllerObj.createComment);
 router
-  .route("/:postId")
-  .patch(postControllerObj.updatePost)
-  .delete(postControllerObj.deletePost);
+  .route("/:commentId")
+  .patch(commentControllerObj.updateComment)
+  .delete(commentControllerObj.deleteComment);
 
 module.exports = router;

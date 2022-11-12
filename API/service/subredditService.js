@@ -23,6 +23,7 @@ class subredditService {
     this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
     this.isModerator = this.isModerator.bind(this);
     this.isOwner = this.isOwner.bind(this);
+    this.subExists=this.subExists.bind(this);
     // this.primaryTopic = this.primaryTopic.bind(this);
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
@@ -36,6 +37,7 @@ class subredditService {
     // !========================================
     this.user = user;
     this.userRepository = userRepository;
+    this.isBanned = this.isBanned.bind(this);
   }
   /**
    * create subreddit service function
@@ -846,6 +848,25 @@ class subredditService {
       };
       return error;
     }
+  }
+
+  async subExists(subredditName) {
+    return await this.subredditRepository.getByQuery({ name: subredditName });
+  }
+
+  async isBanned(subredditId, userId) {
+    const punished = (
+      await this.subredditRepository.getById(subredditId, "punished")
+    ).punished;
+
+    let isBanned = false;
+    for (const { userId: bannedUser, type } of punished) {
+      if (type === "banned" && userId.equals(bannedUser)) {
+        isBanned = true;
+        break;
+      }
+    }
+    return isBanned;
   }
 }
 
