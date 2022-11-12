@@ -33,12 +33,12 @@ class PostService {
   }
 
   async updatePost(id, data) {
-    const post = (await this.postRepository.updateOne({_id: id}, data)).doc;
+    const post = (await this.postRepository.updateOne({ _id: id }, data)).doc;
     return post;
   }
 
   async deletePost(id) {
-    await this.postRepository.updateOne({_id: id}, {isDeleted: true});
+    await this.postRepository.updateOne({ _id: id }, { isDeleted: true });
   }
 
   async isValidPost(data) {
@@ -56,7 +56,7 @@ class PostService {
     }
     //validate subreddit if the post is created in one
     else {
-      if(!data.owner) return false;
+      if (!data.owner) return false;
       const validSubreddit = await this.subredditRepository.isValidId(
         data.owner
       );

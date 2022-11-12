@@ -1,4 +1,4 @@
-const ObjectId = require("mongodb").ObjectId
+const ObjectId = require("mongodb").ObjectId;
 
 class CommentService {
   constructor(Comment, commentRepo, postRepo) {
@@ -60,14 +60,14 @@ class CommentService {
   }
 
   async isValidId(id) {
-    if(!ObjectId.isValid(id)) return false;
+    if (!ObjectId.isValid(id)) return false;
     const doc = await this.commentRepo.getById(id, "_id");
     if (!doc) return false;
     return true;
   }
 
   async updateComment(id, data) {
-    const comment = (await this.commentRepo.updateOne({_id: id}, data)).doc;
+    const comment = (await this.commentRepo.updateOne({ _id: id }, data)).doc;
     return comment;
   }
 
@@ -75,18 +75,24 @@ class CommentService {
     const comment = await this.commentRepo.getById(id, "parent parentType");
 
     //await this.commentRepo.deleteOne(id);
-    await this.commentRepo.updateOne({_id: id}, {isDeleted: true});
+    await this.commentRepo.updateOne({ _id: id }, { isDeleted: true });
 
     if (comment.parentType === "Comment") {
-      await this.commentRepo.updateOne({_id: comment.parent}, {
-        $pull: { replies: id },
-        $inc: { repliesCount: -1 },
-      });
+      await this.commentRepo.updateOne(
+        { _id: comment.parent },
+        {
+          $pull: { replies: id },
+          $inc: { repliesCount: -1 },
+        }
+      );
     } else {
-      await this.postRepo.updateOne({_id: comment.parent}, {
-        $pull: { replies: id },
-        $inc: { commentCount: -1 },
-      });
+      await this.postRepo.updateOne(
+        { _id: comment.parent },
+        {
+          $pull: { replies: id },
+          $inc: { commentCount: -1 },
+        }
+      );
     }
   }
 }
