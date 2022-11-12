@@ -158,10 +158,17 @@ class PostService {
     const posts = await this.postRepository.getAll({ author: author }, "", "");
     return posts.doc;
   }
+
+  /**
+   * get posts
+   * @param {String} query query to apply 
+   * @param {Object} filter filtering object to filter the posts
+   * @returns {Object} object containing array of posts
+    */
   
   async getPosts(query, filter) {
     try {
-      console.log("hereeeeeeeeeeeeeeeeeeee");
+      
       const posts = await this.postRepository.getAll(filter, query);
       console.log(posts);
       return posts;
