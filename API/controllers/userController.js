@@ -1,4 +1,12 @@
+/**
+ * UserController Class which handles user services
+ */
 class UserController {
+  /**
+   * Constructor
+   * Depends on user services object
+   * @param {object} UserServices - user service objec
+   */
   constructor(UserServices) {
     this.userServices = UserServices; // can be mocked in unit testing
     this.createUser = this.createUser.bind(this);
@@ -28,6 +36,13 @@ class UserController {
       });
     }
   }
+  /**
+   * @property {Function} getPrefs get user preferences
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getPrefs(req, res, next) {
     const prefs = this.userServices.getPrefs(req.user);
     res.status(200).json({
@@ -35,6 +50,13 @@ class UserController {
       prefs: prefs,
     });
   }
+  /**
+   * @property {Function} updatePrefs update user preferences
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async updatePrefs(req, res, next) {
     const query = req.body;
     const prefs = await this.userServices.updatePrefs(query, req.user._id);
@@ -43,6 +65,14 @@ class UserController {
       prefs: prefs,
     });
   }
+  /**
+   *
+   * @property {Function} getMe return all data of authenticated user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getMe(req, res, next) {
     const user = req.user;
     const me = {
@@ -68,6 +98,15 @@ class UserController {
       user: me,
     });
   }
+  /**
+   *
+   * @property {Function} about return information about another user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
+  // should check if user blocked me or not ?!
   async about(req, res, next) {
     if (!req.params.userName) {
       res.status(400).json({

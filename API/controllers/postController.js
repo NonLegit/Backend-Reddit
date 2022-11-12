@@ -76,6 +76,13 @@ class PostController {
       });
     }
   }
+  /**
+   * @property {Function} userPosts  get created posts by user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userPosts(req, res, next) {
     // i have user id
     let me = req.user;
@@ -101,8 +108,8 @@ class PostController {
 
       // get vote of me if these post i vote on it
       posts = this.postServices.setVotePostStatus(me, posts);
-      posts = this.postServices.setSavedPostStatus(me,posts);
-      posts = this.postServices.setHiddenPostStatus(me,posts);
+      posts = this.postServices.setSavedPostStatus(me, posts);
+      posts = this.postServices.setHiddenPostStatus(me, posts);
       posts = this.postServices.setPostOwnerData(posts);
       //console.log(posts[0]);
       res.status(200).json({
@@ -111,6 +118,14 @@ class PostController {
       });
     }
   }
+  /**
+   *
+   * @property {Function} getSavedPosts  get saved posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getSavedPosts(req, res, next) {
     let me = req.user;
 
@@ -122,13 +137,20 @@ class PostController {
     // get vote of me if these post i vote on it
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.saved);
-    posts = this.postServices.removeHiddenPosts(me,posts);
+    posts = this.postServices.removeHiddenPosts(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+  /**
+   * @property {Function} getHiddenPosts get hidden posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getHiddenPosts(req, res, next) {
     let me = req.user;
 
@@ -145,6 +167,13 @@ class PostController {
       posts: posts,
     });
   }
+  /**
+   * @property {Function} userUpvotedPosts  get upvoted posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userUpvotedPosts(req, res, next) {
     let me = req.user;
 
@@ -155,14 +184,22 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
-    posts = this.postServices.setSavedPostStatus(me,posts);
-    posts = this.postServices.setHiddenPostStatus(me,posts);
+    posts = this.postServices.setSavedPostStatus(me, posts);
+    posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       posts: posts,
     });
   }
+  /**
+   *
+   * @property {Function} userDownvotedPosts get downvoted posts of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async userDownvotedPosts(req, res, next) {
     let me = req.user;
 
@@ -171,8 +208,8 @@ class PostController {
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
     let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
-    posts = this.postServices.setSavedPostStatus(me,posts);
-    posts = this.postServices.setHiddenPostStatus(me,posts);
+    posts = this.postServices.setSavedPostStatus(me, posts);
+    posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",

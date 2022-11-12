@@ -156,6 +156,12 @@ class PostService {
       return error;
     }
   }
+  /**
+   * @property {Function} getUserPosts get posts which created by user
+   * @param {string} author - creator id of post
+   * @param {string} sortType - sorting posts according to new , top, Hot
+   * @returns {Array<object>} - list of posts
+   */
   async getUserPosts(author, sortType) {
     if (sortType === "Hot") {
       // algorithm
@@ -178,6 +184,11 @@ class PostService {
       return posts.doc;
     }
   }
+  /**
+   * @property {Function} setPostOwnerData set data of owner of post which is subreddit or user
+   * @param {Array<object>} posts - list of posts
+   * @returns {Array<object>} - list of posts
+   */
   setPostOwnerData(posts) {
     //let newPosts = Array.from(posts);
     let newPosts = posts;
@@ -194,6 +205,12 @@ class PostService {
     }
     return newPosts;
   }
+  /**
+   * @property {Function} removeHiddenPosts remove hidden posts from users posts
+   * @param {object} user - authenticated user model
+   * @param {Array<object>} posts - list of posts
+   * @returns {Array<object>} - list of posts
+   */
   removeHiddenPosts(user, posts) {
     let hash = {};
     let newPosts = [];
@@ -213,6 +230,12 @@ class PostService {
     }
     return newPosts;
   }
+  /**
+   * @property {Function} setSavedPostStatus set saved status of posts done by user
+   * @param {object} user - authenticated user model
+   * @param {Array<object>} posts - list of posts
+   * @returns {Array<object>} - list of posts
+   */
   setSavedPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
@@ -235,6 +258,12 @@ class PostService {
     }
     return newPosts;
   }
+  /**
+   * @property {Function} setHiddenPostStatus set hidden status of posts done by user.
+   * @param {object} user - authenticated user model
+   * @param {Array<object>} posts - list of posts
+   * @returns {Array<object>} - list of posts
+   */
   setHiddenPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
@@ -258,6 +287,12 @@ class PostService {
     }
     return newPosts;
   }
+  /**
+   * @property {Function} setVotePostStatus  set vote status of posts done by user
+   * @param {object} user - authenticated user model
+   * @param {Array<object>} posts - list of posts
+   * @returns {Array<object>} - list of posts
+   */
   setVotePostStatus(user, posts) {
     // create map of posts voted by user
     let newPosts = Array.from(posts);
@@ -281,6 +316,12 @@ class PostService {
     }
     return newPosts;
   }
+  /**
+   * @property {Function} selectPostsWithVotes filter posts according to votetype
+   * @param {Array<object>} posts  - list of posts
+   * @param {string} votetype - upvoted "!" or downvoted "-1"
+   * @returns {Array<object>} - list of posts
+   */
   selectPostsWithVotes(posts, votetype) {
     let newPost = [];
     posts.forEach((element) => {

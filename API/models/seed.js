@@ -104,7 +104,7 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes:5,
+    votes: 5,
   });
 
   await User.findOneAndUpdate(
