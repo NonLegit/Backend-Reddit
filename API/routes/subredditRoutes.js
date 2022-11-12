@@ -1,7 +1,5 @@
 const express = require("express");
 const Subreddit = require("./../models/subredditModel");
-const User = require("./../models/userModel");
-const Flair = require("./../models/flairModel");
 const Repository = require("./../data_access/repository");
 const subredditService = require("../service/subredditService");
 const SubredditRepositoryObj = new Repository(Subreddit);
