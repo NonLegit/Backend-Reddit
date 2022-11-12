@@ -10,6 +10,7 @@ class Repository {
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
+    this.getlist=this.getlist.bind(this);
 
     this.updateOneByQuery = this.updateOneByQuery.bind(this);
     this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
@@ -47,12 +48,12 @@ class Repository {
       return response;
     }
   }
-  async getOne(query, select, popOptions) {
+
+  async getlist(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select + " -__v");
+      let tempDoc = this.Model.find(query).select(select);
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -76,9 +77,39 @@ class Repository {
       return response;
     }
   }
-  async updateOne(query, data) {
+
+  async getOne(query, select, popOptions) {
     try {
-      let doc = await this.Model.findOneAndUpdate(query, data, {
+      let tempDoc = this.Model.findOne(query).select(select);
+      if (popOptions) tempDoc = tempDoc.populate(popOptions);
+      const doc = await tempDoc;
+      // console.log(doc);
+      if (!doc) {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          err: "cannot found document",
+        };
+        return response;
+      }
+      const response = {
+        status: "success",
+        statusCode: 200,
+        doc,
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+  async updateOne(id, data) {
+    try {
+      const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
       });
@@ -111,7 +142,6 @@ class Repository {
       const doc = await this.Model.findOneAndUpdate(filter, data, {
         new: true,
       });
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -123,12 +153,13 @@ class Repository {
       const response = {
         status: "success",
         statusCode: 200,
-        data: doc,
+        doc,
       };
       return response;
     } catch (err) {
+      console.log(err);
       const response = {
-        error: true,
+        status: "fail",
         statusCode: 400,
         err,
       };

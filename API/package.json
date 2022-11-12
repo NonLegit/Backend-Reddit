@@ -4,7 +4,7 @@
   "description": "backend api",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 1000000 --recursive --exit --spec ",
+    "test": "mocha --timeout 1000000 --recursive --exit --spec",
     "start": "nodemon server.js",
     "migrate": "migrate create new  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up new  -d mongodb://localhost:27017/redditDB"
@@ -27,6 +27,8 @@
     "helmet": "^6.0.0",
     "hpp": "^0.2.3",
     "install": "^0.13.0",
+    "jasmine": "^4.5.0",
+    "jsdoc": "^4.0.0",
     "jsonwebtoken": "^8.5.1",
     "migrate-mongoose": "^4.0.0",
     "mocha": "^10.1.0",
