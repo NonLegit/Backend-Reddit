@@ -34,6 +34,8 @@ class subredditService {
     this.getFlair = this.getFlair.bind(this);
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
+    this.checkSubreddit = this.checkSubreddit.bind(this);
+    this.checkModerator = this.checkModerator.bind(this);
     // !========================================
     this.user = user;
     this.userRepository = userRepository;
@@ -124,6 +126,7 @@ class subredditService {
   async getSubreddit(query) {
     try {
       let response = await this.subredditRepository.getOne(query, "", "");
+      console.log(response);
       return response;
     } catch (err) {
       console.log("catch error here" + err);
@@ -684,32 +687,45 @@ class subredditService {
 
   //! Doaa's part
 
-  async createFlair(subredditName, data) {
+
+/**
+ * 
+ * @param {String} subredditName the name of the subreddit to create flair into
+ * @param {Object} data  the data of the flair to be created
+ * @param {import("mongoose").ObjectId} userId 
+ * @returns {Object} returns created flair or an error object
+ */
+  async createFlair(subredditName, data,userId) {
     try {
+       let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
+      //console.log(subreddit);
+      let isModerator = this.checkModerator(subreddit, userId);
+      console.log(isModerator);
+      if (isModerator.status !== 'success') {
+        return isModerator;
+      }
+      
+      
+      
       let flair = await this.flairRepository.createOne(data);
 
-      //  console.log(flair);
+      
       if (flair.status !== "success") {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          errorMessage: flair.err,
-        };
-        return error;
+        return flair;
       }
-      // eslint-disable-next-line max-len, quotes
+     
       let addedTorefrencedFlairs =
         await this.subredditRepository.addToRefrenced(
-          { name: subredditName },
-          { $push: { flairs: flair.doc._id } }
+          {name: subredditName},
+          {$push: { "flairIds": flair.doc._id }}
         );
+      
       if (addedTorefrencedFlairs.status !== "success") {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          errorMessage: addedTorefrencedFlairs.err,
-        };
-        return error;
+        
+        return flair;
       }
 
       return flair;
@@ -717,81 +733,166 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
   }
-  async checkFlair(subredditName, flairId) {
+
+
+  /**
+   * 
+   * @param {String} subredditName the name of the subreddit to check if it exists
+   * @returns {Object} returns the found subreddit object id found and an error object if not
+   */
+  async checkSubreddit(subredditName) {
     try {
       let subreddit = await this.subredditRepository.getOne(
-        { name: subredditName },
-        "flairs"
+        { name: subredditName }
       );
+      //console.log(subreddit);
       if (subreddit.status !== "success") {
         const error = {
           status: "Not Found",
           statusCode: 404,
-          errorMessage: subreddit.err,
+          err: subreddit.err,
         };
         return error;
       }
 
-      if (!subreddit.data.flairs.includes(flairId)) {
-        const error = {
-          status: "Not Found",
-          statusCode: 404,
-          errorMessage: "Flair not in subreddit",
-        };
-        return error;
-      }
       return subreddit;
     } catch (err) {
       console.log("catch error here" + err);
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
   }
-  async updateFlair(subredditName, flairId, data) {
+
+  /**
+   * 
+   * @param {Object} subreddit the subreddit object to check the flait within 
+   * @param {import("mongoose").ObjectId} flairId the flair id to check if it exists
+   * @returns {Object} the subreddit object if the flair exists and an error obj if not
+   */
+   checkFlair(subreddit, flairId) {
+     
+      if (!subreddit.doc.flairIds.includes(flairId)) {
+        const error = {
+          status: "Not Found",
+          statusCode: 404,
+          err: "Flair not in subreddit",
+        };
+        return error;
+      }
+      return subreddit;
+   
+    }
+  
+
+  /**
+   * 
+   * @param {Object} subreddit subreddit object
+   * @param {import("mongoose").ObjectId} userID id of the moderaror to check whether it exists in the subreddit
+   * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
+   */
+  checkModerator(subreddit, userID) {
+    // console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    // console.log(typeof(subreddit.doc.owner));
+    // console.log(typeof(userID));
+    //console.log((subreddit.doc.owner).localeCompare(userID));
+    
+    
+    if (!(subreddit.doc.owner).equals(userID))
+    {
+        const error = {
+          status: "forbidden",
+          statusCode: 403,
+          err: "you are not a moderator",
+        };
+        return error;
+    }
+    // console.log("outsideeeeeeeeeeeeeeeeeeeee");
+      return subreddit;
+  }
+
+  /**
+   * 
+   * @param {String} subredditName name of the subreddit to update the flair in it
+   * @param {import("mongoose").ObjectId} flairId id of the flait to update
+   * @param {Object} data the new updated data of the flait to apply
+   * @param {import("mongoose").ObjectId} userId id of the user who request the update
+   * @returns {Object} returns the updated flair if success and an error object if not
+   */
+  async updateFlair(subredditName, flairId, data,userId) {
     try {
-      let checkFlair = await this.checkFlair(subredditName, flairId);
+      let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
+      let isModerator = this.checkModerator(subreddit,userId);
+      if (isModerator.status !== 'success') {
+        return isModerator;
+      }
+      
+      let checkFlair = this.checkFlair(subreddit, flairId);
+      
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
-      let response = await this.flairRepository.updateOne(flairId, data);
+      let response = await this.flairRepository.updateOne({ "_id": flairId }, data);
+      console.log(response);
       return response;
     } catch (err) {
       console.log("catch error here" + err);
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       // console.log(err);
       return error;
     }
   }
 
-  async deleteFlair(subredditName, flairId) {
+
+  /**
+   * 
+   * @param {String} subredditName name of the subreddit to delete the flair whithin 
+   * @param {import("mongoose").ObjectId} flairId id of the flair to be deleted
+   * @param {import("mongoose").ObjectId} userId id of the user who request the delete
+   * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
+   */
+  async deleteFlair(subredditName, flairId,userId) {
     try {
-      // eslint-disable-next-line max-len, quotes
-      let checkFlair = await this.checkFlair(subredditName, flairId);
+       let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
+      console.log(subreddit.doc.owner);
+      let isModerator = this.checkModerator(subreddit,userId);
+      if (isModerator.status !== 'success') {
+        return isModerator;
+      }
+      
+      let checkFlair = this.checkFlair(subreddit, flairId);
+      console.log(checkFlair);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
+      console.log(checkFlair);
       let response = await this.subredditRepository.removeFromRefrenced(
         { name: subredditName },
-        { $pull: { flairs: flairId } }
+        { $pull: { "flairIds": flairId } }
       );
       if (response.status !== "success") {
         const error = {
           status: "fail",
           statusCode: 400,
-          errorMessage: response.err,
+          err: response.err,
         };
         return error;
       }
@@ -801,15 +902,25 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
     }
   }
 
+  /**
+   * 
+   * @param {String} subredditName the name of the subreddit to get the flair from
+   * @param {import("mongoose").ObjectId} flairId id of the flair to get
+   * @returns {Object} flair object if found and an error object if not
+   */
   async getFlair(subredditName, flairId) {
     try {
-      let checkFlair = await this.checkFlair(subredditName, flairId);
+       let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
+      let checkFlair =  this.checkFlair(subreddit, flairId);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
@@ -821,22 +932,26 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err: err,
       };
       return error;
     }
   }
 
+  /**
+   * 
+   * @param {String} subredditName name of the subreddit to get its flairs
+   * @returns {Object} object containing all flairs if subreddit exists and an error object if not
+   */
   async getFlairs(subredditName) {
     try {
       // console.log('in service');
       // eslint-disable-next-line max-len, quotes
       let response = await this.subredditRepository.getRefrenced(
         { name: subredditName },
-        "flairs"
+        "flairIds"
       );
 
-      //  console.log(response);
 
       return response;
     } catch (err) {
@@ -844,10 +959,10 @@ class subredditService {
       const error = {
         status: "fail",
         statusCode: 400,
-        errorMessage: err,
+        err,
       };
       return error;
-    }
+    } 
   }
 
   async subExists(subredditName) {

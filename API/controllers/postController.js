@@ -10,6 +10,11 @@ class PostController {
     this.getHiddenPosts = this.getHiddenPosts.bind(this);
     this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
     this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
+
+    this.getBestPosts = this.getBestPosts.bind(this);
+    this.getTopPosts = this.getTopPosts.bind(this);
+    this.getHotPosts = this.getHotPosts.bind(this);
+    this.getNewPosts = this.getNewPosts.bind(this);
   }
 
   async createPost(req, res) {
@@ -218,6 +223,103 @@ class PostController {
       posts: posts,
     });
   }
+
+   async getHotPosts(req, res) {
+      try { 
+          req.query.sort = '-createdAt,-votes,-commentCount';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query,req.toFilter);
+          // console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+          } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+              status: "fail",
+          });
+      }
+  }
+  async getNewPosts(req, res) {
+    try{
+          req.query.sort = '-createdAt';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query, req.toFilter);
+          // console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+      } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+          status: "fail",
+      });
+      }
+    }
+    async getTopPosts(req, res) {
+      try {
+          req.query.sort = '-votes';
+          console.log(req.query);
+          let response = await this.postServices.getPosts(req.query, req.toFilter);
+           console.log( response);
+          if (response.status === "success") {
+              res.status(response.statusCode).json({
+              status: response.status,
+              data: response.doc,
+              });
+          } else {
+              res.status(response.statusCode).json({
+              status: response.status,
+              errorMessage: response.err,
+              });
+          }
+      } catch (err) {
+          console.log("error in subredditservices " + err);
+          res.status(500).json({
+              status: "fail",
+      });
+      }
+    }
+  async getBestPosts(req, res) {
+    try {
+      req.query.sort = '-createdAt,-votes,-commentCount,-shareCount';
+      console.log(req.query);
+      let response = await this.postServices.getPosts(req.query, {});
+      // console.log( response);
+      if (response.status === "success") {
+          res.status(response.statusCode).json({
+          status: response.status,
+          data: response.doc,
+          });
+      } else {
+          res.status(response.statusCode).json({
+          status: response.status,
+          errorMessage: response.err,
+          });
+      }
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+          status: "fail",
+      });
+  }
+}
 }
 
 module.exports = PostController;

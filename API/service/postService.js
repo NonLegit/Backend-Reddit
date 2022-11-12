@@ -16,6 +16,8 @@ class PostService {
     this.checkFlair = this.checkFlair.bind(this);
     this.getUserPosts = this.getUserPosts.bind(this);
     this.setVotePostStatus = this.setVotePostStatus.bind(this);
+  
+    this.getPosts = this.getPosts.bind(this);
     this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
   }
 
@@ -97,6 +99,43 @@ class PostService {
     const posts = await this.postRepository.getAll({ author: author }, "", "");
     return posts.doc;
   }
+
+  /**
+   * get posts
+   * @param {String} query query to apply 
+   * @param {Object} filter filtering object to filter the posts
+   * @returns {Object} object containing array of posts
+    */
+  
+  async getPosts(query, filter) {
+    try {
+      
+      const posts = await this.postRepository.getAll(filter, query);
+      console.log(posts);
+      return posts;
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
+  }
+  selectPostsWithVotes(posts, votetype) {
+    let newPost = [];
+    posts.forEach((element) => {
+      if (element.postVoteStatus === votetype) {
+        let newElement;
+        try {
+          newElement = element.posts.toObject();
+        } catch (err) {}
+        newElement["postVoteStatus"] = votetype;
+        newPost.push(newElement);
+      }
+    });
+    return newPost;
+  }
   setVotePostStatus(user, posts) {
     // create map of posts voted by user
     let newPosts = Array.from(posts);
@@ -118,21 +157,8 @@ class PostService {
         //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
     }
-    return newPosts;
-  }
-  selectPostsWithVotes(posts, votetype) {
-    let newPost = [];
-    posts.forEach((element) => {
-      if (element.postVoteStatus === votetype) {
-        let newElement;
-        try {
-          newElement = element.posts.toObject();
-        } catch (err) {}
-        newElement["postVoteStatus"] = votetype;
-        newPost.push(newElement);
-      }
-    });
-    return newPost;
+    console.log(posts[0].postVoteStatus);
+    return posts;
   }
 }
 

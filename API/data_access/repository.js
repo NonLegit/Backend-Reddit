@@ -18,10 +18,12 @@ class Repository {
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
-    this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+    this.removerFomRefrenced = this.removeFromRefrenced.bind(this);
 
     this.isValidId = this.isValidId.bind(this);
     this.getById = this.getById.bind(this);
+
+    this.getAllAndSelect = this.getAllAndSelect.bind(this);
     this.getByQuery = this.getByQuery.bind(this);
     this.push = this.push.bind(this);
   }
@@ -282,7 +284,7 @@ class Repository {
     try {
       const doc = await this.Model.findOne(query)
         .populate(populated)
-        .select({ populated: 1, _id: 0 });
+        .select({ populated: 1, _id: 0 ,createdAt:1});
       // console.log(doc);
       if (!doc) {
         const response = {
@@ -360,6 +362,31 @@ class Repository {
       return response;
     }
   }
+  async getAllAndSelect(filter,select,populate, query) {
+    try {
+      const features = new APIFeatures(Model.find(filter).select(select).populate(populate), query)
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+      // const doc = await features.query.explain();
+      const doc = await features.query;
+      const response = {
+        status: "success",
+        statusCode: 200,
+        doc,
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+
 
   async getById(id, select) {
     try {
