@@ -3,6 +3,7 @@ const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("./userModel");
 const Post = require("./postModel");
 const dotenv = require("dotenv");
+const Subreddit = require("./subredditModel");
 dotenv.config({ path: "config/config.env" });
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE_LOCAL;
@@ -113,6 +114,18 @@ module.exports = async function seeder() {
       runValidators: true,
     }
   );
+
+  try {
+    let subreddit1 = await Subreddit.create({
+      owner: user1._id,
+      name: "khaled_Subreddit",
+      type: "Public",
+      nsfw: true,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+
   //   await User.findOneAndUpdate(
   //     { userName: "Ahmed" },
   //     {

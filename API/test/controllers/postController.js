@@ -145,18 +145,18 @@ describe("Post controller test", () => {
       res = await request(app).post("/api/v1/users/login").send({
         userName: "khaled",
         email: "khaled@gmail.com",
-        password: "12345678"
+        password: "12345678",
       });
       expect(res.status).to.equal(200);
 
       deleteRes = await request(app)
-      .delete(`/api/v1/posts/${postRes._body.data._id}`)
-      .set("Cookie", res.header["set-cookie"])
-      .send();
-    expect(deleteRes.status).to.equal(401);
+        .delete(`/api/v1/posts/${postRes._body.data._id}`)
+        .set("Cookie", res.header["set-cookie"])
+        .send();
+      expect(deleteRes.status).to.equal(401);
     });
   });
-  
+
   describe("Update post Test", () => {
     it("successful update", async () => {
       res = await request(app).post("/api/v1/users/login").send({
@@ -183,9 +183,9 @@ describe("Post controller test", () => {
       updateRes = await request(app)
         .patch(`/api/v1/posts/${postRes._body.data._id}`)
         .set("Cookie", res.header["set-cookie"])
-        .send({text: "some text"});
+        .send({ text: "some text" });
       expect(updateRes.status).to.equal(200);
-      expect(updateRes._body.data.text).to.equal('some text');
+      expect(updateRes._body.data.text).to.equal("some text");
     });
 
     it("Update: non valid id", async () => {
@@ -213,7 +213,7 @@ describe("Post controller test", () => {
       updateRes = await request(app)
         .patch(`/api/v1/posts/636d490f3ff67d626ec990cb`)
         .set("Cookie", res.header["set-cookie"])
-        .send({text: "some text"});
+        .send({ text: "some text" });
       expect(updateRes.status).to.equal(404);
     });
 
@@ -243,14 +243,14 @@ describe("Post controller test", () => {
       res = await request(app).post("/api/v1/users/login").send({
         userName: "khaled",
         email: "khaled@gmail.com",
-        password: "12345678"
+        password: "12345678",
       });
       expect(res.status).to.equal(200);
 
       updateRes = await request(app)
-      .patch(`/api/v1/posts/${postRes._body.data._id}`)
-      .set("Cookie", res.header["set-cookie"])
-      .send({text: "some text"});
+        .patch(`/api/v1/posts/${postRes._body.data._id}`)
+        .set("Cookie", res.header["set-cookie"])
+        .send({ text: "some text" });
       expect(updateRes.status).to.equal(401);
     });
   });
