@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Comment = require('./commentModel')
 const Url = require("mongoose-type-url");
 const validator = require("validator");
 require("mongoose-type-url");
@@ -80,7 +81,7 @@ const postSchema = new mongoose.Schema({
   sendReplies: {
     type: Boolean,
     required: true,
-    defalt: true,
+    default: true,
   },
   nsfw: {
     type: Boolean,
@@ -118,7 +119,7 @@ const postSchema = new mongoose.Schema({
   suggestedSort: {
     type: String,
     required: true,
-    enum: ["top", " new", "best", "old"],
+    enum: ["top", "new", "best", "old"],
     default: "new",
   },
   scheduled: {
@@ -126,6 +127,17 @@ const postSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+});
+
+postSchema.pre("findOneAndUpdate", async function (next) {
+  if (this._update.isDeleted) {
+    const post = await this.model.findOne(this.getQuery());
+    await Comment.updateMany(
+      { _id: { $in: post.replies } },
+      { isDeleted: true }
+    );
+  }
+  next();
 });
 
 const Post = mongoose.model("Post", postSchema);

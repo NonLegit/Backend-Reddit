@@ -61,6 +61,25 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
+//A middleware to cascade soft delete
+commentSchema.pre("findOneAndUpdate", async function (next) {
+  const comment = await this.model.findOne(this.getQuery());
+  await this.model.updateMany({_id: {$in: comment.replies}}, {isDeleted: true});
+  next();
+});
+commentSchema.pre("updateMany", async function (next) {
+  const comments = await this.model.find(this.getQuery());
+  for (const comment of comments) {
+    await this.model.updateMany({_id: {$in: comment.replies}}, {isDeleted: true});
+  }
+  next();
+});
+
+// commentSchema.pre(/^find/, function(next) {
+//   this.find({ isDeleted: false });
+//   next();
+// });
+
 const Comment = mongoose.model("Comment", commentSchema);
 
 module.exports = Comment;
