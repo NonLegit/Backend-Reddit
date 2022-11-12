@@ -1,15 +1,13 @@
 const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
-const User = require("./userModel");
-const Post = require("./postModel");
+const User = require("./../../models/userModel");
+const Post = require("./../../models/postModel");
 const dotenv = require("dotenv");
-const Subreddit = require("./subredditModel");
-dotenv.config({ path: "config/config.env" });
+dotenv.config({ path: "./../../config/config.env" });
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE_LOCAL;
   const mockgoose = new Mockgoose(mongoose);
   mockgoose.prepareStorage().then(() => {
-    console.log("helooooo");
     mongoose
       .connect(DB)
       .then(() => console.log("Fake DB connection for testing successful!"));
@@ -129,18 +127,6 @@ module.exports = async function seeder() {
       runValidators: true,
     }
   );
-
-  try {
-    let subreddit1 = await Subreddit.create({
-      owner: user1._id,
-      name: "khaled_Subreddit",
-      type: "Public",
-      nsfw: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-
   //   await User.findOneAndUpdate(
   //     { userName: "Ahmed" },
   //     {

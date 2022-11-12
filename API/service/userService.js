@@ -1,11 +1,19 @@
-//const User = require('../models/userModel');
-//const Repository = require('../data_access/repository');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { promisify } = require("util");
 
+/**
+ * User Service Class for handleing user model and services
+ */
 class UserService {
+  /**
+   * User Service Constructor
+   * Depend on User,UserRepository Class which deals with database and email Services
+   * @param {object} User - User Data Model
+   * @param {object} UserRepository - User Repository Object for Deal with mongodb
+   * @param {object} emailServices - Email Service Object for send emails to users
+   */
   constructor(User, UserRepository, emailServices) {
     this.User = User; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
@@ -28,6 +36,7 @@ class UserService {
     this.isAvailable = this.isAvailable.bind(this);
     this.subscribe = this.subscribe.bind(this);
   }
+
   async createUser(data) {
     try {
       let user = await this.userRepository.createOne(data);
@@ -42,6 +51,11 @@ class UserService {
       return error;
     }
   }
+  /**
+   * @property {Function} createToken create user token
+   * @param {string} id - User Id to be stored in token
+   * @returns {string} - User Token
+   */
   createToken(id) {
     // what to put in token ?
     const token = jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -49,6 +63,15 @@ class UserService {
     });
     return token;
   }
+  /**
+   * @property {Function} signUp sign up user in backend
+   * add user in database if not exists before
+   * or reject services if user already exists.
+   * @param {object} email - user email (unique)
+   * @param {string} userName - user user name (unique)
+   * @param {string} password - user password
+   * @returns {object} - response of signup contain status of services and body to send to client
+   */
   async signUp(email, userName, password) {
     const userData = {
       email: email,
@@ -78,6 +101,14 @@ class UserService {
       return response;
     }
   }
+  /**
+   * @property {Function} logIn login user in backend
+   * check if user is already in database and add correct pasword to authenticate user and send token
+   * or reject services if not found or incorrect password entered
+   * @param {string} userName - user user name (unique)
+   * @param {string} password - user password
+   * @returns {object} - response of login contain status of services and body to send to client
+   */
   async logIn(userName, password) {
     let user = await this.userRepository.getOne(
       { userName: userName },
@@ -116,6 +147,11 @@ class UserService {
       }
     }
   }
+  /**
+   * @property {Function} forgotUserName send username to user
+   * @param {string} email - user email to send username to it
+   * @returns {object} - response of forgotUserName contain status of services and body to send to client
+   */
   async forgotUserName(email) {
     try {
       let user = await this.userRepository.getOne({ email: email }, "", "");
@@ -149,6 +185,13 @@ class UserService {
       return error;
     }
   }
+  /**
+   * @property {Function} forgotPassword send reset token to user
+   * check user is already exists in database then create reset token and send it to provided email
+   * @param {string} userName - user name
+   * @param {string} email - user email
+   * @returns {object} - response of forgotPassword contain status of services and body to send to client
+   */
   async forgotPassword(userName, email) {
     try {
       const query = {
@@ -191,6 +234,13 @@ class UserService {
       return error;
     }
   }
+  /**
+   * @property {Function} resetPassword reset user password
+   * check if token expired or not then insert new password in database in case of not expired
+   * @param {string} resetToken - unique reset token sent to mail
+   * @param {string} password  - new password of user
+   * @returns {object} - response of resetPassword contain status of services and body to send to client
+   */
   async resetPassword(resetToken, password) {
     const hashedToken = crypto
       .createHash("sha256")
@@ -229,19 +279,41 @@ class UserService {
       return response;
     }
   }
+  /**
+   * @property {Function} decodeToken get information out from token
+   * @param {string} token - user token
+   * @returns {object} - decoded object of token which contains id of user and secret key to check if token is valid
+   */
   async decodeToken(token) {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     return decoded;
   }
-  // should be generic
+
+  /**
+   * @property {Function} getUser get user information from database by user id
+   * should be generic
+   * @param {*} id - user id
+   * @returns {object} - user model
+   */
   async getUser(id) {
     let user = await this.userRepository.getOne({ _id: id }, "", "");
     return user;
   }
+  /**
+   * @property {Function} getUserByEmail get user information from database by email
+   * @param {string} email - user email
+   * @returns {object} - user model
+   */
   async getUserByEmail(email) {
     let user = await this.userRepository.getOne({ email: email }, "", "");
     return user;
   }
+  /**
+   * @property {Function} getUserByName get user information from database by userName
+   * @param {string} userName - user name
+   * @param {string|object} popOptions - population options of relationships stored in user data model
+   * @returns {object} - user model
+   */
   async getUserByName(userName, popOptions) {
     let user = await this.userRepository.getOne(
       { userName: userName },
@@ -250,11 +322,17 @@ class UserService {
     );
     return user;
   }
+  /**
+   * @property {Function} getPrefs get user preferences from user model
+   * @param {object} user - user datamodel
+   * @returns {object} - user preferences object
+   */
   getPrefs(user) {
     let prefs = {
       contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
+      gender: user.gender,
       allowInboxMessage: user.allowInboxMessage,
       allowMentions: user.allowMentions,
       allowCommentsOnPosts: user.allowCommentsOnPosts,
@@ -262,28 +340,40 @@ class UserService {
       allowUpvotesOnPosts: user.allowUpvotesOnPosts,
       displayName: user.displayName,
       profilePicture: user.profilePicture,
+      description: user.description,
     };
     return prefs;
   }
+  /**
+   * @property {Function} updatePrefs  update user preferences from user model
+   * @param {object} query - filtered updated fields to change in user preferences
+   * @param {string} id - user id
+   * @returns {object} - updated user preferences object
+   */
   async updatePrefs(query, id) {
-    console.log(query);
     const filteredBody = this.filterObj(
       query,
       "contentVisibility",
       "canbeFollowed",
       "nsfw",
+      "gender",
       "allowInboxMessage",
       "allowMentions",
       "allowCommentsOnPosts",
       "allowUpvotesOnComments",
       "allowUpvotesOnPosts",
       "displayName",
-      "profilePicture"
+      "description"
     );
-    console.log("a   ", filteredBody);
     let user = await this.userRepository.updateOne({ _id: id }, filteredBody);
     return this.getPrefs(user.doc);
   }
+  /**
+   * @property {Function} filterObj filter data to prevent changing of nonchangeable in database like password
+   * @param {object} obj - object to filterd by allowedFields
+   * @param  {...any} allowedFields - fields which will be kept if found in new object
+   * @returns {object} - filtered object
+   */
   filterObj(obj, ...allowedFields) {
     const newObj = {};
     Object.keys(obj).forEach((el) => {
@@ -319,5 +409,5 @@ class UserService {
     return false;
   }
 }
-//export default UserService;
+
 module.exports = UserService;

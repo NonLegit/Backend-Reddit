@@ -9,7 +9,6 @@ const commentRouter = require("./routes/commentRoutes");
 const cors = require("cors");
 
 const app = express();
-
 app.use(mongoSanitize());
 app.use(cookieParser());
 app.use(cors());

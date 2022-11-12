@@ -1,4 +1,12 @@
+/**
+ * UserController Class which handles user services
+ */
 class UserController {
+  /**
+   * Constructor
+   * Depends on user services object
+   * @param {object} UserServices - user service objec
+   */
   constructor(UserServices) {
     this.userServices = UserServices; // can be mocked in unit testing
     this.createUser = this.createUser.bind(this);
@@ -29,16 +37,28 @@ class UserController {
       });
     }
   }
+  /**
+   * @property {Function} getPrefs get user preferences
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getPrefs(req, res, next) {
-    console.log(req.user);
     const prefs = this.userServices.getPrefs(req.user);
     res.status(200).json({
       status: "success",
       prefs: prefs,
     });
   }
+  /**
+   * @property {Function} updatePrefs update user preferences
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async updatePrefs(req, res, next) {
-    console.log(req.body);
     const query = req.body;
     const prefs = await this.userServices.updatePrefs(query, req.user._id);
     res.status(200).json({
@@ -68,6 +88,14 @@ class UserController {
       });
     }
   }
+    /**
+   *
+   * @property {Function} getMe return all data of authenticated user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   async getMe(req, res, next) {
     const user = req.user;
     const me = {
@@ -85,12 +113,23 @@ class UserController {
       displayName: user.displayName,
       postKarma: user.postKarma,
       commentKarma: user.commentKarma,
+      createdAt: user.joinDate,
+      description: user.description,
     };
     res.status(200).json({
       status: "success",
       user: me,
     });
   }
+  /**
+   *
+   * @property {Function} about return information about another user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
+  // should check if user blocked me or not ?!
   async about(req, res, next) {
     if (!req.params.userName) {
       res.status(400).json({
@@ -102,7 +141,6 @@ class UserController {
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
-      console.log(user);
       if (user.status !== "fail") {
         // check if i followed him
         const relation = me.meUserRelationship.find(
@@ -124,6 +162,7 @@ class UserController {
           displayName: user.doc.displayName,
           postKarma: user.doc.postKarma,
           commentKarma: user.doc.commentKarma,
+          description: user.doc.description,
           isFollowed: isFollowed,
         };
         res.status(200).json({

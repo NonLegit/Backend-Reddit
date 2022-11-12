@@ -88,6 +88,7 @@ const userSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
+    default: "",
     trim: true,
   },
   followersCount: {
@@ -220,6 +221,12 @@ const userSchema = new mongoose.Schema({
       ref: "Subreddit",
     },
   ],
+  savedComment: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Comment",
+    },
+  ],
 });
 
 userSchema.pre("save", async function (next) {
@@ -229,6 +236,8 @@ userSchema.pre("save", async function (next) {
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
   this.lastUpdatedPassword = Date.now() - 1000;
+  //this.userName = "user" + this._id;
+  //console.log(this);
   next();
 });
 userSchema.pre(/^find/, function (next) {

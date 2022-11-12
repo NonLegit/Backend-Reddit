@@ -128,7 +128,9 @@ const postSchema = new mongoose.Schema({
     default: false,
   },
 });
-
+postSchema.pre('find', function() {
+  this.populate('owner');
+});
 postSchema.pre("findOneAndUpdate", async function (next) {
   if (this._update.isDeleted) {
     const post = await this.model.findOne(this.getQuery());
