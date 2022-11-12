@@ -54,6 +54,7 @@ router.delete(
 router.patch(
   "/:subredditName/moderator/:moderatorName",subredditControllerObj.updatePermissions
 );
+// router.patch("/:subredditName/setPrimaryTopic",subredditController.setPrimaryTopic);
 
 router
   .route("/:subredditName/flair")

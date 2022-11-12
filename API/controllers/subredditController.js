@@ -10,6 +10,7 @@ class subredditController {
     this.deletemoderator = this.deletemoderator.bind(this);
     this.subredditsJoined = this.subredditsJoined.bind(this);
     this.updatePermissions = this.updatePermissions.bind(this);
+    // this.setPrimaryTopic=this.setPrimaryTopic.bind(this);
     //! ***************************
     this.createFlair = this.createFlair.bind(this);
     this.deleteFlair = this.deleteFlair.bind(this);
@@ -18,6 +19,7 @@ class subredditController {
     this.getFlairs = this.getFlairs.bind(this);
   }
   // ! todo: need some refractoring here
+
   async createSubreddit(req, res, next) {
     let data = req.body;
     let userId = req.user._id;
@@ -336,6 +338,20 @@ class subredditController {
       });
     }
   }
+
+  // async setPrimaryTopic(req,res){
+  //   let subredditName = req.params.subredditName;
+  //   let userId = req.user._id;
+  //   try {
+
+      
+  //   } catch (err) {
+  //     console.log("error in subredditservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // }
 
   // ! Doaa's controllers
   async createFlair(req, res) {
