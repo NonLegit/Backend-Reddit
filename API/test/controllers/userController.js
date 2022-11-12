@@ -153,4 +153,36 @@ describe("User Controller Test", () => {
         });
     });
   });
+
+  describe("username_available test", () => {
+    it("username is avilable", async () => {
+      res = await request(app).post("/api/v1/users/login").send({
+        userName: "kirollos",
+        email: "kirollos@gmail.com",
+        password: "12345678",
+      });
+
+      res = await request(app)
+        .get("/api/v1/users/username_available?userName=kirollos")
+        .set("Cookie", res.header["set-cookie"])
+        .send();
+      expect(res.status).to.equal(200);
+      expect(res._body.available).to.equal(false);
+    });
+
+    it("username is not avilable", async () => {
+      res = await request(app).post("/api/v1/users/login").send({
+        userName: "kirollos",
+        email: "kirollos@gmail.com",
+        password: "12345678",
+      });
+
+      res = await request(app)
+        .get("/api/v1/users/username_available?userName=kiro")
+        .set("Cookie", res.header["set-cookie"])
+        .send();
+      expect(res.status).to.equal(200);
+      expect(res._body.available).to.equal(true);
+    });
+  });
 });

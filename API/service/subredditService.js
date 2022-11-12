@@ -697,7 +697,7 @@ class subredditService {
  * 
  * @param {String} subredditName the name of the subreddit to create flair into
  * @param {Object} data  the data of the flair to be created
- * @param {import("mongoose").ObjectId} userId 
+ * @param {string} userId 
  * @returns {Object} returns created flair or an error object
  */
   async createFlair(subredditName, data,userId) {
@@ -780,7 +780,7 @@ class subredditService {
   /**
    * 
    * @param {Object} subreddit the subreddit object to check the flait within 
-   * @param {import("mongoose").ObjectId} flairId the flair id to check if it exists
+   * @param {string} flairId the flair id to check if it exists
    * @returns {Object} the subreddit object if the flair exists and an error obj if not
    */
    checkFlair(subreddit, flairId) {
@@ -801,7 +801,7 @@ class subredditService {
   /**
    * 
    * @param {Object} subreddit subreddit object
-   * @param {import("mongoose").ObjectId} userID id of the moderaror to check whether it exists in the subreddit
+   * @param {string} userID id of the moderaror to check whether it exists in the subreddit
    * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
    */
   checkModerator(subreddit, userID) {
@@ -827,9 +827,9 @@ class subredditService {
   /**
    * 
    * @param {String} subredditName name of the subreddit to update the flair in it
-   * @param {import("mongoose").ObjectId} flairId id of the flait to update
+   * @param {string} flairId id of the flait to update
    * @param {Object} data the new updated data of the flait to apply
-   * @param {import("mongoose").ObjectId} userId id of the user who request the update
+   * @param {string} userId id of the user who request the update
    * @returns {Object} returns the updated flair if success and an error object if not
    */
   async updateFlair(subredditName, flairId, data,userId) {
@@ -867,8 +867,8 @@ class subredditService {
   /**
    * 
    * @param {String} subredditName name of the subreddit to delete the flair whithin 
-   * @param {import("mongoose").ObjectId} flairId id of the flair to be deleted
-   * @param {import("mongoose").ObjectId} userId id of the user who request the delete
+   * @param {string} flairId id of the flair to be deleted
+   * @param {string} userId id of the user who request the delete
    * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
    */
   async deleteFlair(subredditName, flairId,userId) {
@@ -916,7 +916,7 @@ class subredditService {
   /**
    * 
    * @param {String} subredditName the name of the subreddit to get the flair from
-   * @param {import("mongoose").ObjectId} flairId id of the flair to get
+   * @param {string} flairId id of the flair to get
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
@@ -974,6 +974,12 @@ class subredditService {
     return await this.subredditRepository.getByQuery({ name: subredditName });
   }
 
+  /**
+   * Checks if a user is banned from a given a subreddit
+   * @param {string} subredditId 
+   * @param {string} userId 
+   * @returns {boolean}
+   */
   async isBanned(subredditId, userId) {
     const punished = (
       await this.subredditRepository.getById(subredditId, "punished")

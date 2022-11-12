@@ -382,6 +382,11 @@ class UserService {
     return newObj;
   }
 
+  /**
+   * Checks if username is available, that is, it doesn't exist in the database
+   * @param {string} username - The name of the user to be checked
+   * @returns {boolean}
+   */
   async isAvailable(username) {
     const found = await this.userRepository.getByQuery(
       { userName: username },
@@ -390,6 +395,13 @@ class UserService {
     return !found;
   }
 
+  /**
+   * Subscribe or unsubscribe a user to a subreddit according to action
+   * @param {string} userId - The user id
+   * @param {string} subredditId - The subreddit to subscribe to
+   * @param {string} action - sub for subscribe and unsub for unsubscribe
+   * @returns {boolean}
+   */
   async subscribe(userId, subredditId, action) {
     const alreadySubscribed = await this.userRepository.getByQuery(
       { _id: userId, subscribed: subredditId },
