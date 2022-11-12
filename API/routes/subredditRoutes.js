@@ -15,7 +15,7 @@ const postServiceObj = new postService(Post, PostRepositoryObj);
 
 // !================================
 const SubredditRepositoryObj = new Repository(Subreddit);
-const subredditController = require("./../controllers/subredditController");
+//const subredditController = require("./../controllers/subredditController");
 // !=================================
 const AuthenticationController = require("./../controllers/AuthenticationController");
 const User = require("./../models/userModel");
