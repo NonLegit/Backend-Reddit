@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 
-
+const Post = require("./postModel");
 const User = require("./userModel");
 
 const Flair = require("./flairModel");
@@ -59,7 +59,71 @@ module.exports = async function seeder() {
   });
   
   
-  
+  let post1 = await Post.create({
+    title: "ahmed post",
+    kind: "self",
+    text: "this is a test post 1",
+    author: user1._id,
+    owner: user1._id,
+    ownerType: "User",
+    nsfw: true,
+    spoiler: true,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 1,
+    views: 8,
+    commentCount:5
+    
+  });
+  let post2 = await Post.create({
+    title: "khaled post",
+    kind: "self",
+    text: "this is a test post 2",
+    author: user2._id,
+    owner: user2._id,
+    ownerType: "User",
+    nsfw: true,
+    spoiler: true,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 1,
+    views: 87,
+    commentCount:50
+  });
+  let post3 = await Post.create({
+    title: "kiro post",
+    kind: "self",
+    text: "this is a test post 3",
+    author: user1._id,
+    owner: subreddit1._id,
+    ownerType: "User",
+    nsfw: true,
+    spoiler: true,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 85,
+    views: 6,
+    commentCount:2
+  });
+  let post4 = await Post.create({
+    title: "doaa post",
+    kind: "self",
+    text: "this is a test post 4",
+    author: user1._id,
+    owner: subreddit2._id,
+    ownerType: "User",
+    nsfw: true,
+    spoiler: true,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 9,
+    views: 4,
+    commentCount:0
+  });
 
  
   

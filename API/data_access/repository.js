@@ -16,7 +16,7 @@ class Repository {
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
-    this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+    this.removerFomRefrenced = this.removeFromRefrenced.bind(this);
 
     this.isValidId = this.isValidId.bind(this);
     this.getById = this.getById.bind(this);

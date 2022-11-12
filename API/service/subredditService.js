@@ -20,6 +20,7 @@ class subredditService {
     this.updateFlair = this.updateFlair.bind(this);
     this.getFlairs = this.getFlairs.bind(this);
     this.checkSubreddit = this.checkSubreddit.bind(this);
+    this.checkModerator = this.checkModerator.bind(this);
   }
   async createSubreddit(data) {
     try {
@@ -125,22 +126,18 @@ class subredditService {
 
   async createFlair(subredditName, data,userId) {
     try {
-
-      
-      let subreddit = await this.checkSubreddit(subredditName);
+       let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
         return subreddit;
       }
-      let isModerator = await this.isModerator(subredditName,userId);
+      //console.log(subreddit);
+      let isModerator = this.checkModerator(subreddit, userId);
+      console.log(isModerator);
       if (isModerator.status !== 'success') {
-        const error = {
-        status: "fail",
-        statusCode: 403,
-        err:"you are not a subreddti moderator",
-      };
-      // console.log(err);
-      return error;
+        return isModerator;
       }
+      
+      
       
       let flair = await this.flairRepository.createOne(data);
 
@@ -169,7 +166,7 @@ class subredditService {
       };
       return error;
     }
-  }
+  }//////
   async checkSubreddit(subredditName) {
     try {
       let subreddit = await this.subredditRepository.getOne(
@@ -195,26 +192,9 @@ class subredditService {
       };
       return error;
     }
-  }
-  async checkFlair(subredditName, flairId) {
-    try {
-      let subreddit = await this.subredditRepository.getOne(
-        { name: subredditName },
-        "flairIds"
-      ); 
-      console.log(subredditName);
-      console.log(subreddit);
-      if (subreddit.status !== "success") {
-        const error = {
-          status: "Not Found",
-          statusCode: 404,
-          err: subreddit.err,
-        };
-        return error;
-      }
-      console.log(subreddit.doc.flairIds);
-      console.log("here");
-      console.log(flairId);
+  }//////
+   checkFlair(subreddit, flairId) {
+     
       if (!subreddit.doc.flairIds.includes(flairId)) {
         const error = {
           status: "Not Found",
@@ -224,15 +204,28 @@ class subredditService {
         return error;
       }
       return subreddit;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
+   
     }
+  
+
+  checkModerator(subreddit, userID) {
+    console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    console.log(typeof(subreddit.doc.owner));
+    console.log(typeof(userID));
+    //console.log((subreddit.doc.owner).localeCompare(userID));
+    
+    
+    if (!(subreddit.doc.owner).equals(userID))
+    {
+        const error = {
+          status: "forbidden",
+          statusCode: 403,
+          err: "you are not a moderator",
+        };
+        return error;
+    }
+    // console.log("outsideeeeeeeeeeeeeeeeeeeee");
+      return subreddit;
   }
   async updateFlair(subredditName, flairId, data,userId) {
     try {
@@ -240,22 +233,17 @@ class subredditService {
       if (subreddit.status !== "success") {
         return subreddit;
       }
-      let isModerator = await this.isModerator(subredditName,userId);
+      let isModerator = this.checkModerator(subreddit,userId);
       if (isModerator.status !== 'success') {
-        const error = {
-        status: "fail",
-        statusCode: 403,
-        err:"you are not a subreddti moderator",
-      };
-      // console.log(err);
-      return error;
+        return isModerator;
       }
-      let checkFlair = await this.checkFlair(subredditName, flairId);
-      console.log(checkFlair);
+      
+      let checkFlair = this.checkFlair(subreddit, flairId);
+      
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
-      let response = await this.flairRepository.updateOne(flairId, data);
+      let response = await this.flairRepository.updateOne({ "_id": flairId }, data);
       console.log(response);
       return response;
     } catch (err) {
@@ -276,21 +264,18 @@ class subredditService {
       if (subreddit.status !== "success") {
         return subreddit;
       }
-      let isModerator = await this.isModerator(subredditName,userId);
+      console.log(subreddit.doc.owner);
+      let isModerator = this.checkModerator(subreddit,userId);
       if (isModerator.status !== 'success') {
-        const error = {
-        status: "fail",
-        statusCode: 403,
-        err:"you are not a subreddti moderator",
-      };
-      // console.log(err);
-      return error;
+        return isModerator;
       }
-      // eslint-disable-next-line max-len, quotes
-      let checkFlair = await this.checkFlair(subredditName, flairId);
+      
+      let checkFlair = this.checkFlair(subreddit, flairId);
+      console.log(checkFlair);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
+      console.log(checkFlair);
       let response = await this.subredditRepository.removeFromRefrenced(
         { name: subredditName },
         { $pull: { "flairIds": flairId } }
@@ -314,10 +299,14 @@ class subredditService {
       return error;
     }
   }
-
+//////////
   async getFlair(subredditName, flairId) {
     try {
-      let checkFlair = await this.checkFlair(subredditName, flairId);
+       let subreddit = await this.checkSubreddit(subredditName);
+      if (subreddit.status !== "success") {
+        return subreddit;
+      }
+      let checkFlair =  this.checkFlair(subreddit, flairId);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
@@ -334,7 +323,7 @@ class subredditService {
       return error;
     }
   }
-
+////
   async getFlairs(subredditName) {
     try {
       // console.log('in service');
@@ -344,7 +333,6 @@ class subredditService {
         "flairIds"
       );
 
-       console.log(response);
 
       return response;
     } catch (err) {
