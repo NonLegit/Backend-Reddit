@@ -128,4 +128,7 @@ router.get("/saved", postControllerObj.getSavedPosts);
 router.get("/hidden", postControllerObj.getHiddenPosts);
 router.get("/upvoted", postControllerObj.userUpvotedPosts);
 router.get("/downvoted", postControllerObj.userDownvotedPosts);
+
+router.route("/username_available").get(userControllerObj.usernameAvailable);
+
 module.exports = router;

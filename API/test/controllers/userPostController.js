@@ -21,9 +21,9 @@ describe("Post Controller (user posts) Test", () => {
             password: "12345678",
           })
           .then((res1) => {
-            //console.log(res1.body);
+            console.log(res1.body);
 
-            //console.log(res1.header);
+            console.log(res1.header);
             request(app)
               .get("/api/v1/users/Ahmed/posts")
               .set("Cookie", res1.header["set-cookie"])

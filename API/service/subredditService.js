@@ -1,15 +1,30 @@
 //const User = require('../models/userModel');
 //const Repository = require('../data_access/repository');
+const mongoose = require("mongoose");
+
 class subredditService {
-  constructor(subreddit, subredditRepository, flair, flairRepository) {
+  constructor(
+    subreddit,
+    subredditRepository,
+    flair,
+    flairRepository,
+    user,
+    userRepository
+  ) {
     this.subreddit = subreddit; // can be mocked in unit testing
     this.subredditRepository = subredditRepository; // can be mocked in unit testing
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubreddit = this.getSubreddit.bind(this);
     this.updateSubreddit = this.updateSubreddit.bind(this);
-    this.getCategoryPosts=this.getCategoryPosts.bind(this);
-
+    this.getCategoryPosts = this.getCategoryPosts.bind(this);
+    this.inviteMod = this.inviteMod.bind(this);
+    this.deleteMod = this.deleteMod.bind(this);
+    this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
+    this.isModerator = this.isModerator.bind(this);
+    this.isOwner = this.isOwner.bind(this);
+    this.subExists=this.subExists.bind(this);
+    // this.primaryTopic = this.primaryTopic.bind(this);
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
     this.flair = flair; // can be mocked in unit testing
@@ -21,11 +36,32 @@ class subredditService {
     this.getFlairs = this.getFlairs.bind(this);
     this.checkSubreddit = this.checkSubreddit.bind(this);
     this.checkModerator = this.checkModerator.bind(this);
+    // !========================================
+    this.user = user;
+    this.userRepository = userRepository;
+    this.isBanned = this.isBanned.bind(this);
   }
+  /**
+   * create subreddit service function
+   * @param {object} data - the data coming from request body
+   * @returns {Object} - a response containing the created subreddit.
+   *
+   */
   async createSubreddit(data) {
+    // ..
     try {
-      let subreddit = await this.subredditRepository.createOne(data);
-      return subreddit;
+      let subredditExisted = await this.getSubreddit({ name: data.name });
+      if (subredditExisted.status === "fail") {
+        let subreddit = await this.subredditRepository.createOne(data);
+        return subreddit;
+      } else {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit already exists",
+        };
+        return response;
+      }
     } catch (err) {
       const error = {
         status: "fail",
@@ -35,9 +71,19 @@ class subredditService {
       return error;
     }
   }
+  /**
+   * delete subreddit service function
+   * @param {object} filter - query filters to select a spacefic document in database
+   * @param {object} options - query options
+   * @returns {Object} - a response
+   */
   async deleteSubreddit(filter, options) {
+    // ..
     try {
-      let response = await this.subredditRepository.deleteOneByQuery(filter, options);
+      let response = await this.subredditRepository.deleteOneByQuery(
+        filter,
+        options
+      );
       return response;
     } catch (err) {
       const error = {
@@ -48,8 +94,14 @@ class subredditService {
       return error;
     }
   }
-
+  /**
+   * Update the subreddit service function
+   * @param {object} filter - query filters to select a spacefic document in database or a spacific attribute
+   * @param {object} data - the new data passed from request body
+   * @returns {Object} - a response containing the updated subreddit.
+   */
   async updateSubreddit(filter, data) {
+    // ..
     try {
       let response = await this.subredditRepository.updateOneByQuery(
         filter,
@@ -66,7 +118,11 @@ class subredditService {
       return error;
     }
   }
-
+  /**
+   * retrieve a subreddit from database service function
+   * @param {object} query - a query to select a certain subreddit from database
+   * @returns {Object} - a response containing the retrieved subreddit
+   */
   async getSubreddit(query) {
     try {
       let response = await this.subredditRepository.getOne(query, "", "");
@@ -83,34 +139,310 @@ class subredditService {
     }
   }
 
+  /**
+   * this function checks if user is moderator or not by passing @subredditName and @iD
+   * @param {string} subredditName - name of subreddit i want to check from
+   * @param {string} userID - iD if the user i want to check
+   * @returns {boolean} - a boolean true or false,
+   */
   async isModerator(subredditName, userID) {
+    // ..
     try {
-      console.log("///////////////////////////////////////////////////");
-      console.log(userID);
-      let ismoderator = await this.getSubreddit(
+      let ismoderator = await this.subredditRepository.getOne(
         {
-          "name": subredditName,
-          "owner": userID,
-        }
+          name: subredditName,
+          "moderators.username": userID,
+        },
+        { "moderators.$": 1 },
+        ""
       );
-      console.log("hello");
-      console.log(ismoderator);
-      console.log("au revoir");
-      return ismoderator;
+      if (ismoderator.status === "success") return true;
+      else return false;
+    } catch (err) {
+      return false;
+    }
+  }
+  /**
+   * this function checks if user is owner or not by passing @subredditName and @iD
+   * @param {string} subredditName - name of subreddit i want to check from
+   * @param {string} userID - iD if the user i want to check
+   * @returns {boolean} - a boolean true or false,
+   */
+  async isOwner(subredditName, userID) {
+    // ..
+    try {
+      let isowner = await this.subredditRepository.getOne(
+        {
+          name: subredditName,
+          "moderators.username": userID,
+        },
+        { "moderators.$": 1 },
+        ""
+      );
+      if (isowner.status === "success") return true;
+      else return false;
+    } catch (err) {
+      return false;
+    }
+  }
+  /**
+   * this function invites a user to be a moderator
+   * @param {string} subredditName - name of subreddit i want to add moderator in it
+   * @param {string} userId - iD of the user calling this function
+   * @param {string} modName - name of user i want to make him moderator
+   * @param {object} data - moderator permissions bassed from request body
+   * @returns {Object} a response.
+   */
+  async inviteMod(subredditName, userId, modName, data) {
+    // ..
+    try {
+      // ! check subreddit existed or not
+      let subredditExisted = await this.getSubreddit({ name: subredditName });
+      if (subredditExisted.status === "fail") {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit doesn't exist",
+        };
+        return response;
+      } else {
+        //! 2]check user is moderator
+        let canInvite = await this.isModerator(subredditName, userId);
+        if (!canInvite) {
+          const response = {
+            status: "fail",
+            statusCode: 401,
+            message: "you are not moderator to this subreddit",
+          };
+          return response;
+        } else {
+          //! he is moderator and subreddit is existed => 3]check username existed
+          let userExisted = await this.userRepository.getOne(
+            {
+              userName: modName,
+            },
+            "",
+            ""
+          );
+          if (userExisted.status === "fail") {
+            const response = {
+              status: "fail",
+              statusCode: 404,
+              message: "this username doesn't exist",
+            };
+            return response;
+          } else {
+            // ! 4] check if he is not mod to this subreddit
+            let UserIsMod = await this.isModerator(
+              subredditName,
+              userExisted.doc._id
+            );
+            if (!UserIsMod) {
+              // ! make him mod then
+              let updateModerators = await this.updateSubreddit(
+                { name: subredditName },
+                {
+                  $push: {
+                    moderators: {
+                      username: userExisted.doc._id,
+                      mod_time: Date.now(),
+                      permissions: {
+                        all: data.permissions.all,
+                        access: data.permissions.access,
+                        config: data.permissions.config,
+                        flair: data.permissions.flair,
+                        posts: data.permissions.posts,
+                      },
+                    },
+                  },
+                }
+              );
+              if (updateModerators.status === "fail") {
+                const response = {
+                  status: "fail",
+                  statusCode: 400,
+                  message: "failed to update",
+                };
+                return response;
+              } else {
+                // * hurraaay
+                const response = {
+                  status: "success",
+                  statusCode: 204,
+                  message: "Added to moderators",
+                };
+                return response;
+              }
+            } else {
+              const response = {
+                status: "fail",
+                statusCode: 400,
+                message: "That user is already moderator",
+              };
+              return response;
+            }
+          }
+        }
+      }
     } catch (err) {
       const error = {
         status: "fail",
-        statusCode: 401,
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
+  }
+  /**
+   * this function removes user from being moderator in a certain subreddit
+   * @param {string} subredditName - name of subreddit i want to remove moderator from
+   * @param {string} userId - iD of the user making the request
+   * @param {string} modName - moderator name i want to remove from moderation
+   * @returns a response.
+   */
+  async deleteMod(subredditName, userId, modName) {
+    // ..
+    try {
+      // TODO: fix update error
+      //! check subreddit existed or not
+      let subredditExisted = await this.getSubreddit({ name: subredditName });
+      if (subredditExisted.status === "fail") {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit doesn't exist",
+        };
+        return response;
+      } else {
+        //! 2]check user is moderator
+        let canDelete = await this.subredditRepository.getOne(
+          { name: subredditName, "moderators.username": userId },
+          { "moderators.mod_time.$": 1 },
+          ""
+        );
+        if (canDelete.status === "fail") {
+          const response = {
+            status: "fail",
+            statusCode: 401,
+            message: "you are not moderator to this subreddit",
+          };
+          return response;
+        } else {
+          //! he is moderator and subreddit is existed => 3]check username existed
+          let userExisted = await this.userRepository.getOne(
+            {
+              userName: modName,
+            },
+            "",
+            ""
+          );
+          console.log(userExisted.doc);
+          if (userExisted.status === "fail") {
+            const response = {
+              status: "fail",
+              statusCode: 404,
+              message: "this username doesn't exist",
+            };
+            return response;
+          } else {
+            // ! 4] check if he is mod to this subreddit
+            let UserIsMod = await this.subredditRepository.getOne(
+              {
+                name: subredditName,
+                "moderators.username": userExisted.doc._id,
+              },
+              { "moderators.mod_time.$": 1 },
+              ""
+            );
+            if (UserIsMod.status === "fail") {
+              const response = {
+                status: "fail",
+                statusCode: 404,
+                message: "this username is not moderator",
+              };
+              return response;
+            } else {
+              // ! check if iam mod before him or not
+              if (
+                parseInt(canDelete.doc.moderators[0]["mod_time"]) <=
+                parseInt(UserIsMod.doc.moderators[0]["mod_time"])
+              ) {
+                // ! remove him
+                console.log(userExisted.doc._id);
+                let removeHim = await this.subredditRepository.updateOneByQuery(
+                  {
+                    name: subredditName,
+                    "moderators.username": userExisted.doc._id,
+                  },
+                  { $pull: { "moderators.username": userExisted.doc._id } }
+                );
+                console.log(removeHim);
+                if (removeHim.status === "fail") {
+                  const response = {
+                    status: "fail",
+                    statusCode: 404,
+                    message: "something went wrong",
+                  };
+                  return response;
+                } else {
+                  const response = {
+                    status: "success",
+                    statusCode: 204,
+                    message: "",
+                  };
+                  return response;
+                }
+              } else {
+                const response = {
+                  status: "fail",
+                  statusCode: 401,
+                  message: "cannot remove moderator elder than you",
+                };
+                return response;
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
         err,
       };
       return error;
     }
   }
 
-  async getCategoryPosts(query,select){
+  /**
+   * This function returns posts in subreddit by their category to be viewed in mod tools
+   * @param {string} subredditName - name od subreddit
+   * @param {string} userId - iD of user making the request
+   * @param {string} category - category i want to retrieve
+   * @returns {Object} - a response contains categorized posts.
+   */
+  async getCategoryPosts(subredditName, userId, category) {
     try {
-      let response = await this.subredditRepository.getOne(query,select, "");
-      return response;
+      // ! check if user is mod first
+      let canGet = await this.isModerator(subredditName, userId);
+      if (!canGet) {
+        canGet.statusCode = 401;
+        res.status(canGet.statusCode).json({
+          status: canGet.statusCode,
+          message: "you are not moderator to this subreddit",
+        });
+      } else {
+        // ! get posts relevant to this category
+        let response = await this.subredditRepository.getOne(
+          {
+            name: subredditName,
+            "posts.category": category,
+          },
+          "posts",
+          ""
+        );
+        return response;
+      }
     } catch (err) {
       console.log("catch error here" + err);
       const error = {
@@ -121,6 +453,237 @@ class subredditService {
       return error;
     }
   }
+  /**
+   * this function returns subreddits that iam in as a subscriber or as a moderator
+   * @param {string} userId - Id if user making the request
+   * @param {string} location - an enum value either [subscriber, moderator]
+   * @returns {Object} - a response containing an array of subreddits
+   */
+  async subredditsIamIn(userId, location) {
+    try {
+      if (location === "moderator") {
+        //! get list of subreddits iam moderator in (easy)
+        let subreddits = await this.subredditRepository.getlist(
+          { "moderators.username": userId },
+          "_id name backgroundImage usersCount description",
+          ""
+        );
+        if (subreddits.status === "fail") {
+          const error = {
+            status: "fail",
+            statusCode: 404,
+          };
+          return error;
+        } else {
+          return subreddits;
+        }
+      } else if (location === "subscriber") {
+        // ! get it from user
+        let subreddits = await this.userRepository.getlist(
+          { _id: userId },
+          "_id name backgroundImage usersCount description",
+          "subreddits"
+        );
+        if (subreddits.status === "fail") {
+          const error = {
+            status: "fail",
+            statusCode: 404,
+          };
+          return error;
+        } else {
+          return subreddits;
+        }
+      } else {
+        const error = {
+          status: "fail",
+          statusCode: 400,
+          message: "invalid enum value",
+        };
+        return error;
+      }
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return error;
+    }
+  }
+  /**
+   * This function update the permissions of the moderator by another older moderator
+   * @param {string} subredditName - name of subreddit
+   * @param {string} userId - Id of user making the request
+   * @param {string} modName - moderator name i want to change permissions
+   * @param {Object} data - new permissions passed in request body
+   * @returns {Object} a moderator information after updating his permissions
+   */
+  async updateModeratorSettings(subredditName, userId, modName, data) {
+    try {
+      //! check subreddit existed or not
+      let subredditExisted = await this.getSubreddit({ name: subredditName });
+      if (subredditExisted.status === "fail") {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          message: "subreddit doesn't exist",
+        };
+        return response;
+      } else {
+        //! 2]check user is moderator
+        let canDelete = await this.subredditRepository.getOne(
+          { name: subredditName, "moderators.username": userId },
+          { "moderators.mod_time.$": 1 },
+          ""
+        );
+        if (canDelete.status === "fail") {
+          const response = {
+            status: "fail",
+            statusCode: 401,
+            message: "you are not moderator to this subreddit",
+          };
+          return response;
+        } else {
+          //! he is moderator and subreddit is existed => 3]check username existed
+          let userExisted = await this.userRepository.getOne(
+            {
+              userName: modName,
+            },
+            "",
+            ""
+          );
+          if (userExisted.status === "fail") {
+            const response = {
+              status: "fail",
+              statusCode: 404,
+              message: "this username doesn't exist",
+            };
+            return response;
+          } else {
+            // ! 4] check if he is mod to this subreddit
+            let UserIsMod = await this.subredditRepository.getOne(
+              {
+                name: subredditName,
+                "moderators.username": userExisted.doc._id,
+              },
+              { "moderators.mod_time.$": 1 },
+              ""
+            );
+            if (UserIsMod.status === "fail") {
+              const response = {
+                status: "fail",
+                statusCode: 404,
+                message: "this username is not moderator",
+              };
+              return response;
+            } else {
+              // ! check if iam mod before him or not
+              if (
+                parseInt(canDelete.doc.moderators[0]["mod_time"]) <=
+                parseInt(UserIsMod.doc.moderators[0]["mod_time"])
+              ) {
+                // ! update him
+                console.log("success");
+                let updateHim = await this.subredditRepository.updateOneByQuery(
+                  {
+                    name: subredditName,
+                    "moderators.username": userExisted.doc._id,
+                  },
+                  {
+                    $set: {
+                      "moderators.$.permissions": {
+                        all: data.permissions.all,
+                        access: data.permissions.access,
+                        config: data.permissions.config,
+                        flair: data.permissions.flair,
+                        posts: data.permissions.posts,
+                      },
+                    },
+                  }
+                );
+                console.log(updateHim);
+                if (updateHim.status === "fail") {
+                  const response = {
+                    status: "fail",
+                    statusCode: 404,
+                    message: "something went wrong",
+                  };
+                  return response;
+                } else {
+                  let updatedMod = await this.subredditRepository.getOne(
+                    {
+                      name: subredditName,
+                      "moderators.username": userExisted.doc._id,
+                    },
+                    { "moderators.$": 1 },
+                    ""
+                  );
+                  return updatedMod;
+                }
+              } else {
+                const response = {
+                  status: "fail",
+                  statusCode: 401,
+                  message: "cannot update moderator elder than you",
+                };
+                return response;
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      const error = {
+        status: "fail",
+        statusCode: 400,
+        errorMessage: err,
+      };
+      return error;
+    }
+  }
+
+  // async primaryTopic(subredditName, userID, primaryTopic) {
+  //   try {
+  //     let subredditExisted = await this.getSubreddit({ name: subredditName });
+  //     if (subredditExisted.status === "fail") {
+  //       const response = {
+  //         status: "fail",
+  //         statusCode: 404,
+  //         message: "subreddit doesn't exist",
+  //       };
+  //       return response;
+  //     } else {
+  //       // ! check user is moderator or not
+  //       let canSet = await this.isModerator(subredditName, userID);
+  //       if (!canSet) {
+  //         const response = {
+  //           status: "fail",
+  //           statusCode: 401,
+  //           message: "you are not moderator to this subreddit",
+  //         };
+  //         return response;
+  //       } else {
+  //         let updateTopic = await this.subredditRepository.updateOneByQuery(
+  //           {
+  //             name: subredditName,
+  //           },
+  //           {
+  //             primaryTopic: primaryTopic,
+  //           }
+  //         );
+  //         console.log(updateTopic);
+  //         return updateTopic;
+  //       }
+  //     }
+  //   } catch (err) {
+  //     const error = {
+  //       status: "fail",
+  //       statusCode: 400,
+  //       errorMessage: err,
+  //     };
+  //     return error;
+  //   }
+  // }
 
   //! Doaa's part
 
@@ -399,10 +962,27 @@ class subredditService {
         err,
       };
       return error;
-    }
+    } 
   }
 
+  async subExists(subredditName) {
+    return await this.subredditRepository.getByQuery({ name: subredditName });
+  }
 
+  async isBanned(subredditId, userId) {
+    const punished = (
+      await this.subredditRepository.getById(subredditId, "punished")
+    ).punished;
+
+    let isBanned = false;
+    for (const { userId: bannedUser, type } of punished) {
+      if (type === "banned" && userId.equals(bannedUser)) {
+        isBanned = true;
+        break;
+      }
+    }
+    return isBanned;
+  }
 }
 
 module.exports = subredditService;
