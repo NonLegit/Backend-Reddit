@@ -1,9 +1,12 @@
 const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
-const User = require("./userModel");
+
 const Post = require("./postModel");
-const dotenv = require("dotenv");
+const User = require("./userModel");
+
+const Flair = require("./flairModel");
 const Subreddit = require("./subredditModel");
+const dotenv = require("dotenv");
 dotenv.config({ path: "config/config.env" });
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE_LOCAL;
@@ -13,11 +16,20 @@ if (process.env.NODE_ENV === "test") {
     mongoose
       .connect(DB)
       .then(() => console.log("Fake DB connection for testing successful!"));
+    
   });
 } else {
   const DB = process.env.DATABASE_LOCAL;
   mongoose.connect(DB).then(() => console.log("DB connection successful!"));
-}
+
+const connection = mongoose.connection;
+connection.once("open", function() {
+console.log("*** MongoDB got connected ***");
+console.log(`Our Current Database Name : ${connection.db.databaseName}`);
+mongoose.connection.db.dropDatabase(
+console.log(`${connection.db.databaseName} database dropped.`)
+);
+});}
 
 module.exports = async function seeder() {
   let user1 = await User.create({
@@ -30,18 +42,23 @@ module.exports = async function seeder() {
     email: "khaled@gmail.com",
     password: "12345678",
   });
-  let user3 = await User.create({
-    userName: "kirollos",
-    email: "kirollos@gmail.com",
-    password: "12345678",
-  });
-  let user4 = await User.create({
-    userName: "doaa",
-    email: "doaa@gmail.com",
-    password: "12345678",
-  });
+  
   let userAhmed = await User.findOne({ userName: "Ahmed" });
 
+  let subreddit1 = await Subreddit.create({
+    owner: user1._id,
+    name:"first_subreddit",
+    type: "Public",
+    nsfw: true,
+  });
+  let subreddit2 = await Subreddit.create({
+    owner: user2._id,
+    name:"second_subreddit",
+    type: "Public",
+    nsfw:true,
+  });
+  
+  
   let post1 = await Post.create({
     title: "ahmed post",
     kind: "self",
@@ -54,6 +71,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
+    votes: 1,
+    views: 8,
+    commentCount:5
+    
   });
   let post2 = await Post.create({
     title: "khaled post",
@@ -67,106 +88,43 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
+    votes: 1,
+    views: 87,
+    commentCount:50
   });
   let post3 = await Post.create({
     title: "kiro post",
     kind: "self",
     text: "this is a test post 3",
-    author: user3._id,
-    owner: user3._id,
+    author: user1._id,
+    owner: subreddit1._id,
     ownerType: "User",
     nsfw: true,
     spoiler: true,
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
+    votes: 85,
+    views: 6,
+    commentCount:2
   });
   let post4 = await Post.create({
     title: "doaa post",
     kind: "self",
     text: "this is a test post 4",
-    author: user4._id,
-    owner: user4._id,
-    ownerType: "User",
-    nsfw: true,
-    spoiler: true,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
-  });
-  let post5 = await Post.create({
-    title: "ahmed post",
-    kind: "self",
-    text: "this is a test post 1",
     author: user1._id,
-    owner: user1._id,
+    owner: subreddit2._id,
     ownerType: "User",
     nsfw: true,
     spoiler: true,
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 5,
+    votes: 9,
+    views: 4,
+    commentCount:0
   });
 
-  await User.findOneAndUpdate(
-    { userName: "Ahmed" },
-    {
-      $push: {
-        votePost: {
-          $each: [
-            { posts: post2._id, postVoteStatus: "1" },
-            { posts: post3._id, postVoteStatus: "-1" },
-            { posts: post4._id, postVoteStatus: "1" },
-          ],
-        },
-        saved: { $each: [post2._id, post3._id, post4._id] },
-        hidden: { $each: [post2._id, post3._id, post4._id] },
-      },
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  try {
-    let subreddit1 = await Subreddit.create({
-      owner: user1._id,
-      name: "khaled_Subreddit",
-      type: "Public",
-      nsfw: true,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-
-  //   await User.findOneAndUpdate(
-  //     { userName: "Ahmed" },
-  //     {
-  //       $push: {
-  //         votePost: { posts: post3._id, postVoteStatus: "-1" },
-  //         saved: post3._id,
-  //         hidden: post3._id,
-  //       },
-  //     },
-  //     {
-  //       new: true,
-  //       runValidators: true,
-  //     }
-  //   );
-  //   await User.findOneAndUpdate(
-  //     { userName: "Ahmed" },
-  //     {
-  //       $push: {
-  //         votePost: { posts: post4._id, postVoteStatus: "1" },
-  //         saved: post4._id,
-  //         hidden: post4._id,
-  //       },
-  //     },
-  //     {
-  //       new: true,
-  //       runValidators: true,
-  //     }
-  //   );
+ 
+  
 };

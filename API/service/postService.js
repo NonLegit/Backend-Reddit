@@ -1,3 +1,5 @@
+const ObjectId = require("mongodb").ObjectId;
+
 class PostService {
   constructor(Post, postRepository, subredditRepository, flairRepository) {
     this.Post = Post;
@@ -7,9 +9,15 @@ class PostService {
     this.createPost = this.createPost.bind(this);
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
+    this.isValidId = this.isValidId.bind(this);
+    this.isEditable = this.isEditable.bind(this);
+    this.isAuthor = this.isAuthor.bind(this);
+    this.isValidPost = this.isValidPost.bind(this);
     this.checkFlair = this.checkFlair.bind(this);
     this.getUserPosts = this.getUserPosts.bind(this);
     this.setVotePostStatus = this.setVotePostStatus.bind(this);
+
+    this.getPosts = this.getPosts.bind(this);
     this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
     this.setPostOwnerData = this.setPostOwnerData.bind(this);
     this.removeHiddenPosts = this.removeHiddenPosts.bind(this);
@@ -26,127 +34,82 @@ class PostService {
   }
 
   async createPost(data) {
-    try {
-      const validType =
-        (data.kind === "link" && data.url) ||
-        (data.kind === "self" && data.text);
-
-      if (!validType) {
-        return {
-          status: "fail",
-          statusCode: 400,
-          err: "Invalid post type",
-        };
-      }
-
-      //validate owner id
-      if (data.ownerType === "User") {
-        if (!data.author.equals(data.owner))
-          return {
-            status: "fail",
-            statusCode: 400,
-            err: "Author id must be the same as Owner id",
-          };
-      }
-      //validate subreddit if the post is created in one
-      else {
-        if (!(await this.subredditRepository.isValidId(data.owner)))
-          return {
-            status: "fail",
-            statusCode: 404,
-            err: "Subreddit not found",
-          };
-      }
-      //validate flair id and make sure it's withing the subreddit
-      if (data.flair && !(await this.checkFlair(data.owner, data.flair)))
-        return {
-          status: "fail",
-          statusCode: 400,
-          err: "Invalid flair Id",
-        };
-
-      //shared
-      //scheduled
-
-      const post = await this.postRepository.createOne(data);
-      return post;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+    const post = (await this.postRepository.createOne(data)).doc;
+    return post;
   }
 
-  //Assumed postId is a valid id
+  async updatePost(id, data) {
+    const post = (await this.postRepository.updateOne({ _id: id }, data)).doc;
+    return post;
+  }
+
+  async deletePost(id) {
+    await this.postRepository.updateOne({ _id: id }, { isDeleted: true });
+  }
+
+  async isValidPost(data) {
+    const validReq = data.ownerType && data.kind && data.title;
+    if (!validReq) return false;
+
+    const validType =
+      (data.kind === "link" && data.url) || (data.kind === "self" && data.text);
+    if (!validType) return false;
+
+    //validate that the post is created only on author profile
+
+    if (data.ownerType === "User") {
+      data.owner = data.author;
+    }
+    //validate subreddit if the post is created in one
+    else {
+      if (!data.owner) return false;
+      const validSubreddit = await this.subredditRepository.isValidId(
+        data.owner
+      );
+      if (data.ownerType !== "Subreddit" || !validSubreddit) return false;
+    }
+
+    // if (data.flair) {
+    //   await this.subredditRepository.getById(data.owner, "flairs");
+    // }
+
+    //shared
+    //scheduled
+
+    return true;
+  }
+
+  //Assumes postId is a valid id
   async isAuthor(postId, userId) {
-    //const author = (await this.Post.findById(postId).select("author")).author;
     const author = (await this.postRepository.getById(postId, "author")).author;
     return author.equals(userId);
   }
 
+  async isValidId(id) {
+    if (!ObjectId.isValid(id)) return false;
+    const doc = await this.postRepository.getById(id, "_id");
+    if (!doc) return false;
+    return true;
+  }
+
+  //Assumes postId is a valid id
   async isEditable(postId) {
-    //const post = await this.Post.findById(postId).select("kind sharedFrom");
     const post = await this.postRepository.getById(postId, "kind sharedFrom");
     if (post.kind !== "self" || post.sharedFrom) return false;
     return true;
   }
+  /**
+   * get posts
+   * @param {String} query query to apply
+   * @param {Object} filter filtering object to filter the posts
+   * @returns {Object} object containing array of posts
+   */
 
-  async updatePost(id, data, userId) {
+  async getPosts(query, filter) {
     try {
-      const validId = await this.postRepository.isValidId(id);
-      if (!validId)
-        return {
-          status: "fail",
-          statusCode: 404,
-          err: "Post not found",
-        };
-      if (!(await this.isAuthor(id, userId))) {
-        return {
-          status: "fail",
-          statusCode: 401,
-          err: "User must be author",
-        };
-      }
-      if (!(await this.isEditable(id))) {
-        return {
-          status: "fail",
-          statusCode: 400,
-          err: "Post cannot be edited",
-        };
-      }
-      const post = await this.postRepository.updateOne(id, data);
-      return post;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
-
-  async deletePost(id, userId) {
-    try {
-      const validId = await this.postRepository.isValidId(id);
-      if (!validId)
-        return {
-          status: "fail",
-          statusCode: 404,
-          err: "Post not found",
-        };
-      if (!(await this.isAuthor(id, userId))) {
-        return {
-          status: "fail",
-          statusCode: 401,
-          err: "User is not post author",
-        };
-      }
-      const deleted = await this.postRepository.deleteOne(id);
-      return deleted;
+      const posts = await this.postRepository.getAll(filter, query);
+      console.log(posts);
+      return posts;
     } catch (err) {
       const error = {
         status: "fail",
@@ -316,6 +279,7 @@ class PostService {
     }
     return newPosts;
   }
+
   /**
    * @property {Function} selectPostsWithVotes filter posts according to votetype
    * @param {Array<object>} posts  - list of posts
@@ -326,7 +290,7 @@ class PostService {
     let newPost = [];
     posts.forEach((element) => {
       if (element.postVoteStatus === votetype) {
-        let newElement;
+        let newElement = {};
         try {
           newElement = element.posts.toObject();
         } catch (err) {}

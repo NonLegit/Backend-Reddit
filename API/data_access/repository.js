@@ -1,4 +1,5 @@
 const APIFeatures = require("./apiFeatures");
+const ObjectId = require("mongodb").ObjectId
 
 class Repository {
   constructor(model) {
@@ -9,6 +10,7 @@ class Repository {
     this.updateOne = this.updateOne.bind(this);
     this.deleteOne = this.deleteOne.bind(this);
     this.getAll = this.getAll.bind(this);
+    this.getlist=this.getlist.bind(this);
 
     this.updateOneByQuery = this.updateOneByQuery.bind(this);
     this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
@@ -16,10 +18,14 @@ class Repository {
     this.getOneById = this.getOneById.bind(this);
     this.getRefrenced = this.getRefrenced.bind(this);
     this.addToRefrenced = this.addToRefrenced.bind(this);
-    this.removeFromRefrenced = this.removeFromRefrenced.bind(this);
+    this.removerFomRefrenced = this.removeFromRefrenced.bind(this);
 
     this.isValidId = this.isValidId.bind(this);
     this.getById = this.getById.bind(this);
+
+    this.getAllAndSelect = this.getAllAndSelect.bind(this);
+    this.getByQuery = this.getByQuery.bind(this);
+    this.push = this.push.bind(this);
   }
 
   async createOne(data) {
@@ -44,12 +50,12 @@ class Repository {
       return response;
     }
   }
-  async getOne(query, select, popOptions) {
+
+  async getlist(query, select, popOptions) {
     try {
-      let tempDoc = this.Model.findOne(query).select(select + " -__v");
+      let tempDoc = this.Model.find(query).select(select);
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -73,9 +79,39 @@ class Repository {
       return response;
     }
   }
-  async updateOne(query, data) {
+
+  async getOne(query, select, popOptions) {
     try {
-      let doc = await this.Model.findOneAndUpdate(query, data, {
+      let tempDoc = this.Model.findOne(query).select(select);
+      if (popOptions) tempDoc = tempDoc.populate(popOptions);
+      const doc = await tempDoc;
+      // console.log(doc);
+      if (!doc) {
+        const response = {
+          status: "fail",
+          statusCode: 404,
+          err: "cannot found document",
+        };
+        return response;
+      }
+      const response = {
+        status: "success",
+        statusCode: 200,
+        doc,
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+  async updateOne(id, data) {
+    try {
+      const doc = await this.Model.findByIdAndUpdate(id, data, {
         new: true,
         runValidators: true,
       });
@@ -108,7 +144,6 @@ class Repository {
       const doc = await this.Model.findOneAndUpdate(filter, data, {
         new: true,
       });
-
       if (!doc) {
         const response = {
           status: "fail",
@@ -120,12 +155,13 @@ class Repository {
       const response = {
         status: "success",
         statusCode: 200,
-        data: doc,
+        doc,
       };
       return response;
     } catch (err) {
+      console.log(err);
       const response = {
-        error: true,
+        status: "fail",
         statusCode: 400,
         err,
       };
@@ -159,7 +195,7 @@ class Repository {
     }
   }
 
-  async getAll(filter, query,popOptions) {
+  async getAll(filter, query, popOptions) {
     try {
       const features = new APIFeatures(this.Model.find(filter), query)
         .filter()
@@ -248,7 +284,7 @@ class Repository {
     try {
       const doc = await this.Model.findOne(query)
         .populate(populated)
-        .select({ populated: 1, _id: 0 });
+        .select({ populated: 1, _id: 0 ,createdAt:1});
       // console.log(doc);
       if (!doc) {
         const response = {
@@ -326,16 +362,76 @@ class Repository {
       return response;
     }
   }
+  async getAllAndSelect(filter,select,populate, query) {
+    try {
+      const features = new APIFeatures(Model.find(filter).select(select).populate(populate), query)
+        .filter()
+        .sort()
+        .limitFields()
+        .paginate();
+      // const doc = await features.query.explain();
+      const doc = await features.query;
+      const response = {
+        status: "success",
+        statusCode: 200,
+        doc,
+      };
+      return response;
+    } catch (err) {
+      const response = {
+        status: "fail",
+        statusCode: 400,
+        err,
+      };
+      return response;
+    }
+  }
+
 
   async getById(id, select) {
-    const doc = await this.Model.findById(id).select(select);
-    return doc;
+    try {
+      const doc = await this.Model.findById(id).select(select);
+      return doc;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getByQuery(query, select) {
+    try {
+      let doc = this.Model.findOne(query);
+      if (select) doc = doc.select(select);
+
+      return await doc;
+    } catch (error) {
+      return null;
+    }
   }
 
   async isValidId(id) {
+    if(!ObjectId.isValid(id)) return false;
     const doc = await this.Model.findById(id);
     if (!doc) return false;
     return true;
+  }
+
+  async push(id, obj) {
+    try {
+      await this.Model.findOneAndUpdate({ _id: id }, { $push: obj });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async pull(id, obj) {
+    try {
+      await this.Model.findOneAndUpdate({ _id: id }, { $pull: obj });
+      return true;
+    } catch (error) {
+      console.log(error)
+      return false;
+    }
   }
 }
 

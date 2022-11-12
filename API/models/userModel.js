@@ -208,6 +208,13 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  subscribed:[
+    {
+      type:mongoose.Schema.ObjectId,
+      ref: "Subreddit",
+      required:true,
+    }
+  ],
   subreddits: [
     {
       type: mongoose.Schema.ObjectId,

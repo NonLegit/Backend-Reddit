@@ -27,7 +27,7 @@ const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
 //   userServiceObj
 // );
 const postControllerObj = new PostController(postServiceObj, userServiceObj);
-//const userControllerObj = new UserController(userServiceObj);
+//const userControllerObj = new UserController(userServiceObj,postServiceObj);
 
 const router = express.Router();
 
@@ -118,9 +118,17 @@ router.patch(
   userControllerObj.updatePrefs
 );
 router.get("/:userName/about", userControllerObj.about);
-router.get("/:userName/posts", postControllerObj.userPosts);
+router.get("/:userName/posts",  postControllerObj.userPosts);
+
+router.get("/best", postControllerObj.getBestPosts);
+router.get("/top", postControllerObj.getTopPosts);
+router.get("/hot", postControllerObj.getHotPosts);
+router.get("/new", postControllerObj.getNewPosts);
 router.get("/saved", postControllerObj.getSavedPosts);
 router.get("/hidden", postControllerObj.getHiddenPosts);
 router.get("/upvoted", postControllerObj.userUpvotedPosts);
 router.get("/downvoted", postControllerObj.userDownvotedPosts);
+
+router.route("/username_available").get(userControllerObj.usernameAvailable);
+
 module.exports = router;
