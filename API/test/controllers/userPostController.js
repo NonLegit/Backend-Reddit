@@ -5,8 +5,8 @@ const request = require("supertest");
 const dotenv = require("dotenv");
 dotenv.config({ path: "config/config.env" });
 process.env.NODE_ENV = "test";
-const seeder = require("./../../models/seed");
-
+//const seeder = require("./../../models/seed");
+const seeder = require("./seed");
 const app = require("./../../app");
 
 describe("Post Controller (user posts) Test", () => {

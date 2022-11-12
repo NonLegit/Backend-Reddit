@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config({ path: "config/config.env" });
 process.env.NODE_ENV = "test";
 
-const seeder = require("./../../models/seed");
+const seeder = require("./seed");
 const app = require("./../../app");
 // const { mockRequest, mockResponse } = require("mock-req-res");
 // const { stub, match } = require("sinon");
