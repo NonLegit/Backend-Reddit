@@ -1,4 +1,4 @@
-const ObjectId = require("mongodb").ObjectId
+const ObjectId = require("mongodb").ObjectId;
 
 class PostService {
   constructor(Post, postRepository, subredditRepository, flairRepository) {
@@ -33,16 +33,16 @@ class PostService {
   }
 
   async updatePost(id, data) {
-    const post = (await this.postRepository.updateOne(id, data)).doc;
+    const post = (await this.postRepository.updateOne({_id: id}, data)).doc;
     return post;
   }
 
-  async deletePost(id, userId) {
-    await this.postRepository.deleteOne(id);
+  async deletePost(id) {
+    await this.postRepository.updateOne({_id: id}, {isDeleted: true});
   }
 
   async isValidPost(data) {
-    const validReq = data.owner && data.ownerType && data.kind && data.title;
+    const validReq = data.ownerType && data.kind && data.title;
     if (!validReq) return false;
 
     const validType =
@@ -50,12 +50,13 @@ class PostService {
     if (!validType) return false;
 
     //validate that the post is created only on author profile
-    
-    if (data.ownerType === "User"){
-      if(!data.author.equals(data.owner)) return false;
+
+    if (data.ownerType === "User") {
+      data.owner = data.author;
     }
     //validate subreddit if the post is created in one
     else {
+      if(!data.owner) return false;
       const validSubreddit = await this.subredditRepository.isValidId(
         data.owner
       );
@@ -79,7 +80,7 @@ class PostService {
   }
 
   async isValidId(id) {
-    if(!ObjectId.isValid(id)) return false;
+    if (!ObjectId.isValid(id)) return false;
     const doc = await this.postRepository.getById(id, "_id");
     if (!doc) return false;
     return true;
@@ -103,7 +104,7 @@ class PostService {
     for (var i = 0; i < user.votePost.length; i++) {
       hash[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
     }
-   // console.log(hash);
+    // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
       try {

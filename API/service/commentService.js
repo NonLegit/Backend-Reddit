@@ -67,22 +67,23 @@ class CommentService {
   }
 
   async updateComment(id, data) {
-    const comment = (await this.commentRepo.updateOne(id, data)).doc;
+    const comment = (await this.commentRepo.updateOne({_id: id}, data)).doc;
     return comment;
   }
 
   async deleteComment(id) {
     const comment = await this.commentRepo.getById(id, "parent parentType");
 
-    await this.commentRepo.deleteOne(id);
+    //await this.commentRepo.deleteOne(id);
+    await this.commentRepo.updateOne({_id: id}, {isDeleted: true});
 
     if (comment.parentType === "Comment") {
-      await this.commentRepo.updateOne(comment.parent, {
+      await this.commentRepo.updateOne({_id: comment.parent}, {
         $pull: { replies: id },
         $inc: { repliesCount: -1 },
       });
     } else {
-      await this.postRepo.updateOne(comment.parent, {
+      await this.postRepo.updateOne({_id: comment.parent}, {
         $pull: { replies: id },
         $inc: { commentCount: -1 },
       });

@@ -35,7 +35,7 @@ class CommentController {
 
       res.status(201).json({
         status: "success",
-        comment,
+        data: comment
       });
     } catch (err) {
       res.status(500).json({
