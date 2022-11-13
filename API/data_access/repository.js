@@ -2,8 +2,9 @@ const APIFeatures = require("./apiFeatures");
 const ObjectId = require("mongodb").ObjectId
 
 class Repository {
-  constructor(model) {
-    this.Model = model;
+  constructor({User}) {
+    this.Model = User;
+    //this.Model = model;
 
     this.createOne = this.createOne.bind(this);
     this.getOne = this.getOne.bind(this);

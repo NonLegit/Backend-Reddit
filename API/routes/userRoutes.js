@@ -2,46 +2,20 @@ const express = require("express");
 const hpp = require("hpp");
 const passport = require("passport");
 const FacebookTokenStrategy = require("passport-facebook-token");
-//const GooglePlusTokenStrategy = require("passport-google-plus-token");
+const { container } = require("./../di-setup");
 
-//const UserController = require("./../controllers/userController");
-//const AuthenticationController = require("./../controllers/AuthenticationController");
-const userControllerObj = require("./../controllers/UserControllerObj");
-const authenticationControllerObj = require("./../controllers/AuthenticationControllerObj");
-const PostController = require("./../controllers/postController");
-const User = require("./../models/userModel");
-const Repository = require("./../data_access/repository");
-const UserService = require("./../service/userService");
-const Email = require("./../service/emailService");
-const PostService = require("../service/postService");
-const Post = require("../models/postModel");
-
-const postRepoObj = new Repository(Post);
-const postServiceObj = new PostService(Post, postRepoObj);
-
-const RepositoryObj = new Repository(User);
-const emailServiceObj = new Email();
-const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
-
-// const authenticationControllerObj = new AuthenticationController(
-//   userServiceObj
-// );
-const postControllerObj = new PostController(postServiceObj, userServiceObj);
-//const userControllerObj = new UserController(userServiceObj,postServiceObj);
-
+const AuthenticationController = container.resolve("AuthenticationController");
+const UserController = container.resolve("UserController");
+const PostController = container.resolve("PostController");
 const router = express.Router();
-
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
-router.post("/signup", authenticationControllerObj.signUp);
-router.post("/login", authenticationControllerObj.logIn);
-router.post("/logout", authenticationControllerObj.logOut);
-router.post("/forgot_username", authenticationControllerObj.forgotUserName);
-router.post("/forgot_password", authenticationControllerObj.forgotPassword);
-router.post(
-  "/reset_password/:token",
-  authenticationControllerObj.resetPassword
-);
+router.post("/signup", AuthenticationController.signUp);
+router.post("/login", AuthenticationController.logIn);
+router.post("/logout", AuthenticationController.logOut);
+router.post("/forgot_username", AuthenticationController.forgotUserName);
+router.post("/forgot_password", AuthenticationController.forgotPassword);
+router.post("/reset_password/:token", AuthenticationController.resetPassword);
 // facebook authentication
 passport.use(
   new FacebookTokenStrategy(
@@ -50,7 +24,7 @@ passport.use(
       clientSecret: process.env.FACEBOOK_APP_SECRET,
     },
     async function (accessToken, refreshToken, profile, done) {
-      await authenticationControllerObj.facebookAuth(
+      await AuthenticationController.facebookAuth(
         accessToken,
         refreshToken,
         profile,
@@ -61,6 +35,83 @@ passport.use(
     }
   )
 );
+
+router.post(
+  "/facebook",
+  passport.authenticate("facebook-token", { session: false }),
+  AuthenticationController.facebookValidation
+);
+router.post("/google", AuthenticationController.googleAuth);
+/*
+router.post(
+  "/goo000gle",
+  passport.authenticate("google-plus-token", { session: false }),
+  authenticationControllerObj.facebookValidation
+);*/
+// authorize endpoints
+router.use(AuthenticationController.authorize);
+
+// authorized endpoints
+router.get("/me", UserController.getMe);
+router.get("/me/prefs", UserController.getPrefs);
+router.patch(
+  "/me/prefs",
+  hpp({
+    whitelist: [
+      "contentvisibility",
+      "canbeFollowed",
+      "nsfw",
+      "allowInboxMessage",
+      "allowMentions",
+      "allowCommentsOnPosts",
+      "allowUpvotesOnComments",
+      "allowUpvotesOnPosts",
+      "displayName",
+      "profilePicture",
+    ],
+  }),
+  UserController.updatePrefs
+);
+router.get("/:userName/about", UserController.about);
+router.get("/:userName/posts", PostController.userPosts);
+router.get("/best", PostController.getBestPosts);
+router.get("/top", PostController.getTopPosts);
+router.get("/hot", PostController.getHotPosts);
+router.get("/new", PostController.getNewPosts);
+router.get("/saved", PostController.getSavedPosts);
+router.get("/hidden", PostController.getHiddenPosts);
+router.get("/upvoted", PostController.userUpvotedPosts);
+router.get("/downvoted", PostController.userDownvotedPosts);
+router.route("/username_available").get(UserController.usernameAvailable);
+module.exports = router;
+
+//const GooglePlusTokenStrategy = require("passport-google-plus-token");
+
+//const UserController = require("./../controllers/userController");
+//const AuthenticationController = require("./../controllers/AuthenticationController");
+// const userControllerObj = require("./../controllers/UserControllerObj");
+// const authenticationControllerObj = require("./../controllers/AuthenticationControllerObj");
+// const PostController = require("./../controllers/postController");
+// const User = require("./../models/userModel");
+// const Repository = require("./../data_access/repository");
+// const UserService = require("./../service/userService");
+// const Email = require("./../service/emailService");
+// const PostService = require("../service/postService");
+// const Post = require("../models/postModel");
+
+// const postRepoObj = new Repository(Post);
+// const postServiceObj = new PostService(Post, postRepoObj);
+
+// const RepositoryObj = new Repository(User);
+// const emailServiceObj = new Email();
+// const userServiceObj = new UserService(User, RepositoryObj, emailServiceObj);
+
+// // const authenticationControllerObj = new AuthenticationController(
+// //   userServiceObj
+// // );
+// const postControllerObj = new PostController(postServiceObj, userServiceObj);
+// //const userControllerObj = new UserController(userServiceObj,postServiceObj);
+
 // google authentication
 // passport.use(
 //   new GooglePlusTokenStrategy(
@@ -80,55 +131,3 @@ passport.use(
 //     }
 //   )
 // );
-
-router.post(
-  "/facebook",
-  passport.authenticate("facebook-token", { session: false }),
-  authenticationControllerObj.facebookValidation
-);
-router.post("/google", authenticationControllerObj.googleAuth);
-/*
-router.post(
-  "/goo000gle",
-  passport.authenticate("google-plus-token", { session: false }),
-  authenticationControllerObj.facebookValidation
-);*/
-// authorize endpoints
-router.use(authenticationControllerObj.authorize);
-
-// authorized endpoints
-router.get("/me", userControllerObj.getMe);
-router.get("/me/prefs", userControllerObj.getPrefs);
-router.patch(
-  "/me/prefs",
-  hpp({
-    whitelist: [
-      "contentvisibility",
-      "canbeFollowed",
-      "nsfw",
-      "allowInboxMessage",
-      "allowMentions",
-      "allowCommentsOnPosts",
-      "allowUpvotesOnComments",
-      "allowUpvotesOnPosts",
-      "displayName",
-      "profilePicture",
-    ],
-  }),
-  userControllerObj.updatePrefs
-);
-router.get("/:userName/about", userControllerObj.about);
-router.get("/:userName/posts",  postControllerObj.userPosts);
-
-router.get("/best", postControllerObj.getBestPosts);
-router.get("/top", postControllerObj.getTopPosts);
-router.get("/hot", postControllerObj.getHotPosts);
-router.get("/new", postControllerObj.getNewPosts);
-router.get("/saved", postControllerObj.getSavedPosts);
-router.get("/hidden", postControllerObj.getHiddenPosts);
-router.get("/upvoted", postControllerObj.userUpvotedPosts);
-router.get("/downvoted", postControllerObj.userDownvotedPosts);
-
-router.route("/username_available").get(userControllerObj.usernameAvailable);
-
-module.exports = router;

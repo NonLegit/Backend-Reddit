@@ -5,10 +5,10 @@ class UserController {
   /**
    * Constructor
    * Depends on user services object
-   * @param {object} UserServices - user service objec
+   * @param {object} UserService - user service objec
    */
-  constructor(UserServices) {
-    this.userServices = UserServices; // can be mocked in unit testing
+  constructor({ UserService }) {
+    this.userServices = UserService; // can be mocked in unit testing
     this.createUser = this.createUser.bind(this);
     this.getPrefs = this.getPrefs.bind(this);
     this.updatePrefs = this.updatePrefs.bind(this);
@@ -88,7 +88,7 @@ class UserController {
       });
     }
   }
-    /**
+  /**
    *
    * @property {Function} getMe return all data of authenticated user
    * @param {object} req - request object sent by client

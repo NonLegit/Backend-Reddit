@@ -14,10 +14,10 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor(User, UserRepository, emailServices) {
-    this.User = User; // can be mocked in unit testing
-    this.userRepository = UserRepository; // can be mocked in unit testing
-    this.emailServices = emailServices;
+  constructor({ Repository, Email }) {
+    //this.User = User; // can be mocked in unit testing
+    this.userRepository = Repository; // can be mocked in unit testing
+    this.emailServices = Email;
     this.createUser = this.createUser.bind(this);
     this.createToken = this.createToken.bind(this);
     this.signUp = this.signUp.bind(this);
@@ -396,12 +396,12 @@ class UserService {
       "_id"
     );
     //In order to subscribe, user should not be already subscribed
-    if (action==="sub" && !alreadySubscribed) {
+    if (action === "sub" && !alreadySubscribed) {
       return await this.userRepository.push(userId, {
         subscribed: subredditId,
       });
-    //In order to unsubscribe, user should be already subscribed
-    } else if (action==="unsub" && alreadySubscribed) {
+      //In order to unsubscribe, user should be already subscribed
+    } else if (action === "unsub" && alreadySubscribed) {
       return await this.userRepository.pull(userId, {
         subscribed: subredditId,
       });
