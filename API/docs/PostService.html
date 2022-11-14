@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Class: AuthenticationController</title>
+    <title>JSDoc: Class: PostService</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Class: AuthenticationController</h1>
+    <h1 class="page-title">Class: PostService</h1>
 
     
 
@@ -28,9 +28,9 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>AuthenticationController<span class="signature">(UserServices)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PostService<span class="signature">(Post, postRepository, subredditRepository, flairRepository)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description"><p>AuthenticationController Class which handles authentication and authorization of user in backend</p></div>
+            <div class="class-description"><p>Post Service class for handling Post model and services</p></div>
         
     
 </header>
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="AuthenticationController"><span class="type-signature"></span>new AuthenticationController<span class="signature">(UserServices)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="PostService"><span class="type-signature"></span>new PostService<span class="signature">(Post, postRepository, subredditRepository, flairRepository)</span><span class="type-signature"></span></h4>
     
 
     
@@ -53,8 +53,8 @@
 
 
 <div class="description">
-    <p>Constructor
-Depends on user services object</p>
+    <p>Post Service constructor
+Depends on the following classes</p>
 </div>
 
 
@@ -90,7 +90,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>UserServices</code></td>
+                <td class="name"><code>Post</code></td>
             
 
             <td class="type">
@@ -106,7 +106,76 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>user service object</p></td>
+            <td class="description last"><p>Post data model</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postRepository</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data access object for post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>subredditRepository</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Data access object for subreddit</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>flairRepository</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
         </tr>
 
     
@@ -147,7 +216,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line5">line 5</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line6">line 6</a>
     </li></ul></dd>
     
 
@@ -203,7 +272,489 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="authorize"><span class="type-signature">(async) </span>authorize<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="createPost"><span class="type-signature">(async) </span>createPost<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Creates a post with the given data</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Post required data before creation</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line52">line 52</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>Post object after creation</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="deletePost"><span class="type-signature">(async) </span>deletePost<span class="signature">(id)</span><span class="type-signature"></span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Deletes a Post with the given id
+Soft-delete is used to ensure data integrity
+The delete effect is cascaded to all the comment tree of the post using mongoose middlewares</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Post ID</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line74">line 74</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getPosts"><span class="type-signature">(async) </span>getPosts<span class="signature">(query, filter)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>get posts</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>query</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>query to apply</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>filter</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>filtering object to filter the posts</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line159">line 159</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>object containing array of posts</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="getUserPosts"><span class="type-signature">(async) </span>getUserPosts<span class="signature">(author, sortType)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -243,13 +794,13 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>author</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -259,20 +810,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>creator id of post</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>sortType</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -282,30 +833,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>sorting posts according to new , top, Hot</p></td>
         </tr>
 
     
@@ -343,7 +871,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>authorize</code></td>
+                <td class="name"><code>getUserPosts</code></td>
             
 
             <td class="type">
@@ -359,7 +887,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>check cookie sent by client inorder to validate user logged in</p></td>
+            <td class="description last"><p>get posts which created by user</p></td>
         </tr>
 
     
@@ -398,7 +926,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line198">line 198</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line179">line 179</a>
     </li></ul></dd>
     
 
@@ -427,10 +955,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -444,12 +986,17 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="createCookie"><span class="type-signature"></span>createCookie<span class="signature">(res, token, statusCode)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="isAuthor"><span class="type-signature">(async) </span>isAuthor<span class="signature">(postId, userId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
     
 
     
 
 
+
+<div class="description">
+    <p>Checks if the user is the post author
+assumes postId is valid</p>
+</div>
 
 
 
@@ -484,271 +1031,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>token</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>user token to put in cookie</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>statusCode</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>status code of respones</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>createCookie</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>create cookie to store token and send to user</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line32">line 32</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="facebookAuth"><span class="type-signature">(async) </span>facebookAuth<span class="signature">(accessToken, refreshToken, profile, done)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accessToken</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>token sent from client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>refreshToken</code></td>
+                <td class="name"><code>postId</code></td>
             
 
             <td class="type">
@@ -771,13 +1054,13 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>profile</code></td>
+                <td class="name"><code>userId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -787,30 +1070,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>user profile on facebook</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>done</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>callback function</p></td>
+            <td class="description last"></td>
         </tr>
 
     
@@ -818,58 +1078,6 @@ Depends on user services object</p>
 </table>
 
 
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>facebookAuth</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>facebook authentication signup or login</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -903,7 +1111,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line239">line 239</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line124">line 124</a>
     </li></ul></dd>
     
 
@@ -931,11 +1139,19 @@ Depends on user services object</p>
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    <p>void</p>
-</div>
 
 
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -949,7 +1165,480 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="facebookValidation"><span class="type-signature">(async) </span>facebookValidation<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="isEditable"><span class="type-signature">(async) </span>isEditable<span class="signature">(postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Checks if the post with given id can be edited
+A post can be edited if its kind is self and it's not crossposted</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line147">line 147</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isValidId"><span class="type-signature">(async) </span>isValidId<span class="signature">(id)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Validates post id</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Post id</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line134">line 134</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isValidPost"><span class="type-signature">(async) </span>isValidPost<span class="signature">(data)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Validate the post data request
+The following conditions are checked</p>
+<ul>
+<li>required data is present</li>
+<li>the post is of valid kind</li>
+<li>the post owner is valid</li>
+<li>valid flair id is provided</li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The post data</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line88">line 88</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="removeHiddenPosts"><span class="type-signature"></span>removeHiddenPosts<span class="signature">(user, posts)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -989,7 +1678,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>user</code></td>
             
 
             <td class="type">
@@ -1005,20 +1694,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>authenticated user model</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -1028,30 +1717,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
@@ -1089,7 +1755,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>facebookValidation</code></td>
+                <td class="name"><code>removeHiddenPosts</code></td>
             
 
             <td class="type">
@@ -1105,7 +1771,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>validate facebook user</p></td>
+            <td class="description last"><p>remove hidden posts from users posts</p></td>
         </tr>
 
     
@@ -1144,7 +1810,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line265">line 265</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line228">line 228</a>
     </li></ul></dd>
     
 
@@ -1173,10 +1839,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -1190,7 +1870,7 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="forgotPassword"><span class="type-signature">(async) </span>forgotPassword<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="selectPostsWithVotes"><span class="type-signature"></span>selectPostsWithVotes<span class="signature">(posts, votetype)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -1230,13 +1910,13 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -1246,20 +1926,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>votetype</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -1269,30 +1949,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>upvoted &quot;!&quot; or downvoted &quot;-1&quot;</p></td>
         </tr>
 
     
@@ -1330,7 +1987,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>forgotPassword</code></td>
+                <td class="name"><code>selectPostsWithVotes</code></td>
             
 
             <td class="type">
@@ -1346,7 +2003,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>send reset token to user by email</p></td>
+            <td class="description last"><p>filter posts according to votetype</p></td>
         </tr>
 
     
@@ -1385,7 +2042,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line127">line 127</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line340">line 340</a>
     </li></ul></dd>
     
 
@@ -1414,10 +2071,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -1431,7 +2102,7 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="forgotUserName"><span class="type-signature">(async) </span>forgotUserName<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setHiddenPostStatus"><span class="type-signature"></span>setHiddenPostStatus<span class="signature">(user, posts)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -1471,7 +2142,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>user</code></td>
             
 
             <td class="type">
@@ -1487,20 +2158,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>authenticated user model</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -1510,30 +2181,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
@@ -1571,7 +2219,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>forgotUserName</code></td>
+                <td class="name"><code>setHiddenPostStatus</code></td>
             
 
             <td class="type">
@@ -1587,7 +2235,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>send username to user by email</p></td>
+            <td class="description last"><p>set hidden status of posts done by user.</p></td>
         </tr>
 
     
@@ -1626,7 +2274,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line148">line 148</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line281">line 281</a>
     </li></ul></dd>
     
 
@@ -1655,10 +2303,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -1672,7 +2334,7 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="googleAuth"><span class="type-signature">(async) </span>googleAuth<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setPostOwnerData"><span class="type-signature"></span>setPostOwnerData<span class="signature">(posts)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -1712,13 +2374,13 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -1728,53 +2390,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
@@ -1812,7 +2428,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>googleAuth</code></td>
+                <td class="name"><code>setPostOwnerData</code></td>
             
 
             <td class="type">
@@ -1828,7 +2444,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>google authentication signup or login</p></td>
+            <td class="description last"><p>set data of owner of post which is subreddit or user</p></td>
         </tr>
 
     
@@ -1867,7 +2483,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line299">line 299</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line206">line 206</a>
     </li></ul></dd>
     
 
@@ -1892,6 +2508,30 @@ Depends on user services object</p>
 
 
 
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>list of posts</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -1903,7 +2543,7 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="logIn"><span class="type-signature">(async) </span>logIn<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setSavedPostStatus"><span class="type-signature"></span>setSavedPostStatus<span class="signature">(user, posts)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -1943,7 +2583,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>user</code></td>
             
 
             <td class="type">
@@ -1959,20 +2599,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>authenticated user model</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -1982,30 +2622,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
@@ -2043,7 +2660,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>logIn</code></td>
+                <td class="name"><code>setSavedPostStatus</code></td>
             
 
             <td class="type">
@@ -2059,7 +2676,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>autheticate user by send cookie token to him</p></td>
+            <td class="description last"><p>set saved status of posts done by user</p></td>
         </tr>
 
     
@@ -2098,7 +2715,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line85">line 85</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line253">line 253</a>
     </li></ul></dd>
     
 
@@ -2127,10 +2744,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -2144,7 +2775,7 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="logOut"><span class="type-signature"></span>logOut<span class="signature">(req, res)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="setVotePostStatus"><span class="type-signature"></span>setVotePostStatus<span class="signature">(user, posts)</span><span class="type-signature"> &rarr; {Array.&lt;object>}</span></h4>
     
 
     
@@ -2184,7 +2815,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>user</code></td>
             
 
             <td class="type">
@@ -2200,20 +2831,20 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
+            <td class="description last"><p>authenticated user model</p></td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>res</code></td>
+                <td class="name"><code>posts</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">Array.&lt;object></span>
 
 
             
@@ -2223,7 +2854,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>response to client</p></td>
+            <td class="description last"><p>list of posts</p></td>
         </tr>
 
     
@@ -2261,7 +2892,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>logOut</code></td>
+                <td class="name"><code>setVotePostStatus</code></td>
             
 
             <td class="type">
@@ -2277,7 +2908,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>remove cookie of user</p></td>
+            <td class="description last"><p>set vote status of posts done by user</p></td>
         </tr>
 
     
@@ -2316,7 +2947,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line110">line 110</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line310">line 310</a>
     </li></ul></dd>
     
 
@@ -2345,10 +2976,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>list of posts</li>
+</ul>
 </div>
 
 
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
 
     
 
@@ -2362,12 +3007,16 @@ Depends on user services object</p>
     
 
     
-    <h4 class="name" id="resetPassword"><span class="type-signature">(async) </span>resetPassword<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="updatePost"><span class="type-signature">(async) </span>updatePost<span class="signature">(id, data)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
 
 
+
+<div class="description">
+    <p>Updates the text of the post with the given id</p>
+</div>
 
 
 
@@ -2402,7 +3051,30 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>req</code></td>
+                <td class="name"><code>id</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>Post ID</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>data</code></td>
             
 
             <td class="type">
@@ -2418,53 +3090,7 @@ Depends on user services object</p>
 
             
 
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
+            <td class="description last"><p>The post data that shoud be updated namely, text</p></td>
         </tr>
 
     
@@ -2472,58 +3098,6 @@ Depends on user services object</p>
 </table>
 
 
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>resetPassword</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>reset password of user with reset token</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2557,7 +3131,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line168">line 168</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line63">line 63</a>
     </li></ul></dd>
     
 
@@ -2586,251 +3160,24 @@ Depends on user services object</p>
 
         
 <div class="param-desc">
-    <p>void</p>
+    <ul>
+<li>Post object after update</li>
+</ul>
 </div>
 
 
 
-    
-
-
-
-
-
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
         
-            
-
-    
-
-    
-    <h4 class="name" id="signUp"><span class="type-signature">(async) </span>signUp<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
 <span class="param-type">object</span>
 
 
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    
-
-<table class="props">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>signUp</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>signup new user in database</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line54">line 54</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
+    </dd>
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
 
     
 

@@ -1,6 +1,17 @@
 const ObjectId = require("mongodb").ObjectId;
 
+/**
+ * Post Service class for handling Post model and services
+ */
 class PostService {
+    /**
+   * Post Service constructor
+   * Depends on the following classes
+   * @param {object} Post - Post data model
+   * @param {object} postRepository - Data access object for post
+   * @param {object} subredditRepository - Data access object for subreddit
+   * @param {object} flairRepository
+   */
   constructor({ PostRepository, SubredditRepository }) {
     //this.Post = Post;
     this.postRepository = PostRepository;
@@ -34,20 +45,47 @@ class PostService {
     return true;
   }
 
+  /**
+   * Creates a post with the given data
+   * @param {object} data  - Post required data before creation
+   * @returns {object} - Post object after creation
+   */
   async createPost(data) {
     const post = (await this.postRepository.createOne(data)).doc;
     return post;
   }
 
+  /**
+   * Updates the text of the post with the given id
+   * @param {string} id - Post ID
+   * @param {object} data - The post data that shoud be updated namely, text
+   * @returns {object} - Post object after update
+   */
   async updatePost(id, data) {
     const post = (await this.postRepository.updateOne({ _id: id }, data)).doc;
     return post;
   }
 
+  /**
+   * Deletes a Post with the given id
+   * Soft-delete is used to ensure data integrity
+   * The delete effect is cascaded to all the comment tree of the post using mongoose middlewares
+   * @param {string} id - Post ID
+   */
   async deletePost(id) {
     await this.postRepository.updateOne({ _id: id }, { isDeleted: true });
   }
 
+  /**
+   * Validate the post data request
+   * The following conditions are checked
+   * - required data is present
+   * - the post is of valid kind
+   * - the post owner is valid
+   * - valid flair id is provided
+   * @param {object} data - The post data 
+   * @returns {boolean}
+   */
   async isValidPost(data) {
     const validReq = data.ownerType && data.kind && data.title;
     if (!validReq) return false;
@@ -74,18 +112,26 @@ class PostService {
     //   await this.subredditRepository.getById(data.owner, "flairs");
     // }
 
-    //shared
-    //scheduled
-
     return true;
   }
 
-  //Assumes postId is a valid id
+  /**
+   * Checks if the user is the post author
+   * assumes postId is valid
+   * @param {string} postId
+   * @param {string} userId 
+   * @returns {boolean}
+   */
   async isAuthor(postId, userId) {
     const author = (await this.postRepository.getById(postId, "author")).author;
     return author.equals(userId);
   }
 
+  /**
+   * Validates post id
+   * @param {string} id - Post id
+   * @returns {boolean}
+   */
   async isValidId(id) {
     if (!ObjectId.isValid(id)) return false;
     const doc = await this.postRepository.getById(id, "_id");
@@ -93,7 +139,12 @@ class PostService {
     return true;
   }
 
-  //Assumes postId is a valid id
+  /**
+   * Checks if the post with given id can be edited
+   * A post can be edited if its kind is self and it's not crossposted
+   * @param {string} postId 
+   * @returns {boolean}
+   */
   async isEditable(postId) {
     const post = await this.postRepository.getById(postId, "kind sharedFrom");
     if (post.kind !== "self" || post.sharedFrom) return false;

@@ -391,23 +391,52 @@ describe("Subreddit Controller (get subreddit) Test", () => {
         });
     });
   });
-  
-  // describe("Subscribe Test", () => {
-  //   it("successful subscribtion", async () => {
-  //     await seeder();
-  //     res = await request(app).post("/api/v1/users/login").send({
-  //       userName: "kirollos",
-  //       email: "kirollos@gmail.com",
-  //       password: "12345678",
-  //     });
 
-  //     subredditName = "cmp2024 championship";
+  describe("Subscribe Test", () => {
+    it("successful subscribtion", async () => {
+      const res1 = await request(app).post("/api/v1/users/login").send({
+        userName: "kirollos",
+        email: "kirollos@gmail.com",
+        password: "12345678",
+      });
 
-  //     res = await request(app)
-  //       .post(`/api/v1/subreddits/${subredditName}/subscribe`)
-  //       .set("Cookie", res.header["set-cookie"])
-  //       .send();
-  //     expect(res.status).to.equal(200);
-  //   });
-  // });
+      let res = await request(app)
+        .get("/api/v1/users/me")
+        .set("Cookie", res1.header["set-cookie"])
+        .send();
+
+      const sub = await request(app)
+        .post("/api/v1/subreddit")
+        .set("Cookie", res1.header["set-cookie"])
+        .send({
+          owner: res.body.user.id,
+          name: "kiro_Subreddit",
+          type: "Private",
+          nsfw: false,
+        });
+      const subredditName = "kiro_Subreddit";
+
+      res = await request(app)
+        .post(`/api/v1/subreddit/${subredditName}/subscribe`)
+        .set("Cookie", res1.header["set-cookie"])
+        .send();
+      expect(res.status).to.equal(200);
+    });
+
+    it("unsuccessful subscribtion", async () => {
+      res = await request(app).post("/api/v1/users/login").send({
+        userName: "kirollos",
+        email: "kirollos@gmail.com",
+        password: "12345678",
+      });
+
+      const subredditName = "undefined name";
+
+      res = await request(app)
+        .post(`/api/v1/subreddit/${subredditName}/subscribe`)
+        .set("Cookie", res.header["set-cookie"])
+        .send();
+      expect(res.status).to.equal(404);
+    });
+  });
 });
