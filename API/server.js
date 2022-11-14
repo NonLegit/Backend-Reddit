@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const dotenv = require("dotenv");
+const { setup } = require("./di-setup");
 
 process.on("uncaughtException", (err) => {
   console.log("UNCAUGHT EXCEPTION! 💥 Shutting down...");
@@ -9,6 +10,7 @@ process.on("uncaughtException", (err) => {
 });
 
 dotenv.config({ path: "config/config.env" });
+setup();
 const app = require("./app");
 
 // const DB = process.env.DATABASE.replace(

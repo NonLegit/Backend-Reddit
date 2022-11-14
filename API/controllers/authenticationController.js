@@ -6,10 +6,10 @@ class AuthenticationController {
   /**
    * Constructor
    * Depends on user services object
-   * @param {object} UserServices - user service object
+   * @param {object} UserService - user service object
    */
-  constructor(UserServices) {
-    this.UserServices = UserServices; // can be mocked in unit testing
+  constructor({ UserService }) {
+    this.UserServices = UserService; // can be mocked in unit testing
     this.createCookie = this.createCookie.bind(this);
     this.signUp = this.signUp.bind(this);
     this.logIn = this.logIn.bind(this);

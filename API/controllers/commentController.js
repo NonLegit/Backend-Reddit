@@ -1,6 +1,6 @@
 class CommentController {
-  constructor(commentServices) {
-    this.commentServices = commentServices;
+  constructor({ CommentService }) {
+    this.commentServices = CommentService;
 
     this.createComment = this.createComment.bind(this);
     this.updateComment = this.updateComment.bind(this);
@@ -35,7 +35,7 @@ class CommentController {
 
       res.status(201).json({
         status: "success",
-        data: comment
+        data: comment,
       });
     } catch (err) {
       res.status(500).json({

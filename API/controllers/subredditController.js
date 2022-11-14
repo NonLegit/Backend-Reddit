@@ -1,7 +1,7 @@
 class subredditController {
-  constructor(subredditServices, userServices) {
-    this.subredditServices = subredditServices; // can be mocked in unit testing
-    this.userServices = userServices;
+  constructor({ subredditService, UserService }) {
+    this.subredditServices = subredditService; // can be mocked in unit testing
+    this.userServices = UserService;
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubredditSettings = this.getSubredditSettings.bind(this);
@@ -366,14 +366,18 @@ class subredditController {
   async createFlair(req, res) {
     let data = req.body;
     let subredditName = req.params.subredditName;
-     let userId = req.user._id;
+    let userId = req.user._id;
     try {
       //  console.log('here2');
-      let flair = await this.subredditServices.createFlair(subredditName, data,userId);
+      let flair = await this.subredditServices.createFlair(
+        subredditName,
+        data,
+        userId
+      );
       if (flair.status === "success") {
         res.status(flair.statusCode).json({
           status: flair.status,
-          data: flair.doc, 
+          data: flair.doc,
         });
       } else {
         res.status(flair.statusCode).json({
@@ -395,7 +399,6 @@ class subredditController {
     //   console.log('hello');
     let data = req.body;
     try {
-      
       let response = await this.subredditServices.updateFlair(
         subredditName,
         flairId,
@@ -423,7 +426,7 @@ class subredditController {
   async deleteFlair(req, res) {
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
-     let userId = req.user._id;
+    let userId = req.user._id;
     // console.log('HII there ❌');
     //console.log(subredditName);
     //deleteSubreddit(subredditName)
@@ -501,12 +504,12 @@ class subredditController {
     }
   }
 
-
-  async getSubredditId(req, res,next) {
-    
+  async getSubredditId(req, res, next) {
     let subredditName = req.params.subredditName;
     try {
-      let response = await this.subredditServices.getSubreddit({ name: subredditName });
+      let response = await this.subredditServices.getSubreddit({
+        name: subredditName,
+      });
       console.log(response);
       if (response.status === "success") {
         req.toFilter = { owner: response.doc._id };
@@ -525,14 +528,14 @@ class subredditController {
       });
     }
   }
-  
-// async getTopPosts(req, res) {
+
+  // async getTopPosts(req, res) {
   //   console.log("hereeeeeeeeeeeeeeeeeeeeeeeeeeee");
   //   let subredditName = req.params.subredditName;
-    
+
   //   try {
   //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
-    
+
   //     // console.log(res.status);
   //     // console.log(subreddit);
   //     if (subreddit.status !== "success") {
@@ -541,7 +544,7 @@ class subredditController {
   //         errorMessage: subreddit.err,
   //       });
   //     }
-      
+
   //     req.query.sort = '-votes';
   //     // console.log(req.query);
   //      console.log(req.query);
@@ -647,7 +650,7 @@ class subredditController {
   //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
   //     console.log("not in here");
   //     if (subreddit.status !== "success") {
-        
+
   //       return res.status(subreddit.statusCode).json({
   //         status: subreddit.status,
   //         errorMessage: subreddit.err,

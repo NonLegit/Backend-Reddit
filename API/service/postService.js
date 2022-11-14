@@ -4,7 +4,7 @@ const ObjectId = require("mongodb").ObjectId;
  * Post Service class for handling Post model and services
  */
 class PostService {
-  /**
+    /**
    * Post Service constructor
    * Depends on the following classes
    * @param {object} Post - Post data model
@@ -12,10 +12,11 @@ class PostService {
    * @param {object} subredditRepository - Data access object for subreddit
    * @param {object} flairRepository
    */
-  constructor(Post, postRepository, subredditRepository, flairRepository) {
-    this.Post = Post;
-    this.postRepository = postRepository;
-    this.subredditRepository = subredditRepository;
+  constructor({ PostRepository, SubredditRepository }) {
+    //this.Post = Post;
+    this.postRepository = PostRepository;
+    this.subredditRepository = SubredditRepository;
+    //this.subredditRepository = subredditRepository;
 
     this.createPost = this.createPost.bind(this);
     this.updatePost = this.updatePost.bind(this);

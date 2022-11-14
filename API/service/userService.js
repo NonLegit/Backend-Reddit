@@ -14,27 +14,28 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor(User, UserRepository, emailServices) {
-    this.User = User; // can be mocked in unit testing
+  constructor({ /*Repository*/ UserRepository, Email }) {
+    //this.User = User; // can be mocked in unit testing
+    //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
-    this.emailServices = emailServices;
-    this.createUser = this.createUser.bind(this);
-    this.createToken = this.createToken.bind(this);
-    this.signUp = this.signUp.bind(this);
-    this.logIn = this.logIn.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this);
-    this.forgotUserName = this.forgotUserName.bind(this);
-    this.resetPassword = this.resetPassword.bind(this);
-    this.getUser = this.getUser.bind(this);
-    this.getUserByEmail = this.getUserByEmail.bind(this);
-    this.getUserByName = this.getUserByName.bind(this);
-    this.decodeToken = this.decodeToken.bind(this);
-    this.getPrefs = this.getPrefs.bind(this);
-    this.updatePrefs = this.updatePrefs.bind(this);
-    this.filterObj = this.filterObj.bind(this);
+    this.emailServices = Email;
+    // this.createUser = this.createUser.bind(this);
+    // this.createToken = this.createToken.bind(this);
+    // this.signUp = this.signUp.bind(this);
+    // this.logIn = this.logIn.bind(this);
+    // this.forgotPassword = this.forgotPassword.bind(this);
+    // this.forgotUserName = this.forgotUserName.bind(this);
+    // this.resetPassword = this.resetPassword.bind(this);
+    // this.getUser = this.getUser.bind(this);
+    // this.getUserByEmail = this.getUserByEmail.bind(this);
+    // this.getUserByName = this.getUserByName.bind(this);
+    // this.decodeToken = this.decodeToken.bind(this);
+    // this.getPrefs = this.getPrefs.bind(this);
+    // this.updatePrefs = this.updatePrefs.bind(this);
+    // this.filterObj = this.filterObj.bind(this);
 
-    this.isAvailable = this.isAvailable.bind(this);
-    this.subscribe = this.subscribe.bind(this);
+    // this.isAvailable = this.isAvailable.bind(this);
+    // this.subscribe = this.subscribe.bind(this);
   }
 
   async createUser(data) {
@@ -408,12 +409,12 @@ class UserService {
       "_id"
     );
     //In order to subscribe, user should not be already subscribed
-    if (action==="sub" && !alreadySubscribed) {
+    if (action === "sub" && !alreadySubscribed) {
       return await this.userRepository.push(userId, {
         subscribed: subredditId,
       });
-    //In order to unsubscribe, user should be already subscribed
-    } else if (action==="unsub" && alreadySubscribed) {
+      //In order to unsubscribe, user should be already subscribed
+    } else if (action === "unsub" && alreadySubscribed) {
       return await this.userRepository.pull(userId, {
         subscribed: subredditId,
       });
