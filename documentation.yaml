@@ -3530,7 +3530,7 @@ paths:
                     - Public
                     - private
                     - restricted
-                NSFW:
+                nsfw:
                   type: boolean
 
       responses:
@@ -5994,8 +5994,6 @@ components:
     reducedModeratorInfo:
       type: object
       properties:
-        id:
-          type: string
         userName:
           type: string
         joiningDate:
@@ -6050,13 +6048,13 @@ components:
 
     fullSubreddit:
       properties:
-        removalReasons:
-          type: object
-          properties:
-            title:
-              type: string
-            description:
-              type: string
+        createdAt:
+          type: string
+          format: date-time
+        primaryTopic:
+          type: string
+        backgroundImage:
+          type: string
         icon:
           type: string
         rules:
