@@ -2,31 +2,31 @@ const APIFeatures = require("./apiFeatures");
 const ObjectId = require("mongodb").ObjectId
 
 class Repository {
-  constructor({User}) {
+  constructor(User) {
     this.Model = User;
     //this.Model = model;
 
-    this.createOne = this.createOne.bind(this);
-    this.getOne = this.getOne.bind(this);
-    this.updateOne = this.updateOne.bind(this);
-    this.deleteOne = this.deleteOne.bind(this);
-    this.getAll = this.getAll.bind(this);
-    this.getlist=this.getlist.bind(this);
+    // this.createOne = this.createOne.bind(this);
+    // this.getOne = this.getOne.bind(this);
+    // this.updateOne = this.updateOne.bind(this);
+    // this.deleteOne = this.deleteOne.bind(this);
+    // this.getAll = this.getAll.bind(this);
+    // this.getlist=this.getlist.bind(this);
 
-    this.updateOneByQuery = this.updateOneByQuery.bind(this);
-    this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
+    // this.updateOneByQuery = this.updateOneByQuery.bind(this);
+    // this.deleteOneByQuery = this.deleteOneByQuery.bind(this);
 
-    this.getOneById = this.getOneById.bind(this);
-    this.getRefrenced = this.getRefrenced.bind(this);
-    this.addToRefrenced = this.addToRefrenced.bind(this);
-    this.removerFomRefrenced = this.removeFromRefrenced.bind(this);
+    // this.getOneById = this.getOneById.bind(this);
+    // this.getRefrenced = this.getRefrenced.bind(this);
+    // this.addToRefrenced = this.addToRefrenced.bind(this);
+    // this.removerFomRefrenced = this.removeFromRefrenced.bind(this);
 
-    this.isValidId = this.isValidId.bind(this);
-    this.getById = this.getById.bind(this);
+    // this.isValidId = this.isValidId.bind(this);
+    // this.getById = this.getById.bind(this);
 
-    this.getAllAndSelect = this.getAllAndSelect.bind(this);
-    this.getByQuery = this.getByQuery.bind(this);
-    this.push = this.push.bind(this);
+    // this.getAllAndSelect = this.getAllAndSelect.bind(this);
+    // this.getByQuery = this.getByQuery.bind(this);
+    // this.push = this.push.bind(this);
   }
 
   async createOne(data) {

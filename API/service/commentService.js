@@ -1,10 +1,12 @@
 const ObjectId = require("mongodb").ObjectId;
 
 class CommentService {
-  constructor(Comment, commentRepo, postRepo) {
-    this.Comment = Comment;
-    this.commentRepo = commentRepo;
-    this.postRepo = postRepo;
+  constructor( {CommentRepository, PostRepository}) {
+    //this.Comment = Comment;
+    //this.commentRepo = commentRepo;
+    //this.postRepo = postRepo;
+    this.commentRepo = CommentRepository;
+    this.postRepo = PostRepository;
 
     this.hasValidParent = this.hasValidParent.bind(this);
     this.isValidId = this.isValidId.bind(this);

@@ -8,16 +8,12 @@
  * @param {Repository} userRepository - user repository object to access repository functions using user model
  */
 class subredditService {
-  constructor(
-    subreddit,
-    subredditRepository,
-    flair,
-    flairRepository,
-    user,
-    userRepository
-  ) {
-    this.subreddit = subreddit; // can be mocked in unit testing
-    this.subredditRepository = subredditRepository; // can be mocked in unit testing
+  constructor({ SubredditRepository, FlairRepository, UserRepository }) {
+    this.flairRepository = FlairRepository; // can be mocked in unit testing
+    this.userRepository = UserRepository;
+    this.subredditRepository = SubredditRepository; // can be mocked in unit testing
+    //this.subreddit = subreddit; // can be mocked in unit testing
+    //this.subredditRepository = subredditRepository; // can be mocked in unit testing
     this.createSubreddit = this.createSubreddit.bind(this);
     this.deleteSubreddit = this.deleteSubreddit.bind(this);
     this.getSubreddit = this.getSubreddit.bind(this);
@@ -28,12 +24,12 @@ class subredditService {
     this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
     this.isModerator = this.isModerator.bind(this);
     this.isOwner = this.isOwner.bind(this);
-    this.subExists=this.subExists.bind(this);
+    this.subExists = this.subExists.bind(this);
     // this.primaryTopic = this.primaryTopic.bind(this);
     // !=======================================
     this.checkFlair = this.checkFlair.bind(this);
-    this.flair = flair; // can be mocked in unit testing
-    this.flairRepository = flairRepository; // can be mocked in unit testing
+    //this.flair = flair; // can be mocked in unit testing
+    //this.flairRepository = flairRepository; // can be mocked in unit testing
     this.createFlair = this.createFlair.bind(this);
     this.deleteFlair = this.deleteFlair.bind(this);
     this.getFlair = this.getFlair.bind(this);
@@ -42,8 +38,8 @@ class subredditService {
     this.checkSubreddit = this.checkSubreddit.bind(this);
     this.checkModerator = this.checkModerator.bind(this);
     // !========================================
-    this.user = user;
-    this.userRepository = userRepository;
+    //this.user = user;
+    //this.userRepository = userRepository;
     this.isBanned = this.isBanned.bind(this);
   }
   /**
@@ -692,44 +688,39 @@ class subredditService {
 
   //! Doaa's part
 
-
-/**
- * 
- * @param {String} subredditName the name of the subreddit to create flair into
- * @param {Object} data  the data of the flair to be created
- * @param {import("mongoose").ObjectId} userId 
- * @returns {Object} returns created flair or an error object
- */
-  async createFlair(subredditName, data,userId) {
+  /**
+   *
+   * @param {String} subredditName the name of the subreddit to create flair into
+   * @param {Object} data  the data of the flair to be created
+   * @param {import("mongoose").ObjectId} userId
+   * @returns {Object} returns created flair or an error object
+   */
+  async createFlair(subredditName, data, userId) {
     try {
-       let subreddit = await this.checkSubreddit(subredditName);
+      let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
         return subreddit;
       }
       //console.log(subreddit);
       let isModerator = this.checkModerator(subreddit, userId);
       console.log(isModerator);
-      if (isModerator.status !== 'success') {
+      if (isModerator.status !== "success") {
         return isModerator;
       }
-      
-      
-      
+
       let flair = await this.flairRepository.createOne(data);
 
-      
       if (flair.status !== "success") {
         return flair;
       }
-     
+
       let addedTorefrencedFlairs =
         await this.subredditRepository.addToRefrenced(
-          {name: subredditName},
-          {$push: { "flairIds": flair.doc._id }}
+          { name: subredditName },
+          { $push: { flairIds: flair.doc._id } }
         );
-      
+
       if (addedTorefrencedFlairs.status !== "success") {
-        
         return flair;
       }
 
@@ -744,17 +735,16 @@ class subredditService {
     }
   }
 
-
   /**
-   * 
+   *
    * @param {String} subredditName the name of the subreddit to check if it exists
    * @returns {Object} returns the found subreddit object id found and an error object if not
    */
   async checkSubreddit(subredditName) {
     try {
-      let subreddit = await this.subredditRepository.getOne(
-        { name: subredditName }
-      );
+      let subreddit = await this.subredditRepository.getOne({
+        name: subredditName,
+      });
       //console.log(subreddit);
       if (subreddit.status !== "success") {
         const error = {
@@ -778,28 +768,25 @@ class subredditService {
   }
 
   /**
-   * 
-   * @param {Object} subreddit the subreddit object to check the flait within 
+   *
+   * @param {Object} subreddit the subreddit object to check the flait within
    * @param {import("mongoose").ObjectId} flairId the flair id to check if it exists
    * @returns {Object} the subreddit object if the flair exists and an error obj if not
    */
-   checkFlair(subreddit, flairId) {
-     
-      if (!subreddit.doc.flairIds.includes(flairId)) {
-        const error = {
-          status: "Not Found",
-          statusCode: 404,
-          err: "Flair not in subreddit",
-        };
-        return error;
-      }
-      return subreddit;
-   
+  checkFlair(subreddit, flairId) {
+    if (!subreddit.doc.flairIds.includes(flairId)) {
+      const error = {
+        status: "Not Found",
+        statusCode: 404,
+        err: "Flair not in subreddit",
+      };
+      return error;
     }
-  
+    return subreddit;
+  }
 
   /**
-   * 
+   *
    * @param {Object} subreddit subreddit object
    * @param {import("mongoose").ObjectId} userID id of the moderaror to check whether it exists in the subreddit
    * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
@@ -809,46 +796,47 @@ class subredditService {
     // console.log(typeof(subreddit.doc.owner));
     // console.log(typeof(userID));
     //console.log((subreddit.doc.owner).localeCompare(userID));
-    
-    
-    if (!(subreddit.doc.owner).equals(userID))
-    {
-        const error = {
-          status: "forbidden",
-          statusCode: 403,
-          err: "you are not a moderator",
-        };
-        return error;
+
+    if (!subreddit.doc.owner.equals(userID)) {
+      const error = {
+        status: "forbidden",
+        statusCode: 403,
+        err: "you are not a moderator",
+      };
+      return error;
     }
     // console.log("outsideeeeeeeeeeeeeeeeeeeee");
-      return subreddit;
+    return subreddit;
   }
 
   /**
-   * 
+   *
    * @param {String} subredditName name of the subreddit to update the flair in it
    * @param {import("mongoose").ObjectId} flairId id of the flait to update
    * @param {Object} data the new updated data of the flait to apply
    * @param {import("mongoose").ObjectId} userId id of the user who request the update
    * @returns {Object} returns the updated flair if success and an error object if not
    */
-  async updateFlair(subredditName, flairId, data,userId) {
+  async updateFlair(subredditName, flairId, data, userId) {
     try {
       let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
         return subreddit;
       }
-      let isModerator = this.checkModerator(subreddit,userId);
-      if (isModerator.status !== 'success') {
+      let isModerator = this.checkModerator(subreddit, userId);
+      if (isModerator.status !== "success") {
         return isModerator;
       }
-      
+
       let checkFlair = this.checkFlair(subreddit, flairId);
-      
+
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
-      let response = await this.flairRepository.updateOne({ "_id": flairId }, data);
+      let response = await this.flairRepository.updateOne(
+        { _id: flairId },
+        data
+      );
       console.log(response);
       return response;
     } catch (err) {
@@ -863,26 +851,25 @@ class subredditService {
     }
   }
 
-
   /**
-   * 
-   * @param {String} subredditName name of the subreddit to delete the flair whithin 
+   *
+   * @param {String} subredditName name of the subreddit to delete the flair whithin
    * @param {import("mongoose").ObjectId} flairId id of the flair to be deleted
    * @param {import("mongoose").ObjectId} userId id of the user who request the delete
    * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
    */
-  async deleteFlair(subredditName, flairId,userId) {
+  async deleteFlair(subredditName, flairId, userId) {
     try {
-       let subreddit = await this.checkSubreddit(subredditName);
+      let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
         return subreddit;
       }
       console.log(subreddit.doc.owner);
-      let isModerator = this.checkModerator(subreddit,userId);
-      if (isModerator.status !== 'success') {
+      let isModerator = this.checkModerator(subreddit, userId);
+      if (isModerator.status !== "success") {
         return isModerator;
       }
-      
+
       let checkFlair = this.checkFlair(subreddit, flairId);
       console.log(checkFlair);
       if (checkFlair.status !== "success") {
@@ -891,7 +878,7 @@ class subredditService {
       console.log(checkFlair);
       let response = await this.subredditRepository.removeFromRefrenced(
         { name: subredditName },
-        { $pull: { "flairIds": flairId } }
+        { $pull: { flairIds: flairId } }
       );
       if (response.status !== "success") {
         const error = {
@@ -914,18 +901,18 @@ class subredditService {
   }
 
   /**
-   * 
+   *
    * @param {String} subredditName the name of the subreddit to get the flair from
    * @param {import("mongoose").ObjectId} flairId id of the flair to get
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
     try {
-       let subreddit = await this.checkSubreddit(subredditName);
+      let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
         return subreddit;
       }
-      let checkFlair =  this.checkFlair(subreddit, flairId);
+      let checkFlair = this.checkFlair(subreddit, flairId);
       if (checkFlair.status !== "success") {
         return checkFlair;
       }
@@ -944,7 +931,7 @@ class subredditService {
   }
 
   /**
-   * 
+   *
    * @param {String} subredditName name of the subreddit to get its flairs
    * @returns {Object} object containing all flairs if subreddit exists and an error object if not
    */
@@ -957,7 +944,6 @@ class subredditService {
         "flairIds"
       );
 
-
       return response;
     } catch (err) {
       console.log("catch error here" + err);
@@ -967,7 +953,7 @@ class subredditService {
         err,
       };
       return error;
-    } 
+    }
   }
 
   async subExists(subredditName) {

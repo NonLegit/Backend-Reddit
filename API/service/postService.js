@@ -1,10 +1,10 @@
 const ObjectId = require("mongodb").ObjectId;
 
 class PostService {
-  constructor({ Repository }) {
+  constructor({ PostRepository, SubredditRepository }) {
     //this.Post = Post;
-    this.postRepository = Repository;
-    this.subredditRepository = Repository;
+    this.postRepository = PostRepository;
+    this.subredditRepository = SubredditRepository;
     //this.subredditRepository = subredditRepository;
 
     this.createPost = this.createPost.bind(this);
