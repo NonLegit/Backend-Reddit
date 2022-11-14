@@ -1,10 +1,9 @@
 const APIFeatures = require("./apiFeatures");
-const ObjectId = require("mongodb").ObjectId
+const ObjectId = require("mongodb").ObjectId;
 
 class Repository {
-  constructor(User) {
-    this.Model = User;
-    //this.Model = model;
+  constructor(model) {
+    this.Model = model;
 
     // this.createOne = this.createOne.bind(this);
     // this.getOne = this.getOne.bind(this);
@@ -285,7 +284,7 @@ class Repository {
     try {
       const doc = await this.Model.findOne(query)
         .populate(populated)
-        .select({ populated: 1, _id: 0 ,createdAt:1});
+        .select({ populated: 1, _id: 0, createdAt: 1 });
       // console.log(doc);
       if (!doc) {
         const response = {
@@ -363,9 +362,12 @@ class Repository {
       return response;
     }
   }
-  async getAllAndSelect(filter,select,populate, query) {
+  async getAllAndSelect(filter, select, populate, query) {
     try {
-      const features = new APIFeatures(Model.find(filter).select(select).populate(populate), query)
+      const features = new APIFeatures(
+        Model.find(filter).select(select).populate(populate),
+        query
+      )
         .filter()
         .sort()
         .limitFields()
@@ -388,7 +390,6 @@ class Repository {
     }
   }
 
-
   async getById(id, select) {
     try {
       const doc = await this.Model.findById(id).select(select);
@@ -410,7 +411,7 @@ class Repository {
   }
 
   async isValidId(id) {
-    if(!ObjectId.isValid(id)) return false;
+    if (!ObjectId.isValid(id)) return false;
     const doc = await this.Model.findById(id);
     if (!doc) return false;
     return true;
@@ -430,7 +431,7 @@ class Repository {
       await this.Model.findOneAndUpdate({ _id: id }, { $pull: obj });
       return true;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return false;
     }
   }

@@ -11,7 +11,7 @@ class AuthenticationController {
   constructor({ UserService }) {
     this.UserServices = UserService; // can be mocked in unit testing
     this.createCookie = this.createCookie.bind(this);
-    this.signUp = this.signUp.bind(this);
+    //this.signUp = this.signUp.bind(this);
     this.logIn = this.logIn.bind(this);
     this.forgotPassword = this.forgotPassword.bind(this);
     this.forgotUserName = this.forgotUserName.bind(this);
@@ -51,7 +51,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async signUp(req, res, next) {
+  signUp = async (req, res, next) => {
     const email = req.body.email;
     const userName = req.body.userName;
     const password = req.body.password;
@@ -74,7 +74,7 @@ class AuthenticationController {
         res.status(response.status).json(response.body);
       }
     }
-  }
+  };
   /**
    * @property {Function} logIn autheticate user by send cookie token to him
    * @param {object} req - request object sent by client
