@@ -3645,7 +3645,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/fullSubreddit"
+              $ref: "#/components/schemas/fullSubredditExecludedModerators"
       responses:
         "200":
           description: successful operation
@@ -6113,7 +6113,69 @@ components:
           items:
             $ref: "#/components/schemas/reducedModeratorInfo"
           
-
+    fullSubredditExecludedModerators:
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        primaryTopic:
+          type: string
+        backgroundImage:
+          type: string
+        icon:
+          type: string
+        rules:
+          type: object
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            defaultName:
+              type: string
+            appliesTo:
+              type: string
+              enum:
+                - Posts and comments
+                - Posts only
+                - Comments only
+        name:
+          type: string
+        description:
+          type: string
+        topics:
+          type: array
+        language:
+          type: string
+        region:
+          type: string
+        type:
+          type: string
+          enum:
+            - Public
+            - Private
+            - Restricted
+        nsfw:
+          type: boolean
+        postType:
+          type: string
+          enum:
+            - Any
+            - Links only
+            - Text posts only
+        allowCrossposting:
+          type: boolean
+        allowArchivePosts:
+          type: boolean
+        allowSpoilerTag:
+          type: boolean
+        allowGif:
+          type: boolean
+        allowImageUploads:
+          type: boolean
+        allowMultipleImage:
+          type: boolean
+          
     User:
       type: object
       properties:
