@@ -13,17 +13,15 @@ servers:
   - url: https://localhost:8000/api/v1
     description: Production server
 paths:
-  #TO DO
-  #######################################################
-  #check what to do with icons and images attribute
-  #####################################################
-  /user/login:
+  #USERS
+
+  /users/login:
     description: User Resource
     post:
       tags:
         - "Users"
       description: Get authenticated to access our api services later.
-      summary: User authentication
+      summary: User Login
 
       requestBody:
         description: get authenticated using userName & password
@@ -70,7 +68,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: invaild userName or password
         400:
@@ -83,10 +81,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: provide userName and password
-  /user/logout:
+  /users/logout:
     description: User Resource
     post:
       tags:
@@ -121,13 +119,13 @@ paths:
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /user/signup:
+  /users/signup:
     description: User Resource
     post:
       tags:
         - "Users"
       description: signup as user in reddit
-      summary: User registration
+      summary: User SignUP
       requestBody:
         description: new user registrated
         required: true
@@ -176,17 +174,17 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: userName already exists
-  #/recover_userName:
-  /user/forgotuserName:
+
+  /users/forgot_username:
     post:
       tags:
         - Users
       summary: Forgot userName
       requestBody:
-        description: Send the post/comment id
+        description: user's email
         content:
           application/json:
             schema:
@@ -214,14 +212,13 @@ paths:
         #     application/json:
         #       schema:
         #           $ref: '#/components/schemas/error'
-
-  /user/forgotPassword:
+  /users/forgot_password:
     post:
       tags:
         - Users
-      summary: Forgot password
+      summary: Forgot Password
       requestBody:
-        description: Send the post/comment id
+        description: user's email and username
         content:
           application/json:
             schema:
@@ -245,83 +242,13 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-        # '409':
-        #   description: Conflict
-        #   content:
-        #     application/json:
-        #       schema:
-        #           $ref: '#/components/schemas/error'
-
-  #/users/reset_username/{token}:
-  #  description: User Resource
-  #  post:
-  #    tags:
-  #      - "Users"
-  #    description: change forgotten userName
-  #    summary: Password reset
-  #    security:
-  #      - BearerAuth: []
-  #      - cookieAuth: []
-  #    parameters:
-  #       - in: path
-  #         name: token
-  #         description: reset token
-  #         required: true
-  #         schema:
-  #           type: string
-
-  #     requestBody:
-  #       description: new user registrated
-  #       required: true
-  #       content:
-  #         application/json:
-  #           schema:
-  #             type: object
-  #             properties:
-  #               userName:
-  #                 type: string
-  #                 example: userName
-  #     responses:
-  #       200:
-  #         description: Success operation
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 status:
-  #                   type: string
-  #                   example: success
-  #                 token:
-  #                   type: string
-  #                 expiresIn:
-  #                   type: string
-  #                   format: date-time
-
-  #       400:
-  #         description: Bad Request
-  #         content:
-  #           application/json:
-  #             schema:
-  #               type: object
-  #               properties:
-  #                 status:
-  #                   type: string
-  #                   example: fail
-  #                 message:
-  #                   type: string
-  #                   example: Token is invalid or has expired
-  #
   /users/reset_password/{token}:
     description: User Resource
     post:
       tags:
         - "Users"
-      description: change forgotten userName
+      description: change forgotten password
       summary: Password reset
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
       parameters:
         - in: path
           name: token
@@ -331,19 +258,27 @@ paths:
             type: string
 
       requestBody:
-        description: new user registrated
+        description: new Password and confirmPassword
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userName:
+                password:
                   type: string
-                  example: userName
+                  example: Aa1234**
+                confirmPassword:
+                  type: string
+                  example: Aa1234**
       responses:
         200:
           description: Success operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: jwt=abcde12345; expires = time ; Path=/; HttpOnly
           content:
             application/json:
               schema:
@@ -368,9 +303,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: Token is invalid or has expired
+
   /users/google/:
     description: User Resource
     post:
@@ -379,8 +315,8 @@ paths:
       description: google authentication
       summary: google authentication
       security:
-        - oAuthSample: 
-          - access_token
+        - oAuthSample:
+            - access_token
       requestBody:
         description: userName in case of signup
         required: true
@@ -446,8 +382,6 @@ paths:
                   message:
                     type: string
                     example: Token is invalid or has expired
-
-
 
   /users/facebook/:
     description: User Resource
@@ -457,8 +391,8 @@ paths:
       description: Facebook authentication
       summary: Facebook authentication
       security:
-        - oAuthSample: 
-          - access_token
+        - oAuthSample:
+            - access_token
       requestBody:
         description: userName in case of signup
         required: true
@@ -525,7 +459,6 @@ paths:
                     type: string
                     example: Token is invalid or has expired
 
-                    
   /users/me/:
     description: User Resource
     get:
@@ -618,12 +551,12 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: not modified
         401:
           $ref: "#/components/responses/UnauthorizedError"
-  /user/me/friends/{userName}:
+  /users/me/friends/{userName}:
     description: User Resource
     get:
       tags:
@@ -663,7 +596,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
@@ -706,7 +639,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
@@ -747,7 +680,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user is not a friend of you
         404:
@@ -760,13 +693,13 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: user not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /user/{userName}/blockUser:
+  /users/{userName}/block_user:
     post:
       tags:
         - Users
@@ -825,9 +758,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  #get all mods
-
-  /user/{userName}/unblockUser:
+  /users/{userName}/unblock_user:
     post:
       tags:
         - Users
@@ -875,8 +806,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/follow:
+  /users/{userName}/follow:
     post:
       tags:
         - Users
@@ -924,11 +854,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /user/best:
+  /users/best:
     get:
       tags:
         - Users
-      summary: Return a listing of posts according to user preferences
+      summary: Best Posts
+      description: Return a listing of posts according to user preferences
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -954,14 +885,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Post"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /user/hot:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/hot:
     get:
       tags:
         - Users
-      summary: Return a listing of hot posts
+      summary: Hot Posts
+      description: Return a listing of hot posts
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -987,14 +922,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Post"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /user/new:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/new:
     get:
       tags:
         - Users
-      summary: Return a listing of new posts
+      summary: New Posts
+      description: Return a listing of new posts
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -1020,14 +959,18 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Post"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
-
-  /user/top:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/top:
     get:
       tags:
         - Users
-      summary: Return a listing of top posts
+      summary: Top Posts
+      description: Return a listing of top posts
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -1066,10 +1009,14 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Post"
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
-  /user/{userName}/about:
+  /users/{userName}/about:
     get:
       tags:
         - Users
@@ -1090,7 +1037,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/User"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  user:
+                    $ref: "#/components/schemas/Friend"
 
         "400":
           description: Bad Request
@@ -1104,8 +1057,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/overview:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/{userName}/overview:
     get:
       tags:
         - Users
@@ -1151,8 +1109,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/post:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/{userName}/posts:
     get:
       tags:
         - Users
@@ -1166,6 +1129,16 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: sort
+          description: The page number
+          required: false
+          schema:
+            type: string
+            enum:
+              - New
+              - Top
+              - Hot
         - in: query
           name: page
           description: The page number
@@ -1193,8 +1166,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/comments:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/{userName}/comments:
     get:
       tags:
         - Users
@@ -1243,8 +1221,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/upvoted:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/upvoted:
     get:
       tags:
         - Users
@@ -1254,11 +1237,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1287,7 +1265,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /user/{userName}/downvoted:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/downvoted:
     get:
       tags:
         - Users
@@ -1297,11 +1281,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1329,8 +1308,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /user/{userName}/saved:
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/saved:
     get:
       tags:
         - Users
@@ -1339,11 +1323,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1375,7 +1354,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /user/{userName}/hidden:
+  /users/hidden:
     get:
       tags:
         - Users
@@ -1384,11 +1363,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          required: true
-          schema:
-            type: string
         - in: query
           name: page
           description: The page number
@@ -1421,146 +1395,30 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /user/{userName}/userNameAvailable:
+  /users/username_available:
     get:
       tags:
         - Users
-      summary: ""
-      description: "Check whether a userName is available for registration."
+      summary: Check UserName available
+      description: Check whether a userName is available for registration
       parameters:
-        - in: path
+        - in: query
           name: userName
           required: true
           schema:
             type: string
-
-      responses:
-        "200":
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: boolean
-        "400":
-          description: Bad Request
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-  #######################################################
-
-  /categories/randomCategory:
-    get:
-      tags:
-        - Categories
-      summary: Get communities from a random category
-
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - name: limit
-          in: query
-          description: number of subreddits
-          required: false
-          schema:
-            type: integer
-            format: int64
-
-        - name: page
-          in: query
-          description: number of the page
-          required: false
-          schema:
-            type: integer
-            format: int64
-
-      responses:
-        "204":
-          description: successful operation
-
-          content:
-            application/json:
-              schema:
-                type: array
-                description: some (not all) info about the subreddit ti be shown
-                items:
-                  $ref: "#/components/schemas/reducedSubredditInfo"
-
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-  /categories/{categoryId}/Subreddits:
-    description: Post Resource
-    get:
-      tags:
-        - "Categories"
-      description: Get list of Communities belong to specific_category
-      summary: Get Communities in specific_category
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - in: path
-          name: categoryId
-          description: category id
-          required: true
-          schema:
-            type: string
-        - in: query
-          name: limit
-          description: maximum number of retreived subreddits
-          required: false
-          schema:
-            type: integer
-            example: 20
-        - in: query
-          name: page
-          description: " page number, 1 for first group 2 for second group and so on"
-          required: false
-          schema:
-            type: integer
-            example: 1
-        - in: query
-          name: sort
-          description: "sort subreddits by (rank - membersCount)"
-          required: false
-          schema:
-            type: string
-            example: rank
-
       responses:
         200:
-          description: Success operation
+          description: successful operation
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  status:
-                    type: string
-                    example: success
-                  subreddits:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Subreddit"
-        404:
-          description: Not Found
+                  available:
+                    type: boolean
+        400:
+          description: failed operation
           content:
             application/json:
               schema:
@@ -1571,7 +1429,9 @@ paths:
                     example: fail
                   message:
                     type: string
-                    example: category not found
+                    example: userName query paramater is required
+
+  #SEARCH
 
   /search:
     get:
@@ -1671,15 +1531,12 @@ paths:
                           example: 100
                         about:
                           type: string
+
   /search/trending:
     get:
       tags:
         - Search
-        - Posts
       description: "get trending searches day by day"
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
       responses:
         "200":
           description: successful operation
@@ -1697,49 +1554,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /post/{postId}/SuggestedSort:
-    post:
-      tags:
-        - Posts
-      summary: "sort comments"
-      description: "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort."
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - in: path
-          name: postId
-          description: post id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/suggestedSort"
+  #FLAIRS
 
-      responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Invalid post id
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-  #flairs
-
-  /subreddit/{subredditName}/flair:
+  /subreddits/{subredditName}/flairs:
     post:
       tags:
         - Subreddit
@@ -1751,7 +1568,7 @@ paths:
       parameters:
         - in: path
           name: subredditName
-          description: post id
+          description: subreddit name
           required: true
           schema:
             type: string
@@ -1844,7 +1661,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}/flair/{flairId}:
+  /subreddits/{subredditName}/flairs/{flairId}:
     patch:
       tags:
         - Flair
@@ -2007,9 +1824,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  #post
-  
-  /post:
+  #POSTS
+
+  /posts:
     post:
       tags:
         - Posts
@@ -2054,8 +1871,21 @@ paths:
                   message:
                     type: string
                     example: Subreddit not found
+        400:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Invalid post type
 
-  /post/{postId}:
+  /posts/{postId}:
     patch:
       tags:
         - Posts
@@ -2090,7 +1920,9 @@ paths:
                 properties:
                   status:
                     type: string
-                    example: success
+                    example: sucess
+                  post:
+                    $ref: "#/components/schemas/Post"
         404:
           description: failed operation
           content:
@@ -2104,6 +1936,33 @@ paths:
                   message:
                     type: string
                     example: post not found
+        401:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: User must be author
+        400:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Post cannot be edited
+
     delete:
       tags:
         - Posts
@@ -2119,38 +1978,44 @@ paths:
           schema:
             type: string
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
+        204:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: sucess
+        404:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+        401:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: User must be author
 
-  /post/{postId}/followPost:
+  /posts/{postId}/follow_post:
     post:
       tags:
         - Posts
@@ -2196,11 +2061,27 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
 
-  /post/{postId}/hide:
+  /posts/random:
+    get:
+      tags:
+        - Posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: Returns a random post
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+  /posts/{postId}/hide:
     post:
       tags:
         - Posts
@@ -2237,10 +2118,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
-  /post/{postId}/unhide:
+  /posts/{postId}/unhide:
     post:
       tags:
         - Posts
@@ -2276,27 +2157,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
-
-  /post/random:
-    get:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: Returns a random post
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Post"
-
-  /post/{postId}/save:
+  /posts/{postId}/save:
     post:
       tags:
         - Posts
@@ -2344,7 +2208,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}/unsave:
+  /posts/{postId}/unsave:
     post:
       tags:
         - Posts
@@ -2392,7 +2256,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}/marknsfw:
+  /posts/{postId}/marknsfw:
     patch:
       tags:
         - Posts
@@ -2440,7 +2304,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}/unmarknsfw:
+  /posts/{postId}/unmarknsfw:
     patch:
       tags:
         - Posts
@@ -2488,7 +2352,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}/lockComments:
+  /posts/{postId}/lock_comments:
     patch:
       tags:
         - Posts
@@ -2536,7 +2400,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /post/{postId}/unlockComments:
+  /posts/{postId}/unlock_comments:
     patch:
       tags:
         - Posts
@@ -2584,8 +2448,90 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+  /posts/{postId}/spoiler:
+    description: Post Resource
+    patch:
+      tags:
+        - "Posts"
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      description: mark post as spoiler (by author or the subreddit moderator)
+      summary: Spoil Post
+      parameters:
+        - in: path
+          name: postId
+          description: post id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: post not found
+  /posts/{postId}/unspoiler:
+    description: Post Resource
+    patch:
+      tags:
+        - "Posts"
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      description: mark post as unspoiler (by author or the subreddit moderator)
+      summary: unSpoil Post
+      parameters:
+        - in: path
+          name: postId
+          description: post id
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: post not found
 
-  /post/{postId}/vote:
+  /posts/{postId}/vote:
     description: Post Resource
     post:
       tags:
@@ -2629,7 +2575,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: "you already upvote (downvote) post"
         404:
@@ -2642,93 +2588,11 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
-                    type: string
-                    example: post not found
-  /post/{postId}/spoiler:
-    description: Post Resource
-    patch:
-      tags:
-        - "Posts"
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      description: mark post as spoiler (by author or the subreddit moderator)
-      summary: Spoil Post
-      parameters:
-        - in: path
-          name: postId
-          description: post id
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  message:
-                    type: string
-                    example: post not found
-  /post/{postId}/unspoiler:
-    description: Post Resource
-    patch:
-      tags:
-        - "Posts"
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      description: mark post as unspoiler (by author or the subreddit moderator)
-      summary: unSpoil Post
-      parameters:
-        - in: path
-          name: postId
-          description: post id
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: post not found
 
-  /post/{postId}/spam:
+  /posts/{postId}/spam:
     patch:
       tags:
         - Posts
@@ -2776,9 +2640,49 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
+  /posts/{postId}/suggested_sort:
+    post:
+      tags:
+        - Posts
+      summary: "sort comments"
+      description: "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort."
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: postId
+          description: post id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/suggestedSort"
+
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Invalid post id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   #COMMENTS
 
-  /comment/{commentId}:
+  /comments/{commentId}:
     patch:
       tags:
         - Comments
@@ -2803,7 +2707,6 @@ paths:
                   type: string
                   example: This is a comment text
         required: true
-
       responses:
         200:
           description: Success operation
@@ -2825,7 +2728,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: comment not found
     delete:
@@ -2842,43 +2745,49 @@ paths:
           required: true
           schema:
             type: string
-
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
+        204:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: sucess
+        404:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+        401:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: User must be author
 
-  /comment:
+  /comments:
     post:
       tags:
         - Comments
-      summary: ""
+      summary: "Create a comment"
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -2890,29 +2799,49 @@ paths:
             schema:
               $ref: "#/components/schemas/subbmitComment"
       responses:
-        "200":
-          description: successful operation
+        201:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/comment"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      comment:
+                        $ref: "#/components/schemas/comment"
+        404:
+          description: Fail operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Parent not found or invalid
+        400:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: Missing required parameter
 
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "204":
-          description: empty comment
-
-  /comment/suggestedTags:
+  /comments/suggested_tags:
     get:
       tags:
         - Comments
@@ -2967,7 +2896,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /comment/{commentId}/save:
+  /comments/{commentId}/save:
     post:
       tags:
         - Comments
@@ -3015,7 +2944,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /comment/{commentId}/unsave:
+  /comments/{commentId}/unsave:
     post:
       tags:
         - Comments
@@ -3063,7 +2992,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /comment/{commentId}/marknsfw:
+  /comments/{commentId}/marknsfw:
     patch:
       tags:
         - Comments
@@ -3111,7 +3040,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /comment/{commentId}/unmarknsfw:
+  /comments/{commentId}/unmarknsfw:
     patch:
       tags:
         - Comments
@@ -3159,7 +3088,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /comment/{commentId}/lockComments:
+  /comments/{commentId}/lock_comments:
     patch:
       tags:
         - Comments
@@ -3207,7 +3136,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /comment/{commentId}/unlockComments:
+  /comments/{commentId}/unlock_comments:
     patch:
       tags:
         - Comments
@@ -3256,7 +3185,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /comment/{commentId}/vote:
+  /comments/{commentId}/vote:
     description: Comment Resource
     post:
       tags:
@@ -3300,7 +3229,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: "you already upvote (downvote) comment"
         404:
@@ -3313,10 +3242,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: comment not found
-  /comment/{commentId}/spam:
+  /comments/{commentId}/spam:
     patch:
       tags:
         - Comments
@@ -3364,7 +3293,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /comment/{postId}:
+  /comments/{postId}:
     get:
       tags:
         - Comments
@@ -3444,8 +3373,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /comment/moreChildren:
+  /comments/more_children:
     get:
       tags:
         - Comments
@@ -3525,8 +3453,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  #subreddit
-  /subreddit/{subredditName}/comment/{postId}:
+  #SUBREDDITS
+
+  /subreddits/{subredditName}/comments/{postId}:
     get:
       tags:
         - Comments
@@ -3613,7 +3542,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit:
+  /subreddits:
     post:
       tags:
         - Subreddit
@@ -3628,8 +3557,6 @@ paths:
             schema:
               type: object
               properties:
-                owner:
-                  type: string
                 name:
                   type: string
                 type:
@@ -3638,7 +3565,7 @@ paths:
                     - Public
                     - private
                     - restricted
-                NSFW:
+                nsfw:
                   type: boolean
 
       responses:
@@ -3681,7 +3608,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}:
+  /subreddits/{subredditName}:
     get:
       tags:
         - Subreddit
@@ -3753,7 +3680,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/fullSubreddit"
+              $ref: "#/components/schemas/fullSubredditExecludedModerators"
       responses:
         "200":
           description: successful operation
@@ -3838,7 +3765,7 @@ paths:
 
       #invite mod
 
-  /subreddit/{subredditName}/moderator/{moderatorName}:
+  /subreddits/{subredditName}/moderators/{moderatorName}:
     post:
       tags:
         - Subreddit
@@ -4023,7 +3950,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}/ban/user/{userName}:
+  /subreddits/{subredditName}/ban/{userName}:
     post:
       tags:
         - Subreddit
@@ -4143,7 +4070,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /subreddit/{subredditName}/unban/user/{userName}:
+  /subreddits/{subredditName}/unban/{userName}:
     post:
       tags:
         - Subreddit
@@ -4176,7 +4103,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /subreddit/{subredditName}/mute/user/{userName}:
+  /subreddits/{subredditName}/mute/{userName}:
     post:
       tags:
         - Subreddit
@@ -4294,7 +4221,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /subreddit/{subredditName}/unmute/user/{userName}:
+  /subreddits/{subredditName}/unmute/{userName}:
     post:
       tags:
         - Subreddit
@@ -4329,7 +4256,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}/post/{postId}/approve:
+  /subreddits/{subredditName}/posts/{postId}/approve:
     patch:
       tags:
         - Subreddit
@@ -4382,7 +4309,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/subscribe:
+  /subreddits/{subredditName}/subscribe:
     post:
       tags:
         - Subreddit
@@ -4391,6 +4318,13 @@ paths:
         - cookieAuth: []
       summary: Subscribe to or unsubscribe from a subreddit
       description: To subscribe, sub should be true. To unsubscribe, sub should be false. Use either subreddit to provide the name of subreddit or sr to provide its id. The user must have access to the subreddit to be able to subscribe to it
+      parameters:
+        - name: subredditName
+          in: path
+          description: id of the subreddit
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -4399,11 +4333,6 @@ paths:
               properties:
                 sub:
                   type: boolean
-                subreddit:
-                  type: string
-                  example: subreddit
-                sr:
-                  type: string
         required: true
       responses:
         200:
@@ -4426,7 +4355,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
         400:
@@ -4439,11 +4368,11 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: The user doesn't have access to the subreddit
 
-  /subreddit/{subredditName}/about/{location}:
+  /subreddits/{subredditName}/about/{location}:
     get:
       tags:
         - Subreddit
@@ -4504,13 +4433,13 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: id not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /subreddit/{subredditName}/hot:
+  /subreddits/{subredditName}/hot:
     get:
       tags:
         - Subreddit
@@ -4556,11 +4485,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
-
-  /subreddit/{subredditName}/new:
+  /subreddits/{subredditName}/new:
     get:
       tags:
         - Subreddit
@@ -4606,11 +4534,10 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
-
-  /subreddit/{subredditName}/top:
+  /subreddits/{subredditName}/top:
     get:
       tags:
         - Subreddit
@@ -4669,10 +4596,11 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: subreddit not found
-  /subreddit/mine/{where}:
+
+  /subreddits/mine/{where}:
     description: Get Subreddits
     get:
       tags:
@@ -4727,7 +4655,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}/search:
+  /subreddits/{subredditName}/search:
     get:
       tags:
         - Search
@@ -4807,7 +4735,8 @@ paths:
                   - type: array
                     items:
                       $ref: "#/components/schemas/comment"
-  /subreddit/{subredditName}/about/banned:
+
+  /subreddits/{subredditName}/about/banned:
     get:
       tags:
         - Subreddit
@@ -4844,8 +4773,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /subreddit/{subredditName}/about/moderators:
+  /subreddits/{subredditName}/about/moderators:
     get:
       tags:
         - Subreddit
@@ -4882,8 +4810,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-  /subreddit/{subredditName}/about/muted:
+  /subreddits/{subredditName}/about/muted:
     get:
       tags:
         - Subreddit
@@ -4922,7 +4849,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/{subredditName}/acceptModeratorInvite:
+  /subreddits/{subredditName}/accept_moderator_invite:
     post:
       tags:
         - Subreddit
@@ -4961,7 +4888,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddit/leaveModerator:
+  /subreddits/leave_moderator:
     post:
       tags:
         - Subreddit
@@ -4988,9 +4915,129 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  #messages
+  /subreddits/leaderboard/{category}:
+    get:
+      tags:
+        - Subreddits
+      description: Get list of Communities belong to specific_category
+      summary: Get Communities in specific_category
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: category
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          description: maximum number of retreived subreddits
+          required: false
+          schema:
+            type: integer
+            example: 20
+        - in: query
+          name: page
+          description: " page number, 1 for first group 2 for second group and so on"
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: sort
+          description: "sort subreddits by (rank - membersCount)"
+          required: false
+          schema:
+            type: string
+            example: rank
 
-  /message/markAllAsRead:
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  subreddits:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Subreddit"
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: category not found
+
+  /subreddits/leaderboard/random:
+    get:
+      tags:
+        - Subreddits
+      summary: Get communities from a random category
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: limit
+          in: query
+          description: number of subreddits
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: page
+          in: query
+          description: number of the page
+          required: false
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  random_category:
+                    type: string
+                  communities:
+                    type: array
+                    description: some (not all) info about the subreddit to be shown
+                    items:
+                      $ref: "#/components/schemas/reducedSubredditInfo"
+
+        "400":
+          description: Bad Request
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+  #MESSAGES
+
+  /messages/read_all_messages:
     post:
       tags:
         - Private messages
@@ -5030,7 +5077,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message/sent:
+  /messages/sent:
     get:
       tags:
         - Private messages
@@ -5076,7 +5123,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message/postReplies:
+  /messages/post_replies:
     get:
       tags:
         - Messages
@@ -5113,7 +5160,7 @@ paths:
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /message/comments:
+  /messages/comments:
     get:
       tags:
         - Messages
@@ -5150,7 +5197,7 @@ paths:
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /message/mentions:
+  /messages/mentions:
     get:
       tags:
         - Messages
@@ -5188,7 +5235,7 @@ paths:
                       $ref: "#/components/schemas/mention"
         401:
           $ref: "#/components/responses/UnauthorizedError"
-  /message/inbox:
+  /messages/inbox:
     get:
       tags:
         - Private messages
@@ -5220,7 +5267,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message/unread:
+  /messages/unread:
     get:
       tags:
         - Private messages
@@ -5253,7 +5300,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message:
+  /messages:
     description: Message Resource
     post:
       tags:
@@ -5319,7 +5366,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message/{messageid}:
+  /messages/{messageid}:
     description: Message Resource
     delete:
       tags:
@@ -5366,7 +5413,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /message/{messageId}/unreadMessage:
+  /messages/{messageId}/unread_message:
     patch:
       tags:
         - Private messages
@@ -5412,8 +5459,9 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  #Notification
-  /user/notification:
+  #NOTIFICATIONS
+
+  /users/notifications:
     get:
       tags:
         - Notifications
@@ -5435,6 +5483,12 @@ paths:
           required: true
           schema:
             type: integer
+        - in: query
+          name: is_deleted
+          description: To determine the view
+          required: true
+          schema:
+            type: boolean
       responses:
         200:
           description: Success operation
@@ -5447,13 +5501,15 @@ paths:
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /user/{userName}/{fileName}:
+  #FILES
+
+  /users/{userName}/{fileName}:
     description: deal with files (images)
     post:
       tags:
         - Images
       description: upload users file in its folder
-      summary: Upload file (image)
+      summary: Upload user (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5509,7 +5565,7 @@ paths:
       tags:
         - Images
       description: get user file in its folder
-      summary: get file (image)
+      summary: get user (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5540,7 +5596,7 @@ paths:
       tags:
         - Images
       description: delete user file in its folder
-      summary: delete (image)
+      summary: delete user (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5587,19 +5643,19 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /subreddit/{subredditName}/{fileName}:
+  /subreddits/{subredditName}/{fileName}:
     description: deal with files (images)
     post:
       tags:
         - Images
       description: upload subreddit file in its folder
-      summary: Upload file (image)
+      summary: Upload subreddit (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5659,7 +5715,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not a moderator
         401:
@@ -5668,7 +5724,7 @@ paths:
       tags:
         - Images
       description: get subreddit file in its folder
-      summary: get file (image)
+      summary: get subreddit (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5699,7 +5755,7 @@ paths:
       tags:
         - Images
       description: delete subreddit file in its folder
-      summary: delete (image)
+      summary: delete subreddit (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5746,7 +5802,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not a moderator
         404:
@@ -5759,19 +5815,19 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
-  /post/{postId}/{fileName}:
+  /posts/{postId}/{fileName}:
     description: deal with files (images)
     post:
       tags:
         - Images
       description: upload post file in its folder
-      summary: Upload file (image)
+      summary: Upload post (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5822,7 +5878,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not owner of this post
         401:
@@ -5831,7 +5887,7 @@ paths:
       tags:
         - Images
       description: get post file in its folder
-      summary: get file (image)
+      summary: get post  (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5862,7 +5918,7 @@ paths:
       tags:
         - Images
       description: delete post file in its folder
-      summary: delete (image)
+      summary: delete post (image)
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -5900,7 +5956,7 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: you are not owner of this post
         404:
@@ -5913,17 +5969,18 @@ paths:
                   status:
                     type: string
                     example: fail
-                  message:
+                  errorMessage:
                     type: string
                     example: file not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
+
 components:
   schemas:
     userPreferences:
       type: object
       properties:
-        contentvisibility:
+        contentVisibility:
           type: boolean
           example: true
         canbeFollowed:
@@ -5952,18 +6009,26 @@ components:
         allowMentions:
           type: boolean
           example: true
+        gender:
+          type: string
+          enum:
+            - male
+            - female
+        description:
+          type: string
+          example: " info"
 
     error:
       type: object
       properties:
+        status:
+          type: string
         errorMessage:
           type: string
 
     reducedModeratorInfo:
       type: object
       properties:
-        id:
-          type: string
         userName:
           type: string
         joiningDate:
@@ -6018,13 +6083,80 @@ components:
 
     fullSubreddit:
       properties:
-        removalReasons:
+        createdAt:
+          type: string
+          format: date-time
+        primaryTopic:
+          type: string
+        backgroundImage:
+          type: string
+        icon:
+          type: string
+        rules:
           type: object
           properties:
             title:
               type: string
             description:
               type: string
+            defaultName:
+              type: string
+            appliesTo:
+              type: string
+              enum:
+                - Posts and comments
+                - Posts only
+                - Comments only
+        name:
+          type: string
+        description:
+          type: string
+        topics:
+          type: array
+        language:
+          type: string
+        region:
+          type: string
+        type:
+          type: string
+          enum:
+            - Public
+            - Private
+            - Restricted
+        nsfw:
+          type: boolean
+        postType:
+          type: string
+          enum:
+            - Any
+            - Links only
+            - Text posts only
+        allowCrossposting:
+          type: boolean
+        allowArchivePosts:
+          type: boolean
+        allowSpoilerTag:
+          type: boolean
+        allowGif:
+          type: boolean
+        allowImageUploads:
+          type: boolean
+        allowMultipleImage:
+          type: boolean
+        moderators:
+          type: array
+          items:
+            $ref: "#/components/schemas/reducedModeratorInfo"
+
+    fullSubredditExecludedModerators:
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        primaryTopic:
+          type: string
+        backgroundImage:
+          type: string
         icon:
           type: string
         rules:
@@ -6095,7 +6227,7 @@ components:
         profilePicture:
           type: string
           example: img.png
-        contentvisibility:
+        contentVisibility:
           type: boolean
           example: true
         canbeFollowed:
@@ -6120,12 +6252,20 @@ components:
         displayName:
           type: string
           example: "firstname secondname"
-        karma:
+        postKarma:
           type: integer
           example: 1
         commentKarma:
           type: integer
           example: 1
+        createdAt:
+          type: string
+          example: 2022-10-22-06-12
+          format: date-time
+        description:
+          type: string
+          example: " info"
+
     Friend:
       type: object
       properties:
@@ -6139,7 +6279,7 @@ components:
         profilePicture:
           type: string
           example: img.png
-        contentvisibility:
+        contentVisibility:
           type: boolean
           example: true
         canbeFollowed:
@@ -6163,9 +6303,16 @@ components:
         commentKarma:
           type: integer
           example: 1
-        followed:
+        isFollowed:
           type: boolean
           example: true
+        createdAt:
+          type: string
+          example: 2022-10-22-06-12
+          format: date-time
+        description:
+          type: string
+          example: " info"
 
     Subreddit:
       type: object
@@ -6244,93 +6391,6 @@ components:
           type: string
           description: The ID of the original post
 
-    userPost:
-      type: object
-      properties:
-        creator:
-          type: string
-          description: The name of the user who created the post
-        owner:
-          type: string
-          description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
-        ownerType:
-          type: string
-          enum:
-            - "Subreddit"
-            - "User"
-        title:
-          type: string
-        kind:
-          type: string
-          enum:
-            - link
-            - self
-            - image
-            - video
-        text:
-          type: string
-          description: the text of the post in case the kind is self
-        url:
-          type: string
-          description: A valid URL in case the kind is link
-        sr:
-          type: string
-          description: subreddit name
-        votes:
-          type: integer
-          description: total number of votes
-        commentCount:
-          type: integer
-          description: total number of comments
-        views:
-          type: integer
-          description: total number of views
-        createdAt:
-          type: string
-          format: date-time
-          example: 2017-07-21T17:32:28Z
-        suggestedSort:
-          type: string
-          enum:
-            - top
-            - new
-            - best
-            - old
-        nsfw:
-          type: boolean
-        spoiler:
-          type: boolean
-        sendReplies:
-          type: boolean
-          description: indicates whether the post accepts replies in private messages or not
-        locked:
-          type: boolean
-          description: whether the post can receive comments or not
-        flairId:
-          type: string
-        flairText:
-          type: string
-        postVoteStatus:
-          type: string
-          enum:
-            - "1"
-            - "0"
-            - "-1"
-
-        sharedFrom:
-          type: string
-          description: post id if shared ,undefined if not shared
-        shareCount:
-          type: integer
-          description: Total numbers of share
-        images:
-          type: array
-          items:
-            type: string
-            description: image url
-        video:
-          type: string
-
     Post:
       type: object
       properties:
@@ -6403,16 +6463,126 @@ components:
         flairText:
           type: string
 
+    userPost:
+      type: object
+      properties:
+        author:
+          type: string
+          description: The name of the user who created the post
+        owner:
+          type: string
+          description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+        ownerType:
+          type: string
+          enum:
+            - "Subreddit"
+            - "User"
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - link
+            - self
+            - image
+            - video
+        text:
+          type: string
+          description: the text of the post in case the kind is self
+        url:
+          type: string
+          description: A valid URL in case the kind is link
+        sr:
+          type: string
+          description: subreddit name
+        votes:
+          type: integer
+          description: total number of votes
+        commentCount:
+          type: integer
+          description: total number of comments
+        views:
+          type: integer
+          description: total number of views
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        suggestedSort:
+          type: string
+          enum:
+            - top
+            - new
+            - best
+            - old
+        nsfw:
+          type: boolean
+        spoiler:
+          type: boolean
+        sendReplies:
+          type: boolean
+          description: indicates whether the post accepts replies in private messages or not
+        locked:
+          type: boolean
+          description: whether the post can receive comments or not
+        flairId:
+          type: string
+        flairText:
+          type: string
+        postVoteStatus:
+          type: string
+          enum:
+            - "1"
+            - "0"
+            - "-1"
+        isSaved:
+          type: boolean
+          example: true
+        isHidden:
+          type: boolean
+          example: true
+        isSpam:
+          type: boolean
+          example: true
+        sharedFrom:
+          type: string
+          description: post id if shared ,undefined if not shared
+        shareCount:
+          type: integer
+          description: Total numbers of share
+        images:
+          type: array
+          items:
+            type: string
+            description: image url
+        video:
+          type: string
+
     userComment:
       type: object
       properties:
+        parent:
+          type: string
+          description: id of post or comment who is parent of comment
+        parentType:
+          type: string
+          description: type of parent who  omments belongs to
         owner:
           type: string
-          description: comment in subreddit or user
-        postId:
+          description: id of subreddit or user who owns post
+        ownerType:
           type: string
-          description: comment in subreddit or user
-        creator:
+          enum:
+            - User
+            - Subreddit
+          description: type of owner who owns post
+        post:
+          type: string
+          description: post id
+        title:
+          type: string
+          description: post title
+        author:
           type: string
           description: The name of the user who created the comment
         text:
@@ -6430,18 +6600,39 @@ components:
             - "1"
             - "0"
             - "-1"
+        isDeleted:
+          type: boolean
+          example: false
+        mentions:
+          type: array
+          items:
+            type: string
+            example: userName of mentioned users
+        isSaved:
+          type: boolean
+          example: false
+
     comment:
       type: object
       properties:
+        author:
+          type: string
+        post:
+          type: string
+        mentions:
+          type: array
+          items:
+            type: string
         replies:
           type: array
           items:
             $ref: "#/components/schemas/comment"
         moreReplies:
           $ref: "#/components/schemas/moreComments"
-        creator:
+        parent:
           type: string
-          description: The name of the user who created the comment
+        parentType:
+          type: string
         text:
           type: string
         createdAt:
@@ -6451,6 +6642,8 @@ components:
         votes:
           type: integer
           description: total number of votes
+        repliesCount:
+          type: string
 
     moreComments:
       type: object
@@ -6531,10 +6724,13 @@ components:
     subbmitComment:
       type: object
       properties:
-        parentCommentId:
+        parent:
           type: string
-        postId:
+        parentType:
           type: string
+          enum:
+            - "Post"
+            - "Comment"
         text:
           type: string
 
@@ -6569,7 +6765,7 @@ components:
           type: string
         textColor:
           type: string
-        permission:
+        permissions:
           type: string
           enum:
             - modOnly
@@ -6586,24 +6782,36 @@ components:
       type: object
       properties:
         id:
-          type: integer
-        readed:
-          type: boolean
-          default: false
-        deleted:
-          type: boolean
-          default: false
+          type: string
+        text:
+          type: string
         subject:
           type: string
-        destination:
+        from:
           type: string
         createdAt:
           type: string
           format: date-time
-        author:
+        to:
           type: string
         subreddit:
           type: string
+        isRead:
+          type: boolean
+        isDeleted:
+          type: boolean
+        type:
+          type: string
+          enum:
+            - postReply
+            - userMessage
+            - userMention
+            - subredditBan
+            - subredditMute
+            - subredditModeratorInvite
+            - subredditModeratorAccept
+            - subredditModeratorRemove
+            - subredditApprove
       xml:
         name: tag
 
@@ -6696,16 +6904,16 @@ components:
         type:
           type: string
           enum:
-            - post_reply
-            - comment_reply
-            - post_upvote
-            - comment_upvote
-            - user_mention
-            - follower
-            - msg
-        subreddit:
+            - postReply
+            - commentReply
+            - firstPostUpvote
+            - firstCommentUpVote
+            - userMention
+            - follow
+        followedId:
           type: string
-          description: The name of the subreddit
+        followerId:
+          type: string
         postId:
           type: string
         commentId:
@@ -6714,10 +6922,11 @@ components:
           type: string
           format: date-time
           example: 2017-07-21T17:32:28Z
-        userId:
-          type: string
-        is_deleted:
+        seen:
           type: boolean
+        isHidden:
+          type: boolean
+
   securitySchemes:
     BearerAuth:
       type: http
@@ -6727,15 +6936,14 @@ components:
       type: apiKey
       in: cookie
       name: jwt # cookie name
-    oAuthSample:    # <---- arbitrary name
+    oAuthSample: # <---- arbitrary name
       type: oauth2
       description: Facebook or google authentication
       flows:
-        implicit:   # <---- OAuth flow(authorizationCode, implicit, password or clientCredentials)
+        implicit: # <---- OAuth flow(authorizationCode, implicit, password or clientCredentials)
           authorizationUrl: /oauth/authorize
           scopes:
             access_token: token
-
 
   responses:
     UnauthorizedError:
@@ -6748,6 +6956,6 @@ components:
               status:
                 type: string
                 example: fail
-              message:
+              errorMessage:
                 type: string
                 example: unauthorized
