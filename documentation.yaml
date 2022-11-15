@@ -6108,6 +6108,11 @@ components:
           type: boolean
         allowMultipleImage:
           type: boolean
+        moderators:
+          type: array
+          items:
+            $ref: "#/components/schemas/reducedModeratorInfo"
+          
 
     User:
       type: object
