@@ -3,8 +3,7 @@ const expect = require("chai").expect;
 const sinonChai = require("sinon-chai");
 const chai = require("chai");
 const auth = require("./../../controllers/authenticationController");
-
-const { mockRequest, mockResponse } = require("mock-req-res");
+//const { mockRequest, mockResponse } = require("mock-req-res");
 const sinon = require("sinon");
 chai.use(sinonChai);
 // const proxyquire = require("proxyquire");
@@ -16,17 +15,10 @@ const res = {
   status: sinon.stub().returns({ json: statusJsonSpy }),
   cookie: sinon.spy(),
 };
-//const res = mockResponse();
-// const resetStubs = () => {
-//   mockSave.resetHistory();
-//   res.json.resetHistory();
-// };
+
 describe("Authentication Controller Test", () => {
   it("", async () => {
-    // const req = mockRequest({
-    //   body: { email: "", password: "", userName: "" },
-    // });
-    //const res = mockResponse();
+
     const req = {
       body: {
         email: "a",
@@ -55,7 +47,16 @@ describe("Authentication Controller Test", () => {
     //console.log(res.cookie);
   });
 });
+    // const req = mockRequest({
+    //   body: { email: "", password: "", userName: "" },
+    // });
+    //const res = mockResponse();
 
+//const res = mockResponse();
+// const resetStubs = () => {
+//   mockSave.resetHistory();
+//   res.json.resetHistory();
+// };
 // const mockSave = stub();
 
 // const res = mockResponse();
