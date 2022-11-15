@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { passwordStrength } = require("check-password-strength");
+const generator = require("generate-password");
+
 const { promisify } = require("util");
 
 /**
@@ -38,6 +41,20 @@ class UserService {
     // this.subscribe = this.subscribe.bind(this);
   }
 
+  generateRandomPassword() {
+    var password = generator.generate({
+      length: 10,
+      uppercase: true,
+      numbers: true,
+      symbols: true,
+    });
+    console.log(password);
+    return password;
+  }
+  checkPasswordStrength(password) {
+    console.log(passwordStrength(password));
+    return passwordStrength(password).value;
+  }
   async createUser(data) {
     try {
       let user = await this.userRepository.createOne(data);
@@ -79,6 +96,7 @@ class UserService {
       userName: userName,
       password: password,
     };
+    this.checkPasswordStrength(password);
     let user = await this.userRepository.createOne(userData);
     if (user.status === "fail") {
       // user with this email or username is exists

@@ -62,16 +62,25 @@ class AuthenticationController {
         errorMessage: "Provide username, email and password",
       });
     } else {
-      const response = await this.UserServices.signUp(
-        email,
-        userName,
-        password
-      );
-      if (response.status === 201) {
-        //res.status(201).json(response.body);
-        this.createCookie(res, response.body.token, 201);
+      const passwordStrength =
+        this.UserServices.checkPasswordStrength(password);
+      if (passwordStrength === "Too weak" || passwordStrength === "Weak") {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: passwordStrength + " password",
+        });
       } else {
-        res.status(response.status).json(response.body);
+        const response = await this.UserServices.signUp(
+          email,
+          userName,
+          password
+        );
+        if (response.status === 201) {
+          //res.status(201).json(response.body);
+          this.createCookie(res, response.body.token, 201);
+        } else {
+          res.status(response.status).json(response.body);
+        }
       }
     }
   };
@@ -266,25 +275,22 @@ class AuthenticationController {
     let user = req.user;
     if (user.status == "fail") {
       // user should be created
-      const userName = req.body.userName;
-      if (!userName) {
-        res.status(400).json({
-          status: "fail",
-          errorMessage: "provide userName",
-        });
+      const userName = "user";
+      // if (!userName) {
+      //   res.status(400).json({
+      //     status: "fail",
+      //     errorMessage: "provide userName",
+      //   });
+      // } else {
+      const email = user.email;
+      const password = this.UserServices.generateRandomPassword();
+      let response = await this.UserServices.signUp(email, userName, password);
+      if (response.status === 201) {
+        this.createCookie(res, response.body.token, 201);
       } else {
-        const email = user.email;
-        let response = await this.UserServices.signUp(
-          email,
-          userName,
-          "random passsword"
-        );
-        if (response.status === 201) {
-          this.createCookie(res, response.body.token, 201);
-        } else {
-          res.status(response.status).json(response.body);
-        }
+        res.status(response.status).json(response.body);
       }
+      //}
     } else {
       const token = await this.UserServices.createToken(user.user._id);
       this.createCookie(res, token, 200);
@@ -315,24 +321,25 @@ class AuthenticationController {
         const user = await this.UserServices.getUserByEmail(email);
         if (user.status === "fail") {
           // user not found, signup new user
-          const userName = req.body.userName;
-          if (!userName) {
-            res.status(400).json({
-              status: "fail",
-              errorMessage: "provide userName",
-            });
+          const userName = "user";
+          // if (!userName) {
+          //   res.status(400).json({
+          //     status: "fail",
+          //     errorMessage: "provide userName",
+          //   });
+          // } else {
+          
+          let response = await this.UserServices.signUp(
+            email,
+            userName,
+            password
+          );
+          if (response.status === 201) {
+            this.createCookie(res, response.body.token, 201);
           } else {
-            let response = await this.UserServices.signUp(
-              email,
-              userName,
-              "random passsword"
-            );
-            if (response.status === 201) {
-              this.createCookie(res, response.body.token, 201);
-            } else {
-              res.status(response.status).json(response.body);
-            }
+            res.status(response.status).json(response.body);
           }
+          //}
         } else {
           const token = await this.UserServices.createToken(user.doc._id);
           this.createCookie(res, token, 200);
