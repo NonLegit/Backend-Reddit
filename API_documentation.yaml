@@ -314,20 +314,17 @@ paths:
         - "Users"
       description: google authentication
       summary: google authentication
-      security:
-        - oAuthSample:
-            - access_token
       requestBody:
-        description: userName in case of signup
+        description: google token
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userName:
+                tokenId:
                   type: string
-                  example: userName
+                  example: jsonwebtoken
       responses:
         200:
           description: Success operation
@@ -394,16 +391,16 @@ paths:
         - oAuthSample:
             - access_token
       requestBody:
-        description: userName in case of signup
+        description: facebook token
         required: true
         content:
           application/json:
             schema:
               type: object
               properties:
-                userName:
+                accessToken:
                   type: string
-                  example: userName
+                  example: facebook token
       responses:
         200:
           description: Success operation
@@ -5503,7 +5500,7 @@ paths:
 
   #FILES
 
-  /users/{userName}/{fileName}:
+  /users/{fileName}:
     description: deal with files (images)
     post:
       tags:
@@ -5514,12 +5511,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          description: user Name (the authenticated user)
-          required: true
-          schema:
-            type: string
         - in: path
           name: fileName
           description: filename of file to be saved
@@ -5533,8 +5524,8 @@ paths:
           schema:
             type: string
             enum:
-              - profileicon
-              - background
+              - profilePicture
+              - profileBackground
       requestBody:
         content:
           multipart/form-data:
@@ -5543,13 +5534,12 @@ paths:
               properties:
                 filename:
                   type: string
-                  example: uniqueuser
+                  example: profile.png
                 file:
                   type: string
                   format: binary
-                  example: profile.png
       responses:
-        200:
+        201:
           description: Success operation
           content:
             application/json:
@@ -5561,37 +5551,6 @@ paths:
                     example: success
         401:
           $ref: "#/components/responses/UnauthorizedError"
-    get:
-      tags:
-        - Images
-      description: get user file in its folder
-      summary: get user (image)
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - in: path
-          name: userName
-          description: user Name (the authenticated user)
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: fileName
-          description: filename of file to be saved
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success operation
-          content:
-            image/*:
-              schema:
-                type: string
-                format: binary
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
     delete:
       tags:
         - Images
@@ -5601,12 +5560,6 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
-        - in: path
-          name: userName
-          description: user Name (the authenticated user)
-          required: true
-          schema:
-            type: string
         - in: path
           name: fileName
           description: filename of file to be saved
@@ -5648,6 +5601,50 @@ paths:
                     example: file not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
+  /users/{userName}/{fileName}:
+    description: deal with files (images), will be embedded in profilePicture
+    get:
+      tags:
+        - Images
+      description: get user file in its folder
+      summary: get user (image)
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: userName
+          description: user Name (the authenticated user)
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: fileName
+          description: filename of file to be saved
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success operation
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Fail operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: image not found
 
   /subreddits/{subredditName}/{fileName}:
     description: deal with files (images)
@@ -5679,8 +5676,8 @@ paths:
           schema:
             type: string
             enum:
-              - profileicon
-              - background
+              - icon
+              - backgroundImage
       requestBody:
         content:
           multipart/form-data:
@@ -5720,37 +5717,6 @@ paths:
                     example: you are not a moderator
         401:
           $ref: "#/components/responses/UnauthorizedError"
-    get:
-      tags:
-        - Images
-      description: get subreddit file in its folder
-      summary: get subreddit (image)
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - in: path
-          name: subredditName
-          description: subreddit Name (the authenticated user)
-          required: true
-          schema:
-            type: string
-        - in: path
-          name: fileName
-          description: filename of file to be saved
-          required: true
-          schema:
-            type: string
-      responses:
-        200:
-          description: Success operation
-          content:
-            image/*:
-              schema:
-                type: string
-                format: binary
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
     delete:
       tags:
         - Images
@@ -5779,8 +5745,8 @@ paths:
           schema:
             type: string
             enum:
-              - profileicon
-              - background
+              - icon
+              - backgroundImage
       responses:
         200:
           description: Success operation
@@ -5820,6 +5786,46 @@ paths:
                     example: file not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
+    get:
+      tags:
+        - Images
+      description: get subreddit file in its folder
+      summary: get subreddit (image)
+      parameters:
+        - in: path
+          name: subredditName
+          description: subreddit Name (the authenticated user)
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: fileName
+          description: filename of file to be saved
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Success operation
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        404:
+          description: Fail operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: image not found
+    
 
   /posts/{postId}/{fileName}:
     description: deal with files (images)
@@ -5852,11 +5858,10 @@ paths:
               properties:
                 filename:
                   type: string
-                  example: uniqueuser
+                  example: post.png
                 file:
                   type: string
                   format: binary
-                  example: post.png
       responses:
         200:
           description: Success operation
@@ -5888,9 +5893,6 @@ paths:
         - Images
       description: get post file in its folder
       summary: get post  (image)
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
       parameters:
         - in: path
           name: postId
@@ -5912,8 +5914,19 @@ paths:
               schema:
                 type: string
                 format: binary
-        401:
-          $ref: "#/components/responses/UnauthorizedError"
+        404:
+          description: Fail operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: image not found
     delete:
       tags:
         - Images
@@ -5990,6 +6003,8 @@ components:
           type: string
           example: "firstname secondname"
         profilePicture:
+          type: string
+        profileBackground:
           type: string
         nsfw:
           type: boolean
@@ -6226,7 +6241,9 @@ components:
           example: user@email.com
         profilePicture:
           type: string
-          example: img.png
+          example: src url
+        profileBackground:
+          type: string
         contentVisibility:
           type: boolean
           example: true
@@ -6278,7 +6295,9 @@ components:
           example: uniqueuser
         profilePicture:
           type: string
-          example: img.png
+          example: src url
+        profileBackground:
+          type: string
         contentVisibility:
           type: boolean
           example: true
