@@ -6324,12 +6324,6 @@ components:
         subredditName:
           type: string
           example: uniquesubreddit
-        rank:
-          type: integer
-          example: 1
-        isJoined:
-          type: boolean
-          example: false
         membersCount:
           type: integer
           example: 10000
