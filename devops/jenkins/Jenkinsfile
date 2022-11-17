@@ -24,8 +24,8 @@ pipeline {
                                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
                                         export AWS_REGION=us-east-1
                                                                                 
-                                        sed -i "s/REPLACE_ME/api-v$BUILD_NUMBER.yaml/g" upload-api.js
-                                        sed -i "s/REPLACE_ME/api-v$BUILD_NUMBER.yaml/g" flush-reload.js
+                                        sed -i "s/REPLACE_ME/API-v$BUILD_NUMBER.yaml/g" upload-api.js
+                                        sed -i "s/REPLACE_ME/API-v$BUILD_NUMBER.yaml/g" flush-reload.js
 
                                         node upload-api.js
 
