@@ -13,15 +13,6 @@ class PostService {
   constructor({ PostRepository, SubredditRepository }) {
     this.postRepo = PostRepository;
     this.subredditRepo = SubredditRepository;
-
-    // this.getUserPosts = this.getUserPosts.bind(this);
-    // this.setVotePostStatus = this.setVotePostStatus.bind(this);
-    // this.getPosts = this.getPosts.bind(this);
-    // this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
-    // this.setPostOwnerData = this.setPostOwnerData.bind(this);
-    // this.removeHiddenPosts = this.removeHiddenPosts.bind(this);
-    // this.setSavedPostStatus = this.setSavedPostStatus.bind(this);
-    // this.setHiddenPostStatus = this.setHiddenPostStatus.bind(this);
   }
 
   /**
@@ -70,7 +61,7 @@ class PostService {
 
     await this.postRepo.deletePost(id);
 
-    return { success: true};
+    return { success: true };
   }
 
   /**
@@ -149,15 +140,15 @@ class PostService {
     } else if (sortType === "Top") {
       // sort by votes
       console.log("Top");
-      const posts = await this.postRepo.getAll(
-        { author: author },
+      const posts = await this.postRepo.getUserPosts(
+        author,
         { sort: "-votes" },
         "owner"
       );
       return posts.doc;
     } else {
       // sort by createdAt
-      const posts = await this.postRepo.getAll({ author: author }, "", "owner");
+      const posts = await this.postRepo.getUserPosts(author, "", "owner");
       return posts.doc;
     }
   }

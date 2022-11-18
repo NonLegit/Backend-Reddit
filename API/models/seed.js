@@ -6,7 +6,7 @@ const dotenv = require("dotenv");
 const Subreddit = require("./subredditModel");
 dotenv.config({ path: "config/config.env" });
 if (process.env.NODE_ENV === "test") {
-  const DB = process.env.DATABASE_LOCAL;
+  const DB = process.env.DATABASE;
   const mockgoose = new Mockgoose(mongoose);
   mockgoose.prepareStorage().then(() => {
     console.log("helooooo");
@@ -15,7 +15,7 @@ if (process.env.NODE_ENV === "test") {
       .then(() => console.log("Fake DB connection for testing successful!"));
   });
 } else {
-  const DB = process.env.DATABASE_LOCAL;
+  const DB = process.env.DATABASE;
   mongoose.connect(DB).then(() => console.log("DB connection successful!"));
 }
 

@@ -1,4 +1,5 @@
 const express = require("express");
+const https = require("https");
 const morgan = require("morgan");
 const mongoSanitize = require("express-mongo-sanitize");
 const cookieParser = require("cookie-parser");
@@ -9,9 +10,15 @@ const commentRouter = require("./routes/commentRoutes");
 const cors = require("cors");
 
 const app = express();
+app.enable("trust proxy");
 app.use(mongoSanitize());
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: true,
+  })
+);
 
 // Development logging
 if (process.env.NODE_ENV === "development") {
@@ -20,10 +27,20 @@ if (process.env.NODE_ENV === "development") {
 app.use(express.json({ limit: "10kb" }));
 // Data sanitization against NoSQL query injection
 
-
 // Serving static files
 //app.use(express.static(`${__dirname}/public`));
 
+// app.use(function (req, res, next) {
+//   // process.env.NODE_ENV != "development" &&
+//   console.log(req.secure,req.headers.host+req.url);
+//   if (!req.secure) {
+//     console.log('should redirect');
+//     console.log(req.secure,req.headers.host+req.url);
+//     return res.redirect("https://" + req.headers.host + req.url);
+//   }
+//   console.log("should continue");
+//   next();
+// });
 // 3) ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subreddits", subredditRouter);

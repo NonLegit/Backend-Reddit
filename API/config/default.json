@@ -1,0 +1,18 @@
+{
+    "PORT":"PORT",
+    "DATABASE":"DATABASE",
+    "DATABASE_PASSWORD":"00732152001khaled",
+    "FRONTDOMAIN": "http://localhost:3000/",
+    "JWT_SECRET":"JWT_SECRET",
+    "JWT_EXPIRES_IN":"JWT_EXPIRES_IN",
+    "JWT_COOKIE_EXPIRES_IN":90,
+    "EMAIL_FROM" : "ahmedsabry232345@gmail.com",
+    "NONLEGITEMAIL":"084b2d599d4abc",
+    "NONLEGITPASSWORD":"2a3cdc140ba51e",
+    "EMAIL_PORT":587,
+    "EMAIL_HOST":"smtp.mailtrap.io",
+    "FACEBOOK_APP_ID" : 1217433968834337,
+    "FACEBOOK_APP_SECRET" : "d936f20ff4951e316d0d0a5d919e4d6d",
+    "GOOGLE_APP_ID" : "374002806091-7pces2dv4vr0vb8lchmputreqnlalqes.apps.googleusercontent.com/",
+    "GOOGLE_APP_SECRET" :"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"
+}
