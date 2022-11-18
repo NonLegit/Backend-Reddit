@@ -1,3 +1,5 @@
+const { postErrors } = require("../error_handling/errors");
+
 class PostController {
   constructor({ PostService, UserService }) {
     this.postServices = PostService;
@@ -18,124 +20,133 @@ class PostController {
   }
 
   async createPost(req, res) {
-    try {
-      const data = req.body;
-      data.author = req.user._id;
+    const data = req.body;
+    data.author = req.user._id;
 
-      const validPost = await this.postServices.isValidPost(data);
-      if (!validPost) {
-        res.status(400).json({
-          status: "fail",
-          message: "Invalid post request",
-        });
-        return;
-      }
-
-      const post = await this.postServices.createPost(data);
-
-      res.status(201).json({
-        status: "success",
-        data: post,
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({
+    const validReq = data.ownerType && data.kind && data.title;
+    if (!validReq) {
+      res.status(400).json({
         status: "fail",
+        message: "Invalid request",
       });
+      return;
     }
+
+    const post = await this.postServices.createPost(data);
+
+    if (!post.success) {
+      let msg, stat;
+      switch (post.error) {
+        case postErrors.INVALID_POST_KIND:
+          msg = "Invalid post kind";
+          stat = 400;
+          break;
+        case postErrors.INVALID_OWNER:
+          msg = "Invalid ower type";
+          stat = 400;
+          break;
+        case postErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case postErrors.MONGO_ERR:
+          msg = post.msg;
+          stat = 400;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(201).json({
+      status: "success",
+      data: post.data,
+    });
   }
 
   async deletePost(req, res) {
-    try {
-      //validate request params
-      const id = req.params.postId;
-      if (!id) {
-        res.status(400).json({
-          status: "fail",
-          message: "Missing required parameter postId",
-        });
-        return;
-      }
-      const validId = await this.postServices.isValidId(id);
-      if (!validId) {
-        res.status(404).json({
-          status: "fail",
-          err: "Post not found",
-        });
-        return;
-      }
-
-      //validate the user
-      if (!(await this.postServices.isAuthor(id, req.user._id))) {
-        res.status(401).json({
-          status: "fail",
-          err: "User must be author",
-        });
-        return;
-      }
-
-      await this.postServices.deletePost(id);
-      res.status(204).json({
-        status: "success",
-        data: null,
-      });
-    } catch (err) {
-      res.status(500).json({
+    //validate request params
+    const id = req.params.postId;
+    if (!id) {
+      res.status(400).json({
         status: "fail",
-        message: "Internal server error" + err,
+        message: "Missing required parameter postId",
       });
+      return;
     }
+
+    const post = await this.postServices.deletePost(id, req.user._id);
+
+    if (!post.success) {
+      let msg, stat;
+      switch (post.error) {
+        case postErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
   }
 
   async updatePost(req, res) {
-    try {
-      const id = req.params.postId;
-      const data = req.body;
-      if (!id || !data.text) {
-        res.status(400).json({
-          status: "fail",
-          message: "Missing required parameter",
-        });
-        return;
-      }
-      const validId = await this.postServices.isValidId(id);
-      if (!validId) {
-        res.status(404).json({
-          status: "fail",
-          err: "Post not found",
-        });
-        return;
-      }
-
-      //validate the user
-      if (!(await this.postServices.isAuthor(id, req.user._id))) {
-        res.status(401).json({
-          status: "fail",
-          err: "User must be author",
-        });
-        return;
-      }
-
-      if (!(await this.postServices.isEditable(id))) {
-        res.status(401).json({
-          status: "fail",
-          err: "Post isn't editable",
-        });
-        return;
-      }
-
-      const post = await this.postServices.updatePost(id, data);
-      res.status(200).json({
-        status: "success",
-        data: post,
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({
+    const id = req.params.postId;
+    const data = req.body;
+    if (!id || !data.text) {
+      res.status(400).json({
         status: "fail",
-        message: err,
+        message: "Missing required parameter",
       });
+      return;
     }
+
+    const post = await this.postServices.updatePost(id, data, req.user._id);
+
+    if (!post.success) {
+      let msg, stat;
+      switch (post.error) {
+        case postErrors.NOT_EDITABLE:
+          msg = "Post isn't editable";
+          stat = 400;
+          break;
+        case postErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
+        case postErrors.MONGO_ERR:
+          msg = post.msg;
+          stat = 400;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: post.data,
+    });
   }
   /**
    * @property {Function} userPosts  get created posts by user

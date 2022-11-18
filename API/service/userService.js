@@ -403,15 +403,13 @@ class UserService {
 
   /**
    * Checks if username is available, that is, it doesn't exist in the database
-   * @param {string} username - The name of the user to be checked
+   * @param {string} userName - The name of the user to be checked
    * @returns {boolean}
    */
-  async isAvailable(username) {
-    const found = await this.userRepository.getByQuery(
-      { userName: username },
-      "_id"
-    );
-    return !found;
+  async isAvailable(userName) {
+    const user = await this.userRepository.findByUserName(userName);
+    if (user.success) return false;
+    return true;
   }
 
   /**
@@ -422,21 +420,24 @@ class UserService {
    * @returns {boolean}
    */
   async subscribe(userId, subredditId, action) {
-    const alreadySubscribed = await this.userRepository.getByQuery(
-      { _id: userId, subscribed: subredditId },
-      "_id"
+    const alreadySubscribed = await this.userRepository.isSubscribed(
+      userId,
+      subredditId
     );
     //In order to subscribe, user should not be already subscribed
     if (action === "sub" && !alreadySubscribed) {
-      return await this.userRepository.push(userId, {
+      const temp = await this.userRepository.push(userId, {
         subscribed: subredditId,
       });
+      return true;
       //In order to unsubscribe, user should be already subscribed
     } else if (action === "unsub" && alreadySubscribed) {
-      return await this.userRepository.pull(userId, {
+      await this.userRepository.pull(userId, {
         subscribed: subredditId,
       });
+      return true;
     }
+
     return false;
   }
 }

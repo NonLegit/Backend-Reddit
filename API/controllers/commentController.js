@@ -1,3 +1,5 @@
+const { commentErrors } = require("../error_handling/errors");
+
 class CommentController {
   constructor({ CommentService }) {
     this.commentServices = CommentService;
@@ -8,129 +10,129 @@ class CommentController {
   }
 
   async createComment(req, res) {
-    try {
-      const data = req.body;
-      data.author = req.user._id;
+    const data = req.body;
+    data.author = req.user._id;
 
-      //validate request
-      if (!data.parent || !data.parentType || !data.text) {
-        res.status(400).json({
-          status: "fail",
-          message: "Missing required parameter",
-        });
-        return;
-      }
-
-      //check if comment has a valid parent and sets postId of comment
-      const validParent = await this.commentServices.hasValidParent(data);
-      if (!validParent) {
-        res.status(404).json({
-          status: "fail",
-          message: "Parent not found or invalid",
-        });
-        return;
-      }
-
-      const comment = await this.commentServices.createComment(data);
-
-      res.status(201).json({
-        status: "success",
-        data: comment,
-      });
-    } catch (err) {
-      res.status(500).json({
+    //validate request
+    if (!data.parent || !data.parentType || !data.text) {
+      res.status(400).json({
         status: "fail",
-        message: "Internal server error" + err,
+        message: "Missing required parameter",
       });
+      return;
     }
+
+    const comment = await this.commentServices.createComment(data);
+
+    if (!comment.success) {
+      let msg, stat;
+      switch (comment.error) {
+        case commentErrors.INVALID_PARENT:
+          msg = "Invalid parent, couldn't create comment";
+          stat = 404;
+          break;
+        case commentErrors.MONGO_ERR:
+          msg = comment.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(201).json({
+      status: "success",
+      data: comment.data,
+    });
 
     //mentions
   }
 
   async updateComment(req, res) {
-    try {
-      //validate request params
-      const id = req.params.commentId;
-      const data = req.body;
-      if (!id || !data.text) {
-        res.status(400).json({
-          status: "fail",
-          message: "Missing required parameter",
-        });
-        return;
-      }
-      const validId = await this.commentServices.isValidId(id);
-      if (!validId) {
-        res.status(404).json({
-          status: "fail",
-          err: "Comment not found",
-        });
-        return;
-      }
-
-      //validate the user
-      if (!(await this.commentServices.isAuthor(id, req.user._id))) {
-        res.status(401).json({
-          status: "fail",
-          err: "User must be author",
-        });
-        return;
-      }
-
-      const comment = await this.commentServices.updateComment(id, data);
-      res.status(200).json({
-        status: "success",
-        data: comment,
-      });
-    } catch (err) {
-      console.log(err);
-      res.status(500).json({
+    //validate request params
+    const id = req.params.commentId;
+    const data = req.body;
+    if (!id || !data.text) {
+      res.status(400).json({
         status: "fail",
-        message: "Internal server error" + err,
+        message: "Missing required parameter",
       });
+      return;
     }
+
+    const comment = await this.commentServices.updateComment(
+      id,
+      data,
+      req.user._id
+    );
+
+    if (!comment.success) {
+      let msg, stat;
+      switch (comment.error) {
+        case commentErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case commentErrors.COMMENT_NOT_FOUND:
+          msg = "Comment not found";
+          stat = 404;
+          break;
+        case commentErrors.MONGO_ERR:
+          msg = comment.msg;
+          stat = 400;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: comment.data,
+    });
   }
 
   async deleteComment(req, res) {
-    try {
-      //validate request params
-      const id = req.params.commentId;
-      if (!id) {
-        res.status(400).json({
-          status: "fail",
-          message: "Missing required parameter commentId",
-        });
-        return;
-      }
-      const validId = await this.commentServices.isValidId(id);
-      if (!validId) {
-        res.status(404).json({
-          status: "fail",
-          err: "Comment not found",
-        });
-        return;
-      }
-
-      //validate the user
-      if (!(await this.commentServices.isAuthor(id, req.user._id))) {
-        res.status(401).json({
-          status: "fail",
-          err: "User must be author",
-        });
-        return;
-      }
-
-      await this.commentServices.deleteComment(id);
-      res.status(204).json({
-        status: "success",
-        data: null,
-      });
-    } catch (err) {
-      res.status(500).json({
+    //validate request params
+    const id = req.params.commentId;
+    if (!id) {
+      res.status(400).json({
         status: "fail",
-        message: "Internal server error" + err,
+        message: "Missing required parameter commentId",
       });
+      return;
     }
+
+    const comment = await this.commentServices.deleteComment(id, req.user._id);
+
+    if (!comment.success) {
+      let msg, stat;
+      switch (comment.error) {
+        case commentErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case commentErrors.COMMENT_NOT_FOUND:
+          msg = "Comment not found";
+          stat = 404;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(204).json({
+      status: "success",
+      data: null,
+    });
   }
 }
 
