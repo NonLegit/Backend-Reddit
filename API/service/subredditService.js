@@ -2,9 +2,6 @@ const { subredditErrors, mongoErrors } = require("../error_handling/errors");
 
 /**
  * this class is used for implementing Subreddit Service functions
- * @param {Model} subreddit - subreddit Data Model
- * @param {Model} flair - flair Data Model
- * @param {Model} user - user Data Model
  * @param {Repository} subredditRepository - subreddit repository object to access repository functions using subreddit model
  * @param {Repository} flairRepository - flair repository object to access repository functions using flair model
  * @param {Repository} userRepository - user repository object to access repository functions using user model
@@ -14,178 +11,84 @@ class subredditService {
     this.flairRepository = FlairRepository; // can be mocked in unit testing
     this.userRepository = UserRepository;
     this.subredditRepository = SubredditRepository; // can be mocked in unit testing
-    //this.subreddit = subreddit; // can be mocked in unit testing
-    //this.subredditRepository = subredditRepository; // can be mocked in unit testing
-    // this.createSubreddit = this.createSubreddit.bind(this);
-    // this.deleteSubreddit = this.deleteSubreddit.bind(this);
-    // this.getSubreddit = this.getSubreddit.bind(this);
-    // this.updateSubreddit = this.updateSubreddit.bind(this);
-    // this.getCategoryPosts = this.getCategoryPosts.bind(this);
-    // this.inviteMod = this.inviteMod.bind(this);
-    // this.deleteMod = this.deleteMod.bind(this);
-    // this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
-    // this.isModerator = this.isModerator.bind(this);
-    // this.isOwner = this.isOwner.bind(this);
-    // this.primaryTopic = this.primaryTopic.bind(this);
-    // !=======================================
-    //this.checkFlair = this.checkFlair.bind(this);
-    //this.flair = flair; // can be mocked in unit testing
-    //this.flairRepository = flairRepository; // can be mocked in unit testing
-    // this.createFlair = this.createFlair.bind(this);
-    // this.deleteFlair = this.deleteFlair.bind(this);
-    // this.getFlair = this.getFlair.bind(this);
-    // this.updateFlair = this.updateFlair.bind(this);
-    // this.getFlairs = this.getFlairs.bind(this);
-    // this.checkSubreddit = this.checkSubreddit.bind(this);
-    // this.checkModerator = this.checkModerator.bind(this);
-    // !========================================
-    //this.user = user;
-    //this.userRepository = userRepository;
   }
   /**
    * create subreddit service function
    * @param {object} data - the data coming from request body
+   * @param {object} userName - username of currently logged user
+   * @param {object} profilePicture - profile picture of currently logged user
    * @returns {Object} - a response containing the created subreddit.
    *
    */
-  async createSubreddit(data) {
+  async createSubreddit(data, userName, profilePicture) {
     // ..
-    try {
-      let subredditExisted = await this.getSubreddit({ name: data.name });
-      if (subredditExisted.status === "fail") {
-        let subreddit = await this.subredditRepository.createOne(data);
-        return subreddit;
-      } else {
-        const response = {
-          status: "fail",
-          statusCode: 404,
-          message: "subreddit already exists",
-        };
-        return response;
-      }
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
-  /**
-   * delete subreddit service function
-   * @param {object} filter - query filters to select a spacefic document in database
-   * @param {object} options - query options
-   * @returns {Object} - a response
-   */
-  async deleteSubreddit(filter, options) {
-    // ..
-    try {
-      let response = await this.subredditRepository.deleteOneByQuery(
-        filter,
-        options
+    let subredditExisted = await this.retrieveSubreddit(data.fixedName);
+    if (!subredditExisted.success) {
+      let subreddit = await this.subredditRepository.create(
+        data,
+        userName,
+        profilePicture
       );
-      return response;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
-  /**
-   * Update the subreddit service function
-   * @param {object} filter - query filters to select a spacefic document in database or a spacific attribute
-   * @param {object} data - the new data passed from request body
-   * @returns {Object} - a response containing the updated subreddit.
-   */
-  async updateSubreddit(filter, data) {
-    // ..
-    try {
-      let response = await this.subredditRepository.updateOneByQuery(
-        filter,
-        data
-      );
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
-  /**
-   * retrieve a subreddit from database service function
-   * @param {object} query - a query to select a certain subreddit from database
-   * @returns {Object} - a response containing the retrieved subreddit
-   */
-  async getSubreddit(query) {
-    try {
-      let response = await this.subredditRepository.getOne(query, "", "");
-      console.log(response);
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+      if (subreddit.success) return { success: true, data: subreddit.doc };
+    } else return { success: false, error: subredditErrors.ALREADY_EXISTS };
   }
 
   /**
-   * this function checks if user is moderator or not by passing @subredditName and @iD
-   * @param {string} subredditName - name of subreddit i want to check from
-   * @param {string} userID - iD if the user i want to check
-   * @returns {boolean} - a boolean true or false,
+   *This function deletes the subreddit
+   * @param {String} subredditName - query filters to select a spacefic document in database
+   * @param {String} userId - query options
+   * @returns {Object} - a response
    */
-  async isModerator(subredditName, userID) {
+  async deleteSubreddit(subredditName, userId) {
     // ..
-    try {
-      let ismoderator = await this.subredditRepository.getOne(
-        {
-          name: subredditName,
-          "moderators.username": userID,
-        },
-        { "moderators.$": 1 },
-        ""
-      );
-      if (ismoderator.status === "success") return true;
-      else return false;
-    } catch (err) {
-      return false;
-    }
+    let subreddit = await this.retrieveSubreddit(subredditName);
+    if (!subreddit.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let owner = await this.subredditRepository.isOwner(subredditName, userId);
+    if (!owner.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+
+    let response = await this.subredditRepository.delete(subredditName);
+    if (!response.success) return response;
+    else return { success: true };
   }
   /**
-   * this function checks if user is owner or not by passing @subredditName and @iD
-   * @param {string} subredditName - name of subreddit i want to check from
-   * @param {string} userID - iD if the user i want to check
-   * @returns {boolean} - a boolean true or false,
+   * this function Updates the subreddit
+   * @param {String} subredditName -
+   * @param {String} userId -
+   * @param {object} data - the new data passed from request body
+   * @returns {Object} - a response containing the updated subreddit.
    */
-  async isOwner(subredditName, userID) {
-    // ..
-    try {
-      let isowner = await this.subredditRepository.getOne(
-        {
-          name: subredditName,
-          "moderators.username": userID,
-        },
-        { "moderators.$": 1 },
-        ""
-      );
-      if (isowner.status === "success") return true;
-      else return false;
-    } catch (err) {
-      return false;
-    }
+  async updateSubreddit(subredditName, userId, data) {
+    // .. //! check subreddit exists - check iam moderator - update
+    let subreddit = await this.retrieveSubreddit(subredditName);
+    if (!subreddit.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let moderator = await this.subredditRepository.isModerator(
+      subredditName,
+      userId
+    );
+    if (!moderator.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+
+    let updated = await this.subredditRepository.update(subredditName, data);
+    if (!updated.success) return updated;
+
+    return { success: true, data: updated.doc };
   }
+  /**
+   * retrieve a subreddit from database service function
+   * @param {object} name - a query to select a certain subreddit from database
+   * @returns {Object} - a response containing the retrieved subreddit
+   */
+  async retrieveSubreddit(name) {
+    let subreddit = await this.subredditRepository.getsubreddit(name, "", "");
+    if (subreddit.success) return { success: true, data: subreddit.doc };
+    else return subreddit;
+  }
+
   /**
    * this function invites a user to be a moderator
    * @param {string} subredditName - name of subreddit i want to add moderator in it
@@ -461,55 +364,18 @@ class subredditService {
    * @returns {Object} - a response containing an array of subreddits
    */
   async subredditsIamIn(userId, location) {
-    try {
-      if (location === "moderator") {
-        //! get list of subreddits iam moderator in (easy)
-        let subreddits = await this.subredditRepository.getlist(
-          { "moderators.username": userId },
-          "_id name backgroundImage usersCount description",
-          ""
-        );
-        if (subreddits.status === "fail") {
-          const error = {
-            status: "fail",
-            statusCode: 404,
-          };
-          return error;
-        } else {
-          return subreddits;
-        }
-      } else if (location === "subscriber") {
-        // ! get it from user
-        let subreddits = await this.userRepository.getlist(
-          { _id: userId },
-          "_id name backgroundImage usersCount description",
-          "subreddits"
-        );
-        if (subreddits.status === "fail") {
-          const error = {
-            status: "fail",
-            statusCode: 404,
-          };
-          return error;
-        } else {
-          return subreddits;
-        }
-      } else {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          message: "invalid enum value",
-        };
-        return error;
-      }
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+    if (location === "moderator") {
+      //! get list of subreddits iam moderator in (easy)
+      let subreddits = await this.subredditRepository.getSubreddits(userId);
+      if (!subreddits.success) return subreddits;
+      else return { success: true, data: subreddits.doc };
+    } else if (location === "subscriber") {
+      // ! get it from user (easy too)
+      let subreddits = await this.userRepository.getSubreddits(userId);
+      console.log(subreddits);
+      if (!subreddits.success) return subreddits;
+      else return { success: true, data: subreddits.doc[0].subscribed };
+    } else return { success: false, error: subredditErrors.INVALID_ENUM };
   }
   /**
    * This function update the permissions of the moderator by another older moderator
@@ -642,49 +508,6 @@ class subredditService {
       return error;
     }
   }
-
-  // async primaryTopic(subredditName, userID, primaryTopic) {
-  //   try {
-  //     let subredditExisted = await this.getSubreddit({ name: subredditName });
-  //     if (subredditExisted.status === "fail") {
-  //       const response = {
-  //         status: "fail",
-  //         statusCode: 404,
-  //         message: "subreddit doesn't exist",
-  //       };
-  //       return response;
-  //     } else {
-  //       // ! check user is moderator or not
-  //       let canSet = await this.isModerator(subredditName, userID);
-  //       if (!canSet) {
-  //         const response = {
-  //           status: "fail",
-  //           statusCode: 401,
-  //           message: "you are not moderator to this subreddit",
-  //         };
-  //         return response;
-  //       } else {
-  //         let updateTopic = await this.subredditRepository.updateOneByQuery(
-  //           {
-  //             name: subredditName,
-  //           },
-  //           {
-  //             primaryTopic: primaryTopic,
-  //           }
-  //         );
-  //         console.log(updateTopic);
-  //         return updateTopic;
-  //       }
-  //     }
-  //   } catch (err) {
-  //     const error = {
-  //       status: "fail",
-  //       statusCode: 400,
-  //       errorMessage: err,
-  //     };
-  //     return error;
-  //   }
-  // }
 
   //! Doaa's part
 
@@ -963,6 +786,7 @@ class subredditService {
    * @returns {boolean}
    */
   async subscriable(subredditName, userId) {
+    console.log("kiroo service");
     const subreddit = await this.subredditRepository.findByName(
       subredditName,
       "punished _id"

@@ -22,5 +22,20 @@ class UserRepository extends Repository {
     if (subscribed) return true;
     return false;
   }
+
+  async getSubreddits(userId) {
+    try {
+      let tempDoc = this.model
+        .find({ _id: userId })
+        .select("subscribed")
+        .populate("subscribed", "_id name icon usersCount description");
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
 }
 module.exports = UserRepository;

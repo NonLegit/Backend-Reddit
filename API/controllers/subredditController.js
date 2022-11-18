@@ -4,202 +4,190 @@ class subredditController {
   constructor({ subredditService, UserService }) {
     this.subredditServices = subredditService; // can be mocked in unit testing
     this.userServices = UserService;
-    this.createSubreddit = this.createSubreddit.bind(this);
-    this.deleteSubreddit = this.deleteSubreddit.bind(this);
-    this.getSubredditSettings = this.getSubredditSettings.bind(this);
-    this.updateSubredditSettings = this.updateSubredditSettings.bind(this);
-    this.relevantPosts = this.relevantPosts.bind(this);
-    this.inviteModerator = this.inviteModerator.bind(this);
-    this.deletemoderator = this.deletemoderator.bind(this);
-    this.subredditsJoined = this.subredditsJoined.bind(this);
-    this.updatePermissions = this.updatePermissions.bind(this);
-    // this.setPrimaryTopic=this.setPrimaryTopic.bind(this);
-    //! ***************************
-    this.createFlair = this.createFlair.bind(this);
-    this.deleteFlair = this.deleteFlair.bind(this);
-    this.updateFlair = this.updateFlair.bind(this);
-    this.getFlair = this.getFlair.bind(this);
-    this.getFlairs = this.getFlairs.bind(this);
-    // !============================
-    // this.getTopPosts = this.getTopPosts.bind(this);
-    // this.getTrendingPosts = this.getTrendingPosts.bind(this);
-    // this.getNewPosts = this.getNewPosts.bind(this);
-    // this.getHotPosts = this.getHotPosts.bind(this);
-    this.getSubredditId = this.getSubredditId.bind(this);
-
-    this.subscribe = this.subscribe.bind(this);
   }
-  // ! todo: need some refractoring here
 
-  async createSubreddit(req, res, next) {
+  createSubreddit = async (req, res) => {
     let data = req.body;
     let userId = req.user._id;
+    let userName = req.user.userName;
 
+    const validReq = data.fixedName && data.type && data.nsfw;
+    if (!validReq) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    // set the owner (user already logged in) in data
     data.owner = userId;
-    try {
-      let subreddit = await this.subredditServices.createSubreddit(data);
-      if (subreddit.status === "success") {
-        let updateModerators = await this.subredditServices.updateSubreddit(
-          { name: data.name },
-          {
-            $push: {
-              moderators: {
-                username: userId,
-                mod_time: Date.now(),
-                permissions: {
-                  all: true,
-                  access: true,
-                  config: true,
-                  flair: true,
-                  posts: true,
-                },
-              },
-            },
-          }
-        );
-        if (updateModerators.status === "success") {
-          res.status(subreddit.statusCode).json({
-            status: updateModerators.status,
-            subreddit: subreddit.doc._id,
-          });
-        } else {
-          res.status(updateModerators.statusCode).json({
-            status: updateModerators.statusCode,
-            message: updateModerators.err,
-          });
-        }
-      } else {
-        res.status(subreddit.statusCode).json({
-          status: subreddit.statusCode,
-          message: subreddit.message,
-        });
+    data.name = data.fixedName;
+
+    let subreddit = await this.subredditServices.createSubreddit(
+      data,
+      userName,
+      req.user.profilePicture
+    );
+
+    if (!subreddit.success) {
+      let msg, stat;
+      switch (subreddit.error) {
+        case subredditErrors.ALREADY_EXISTS:
+          msg = "This name is already taken";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = subreddit.msg;
+          stat = 400;
+          break;
       }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+      res.status(stat).json({
         status: "fail",
+        message: msg,
       });
+      return;
     }
-  }
-  async updateSubredditSettings(req, res, next) {
+    res.status(200).json({
+      status: "success",
+      data: subreddit.data._id,
+    });
+  };
+
+  updateSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let data = req.body;
     let userId = req.user._id;
 
-    try {
-      let subreddit = await this.subredditServices.getSubreddit({
-        name: subredditName,
-      });
-      // console.log(subreddit);
-      if (subreddit.status === "fail") {
-        res.status(404).json({
-          status: 404,
-          message: "subreddit doesn't exist",
-        });
-      } else {
-        let canUpdate = await this.subredditServices.isModerator(
-          subredditName,
-          userId
-        );
-        if (!canUpdate) {
-          res.status(401).json({
-            status: 401,
-            message: "you are not moderator to this subreddit",
-          });
-        } else {
-          let response = await this.subredditServices.updateSubreddit(
-            { name: subredditName },
-            data
-          );
-          if (response.status === "success") {
-            res.status(response.statusCode).json({
-              status: response.status,
-              subreddit: response.doc,
-            });
-          } else {
-            res.status(response.statusCode).json({
-              status: response.statusCode,
-              message: response.err,
-            });
-          }
-        }
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+    if (!subredditName) {
+      res.status(400).json({
         status: "fail",
+        message: "Missing required parameter subredditName",
       });
+      return;
     }
-  }
-  async getSubredditSettings(req, res, next) {
-    let subredditName = req.params.subredditName;
-    let subreddit = await this.subredditServices.getSubreddit({
-      name: subredditName,
-    });
-    if (subreddit.status === "fail") {
-      res.status(subreddit.statusCode).json({
-        status: subreddit.statusCode,
-        message: subreddit.err,
-      });
-    } else {
-      res.status(subreddit.statusCode).json({
-        status: subreddit.status,
-        subreddit: subreddit.doc,
-      });
-    }
-  }
 
-  async deleteSubreddit(req, res, next) {
+    let subreddit = await this.subredditServices.updateSubreddit(
+      subredditName,
+      userId,
+      data
+    );
+
+    if (!subreddit.success) {
+      let msg, stat;
+      switch (subreddit.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this request";
+          stat = 401;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = subreddit.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+    res.status(200).json({
+      status: "success",
+      data: subreddit.data,
+    });
+  };
+
+  getSubredditSettings = async (req, res) => {
+    let subredditName = req.params.subredditName;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let subreddit = await this.subredditServices.retrieveSubreddit(
+      subredditName
+    );
+
+    if (!subreddit.success) {
+      let msg, stat;
+      switch (subreddit.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = subreddit.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+    res.status(200).json({
+      status: "success",
+      data: subreddit.data,
+    });
+  };
+
+  deleteSubreddit = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    try {
-      //check user is moderator or not
-      let subreddit = await this.subredditServices.getSubreddit({
-        name: subredditName,
-      });
-      // console.log(subreddit);
-      if (subreddit.status === "fail") {
-        res.status(404).json({
-          status: 404,
-          message: "subreddit doesn't exist",
-        });
-      } else {
-        let canDelete = await this.subredditServices.isOwner(
-          subredditName,
-          userId
-        );
-        if (!canDelete) {
-          res.status(401).json({
-            status: 401,
-            message: "you are not the owner to this subreddit",
-          });
-        } else {
-          let response = await this.subredditServices.deleteSubreddit(
-            {
-              name: subredditName,
-            },
-            ""
-          );
-          if (response.status === "success") {
-            console.log(response);
-            res.status(response.statusCode).json({
-              status: response.status,
-            });
-          } else {
-            res.status(response.statusCode).json({
-              status: response.statusCode,
-              message: response.err,
-            });
-          }
-        }
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+
+    if (!subredditName) {
+      res.status(400).json({
         status: "fail",
+        message: "Missing required parameter subredditName",
       });
+      return;
     }
-  }
+    //exists - owner - delete
+
+    //check user is moderator or not
+    let subreddit = await this.subredditServices.deleteSubreddit(
+      subredditName,
+      userId
+    );
+
+    if (!subreddit.success) {
+      let msg, stat;
+      switch (subreddit.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.NOT_OWNER:
+          msg = "you are not the owner to this subreddit";
+          stat = 401;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = subreddit.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+    res.status(204).json({
+      status: "success",
+    });
+  };
 
   // TODO: Not Finalized (needs a small fix)
   async deletemoderator(req, res, next) {
@@ -233,28 +221,47 @@ class subredditController {
     }
   }
 
-  async subredditsJoined(req, res) {
+  subredditsJoined = async (req, res) => {
     let userId = req.user._id;
     let location = req.params.where;
 
-    try {
-      let response = await this.subredditServices.subredditsIamIn(
-        userId,
-        location
-      );
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: "",
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          subreddits: response.doc,
-        });
+    if (!location) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter location",
+      });
+      return;
+    }
+
+    let subreddits = await this.subredditServices.subredditsIamIn(
+      userId,
+      location
+    );
+
+    if (!subreddits.success) {
+      let msg, stat;
+      switch (subreddits.error) {
+        case subredditErrors.INVALID_ENUM:
+          msg = "Invalid location value !";
+          stat = 400;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = subreddits.msg;
+          stat = 400;
+          break;
       }
-    } catch (err) {}
-  }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+    res.status(200).json({
+      status: "success",
+      data: subreddits.data,
+    });
+  };
 
   async relevantPosts(req, res, next) {
     let subredditName = req.params.subredditName;
@@ -351,18 +358,7 @@ class subredditController {
     }
   }
 
-  // async setPrimaryTopic(req,res){
-  //   let subredditName = req.params.subredditName;
-  //   let userId = req.user._id;
-  //   try {
-
-  //   } catch (err) {
-  //     console.log("error in subredditservices " + err);
-  //     res.status(500).json({
-  //       status: "fail",
-  //     });
-  //   }
-  // }
+  
 
   // ! Doaa's controllers
   async createFlair(req, res) {
@@ -684,7 +680,7 @@ class subredditController {
   // //   async getFlairs(req, res) {
   //   async getFlairs(req, res) {
 
-  async subscribe(req, res) {
+  subscribe = async (req, res) => {
     //setting sub default behavior
     const subredditName = req.params.subredditName;
     const action = req.query.action || "sub";
@@ -695,12 +691,13 @@ class subredditController {
       });
       return;
     }
-
+    console.log("kiroo");
     //check if subreddit exists
     const subreddit = await this.subredditServices.subscriable(
       subredditName,
       req.user._id
     );
+    console.log("kiroo 2️⃣");
     if (!subreddit.success) {
       let msg, stat;
       switch (subreddit.error) {
@@ -721,6 +718,7 @@ class subredditController {
     }
 
     //subscribe or unsubscribe user according to sub
+    console.log("kiroo0000000000");
     const subscribed = await this.userServices.subscribe(
       req.user._id,
       subreddit._id,
@@ -739,7 +737,7 @@ class subredditController {
     res.status(200).json({
       status: "success",
     });
-  }
+  };
 }
 
 //export default userController;
