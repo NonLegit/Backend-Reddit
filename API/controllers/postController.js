@@ -7,16 +7,16 @@ class PostController {
     this.createPost = this.createPost.bind(this);
     this.updatePost = this.updatePost.bind(this);
     this.deletePost = this.deletePost.bind(this);
-    this.userPosts = this.userPosts.bind(this);
-    this.getSavedPosts = this.getSavedPosts.bind(this);
-    this.getHiddenPosts = this.getHiddenPosts.bind(this);
-    this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
-    this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
+    // this.userPosts = this.userPosts.bind(this);
+    // this.getSavedPosts = this.getSavedPosts.bind(this);
+    // this.getHiddenPosts = this.getHiddenPosts.bind(this);
+    // this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
+    // this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
 
     this.getBestPosts = this.getBestPosts.bind(this);
     this.getTopPosts = this.getTopPosts.bind(this);
-    this.getHotPosts = this.getHotPosts.bind(this);
-    this.getNewPosts = this.getNewPosts.bind(this);
+    // this.getHotPosts = this.getHotPosts.bind(this);
+    // this.getNewPosts = this.getNewPosts.bind(this);
   }
 
   async createPost(req, res) {
@@ -155,7 +155,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async userPosts(req, res, next) {
+   userPosts = async (req, res, next) => {
     // i have user id
     let me = req.user;
     if (!req.params.userName) {
@@ -171,24 +171,35 @@ class PostController {
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
-      let userId = user.doc._id;
+      if(user.success === true)
+      {
+        let userId = user.data._id;
 
-      // check if this user block me or i blocked him in order to show posts , TODO
-
-      // get post which he creates
-      let posts = await this.postServices.getUserPosts(userId, sortType);
-
-      // get vote of me if these post i vote on it
-      posts = this.postServices.setVotePostStatus(me, posts);
-      posts = this.postServices.setSavedPostStatus(me, posts);
-      posts = this.postServices.setHiddenPostStatus(me, posts);
-      posts = this.postServices.setPostOwnerData(posts);
-      //console.log(posts[0]);
-
-      res.status(200).json({
-        status: "success",
-        posts: posts,
-      });
+        // check if this user block me or i blocked him in order to show posts , TODO
+  
+        // get post which he creates
+        let posts = await this.postServices.getUserPosts(userId, sortType);
+  
+        // get vote of me if these post i vote on it
+        posts = this.postServices.setVotePostStatus(me, posts);
+        posts = this.postServices.setSavedPostStatus(me, posts);
+        posts = this.postServices.setHiddenPostStatus(me, posts);
+        posts = this.postServices.setPostOwnerData(posts);
+        //console.log(posts[0]);
+  
+        res.status(200).json({
+          status: "success",
+          posts: posts,
+        });
+      }
+      else
+      {
+        res.status(404).json({
+          status: "success",
+          errorMessage: "User Not Found",
+        });
+      }
+      
     }
   }
   /**
@@ -199,7 +210,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async getSavedPosts(req, res, next) {
+   getSavedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -224,7 +235,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async getHiddenPosts(req, res, next) {
+   getHiddenPosts = async (req, res, next)=> {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -247,7 +258,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async userUpvotedPosts(req, res, next) {
+   userUpvotedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -273,7 +284,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async userDownvotedPosts(req, res, next) {
+   userDownvotedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -290,7 +301,7 @@ class PostController {
     });
   }
 
-  async getHotPosts(req, res) {
+  getHotPosts = async (req, res) =>{
     try {
       req.query.sort = "-createdAt,-votes,-commentCount";
       console.log(req.query);
@@ -314,7 +325,7 @@ class PostController {
       });
     }
   }
-  async getNewPosts(req, res) {
+  getNewPosts = async (req, res) =>{
     try {
       req.query.sort = "-createdAt";
       console.log(req.query);

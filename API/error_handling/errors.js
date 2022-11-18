@@ -34,6 +34,17 @@ exports.subredditErrors = Object.freeze({
   INVALID_ENUM: 7,
 });
 
+exports.userErrors = Object.freeze({
+  MONGO_ERR: 0,
+  USER_NOT_FOUND: 1,
+  USER_ALREADY_EXISTS: 2,
+  INCORRECT_PASSWORD: 3,
+  EMAIL_ERROR:5,
+  INVALID_TOKEN:6,
+  INVALID_RESET_TOKEN:7,
+
+});
+
 exports.mongoErrors = Object.freeze({
   NOT_FOUND: 0,
   VALIDATION: 1,

@@ -9,13 +9,8 @@ class UserController {
    */
   constructor({ UserService }) {
     this.userServices = UserService; // can be mocked in unit testing
-    this.createUser = this.createUser.bind(this);
-    this.getPrefs = this.getPrefs.bind(this);
-    this.updatePrefs = this.updatePrefs.bind(this);
-    this.usernameAvailable = this.usernameAvailable.bind(this);
-    this.about = this.about.bind(this);
   }
-  async createUser(req, res, next) {
+  createUser = async (req, res, next) => {
     let data = req.body;
     try {
       let user = await this.userServices.createUser(data);
@@ -36,7 +31,7 @@ class UserController {
         status: "fail",
       });
     }
-  }
+  };
   /**
    * @property {Function} getPrefs get user preferences
    * @param {object} req - request object sent by client
@@ -44,13 +39,13 @@ class UserController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async getPrefs(req, res, next) {
+  getPrefs = async (req, res, next) => {
     const prefs = this.userServices.getPrefs(req.user);
     res.status(200).json({
       status: "success",
       prefs: prefs,
     });
-  }
+  };
   /**
    * @property {Function} updatePrefs update user preferences
    * @param {object} req - request object sent by client
@@ -58,16 +53,16 @@ class UserController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async updatePrefs(req, res, next) {
+  updatePrefs = async (req, res, next) => {
     const query = req.body;
     const prefs = await this.userServices.updatePrefs(query, req.user._id);
     res.status(200).json({
       status: "success",
       prefs: prefs,
     });
-  }
+  };
 
-  async usernameAvailable(req, res) {
+  usernameAvailable = async (req, res) => {
     if (!req.query.userName) {
       res.status(400).json({
         status: "fail",
@@ -87,7 +82,7 @@ class UserController {
         available: false,
       });
     }
-  }
+  };
   /**
    *
    * @property {Function} getMe return all data of authenticated user
@@ -96,7 +91,7 @@ class UserController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async getMe(req, res, next) {
+  getMe = async (req, res, next) => {
     const user = req.user;
     const me = {
       id: user._id,
@@ -120,7 +115,7 @@ class UserController {
       status: "success",
       user: me,
     });
-  }
+  };
   /**
    *
    * @property {Function} about return information about another user
@@ -130,18 +125,18 @@ class UserController {
    * @returns void
    */
   // should check if user blocked me or not ?!
-  async about(req, res, next) {
+  about = async (req, res, next) => {
     if (!req.params.userName) {
       res.status(400).json({
         status: "fail",
-        message: "Provide userName ",
+        errorMessage: "Provide userName ",
       });
     } else {
       const me = req.user;
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
-      if (user.status !== "fail") {
+      if (user.success !== false) {
         // check if i followed him
         const relation = me.meUserRelationship.find(
           (element) => element.userId === user.doc._id
@@ -176,7 +171,7 @@ class UserController {
         });
       }
     }
-  }
+  };
 }
 //export default userController;
 module.exports = UserController;
