@@ -1851,10 +1851,8 @@ paths:
                     type: string
                     example: success
                   data:
-                    type: object
-                    properties:
-                      Post:
-                        $ref: "#/components/schemas/PostCreate"
+                    $ref: "#/components/schemas/Post"
+
         404:
           description: Fail operation
           content:
@@ -5825,7 +5823,6 @@ paths:
                   errorMessage:
                     type: string
                     example: image not found
-    
 
   /posts/{postId}/{fileName}:
     description: deal with files (images)
@@ -6095,7 +6092,7 @@ components:
           format: date
         isDeleted:
           type: boolean
-          
+
     rules:
       properties:
         title:
