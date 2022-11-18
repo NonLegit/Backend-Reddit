@@ -43,7 +43,7 @@ class AuthenticationController {
         break;
       case userErrors.INVALID_RESET_TOKEN:
         msg = serviceMessage;
-        stat = 400;
+        stat = 401;
         break;
     }
     return { msg, stat };
@@ -86,6 +86,7 @@ class AuthenticationController {
       res.status(400).json({
         status: "fail",
         errorMessage: "Provide username, email and password",
+        errorType: 0,
       });
     } else {
       const passwordStrength =
@@ -94,6 +95,7 @@ class AuthenticationController {
         res.status(400).json({
           status: "fail",
           errorMessage: passwordStrength + " password",
+          errorType: 1,
         });
       } else {
         const user = await this.UserServices.signUp(email, userName, password);
@@ -105,6 +107,7 @@ class AuthenticationController {
           res.status(response.stat).json({
             status: "fail",
             errorMessage: response.msg,
+            errorType: 2,
           });
         }
       }
