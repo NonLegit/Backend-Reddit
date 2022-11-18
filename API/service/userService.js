@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 const { passwordStrength } = require("check-password-strength");
 const generator = require("generate-password");
+const { userErrors } = require("../error_handling/errors");
 
 const { promisify } = require("util");
 
@@ -98,24 +99,19 @@ class UserService {
     };
     this.checkPasswordStrength(password);
     let user = await this.userRepository.createOne(userData);
-    if (user.status === "fail") {
+    if (user.success === false) {
       // user with this email or username is exists
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "User already Exists",
-        },
+        success: false,
+        error: userErrors.USER_ALREADY_EXISTS,
+        msg: user.msg,
       };
       return response;
     } else {
       const token = this.createToken(user.doc._id);
       const response = {
-        status: 201,
-        body: {
-          status: "success",
-          token: token,
-        },
+        success: true,
+        token: token,
       };
       return response;
     }
@@ -129,38 +125,27 @@ class UserService {
    * @returns {object} - response of login contain status of services and body to send to client
    */
   async logIn(userName, password) {
-    let user = await this.userRepository.getOne(
-      { userName: userName },
-      "+password",
-      ""
-    );
-    if (user.status === "fail") {
+    let user = await this.userRepository.findByUserName(userName, "+password");
+    if (user.success === false) {
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "Invalid username or password",
-        },
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: user.msg,
       };
       return response;
     } else {
       if (await user.doc.checkPassword(password, user.doc.password)) {
         const token = this.createToken(user.doc._id);
         const response = {
-          status: 200,
-          body: {
-            status: "success",
-            token: token,
-          },
+          success: true,
+          token: token,
         };
         return response;
       } else {
         const response = {
-          status: 400,
-          body: {
-            status: "fail",
-            errorMessage: "Invalid username or password",
-          },
+          success: false,
+          error: userErrors.INCORRECT_PASSWORD,
+          msg: "Incorrect Password",
         };
         return response;
       }
@@ -173,35 +158,29 @@ class UserService {
    */
   async forgotUserName(email) {
     try {
-      let user = await this.userRepository.getOne({ email: email }, "", "");
-      if (user.statusCode === 200) {
+      let user = await this.userRepository.findByEmail(email);
+      if (user.success === true) {
         await this.emailServices.sendUserName(user.doc);
         const response = {
-          status: 204,
-          body: {
-            status: "success",
-          },
+          success: true,
         };
         return response;
       } else {
         const response = {
-          status: 404,
-          body: {
-            status: "fail",
-            errorMessage: "User Not Found",
-          },
+          success: false,
+          error: userErrors.USER_NOT_FOUND,
+          msg: "User Not Found",
         };
         return response;
       }
     } catch (err) {
-      console.log("catch error : " + err);
-      const error = {
-        status: 400,
-        body: {
-          errorMessage: err,
-        },
+      console.log(err);
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
       };
-      return error;
+      return response;
     }
   }
   /**
@@ -213,44 +192,35 @@ class UserService {
    */
   async forgotPassword(userName, email) {
     try {
-      const query = {
-        userName: userName,
-        email: email,
-      };
-      let user = await this.userRepository.getOne(query, "");
+      let user = await this.userRepository.findByEmailAndUserName(
+        userName,
+        email
+      );
 
-      if (user.statusCode === 200) {
+      if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
         await user.doc.save({ validateBeforeSave: false });
         const resetURL = `${process.env.FRONTDOMAIN}resetPassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
         const response = {
-          status: 204,
-          body: {
-            status: "success",
-          },
+          success: true,
         };
         return response;
       } else {
         const response = {
-          status: 404,
-          body: {
-            status: "fail",
-            errorMessage: "User Not Found",
-          },
+          success: false,
+          error: userErrors.USER_NOT_FOUND,
+          msg: "User Not Found",
         };
         return response;
       }
     } catch (err) {
-      console.log("catch error:" + err);
-      const error = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: err,
-        },
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
       };
-      return error;
+      return response;
     }
   }
   /**
@@ -265,22 +235,13 @@ class UserService {
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-    let user = await this.userRepository.getOne(
-      {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() },
-      },
-      "",
-      ""
-    );
-    if (user.status === "fail") {
+    let user = await this.userRepository.findByResetPassword(hashedToken);
+    if (user.success === false) {
       // invalid token or time passed
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "token is invalid or has expired ",
-        },
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
       };
       return response;
     } else {
@@ -290,10 +251,8 @@ class UserService {
       await user.doc.save();
       const token = this.createToken(user.doc._id);
       const response = {
-        status: 200,
-        body: {
-          token: token,
-        },
+        success: true,
+        token: token,
       };
       return response;
     }
@@ -315,8 +274,21 @@ class UserService {
    * @returns {object} - user model
    */
   async getUser(id) {
-    let user = await this.userRepository.getOne({ _id: id }, "", "");
-    return user;
+    let user = await this.userRepository.findById(id, "", "");
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getUserByEmail get user information from database by email
@@ -324,8 +296,21 @@ class UserService {
    * @returns {object} - user model
    */
   async getUserByEmail(email) {
-    let user = await this.userRepository.getOne({ email: email }, "", "");
-    return user;
+    let user = await this.userRepository.findByEmail(email);
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getUserByName get user information from database by userName
@@ -334,12 +319,25 @@ class UserService {
    * @returns {object} - user model
    */
   async getUserByName(userName, popOptions) {
-    let user = await this.userRepository.getOne(
-      { userName: userName },
+    let user = await this.userRepository.findByUserName(
+      userName,
       "",
       popOptions
     );
-    return user;
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getPrefs get user preferences from user model

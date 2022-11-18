@@ -1,4 +1,6 @@
 const { OAuth2Client } = require("google-auth-library");
+const { trusted } = require("mongoose");
+const { userErrors } = require("../error_handling/errors");
 /**
  * AuthenticationController Class which handles authentication and authorization of user in backend
  */
@@ -10,18 +12,42 @@ class AuthenticationController {
    */
   constructor({ UserService }) {
     this.UserServices = UserService; // can be mocked in unit testing
-    this.createCookie = this.createCookie.bind(this);
-    //this.signUp = this.signUp.bind(this);
-    this.logIn = this.logIn.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this);
-    this.forgotUserName = this.forgotUserName.bind(this);
-    this.resetPassword = this.resetPassword.bind(this);
-    this.logOut = this.logOut.bind(this);
-    this.authorize = this.authorize.bind(this);
-    this.facebookAuth = this.facebookAuth.bind(this);
-    this.facebookValidation = this.facebookValidation.bind(this);
-    this.googleAuth = this.googleAuth.bind(this);
   }
+
+  errorResponse = (error, serviceMessage) => {
+    let msg, stat;
+    switch (error) {
+      case userErrors.MONGO_ERR:
+        msg = "Invalid parent, couldn't create user";
+        stat = 400;
+        break;
+      case userErrors.USER_NOT_FOUND:
+        msg = "User Not Found";
+        stat = 404;
+        break;
+      case userErrors.USER_ALREADY_EXISTS:
+        msg = "User Already Exists";
+        stat = 400;
+        break;
+      case userErrors.INCORRECT_PASSWORD:
+        msg = serviceMessage;
+        stat = 400;
+        break;
+      case userErrors.EMAIL_ERROR:
+        msg = serviceMessage;
+        stat = 500;
+        break;
+      case userErrors.INVALID_TOKEN:
+        msg = serviceMessage;
+        stat = 400;
+        break;
+      case userErrors.INVALID_RESET_TOKEN:
+        msg = serviceMessage;
+        stat = 400;
+        break;
+    }
+    return { msg, stat };
+  };
   /**
    * @property {Function} createCookie create cookie to store token and send to user
    * @param {object} res - response to client
@@ -29,7 +55,7 @@ class AuthenticationController {
    * @param {number} statusCode - status code of respones
    * @returns void
    */
-  createCookie(res, token, statusCode) {
+  createCookie = (res, token, statusCode) => {
     const cookieOptions = {
       expires: new Date(
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -43,7 +69,7 @@ class AuthenticationController {
       token,
       expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
     });
-  }
+  };
   /**
    * @property {Function} signUp signup new user in database
    * @param {object} req - request object sent by client
@@ -70,16 +96,16 @@ class AuthenticationController {
           errorMessage: passwordStrength + " password",
         });
       } else {
-        const response = await this.UserServices.signUp(
-          email,
-          userName,
-          password
-        );
-        if (response.status === 201) {
+        const user = await this.UserServices.signUp(email, userName, password);
+        if (user.success === true) {
           //res.status(201).json(response.body);
-          this.createCookie(res, response.body.token, 201);
+          this.createCookie(res, user.token, 201);
         } else {
-          res.status(response.status).json(response.body);
+          const response = this.errorResponse(user.error, user.msg);
+          res.status(response.stat).json({
+            status: "fail",
+            errorMessage: response.msg,
+          });
         }
       }
     }
@@ -91,7 +117,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async logIn(req, res, next) {
+  logIn = async (req, res, next) => {
     const userName = req.body.userName;
     const password = req.body.password;
     if (!userName || !password) {
@@ -101,22 +127,26 @@ class AuthenticationController {
         errorMessage: "Provide username and password",
       });
     } else {
-      const response = await this.UserServices.logIn(userName, password);
-      if (response.status === 200) {
+      const user = await this.UserServices.logIn(userName, password);
+      if (user.success === true) {
         //res.status(201).json(response.body);
-        this.createCookie(res, response.body.token, 200);
+        this.createCookie(res, user.token, 200);
       } else {
-        res.status(response.status).json(response.body);
+        const response = this.errorResponse(user.error, user.msg);
+        res.status(response.stat).json({
+          status: "fail",
+          errorMessage: response.msg,
+        });
       }
     }
-  }
+  };
   /**
    * @property {Function} logOut remove cookie of user
    * @param {object} req - request object sent by client
    * @param {object} res - response to client
    * @returns void
    */
-  logOut(req, res) {
+  logOut = (req, res) => {
     res.clearCookie("jwt");
     // res.cookie("jwt", "loggedout", {
     //     expires: new Date(Date.now() + 10 * 1000),
@@ -125,7 +155,7 @@ class AuthenticationController {
     res.status(200).json({
       status: "success",
     });
-  }
+  };
   /**
    * @property {Function} forgotPassword send reset token to user by email
    * @param {object} req - request object sent by client
@@ -133,7 +163,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async forgotPassword(req, res, next) {
+  forgotPassword = async (req, res, next) => {
     const email = req.body.email;
     const userName = req.body.userName;
     if (!userName || !email) {
@@ -143,10 +173,20 @@ class AuthenticationController {
         errorMessage: "Provide username and email",
       });
     } else {
-      const response = await this.UserServices.forgotPassword(userName, email);
-      res.status(response.status).json(response.body);
+      const user = await this.UserServices.forgotPassword(userName, email);
+      if (user.success === true) {
+        res.status(204).json({
+          status: "success",
+        });
+      } else {
+        const response = this.errorResponse(user.error, user.msg);
+        res.status(response.stat).json({
+          status: "fail",
+          errorMessage: response.msg,
+        });
+      }
     }
-  }
+  };
   /**
    * @property {Function} forgotUserName send username to user by email
    * @param {object} req - request object sent by client
@@ -154,7 +194,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async forgotUserName(req, res, next) {
+  forgotUserName = async (req, res, next) => {
     const email = req.body.email;
     if (!email) {
       // Bad Request , Send APP Error in error handling class , TODO: error-handeling
@@ -163,10 +203,21 @@ class AuthenticationController {
         errorMessage: "Provide email",
       });
     } else {
-      const response = await this.UserServices.forgotUserName(email);
-      res.status(response.status).json(response.body);
+      const user = await this.UserServices.forgotUserName(email);
+      if (user.success === true) {
+        res.status(204).json({
+          status: "success",
+        });
+      } else {
+        const response = this.errorResponse(user.error, user.msg);
+        console.log(response);
+        res.status(response.stat).json({
+          status: "fail",
+          errorMessage: response.msg,
+        });
+      }
     }
-  }
+  };
   /**
    * @property {Function} resetPassword reset password of user with reset token
    * @param {object} req - request object sent by client
@@ -174,7 +225,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async resetPassword(req, res, next) {
+  resetPassword = async (req, res, next) => {
     const resetToken = req.params.token;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
@@ -184,19 +235,20 @@ class AuthenticationController {
         errorMessage: "Provide correct Passwords",
       });
     } else {
-      const response = await this.UserServices.resetPassword(
-        resetToken,
-        password
-      );
-      if (response.status == 200) {
-        this.createCookie(res, response.body.token, 200);
+      const user = await this.UserServices.resetPassword(resetToken, password);
+      if (user.success === true) {
+        this.createCookie(res, user.token, 200);
       } else {
-        res.status(response.status).json(response.body);
+        const response = this.errorResponse(user.error, user.msg);
+        res.status(response.stat).json({
+          status: "fail",
+          errorMessage: response.msg,
+        });
       }
 
       //res.status(response.status).json(response.body);
     }
-  }
+  };
   /**
    * @property {Function} authorize check cookie sent by client inorder to validate user logged in
    * @param {object} req - request object sent by client
@@ -204,7 +256,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async authorize(req, res, next) {
+  authorize = async (req, res, next) => {
     let token;
     if (req.cookies.jwt) {
       token = req.cookies.jwt;
@@ -219,24 +271,24 @@ class AuthenticationController {
       const userId = decoded.id;
       const time = decoded.iat;
       const user = await this.UserServices.getUser(userId);
-      if (user.status === "fail") {
+      if (user.success === false) {
         res.status(404).json({
           status: "fail",
           errorMessage: "User not found",
         });
       } else {
-        if (user.doc.changedPasswordAfter(time)) {
+        if (user.data.changedPasswordAfter(time)) {
           res.status(400).json({
             status: "fail",
             errorMessage: "Password is changed , Please login again",
           });
         } else {
-          req.user = user.doc;
+          req.user = user.data;
           next();
         }
       }
     }
-  }
+  };
   /**
    * @property {Function} facebookAuth facebook authentication signup or login
    * @param {string} accessToken - token sent from client
@@ -245,11 +297,11 @@ class AuthenticationController {
    * @param {Function} done - callback function
    * @returns void
    */
-  async facebookAuth(accessToken, refreshToken, profile, done) {
+  facebookAuth = async (accessToken, refreshToken, profile, done) => {
     const email = profile.emails[0].value;
     // find user in database
     const user = await this.UserServices.getUserByEmail(email);
-    if (user.status === "fail") {
+    if (user.success === false) {
       // user not found, signup new user
       const response = {
         status: "fail",
@@ -259,11 +311,11 @@ class AuthenticationController {
     } else {
       const response = {
         status: "success",
-        user: user.doc,
+        user: user.data,
       };
       done(null, response);
     }
-  }
+  };
   /**
    * @property {Function} facebookValidation validate facebook user
    * @param {object} req - request object sent by client
@@ -271,7 +323,7 @@ class AuthenticationController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-  async facebookValidation(req, res, next) {
+  facebookValidation = async (req, res, next) => {
     let user = req.user;
     if (user.status == "fail") {
       // user should be created
@@ -284,25 +336,29 @@ class AuthenticationController {
       // } else {
       const email = user.email;
       const password = this.UserServices.generateRandomPassword();
-      let response = await this.UserServices.signUp(email, userName, password);
-      if (response.status === 201) {
-        this.createCookie(res, response.body.token, 201);
+      let user = await this.UserServices.signUp(email, userName, password);
+      if (user.success === true) {
+        this.createCookie(res, response.token, 201);
       } else {
-        res.status(response.status).json(response.body);
+        const response = this.errorResponse(user.error, user.msg);
+        res.status(response.stat).json({
+          status: "fail",
+          errorMessage: response.msg,
+        });
       }
       //}
     } else {
       const token = await this.UserServices.createToken(user.user._id);
       this.createCookie(res, token, 200);
     }
-  }
+  };
   /**
    * @property {Function} googleAuth google authentication signup or login
    * @param {object} req - request object sent by client
    * @param {object} res - response to client
    * @param {Function} next -  function to execute next middleware
    */
-  async googleAuth(req, res, next) {
+  googleAuth = async (req, res, next) => {
     const oAuth2Client = new OAuth2Client();
     if (!req.body.tokenId) {
       res.status(400).json({
@@ -319,7 +375,7 @@ class AuthenticationController {
         const payload = key.getPayload();
         const email = payload["email"];
         const user = await this.UserServices.getUserByEmail(email);
-        if (user.status === "fail") {
+        if (user.success === false) {
           // user not found, signup new user
           const userName = "user";
           // if (!userName) {
@@ -328,16 +384,16 @@ class AuthenticationController {
           //     errorMessage: "provide userName",
           //   });
           // } else {
-          
-          let response = await this.UserServices.signUp(
-            email,
-            userName,
-            password
-          );
-          if (response.status === 201) {
-            this.createCookie(res, response.body.token, 201);
+
+          let user = await this.UserServices.signUp(email, userName, password);
+          if (user.success === true) {
+            this.createCookie(res, user.token, 201);
           } else {
-            res.status(response.status).json(response.body);
+            const response = this.errorResponse(user.error, user.msg);
+            res.status(response.stat).json({
+              status: "fail",
+              errorMessage: response.msg,
+            });
           }
           //}
         } else {
@@ -351,7 +407,7 @@ class AuthenticationController {
         });
       }
     }
-  }
+  };
 }
 
 module.exports = AuthenticationController;

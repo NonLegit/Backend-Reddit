@@ -1,6 +1,7 @@
 //const Post = require("../models/postModel");
 const Repository = require("./repository");
 const { mongoErrors } = require("../error_handling/errors");
+const APIFeatures = require("./apiFeatures");
 
 class PostRepository extends Repository {
   constructor({ Post }) {
@@ -37,6 +38,16 @@ class PostRepository extends Repository {
       $pull: { replies: child },
       $inc: { commentCount: -1 },
     });
+  }
+  async getUserPosts(author, query, popOptions) {
+    const features = new APIFeatures(this.model.find({ author: author }), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    // const doc = await features.query.explain();
+    let doc = await features.query.populate(popOptions);
+    return { success: true, doc: doc };
   }
 }
 module.exports = PostRepository;

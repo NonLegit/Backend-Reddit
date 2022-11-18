@@ -236,7 +236,7 @@ userSchema.pre("save", async function (next) {
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
   this.lastUpdatedPassword = Date.now() - 1000;
-  this.userName = "user" + this._id;
+  if (this.userName === "user") this.userName = "user" + this._id;
   console.log("user to save", this);
   next();
 });
