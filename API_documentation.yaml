@@ -6095,6 +6095,21 @@ components:
           format: date
         isDeleted:
           type: boolean
+          
+    rules:
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        defaultName:
+          type: string
+        appliesTo:
+          type: string
+          enum:
+            - Posts and comments
+            - Posts only
+            - Comments only
 
     fullSubreddit:
       properties:
@@ -6108,20 +6123,9 @@ components:
         icon:
           type: string
         rules:
-          type: object
-          properties:
-            title:
-              type: string
-            description:
-              type: string
-            defaultName:
-              type: string
-            appliesTo:
-              type: string
-              enum:
-                - Posts and comments
-                - Posts only
-                - Comments only
+          type: array
+          items:
+            $ref: "#/components/schemas/rules"
         name:
           type: string
         description:
@@ -6336,6 +6340,8 @@ components:
     Subreddit:
       type: object
       properties:
+        icon:
+          type: string
         id:
           type: string
           format: int64
