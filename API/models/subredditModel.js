@@ -154,13 +154,19 @@ const subredditSchema = new mongoose.Schema({
   moderators: [
     {
       type: Object,
-      username: {
+      id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
-      mod_time: { type: Date, default: Date.now() },
-      permissions: {
+      userName: { type: String },
+      joiningDate: { type: Date, default: Date.now() },
+      profilePicture: {
+        type: String,
+        required: false,
+        trim: true, // *TODO: it will be unique with time stamp and username
+      },
+      moderatorPermissions: {
         type: Object,
         required: false,
         all: { type: Boolean },
