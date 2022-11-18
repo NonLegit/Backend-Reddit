@@ -1,3 +1,5 @@
+const { subredditErrors, mongoErrors } = require("../error_handling/errors");
+
 /**
  * this class is used for implementing Subreddit Service functions
  * @param {Model} subreddit - subreddit Data Model
@@ -14,33 +16,31 @@ class subredditService {
     this.subredditRepository = SubredditRepository; // can be mocked in unit testing
     //this.subreddit = subreddit; // can be mocked in unit testing
     //this.subredditRepository = subredditRepository; // can be mocked in unit testing
-    this.createSubreddit = this.createSubreddit.bind(this);
-    this.deleteSubreddit = this.deleteSubreddit.bind(this);
-    this.getSubreddit = this.getSubreddit.bind(this);
-    this.updateSubreddit = this.updateSubreddit.bind(this);
-    this.getCategoryPosts = this.getCategoryPosts.bind(this);
-    this.inviteMod = this.inviteMod.bind(this);
-    this.deleteMod = this.deleteMod.bind(this);
-    this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
-    this.isModerator = this.isModerator.bind(this);
-    this.isOwner = this.isOwner.bind(this);
-    this.subExists = this.subExists.bind(this);
+    // this.createSubreddit = this.createSubreddit.bind(this);
+    // this.deleteSubreddit = this.deleteSubreddit.bind(this);
+    // this.getSubreddit = this.getSubreddit.bind(this);
+    // this.updateSubreddit = this.updateSubreddit.bind(this);
+    // this.getCategoryPosts = this.getCategoryPosts.bind(this);
+    // this.inviteMod = this.inviteMod.bind(this);
+    // this.deleteMod = this.deleteMod.bind(this);
+    // this.updateModeratorSettings = this.updateModeratorSettings.bind(this);
+    // this.isModerator = this.isModerator.bind(this);
+    // this.isOwner = this.isOwner.bind(this);
     // this.primaryTopic = this.primaryTopic.bind(this);
     // !=======================================
-    this.checkFlair = this.checkFlair.bind(this);
+    //this.checkFlair = this.checkFlair.bind(this);
     //this.flair = flair; // can be mocked in unit testing
     //this.flairRepository = flairRepository; // can be mocked in unit testing
-    this.createFlair = this.createFlair.bind(this);
-    this.deleteFlair = this.deleteFlair.bind(this);
-    this.getFlair = this.getFlair.bind(this);
-    this.updateFlair = this.updateFlair.bind(this);
-    this.getFlairs = this.getFlairs.bind(this);
-    this.checkSubreddit = this.checkSubreddit.bind(this);
-    this.checkModerator = this.checkModerator.bind(this);
+    // this.createFlair = this.createFlair.bind(this);
+    // this.deleteFlair = this.deleteFlair.bind(this);
+    // this.getFlair = this.getFlair.bind(this);
+    // this.updateFlair = this.updateFlair.bind(this);
+    // this.getFlairs = this.getFlairs.bind(this);
+    // this.checkSubreddit = this.checkSubreddit.bind(this);
+    // this.checkModerator = this.checkModerator.bind(this);
     // !========================================
     //this.user = user;
     //this.userRepository = userRepository;
-    this.isBanned = this.isBanned.bind(this);
   }
   /**
    * create subreddit service function
@@ -688,15 +688,14 @@ class subredditService {
 
   //! Doaa's part
 
-
-/**
- * 
- * @param {String} subredditName the name of the subreddit to create flair into
- * @param {Object} data  the data of the flair to be created
- * @param {string} userId 
- * @returns {Object} returns created flair or an error object
- */
-  async createFlair(subredditName, data,userId) {
+  /**
+   *
+   * @param {String} subredditName the name of the subreddit to create flair into
+   * @param {Object} data  the data of the flair to be created
+   * @param {string} userId
+   * @returns {Object} returns created flair or an error object
+   */
+  async createFlair(subredditName, data, userId) {
     try {
       let subreddit = await this.checkSubreddit(subredditName);
       if (subreddit.status !== "success") {
@@ -769,8 +768,8 @@ class subredditService {
   }
 
   /**
-   * 
-   * @param {Object} subreddit the subreddit object to check the flait within 
+   *
+   * @param {Object} subreddit the subreddit object to check the flait within
    * @param {string} flairId the flair id to check if it exists
    * @returns {Object} the subreddit object if the flair exists and an error obj if not
    */
@@ -853,8 +852,8 @@ class subredditService {
   }
 
   /**
-   * 
-   * @param {String} subredditName name of the subreddit to delete the flair whithin 
+   *
+   * @param {String} subredditName name of the subreddit to delete the flair whithin
    * @param {string} flairId id of the flair to be deleted
    * @param {string} userId id of the user who request the delete
    * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
@@ -957,20 +956,21 @@ class subredditService {
     }
   }
 
-  async subExists(subredditName) {
-    return await this.subredditRepository.getByQuery({ name: subredditName });
-  }
-
   /**
    * Checks if a user is banned from a given a subreddit
-   * @param {string} subredditId 
-   * @param {string} userId 
+   * @param {string} subredditId
+   * @param {string} userId
    * @returns {boolean}
    */
-  async isBanned(subredditId, userId) {
-    const punished = (
-      await this.subredditRepository.getById(subredditId, "punished")
-    ).punished;
+  async subscriable(subredditName, userId) {
+    const subreddit = await this.subredditRepository.findByName(
+      subredditName,
+      "punished _id"
+    );
+    if (!subreddit.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    const punished = subreddit.doc.punished;
 
     let isBanned = false;
     for (const { userId: bannedUser, type } of punished) {
@@ -979,7 +979,9 @@ class subredditService {
         break;
       }
     }
-    return isBanned;
+    if (isBanned) return { success: false, error: subredditErrors.BANNED };
+
+    return { success: true, _id: subreddit.doc._id };
   }
 }
 

@@ -8,12 +8,12 @@ const postSchema = new mongoose.Schema({
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     refPath: "ownerType",
-    required: true,
+    required: [true, "A post must have an owner"],
   },
   ownerType: {
     type: String,
     enum: ["Subreddit", "User"],
-    required: true,
+    required: [true, "A post must have an ownerType"],
   },
   author: {
     type: mongoose.SchemaTypes.ObjectId,
@@ -42,11 +42,11 @@ const postSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
+    required: [true, "A post must have a title"],
   },
   kind: {
     type: String,
-    required: true,
+    required: [true, "A post must have a kind"],
     enum: ["link", "self", "image", "video"],
     default: "self",
   },
@@ -128,19 +128,22 @@ const postSchema = new mongoose.Schema({
     default: false,
   },
 });
+
+//Whoever added this middleware should add more restrictions
 postSchema.pre('find', function() {
   this.populate('owner');
 });
-postSchema.pre("findOneAndUpdate", async function (next) {
-  if (this._update.isDeleted) {
-    const post = await this.model.findOne(this.getQuery());
-    await Comment.updateMany(
-      { _id: { $in: post.replies } },
-      { isDeleted: true }
-    );
-  }
-  next();
-});
+
+// postSchema.pre("findOneAndUpdate", async function (next) {
+//   if (this._update.isDeleted) {
+//     const post = await this.model.findOne(this.getQuery());
+//     await Comment.updateMany(
+//       { _id: { $in: post.replies } },
+//       { isDeleted: true }
+//     );
+//   }
+//   next();
+// });
 
 const Post = mongoose.model("Post", postSchema);
 

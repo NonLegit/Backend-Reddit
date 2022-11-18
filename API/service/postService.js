@@ -1,58 +1,27 @@
-const ObjectId = require("mongodb").ObjectId;
+const { postErrors, mongoErrors } = require("../error_handling/errors");
 
 /**
  * Post Service class for handling Post model and services
  */
 class PostService {
-    /**
+  /**
    * Post Service constructor
    * Depends on the following classes
-   * @param {object} Post - Post data model
-   * @param {object} postRepository - Data access object for post
-   * @param {object} subredditRepository - Data access object for subreddit
-   * @param {object} flairRepository
+   * @param {object} PostRepository - Data access object for post
+   * @param {object} subredditRepo - Data access object for subreddit
    */
   constructor({ PostRepository, SubredditRepository }) {
-    //this.Post = Post;
-    this.postRepository = PostRepository;
-    this.subredditRepository = SubredditRepository;
-    //this.subredditRepository = subredditRepository;
+    this.postRepo = PostRepository;
+    this.subredditRepo = SubredditRepository;
 
-    this.createPost = this.createPost.bind(this);
-    this.updatePost = this.updatePost.bind(this);
-    this.deletePost = this.deletePost.bind(this);
-    this.isValidId = this.isValidId.bind(this);
-    this.isEditable = this.isEditable.bind(this);
-    this.isAuthor = this.isAuthor.bind(this);
-    this.isValidPost = this.isValidPost.bind(this);
-    this.checkFlair = this.checkFlair.bind(this);
-    this.getUserPosts = this.getUserPosts.bind(this);
-    this.setVotePostStatus = this.setVotePostStatus.bind(this);
-
-    this.getPosts = this.getPosts.bind(this);
-    this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
-    this.setPostOwnerData = this.setPostOwnerData.bind(this);
-    this.removeHiddenPosts = this.removeHiddenPosts.bind(this);
-    this.setSavedPostStatus = this.setSavedPostStatus.bind(this);
-    this.setHiddenPostStatus = this.setHiddenPostStatus.bind(this);
-  }
-
-  async checkFlair(subredditId, flairId) {
-    const flairs = (
-      await this.subredditRepository.getById(subredditId, "flairs")
-    ).flairs;
-    if (!flairs || !flairs.includes(flairId)) return false;
-    return true;
-  }
-
-  /**
-   * Creates a post with the given data
-   * @param {object} data  - Post required data before creation
-   * @returns {object} - Post object after creation
-   */
-  async createPost(data) {
-    const post = (await this.postRepository.createOne(data)).doc;
-    return post;
+    // this.getUserPosts = this.getUserPosts.bind(this);
+    // this.setVotePostStatus = this.setVotePostStatus.bind(this);
+    // this.getPosts = this.getPosts.bind(this);
+    // this.selectPostsWithVotes = this.selectPostsWithVotes.bind(this);
+    // this.setPostOwnerData = this.setPostOwnerData.bind(this);
+    // this.removeHiddenPosts = this.removeHiddenPosts.bind(this);
+    // this.setSavedPostStatus = this.setSavedPostStatus.bind(this);
+    // this.setHiddenPostStatus = this.setHiddenPostStatus.bind(this);
   }
 
   /**
@@ -61,9 +30,24 @@ class PostService {
    * @param {object} data - The post data that shoud be updated namely, text
    * @returns {object} - Post object after update
    */
-  async updatePost(id, data) {
-    const post = (await this.postRepository.updateOne({ _id: id }, data)).doc;
-    return post;
+  async updatePost(id, data, userId) {
+    //validate post ID
+    const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const { author, kind, sharedFrom } = post.doc;
+
+    //validate the user
+    if (!author.equals(userId))
+      return { success: false, error: postErrors.NOT_AUTHOR };
+
+    //Check if post is editable
+    if (kind !== "self" || sharedFrom)
+      return { success: false, error: postErrors.NOT_EDITABLE };
+
+    const updatedPost = await this.postRepo.updatetext(id, data.text);
+    return { success: true, data: updatedPost.doc };
   }
 
   /**
@@ -72,94 +56,76 @@ class PostService {
    * The delete effect is cascaded to all the comment tree of the post using mongoose middlewares
    * @param {string} id - Post ID
    */
-  async deletePost(id) {
-    await this.postRepository.updateOne({ _id: id }, { isDeleted: true });
+  async deletePost(id, userId) {
+    //validate post ID
+    const post = await this.postRepo.findById(id, "author");
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const author = post.doc.author;
+
+    //validate the user
+    if (!author.equals(userId))
+      return { success: false, error: postErrors.NOT_AUTHOR };
+
+    await this.postRepo.deletePost(id);
+
+    return { success: true};
   }
 
   /**
-   * Validate the post data request
+   * Creates a post after validation
    * The following conditions are checked
    * - required data is present
    * - the post is of valid kind
    * - the post owner is valid
    * - valid flair id is provided
-   * @param {object} data - The post data 
-   * @returns {boolean}
+   * @param {object} data  - Post required data before creation
+   * @returns {object}
    */
-  async isValidPost(data) {
-    const validReq = data.ownerType && data.kind && data.title;
-    if (!validReq) return false;
-
+  async createPost(data) {
     const validType =
       (data.kind === "link" && data.url) || (data.kind === "self" && data.text);
-    if (!validType) return false;
+    if (!validType)
+      return { success: false, error: postErrors.INVALID_POST_KIND };
 
-    //validate that the post is created only on author profile
-
-    if (data.ownerType === "User") {
-      data.owner = data.author;
-    }
+    if (data.ownerType === "User") data.owner = data.author;
     //validate subreddit if the post is created in one
-    else {
-      if (!data.owner) return false;
-      const validSubreddit = await this.subredditRepository.isValidId(
-        data.owner
-      );
-      if (data.ownerType !== "Subreddit" || !validSubreddit) return false;
+    else if (data.ownerType === "Subreddit") {
+      if (!data.owner)
+        return { success: false, error: postErrors.INVALID_OWNER };
+      const validSubreddit = await this.subredditRepo.isValidId(data.owner);
+      if (!validSubreddit)
+        return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
     }
 
     // if (data.flair) {
-    //   await this.subredditRepository.getById(data.owner, "flairs");
+    //   await this.subredditRepo.getById(data.owner, "flairs");
     // }
 
-    return true;
+    const post = await this.postRepo.createOne(data);
+    if (post.success) return { success: true, data: post.doc };
+
+    return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
 
-  /**
-   * Checks if the user is the post author
-   * assumes postId is valid
-   * @param {string} postId
-   * @param {string} userId 
-   * @returns {boolean}
-   */
-  async isAuthor(postId, userId) {
-    const author = (await this.postRepository.getById(postId, "author")).author;
-    return author.equals(userId);
-  }
+  // async checkFlair(subredditId, flairId) {
+  //   const flairs = (
+  //     await this.subredditRepo.getById(subredditId, "flairs")
+  //   ).flairs;
+  //   if (!flairs || !flairs.includes(flairId)) return false;
+  //   return true;
+  // }
 
-  /**
-   * Validates post id
-   * @param {string} id - Post id
-   * @returns {boolean}
-   */
-  async isValidId(id) {
-    if (!ObjectId.isValid(id)) return false;
-    const doc = await this.postRepository.getById(id, "_id");
-    if (!doc) return false;
-    return true;
-  }
-
-  /**
-   * Checks if the post with given id can be edited
-   * A post can be edited if its kind is self and it's not crossposted
-   * @param {string} postId 
-   * @returns {boolean}
-   */
-  async isEditable(postId) {
-    const post = await this.postRepository.getById(postId, "kind sharedFrom");
-    if (post.kind !== "self" || post.sharedFrom) return false;
-    return true;
-  }
   /**
    * get posts
    * @param {String} query query to apply
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-
   async getPosts(query, filter) {
     try {
-      const posts = await this.postRepository.getAll(filter, query);
+      const posts = await this.postRepo.getAll(filter, query);
       console.log(posts);
       return posts;
     } catch (err) {
@@ -183,7 +149,7 @@ class PostService {
     } else if (sortType === "Top") {
       // sort by votes
       console.log("Top");
-      const posts = await this.postRepository.getAll(
+      const posts = await this.postRepo.getAll(
         { author: author },
         { sort: "-votes" },
         "owner"
@@ -191,11 +157,7 @@ class PostService {
       return posts.doc;
     } else {
       // sort by createdAt
-      const posts = await this.postRepository.getAll(
-        { author: author },
-        "",
-        "owner"
-      );
+      const posts = await this.postRepo.getAll({ author: author }, "", "owner");
       return posts.doc;
     }
   }

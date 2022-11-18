@@ -1,3 +1,5 @@
+const { subredditErrors } = require("../error_handling/errors");
+
 class subredditController {
   constructor({ subredditService, UserService }) {
     this.subredditServices = subredditService; // can be mocked in unit testing
@@ -684,47 +686,54 @@ class subredditController {
 
   async subscribe(req, res) {
     //setting sub default behavior
+    const subredditName = req.params.subredditName;
     const action = req.query.action || "sub";
-
-    //check if subreddit exists
-    const subreddit = await this.subredditServices.subExists(
-      req.params.subredditName,
-      "_id"
-    );
-    if (!subreddit) {
-      res.status(404).json({
+    if (action !== "sub" && action !== "unsub") {
+      res.status(400).json({
         status: "fail",
-        message: "Subreddit not found",
+        message: "Invalid action",
       });
       return;
     }
 
-    //check if user is not banned
-    const banned = await this.subredditServices.isBanned(
-      subreddit._id,
+    //check if subreddit exists
+    const subreddit = await this.subredditServices.subscriable(
+      subredditName,
       req.user._id
     );
-    if (banned) {
-      res.status(400).json({
+    if (!subreddit.success) {
+      let msg, stat;
+      switch (subreddit.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.BANNED:
+          msg = "user is banned from subreddit";
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
         status: "fail",
-        message: "User is banned from the subreddit",
+        message: msg,
       });
       return;
     }
 
     //subscribe or unsubscribe user according to sub
-    const success = await this.userServices.subscribe(
+    const subscribed = await this.userServices.subscribe(
       req.user._id,
       subreddit._id,
       action
     );
-
-    if (!success) {
-      res.status(400).json({
-        status: "fail",
-        message: "Invalid subscribtion action",
-      });
-      return;
+    if (!subscribed) {
+      {
+        res.status(400).json({
+          status: "fail",
+          message: "Invalid subscribtion action",
+        });
+        return;
+      }
     }
 
     res.status(200).json({
