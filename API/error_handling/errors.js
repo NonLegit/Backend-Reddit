@@ -27,7 +27,13 @@ exports.subredditErrors = Object.freeze({
   MONGO_ERR: 0,
   SUBREDDIT_NOT_FOUND: 1,
   BANNED: 2,
+  MUTED: 3,
+  NOT_OWNER: 4,
+  NOT_MODERATOR: 5,
+  ALREADY_EXISTS: 6,
+  INVALID_ENUM: 7,
 });
+
 exports.userErrors = Object.freeze({
   MONGO_ERR: 0,
   USER_NOT_FOUND: 1,
@@ -35,7 +41,8 @@ exports.userErrors = Object.freeze({
   INCORRECT_PASSWORD: 3,
   EMAIL_ERROR:5,
   INVALID_TOKEN:6,
-  INVALID_RESET_TOKEN:7
+  INVALID_RESET_TOKEN:7,
+
 });
 
 exports.mongoErrors = Object.freeze({

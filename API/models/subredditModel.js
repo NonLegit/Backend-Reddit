@@ -8,9 +8,9 @@ const validator = require("validator");
 // ! Dont forget to push again
 
 const subredditSchema = new mongoose.Schema({
-  name: {
+  fixedName: {
     type: String,
-    required: [true, "subreddit Name must be unique"],
+    required: [true, "subreddit must have a name"],
     unique: true,
     trim: true,
     maxlength: [
@@ -21,27 +21,30 @@ const subredditSchema = new mongoose.Schema({
       10,
       "A subreddit name must have more or equal then 10 characters",
     ],
-  },
-  rules: {
-    type: Object,
-    required: false,
-    defaultName: {
-      type: String,
-      trim: true,
+  }, // TODO: this will be unique and replaced with name
+  name: { type: String, default: " " },
+  rules: [
+    {
+      type: Object,
+      required: false,
+      defaultName: {
+        type: String,
+        trim: true,
+      },
+      description: {
+        type: String,
+        trim: true,
+      },
+      appliesTo: {
+        type: String,
+        trim: true,
+      },
+      title: {
+        type: String,
+        trim: true,
+      },
     },
-    description: {
-      type: String,
-      trim: true,
-    },
-    appliesTo: {
-      type: String,
-      trim: true,
-    },
-    title: {
-      type: String,
-      trim: true,
-    },
-  },
+  ],
   description: {
     type: String,
     required: false,
@@ -154,13 +157,20 @@ const subredditSchema = new mongoose.Schema({
   moderators: [
     {
       type: Object,
-      username: {
+      id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
-      mod_time: { type: Date, default: Date.now() },
-      permissions: {
+      userName: { type: String },
+      joiningDate: { type: Date, default: Date.now() },
+      profilePicture: {
+        type: String,
+        required: false,
+        trim: true, // *TODO: it will be unique with time stamp and username
+        default: "profile.png",
+      },
+      moderatorPermissions: {
         type: Object,
         required: false,
         all: { type: Boolean },

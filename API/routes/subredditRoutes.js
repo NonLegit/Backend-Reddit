@@ -37,18 +37,18 @@ router.get(
   subredditController.relevantPosts
 );
 router.get("/mine/:where", subredditController.subredditsJoined);
-router.post(
-  "/:subredditName/moderator/:moderatorName",
-  subredditController.inviteModerator
-);
-router.delete(
-  "/:subredditName/moderator/:moderatorName",
-  subredditController.deletemoderator
-);
-router.patch(
-  "/:subredditName/moderator/:moderatorName",
-  subredditController.updatePermissions
-);
+// router.post(
+//   "/:subredditName/moderator/:moderatorName",
+//   subredditController.inviteModerator
+// );
+// router.delete(
+//   "/:subredditName/moderator/:moderatorName",
+//   subredditController.deletemoderator
+// );
+// router.patch(
+//   "/:subredditName/moderator/:moderatorName",
+//   subredditController.updatePermissions
+// );
 // router.patch("/:subredditName/setPrimaryTopic",subredditController.setPrimaryTopic);
 
 router
