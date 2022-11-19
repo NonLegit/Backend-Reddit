@@ -372,7 +372,6 @@ class subredditService {
     } else if (location === "subscriber") {
       // ! get it from user (easy too)
       let subreddits = await this.userRepository.getSubreddits(userId);
-      console.log(subreddits);
       if (!subreddits.success) return subreddits;
       else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };

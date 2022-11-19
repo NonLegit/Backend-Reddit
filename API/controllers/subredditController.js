@@ -292,7 +292,7 @@ class subredditController {
       });
     }
   }
-
+  // TODO: need refactoring
   async inviteModerator(req, res) {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -325,7 +325,7 @@ class subredditController {
       });
     }
   }
-
+  // TODO: need refactoring
   async updatePermissions(req, res) {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -357,8 +357,6 @@ class subredditController {
       });
     }
   }
-
-  
 
   // ! Doaa's controllers
   async createFlair(req, res) {
