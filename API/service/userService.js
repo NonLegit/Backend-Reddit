@@ -97,7 +97,7 @@ class UserService {
       userName: userName,
       password: password,
     };
-    this.checkPasswordStrength(password);
+    //this.checkPasswordStrength(password);
     let user = await this.userRepository.createOne(userData);
     if (user.success === false) {
       // user with this email or username is exists

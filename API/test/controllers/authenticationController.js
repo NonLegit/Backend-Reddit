@@ -1,16 +1,181 @@
 const assert = require("chai").assert;
 const expect = require("chai").expect;
-const request = require("supertest");
+const chai = require("chai");
+const sinon = require("sinon");
+const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
-process.env.NODE_ENV = "test";
+const auth = require("./../../controllers/authenticationController");
+const { userErrors } = require("./../../error_handling/errors");
+dotenv.config();
+chai.use(sinonChai);
+// const proxyquire = require("proxyquire");
 
-const seeder = require("./seed");
-const app = require("./../../app");
+//var res = { send: sinon.spy() ,status: sinon.spy(),json: sinon.spy()};
+const statusJsonSpy = sinon.spy();
+const res = {
+  json: sinon.spy(),
+  status: sinon.stub().returns({ json: statusJsonSpy }),
+  cookie: sinon.spy(),
+};
+
+describe("Authentication Controller Test", () => {
+  describe("Sign-up Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+          userName: "ahmed",
+          password: "Aa123456*",
+        },
+      };
+      const UserService = {
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+        checkPasswordStrength: (password) => {
+          return "medium";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.signUp(req, res, "");
+      expect(res.status).to.have.been.calledWith(201);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+          userName: "ahmed",
+        },
+      };
+      const UserService = {
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+        checkPasswordStrength: (password) => {
+          return "medium";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.signUp(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide username, email and password",
+        errorType: 0,
+      });
+    });
+
+    it("thrid test bad request user already exists", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+          userName: "ahmed",
+          password: "123",
+        },
+      };
+      const UserService = {
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_ALREADY_EXISTS,
+            msg: "User Already Exists",
+          };
+          return response;
+        },
+        checkPasswordStrength: (password) => {
+          return "medium";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.signUp(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User Already Exists",
+        errorType: 2,
+      });
+    });
+
+    it("fifth test bad request  weak password", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+          userName: "ahmed",
+          password: "123456A",
+        },
+      };
+      const UserService = {
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_ALREADY_EXISTS,
+            msg: "User Already Exists",
+          };
+          return response;
+        },
+        checkPasswordStrength: (password) => {
+          return "Too weak";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.signUp(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Too weak password",
+        errorType: 1,
+      });
+    });
+    it("fourth test bad request Too weak password", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+          userName: "ahmed",
+          password: "123",
+        },
+      };
+      const UserService = {
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_ALREADY_EXISTS,
+            msg: "User Already Exists",
+          };
+          return response;
+        },
+        checkPasswordStrength: (password) => {
+          return "Weak";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.signUp(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Weak password",
+        errorType: 1,
+      });
+    });
+  });
+});
+
+// process.env.NODE_ENV = "test";
+// const request = require("supertest");
+// const seeder = require("./seed");
+// const app = require("./../../app");
 // const { mockRequest, mockResponse } = require("mock-req-res");
 // const { stub, match } = require("sinon");
 // const proxyquire = require("proxyquire");
 
+/*
 describe("Authentication Controller Test", () => {
   describe("Sign-up Test", () => {
     it("first test success", (done) => {
@@ -209,7 +374,7 @@ describe("Authentication Controller Test", () => {
         });
     });
   });
-});
+}); */
 
 // const mockSave = stub();
 
