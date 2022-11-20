@@ -382,7 +382,7 @@ class UserService {
       "displayName",
       "description"
     );
-    let user = await this.userRepository.updateOne({ _id: id }, filteredBody);
+    let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);
   }
   /**
@@ -437,6 +437,23 @@ class UserService {
     }
 
     return false;
+  }
+  async updateUserEmail(id, email) {
+    const user = await this.userRepository.updateEmailById(id, email);
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
 }
 

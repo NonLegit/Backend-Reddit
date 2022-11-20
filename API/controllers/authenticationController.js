@@ -1,4 +1,5 @@
 const { OAuth2Client } = require("google-auth-library");
+var validator = require("email-validator");
 const { trusted } = require("mongoose");
 const { userErrors } = require("../error_handling/errors");
 /**
@@ -408,6 +409,46 @@ class AuthenticationController {
           status: "fail",
           errorMessage: "provide valid token",
         });
+      }
+    }
+  };
+  changeEmail = async (req, res, next) => {
+    if (!req.body.newEmail) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide New Email",
+      });
+    } else {
+      const newEmail = req.body.newEmail;
+      if (req.user.email === newEmail) {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: "Insert different email",
+        });
+      } else {
+        if (validator.validate(newEmail)) {
+          const user = await this.UserServices.getUserByEmail(newEmail);
+          if (user.success === true) {
+            res.status(400).json({
+              status: "fail",
+              errorMessage: "Email is already taken by another user",
+            });
+          } else {
+            //change email using update email
+            const email = await this.UserServices.updateUserEmail(
+              req.user._id,
+              newEmail
+            );
+            res.status(204).json({
+              status: "success",
+            });
+          }
+        } else {
+          res.status(400).json({
+            status: "fail",
+            errorMessage: "Invaild Email",
+          });
+        }
       }
     }
   };
