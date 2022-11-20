@@ -456,6 +456,38 @@ paths:
                     type: string
                     example: Token is invalid or has expired
 
+  /users/change_email:
+    post:
+      tags:
+        - Users
+      summary: Change user email 
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      requestBody:
+        description: user's new email 
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newEmail:
+                  type: string
+                  format: email
+
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
   /users/me/:
     description: User Resource
     get:
@@ -5990,9 +6022,6 @@ components:
     userPreferences:
       type: object
       properties:
-        contentVisibility:
-          type: boolean
-          example: true
         canbeFollowed:
           type: boolean
           example: true
@@ -6006,19 +6035,10 @@ components:
         nsfw:
           type: boolean
           example: true
-        allowInboxMessages:
+        adultContent:
           type: boolean
           example: true
-        allowCommentsOnPosts:
-          type: boolean
-          example: true
-        allowUpvotesPosts:
-          type: boolean
-          example: true
-        allowUpvotesComments:
-          type: boolean
-          example: true
-        allowMentions:
+        autoplayMedia:
           type: boolean
           example: true
         gender:
@@ -6245,7 +6265,10 @@ components:
           example: src url
         profileBackground:
           type: string
-        contentVisibility:
+        adultContent:
+          type: boolean
+          example: true
+        autoplayMedia:
           type: boolean
           example: true
         canbeFollowed:
@@ -6299,7 +6322,10 @@ components:
           example: src url
         profileBackground:
           type: string
-        contentVisibility:
+        adultContent:
+          type: boolean
+          example: true
+        autoplayMedia:
           type: boolean
           example: true
         canbeFollowed:

@@ -671,6 +671,56 @@
         }
       }
     },
+    "/users/change_email": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Change user email",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "user's new email",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newEmail": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
     "/users/me/": {
       "description": "User Resource",
       "get": {
@@ -2879,12 +2929,7 @@
                       "example": "success"
                     },
                     "data": {
-                      "type": "object",
-                      "properties": {
-                        "Post": {
-                          "$ref": "#/components/schemas/PostCreate"
-                        }
-                      }
+                      "$ref": "#/components/schemas/Post"
                     }
                   }
                 }
@@ -9340,10 +9385,6 @@
       "userPreferences": {
         "type": "object",
         "properties": {
-          "contentVisibility": {
-            "type": "boolean",
-            "example": true
-          },
           "canbeFollowed": {
             "type": "boolean",
             "example": true
@@ -9362,23 +9403,11 @@
             "type": "boolean",
             "example": true
           },
-          "allowInboxMessages": {
+          "adultContent": {
             "type": "boolean",
             "example": true
           },
-          "allowCommentsOnPosts": {
-            "type": "boolean",
-            "example": true
-          },
-          "allowUpvotesPosts": {
-            "type": "boolean",
-            "example": true
-          },
-          "allowUpvotesComments": {
-            "type": "boolean",
-            "example": true
-          },
-          "allowMentions": {
+          "autoplayMedia": {
             "type": "boolean",
             "example": true
           },
@@ -9487,6 +9516,27 @@
           }
         }
       },
+      "rules": {
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "defaultName": {
+            "type": "string"
+          },
+          "appliesTo": {
+            "type": "string",
+            "enum": [
+              "Posts and comments",
+              "Posts only",
+              "Comments only"
+            ]
+          }
+        }
+      },
       "fullSubreddit": {
         "properties": {
           "createdAt": {
@@ -9503,25 +9553,9 @@
             "type": "string"
           },
           "rules": {
-            "type": "object",
-            "properties": {
-              "title": {
-                "type": "string"
-              },
-              "description": {
-                "type": "string"
-              },
-              "defaultName": {
-                "type": "string"
-              },
-              "appliesTo": {
-                "type": "string",
-                "enum": [
-                  "Posts and comments",
-                  "Posts only",
-                  "Comments only"
-                ]
-              }
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/rules"
             }
           },
           "name": {
@@ -9698,7 +9732,11 @@
           "profileBackground": {
             "type": "string"
           },
-          "contentVisibility": {
+          "adultContent": {
+            "type": "boolean",
+            "example": true
+          },
+          "autoplayMedia": {
             "type": "boolean",
             "example": true
           },
@@ -9769,7 +9807,11 @@
           "profileBackground": {
             "type": "string"
           },
-          "contentVisibility": {
+          "adultContent": {
+            "type": "boolean",
+            "example": true
+          },
+          "autoplayMedia": {
             "type": "boolean",
             "example": true
           },
@@ -9819,6 +9861,9 @@
       "Subreddit": {
         "type": "object",
         "properties": {
+          "icon": {
+            "type": "string"
+          },
           "id": {
             "type": "string",
             "format": "int64",
