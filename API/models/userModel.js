@@ -74,6 +74,12 @@ const userSchema = new mongoose.Schema({
     // it will be unique with time stamp and username
     //unique: true,
   },
+  profileBackground: {
+    type: String,
+    default: "default.png",
+    // it will be unique with time stamp and username
+    //unique: true,
+  },
   // log out make active Now false and in log in make active now true
   activeNow: {
     type: Boolean,
@@ -101,42 +107,22 @@ const userSchema = new mongoose.Schema({
   },
 
   // user preferences
+  autoplayMedia: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  adultContent: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   canbeFollowed: {
     type: Boolean,
     required: false,
     default: true,
   },
-  contentVisibility: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
   nsfw: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowInboxMessage: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowMentions: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowCommentsOnPosts: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnComments: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnPosts: {
     type: Boolean,
     required: false,
     default: true,
@@ -227,6 +213,38 @@ const userSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  /*
+  contentVisibility: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  allowInboxMessage: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  allowMentions: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  allowCommentsOnPosts: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  allowUpvotesOnComments: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  allowUpvotesOnPosts: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  */
 });
 
 userSchema.pre("save", async function (next) {

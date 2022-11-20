@@ -317,21 +317,13 @@ describe("User Services Test", () => {
     it("test should be success", () => {
       const userServiceObj = new UserService({});
       let user = {
-        contentVisibility: true,
         canbeFollowed: true,
         nsfw: true,
-        allowInboxMessage: true,
-        allowMentions: true,
-        allowCommentsOnPosts: true,
-        allowUpvotesOnComments: true,
-        allowUpvotesOnPosts: true,
         displayName: "ahmed",
         profilePicture: "img.png",
       };
       let result = userServiceObj.getPrefs(user);
-      assert.equal(result.contentvisibility, user.contentvisibility);
       assert.equal(result.displayName, user.displayName);
-      assert.equal(result.allowUpvotesOnComments, user.allowUpvotesOnComments);
       assert.equal(result.nsfw, user.nsfw);
     });
   });
@@ -342,14 +334,8 @@ describe("User Services Test", () => {
         updateOne: (userData, body) => {
           const response = {
             doc: {
-              contentVisibility: false,
               canbeFollowed: false,
               nsfw: true,
-              allowInboxMessage: true,
-              allowMentions: true,
-              allowCommentsOnPosts: true,
-              allowUpvotesOnComments: true,
-              allowUpvotesOnPosts: true,
               displayName: "ahmed",
               profilePicture: "img.png",
             },
@@ -362,13 +348,10 @@ describe("User Services Test", () => {
         UserRepository,
       });
       const query = {
-        contentVisibility: false,
         canbeFollowed: false,
       };
 
       let result = await userServiceObj.updatePrefs(query, "");
-      expect(result.contentVisibility).to.equal(false);
-      assert.equal(result.contentVisibility, false);
       assert.equal(result.displayName, "ahmed");
       assert.equal(result.canbeFollowed, false);
       assert.equal(result.nsfw, true);

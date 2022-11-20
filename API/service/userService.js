@@ -346,17 +346,14 @@ class UserService {
    */
   getPrefs(user) {
     let prefs = {
-      contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
       gender: user.gender,
-      allowInboxMessage: user.allowInboxMessage,
-      allowMentions: user.allowMentions,
-      allowCommentsOnPosts: user.allowCommentsOnPosts,
-      allowUpvotesOnComments: user.allowUpvotesOnComments,
-      allowUpvotesOnPosts: user.allowUpvotesOnPosts,
+      adultContent: user.adultContent,
+      autoplayMedia: user.autoplayMedia,
       displayName: user.displayName,
       profilePicture: user.profilePicture,
+      profileBackground: user.profileBackground,
       description: user.description,
     };
     return prefs;
@@ -370,15 +367,11 @@ class UserService {
   async updatePrefs(query, id) {
     const filteredBody = this.filterObj(
       query,
-      "contentVisibility",
       "canbeFollowed",
       "nsfw",
       "gender",
-      "allowInboxMessage",
-      "allowMentions",
-      "allowCommentsOnPosts",
-      "allowUpvotesOnComments",
-      "allowUpvotesOnPosts",
+      "adultContent",
+      "autoplayMedia",
       "displayName",
       "description"
     );
