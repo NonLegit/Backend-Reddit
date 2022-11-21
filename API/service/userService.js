@@ -131,6 +131,7 @@ class UserService {
         success: false,
         error: userErrors.USER_NOT_FOUND,
         msg: user.msg,
+        // msg:"invaild userName or password",
       };
       return response;
     } else {
@@ -146,6 +147,7 @@ class UserService {
           success: false,
           error: userErrors.INCORRECT_PASSWORD,
           msg: "Incorrect Password",
+          // msg:"invaild userName or password",
         };
         return response;
       }
