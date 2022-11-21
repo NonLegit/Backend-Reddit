@@ -70,7 +70,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example: invaild userName or password
+                    example: User Not Found
         400:
           description: Bad Request
           content:
@@ -83,7 +83,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example: provide userName and password
+                    example: Incorrect password
   /users/logout:
     description: User Resource
     post:
@@ -474,7 +474,9 @@ paths:
                 newEmail:
                   type: string
                   format: email
-
+                password:
+                  type: string
+                  
       responses:
         "204":
           description: successful operation

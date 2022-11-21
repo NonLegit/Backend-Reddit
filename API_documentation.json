@@ -94,7 +94,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "provide userName and password"
+                      "example": "Incorrect password"
                     }
                   }
                 }
@@ -114,7 +114,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "invaild userName or password"
+                      "example": "User Not Found"
                     }
                   }
                 }
@@ -695,6 +695,9 @@
                   "newEmail": {
                     "type": "string",
                     "format": "email"
+                  },
+                  "password": {
+                    "type": "string"
                   }
                 }
               }
