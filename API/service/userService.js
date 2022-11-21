@@ -433,6 +433,10 @@ class UserService {
 
     return false;
   }
+  async checkPassword(password, userName) {
+    let user = await this.userRepository.findByUserName(userName, "+password");
+    return await user.doc.checkPassword(password, user.doc.password);
+  }
   async updateUserEmail(id, email) {
     const user = await this.userRepository.updateEmailById(id, email);
     if (user.success === true) {

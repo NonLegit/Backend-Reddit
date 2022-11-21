@@ -413,13 +413,14 @@ class AuthenticationController {
     }
   };
   changeEmail = async (req, res, next) => {
-    if (!req.body.newEmail) {
+    if (!req.body.newEmail || !req.body.password) {
       res.status(400).json({
         status: "fail",
-        errorMessage: "Provide New Email",
+        errorMessage: "Provide New Email and password",
       });
     } else {
       const newEmail = req.body.newEmail;
+      const password = req.body.password;
       if (req.user.email === newEmail) {
         res.status(400).json({
           status: "fail",
@@ -427,20 +428,27 @@ class AuthenticationController {
         });
       } else {
         if (validator.validate(newEmail)) {
-          const user = await this.UserServices.getUserByEmail(newEmail);
-          if (user.success === true) {
+          if (await this.UserServices.checkPassword(password,req.user.userName)) {
+            const user = await this.UserServices.getUserByEmail(newEmail);
+            if (user.success === true) {
+              res.status(400).json({
+                status: "fail",
+                errorMessage: "Email is already taken by another user",
+              });
+            } else {
+              //change email using update email
+              const email = await this.UserServices.updateUserEmail(
+                req.user._id,
+                newEmail
+              );
+              res.status(204).json({
+                status: "success",
+              });
+            }
+          } else {
             res.status(400).json({
               status: "fail",
-              errorMessage: "Email is already taken by another user",
-            });
-          } else {
-            //change email using update email
-            const email = await this.UserServices.updateUserEmail(
-              req.user._id,
-              newEmail
-            );
-            res.status(204).json({
-              status: "success",
+              errorMessage: "Incorrect password",
             });
           }
         } else {
