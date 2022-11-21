@@ -162,7 +162,7 @@ class UserService {
     try {
       let user = await this.userRepository.findByEmail(email);
       if (user.success === true) {
-        const resetURL = `${process.env.FRONTDOMAIN}login/`;
+        const resetURL = `${process.env.FRONTDOMAIN}/login`;
         await this.emailServices.sendUserName(user.doc, resetURL);
         const response = {
           success: true,
@@ -203,7 +203,7 @@ class UserService {
       if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
         await user.doc.save({ validateBeforeSave: false });
-        const resetURL = `${process.env.FRONTDOMAIN}resetPassword/${resetToken}`;
+        const resetURL = `${process.env.FRONTDOMAIN}/resetpassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
         const response = {
           success: true,

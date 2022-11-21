@@ -329,6 +329,7 @@ class AuthenticationController {
    */
   facebookValidation = async (req, res, next) => {
     let user = req.user;
+    console.log(user)
     if (user.status == "fail") {
       // user should be created
       const userName = "user";
@@ -339,12 +340,13 @@ class AuthenticationController {
       //   });
       // } else {
       const email = user.email;
+      console.log(email);
       const password = this.UserServices.generateRandomPassword();
-      let user = await this.UserServices.signUp(email, userName, password);
-      if (user.success === true) {
-        this.createCookie(res, response.token, 201);
+      let newUser = await this.UserServices.signUp(email, userName, password);
+      if (newUser.success === true) {
+        this.createCookie(res, newUser.token, 201);
       } else {
-        const response = this.errorResponse(user.error, user.msg);
+        const response = this.errorResponse(newUser.error, newUser.msg);
         res.status(response.stat).json({
           status: "fail",
           errorMessage: response.msg,
@@ -378,7 +380,7 @@ class AuthenticationController {
         });
         const payload = key.getPayload();
         const email = payload["email"];
-        const user = await this.UserServices.getUserByEmail(email);
+        let user = await this.UserServices.getUserByEmail(email);
         if (user.success === false) {
           // user not found, signup new user
           const userName = "user";
@@ -388,7 +390,7 @@ class AuthenticationController {
           //     errorMessage: "provide userName",
           //   });
           // } else {
-
+          const password = this.UserServices.generateRandomPassword();
           let user = await this.UserServices.signUp(email, userName, password);
           if (user.success === true) {
             this.createCookie(res, user.token, 201);
@@ -401,7 +403,7 @@ class AuthenticationController {
           }
           //}
         } else {
-          const token = await this.UserServices.createToken(user.doc._id);
+          const token = await this.UserServices.createToken(user.data._id);
           this.createCookie(res, token, 200);
         }
       } catch (error) {
@@ -428,7 +430,9 @@ class AuthenticationController {
         });
       } else {
         if (validator.validate(newEmail)) {
-          if (await this.UserServices.checkPassword(password,req.user.userName)) {
+          if (
+            await this.UserServices.checkPassword(password, req.user.userName)
+          ) {
             const user = await this.UserServices.getUserByEmail(newEmail);
             if (user.success === true) {
               res.status(400).json({
