@@ -162,7 +162,8 @@ class UserService {
     try {
       let user = await this.userRepository.findByEmail(email);
       if (user.success === true) {
-        await this.emailServices.sendUserName(user.doc);
+        const resetURL = `${process.env.FRONTDOMAIN}login/`;
+        await this.emailServices.sendUserName(user.doc, resetURL);
         const response = {
           success: true,
         };
@@ -217,6 +218,7 @@ class UserService {
         return response;
       }
     } catch (err) {
+      console.log(err);
       const response = {
         success: false,
         error: userErrors.EMAIL_ERROR,
