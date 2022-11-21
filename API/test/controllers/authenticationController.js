@@ -12,6 +12,7 @@ chai.use(sinonChai);
 
 //var res = { send: sinon.spy() ,status: sinon.spy(),json: sinon.spy()};
 const statusJsonSpy = sinon.spy();
+const next = sinon.spy();
 const res = {
   json: sinon.spy(),
   status: sinon.stub().returns({ json: statusJsonSpy }),
@@ -162,6 +163,440 @@ describe("Authentication Controller Test", () => {
         status: "fail",
         errorMessage: "Weak password",
         errorType: 1,
+      });
+    });
+  });
+
+  describe("Login Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          password: "Aa123456*",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.logIn(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.logIn(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide username and password",
+      });
+    });
+
+    it("thrid test bad request user not found ", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          password: "123",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_NOT_FOUND,
+            msg: "User Already Exists",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.logIn(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+
+    it("fourth test incorrect password", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          password: "123",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.INCORRECT_PASSWORD,
+            msg: "Incorrect Password",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.logIn(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Incorrect Password",
+      });
+    });
+  });
+
+  describe("forgot password Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        forgotPassword: async (password, userName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+        },
+      };
+      const UserService = {
+        forgotPassword: async (password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide username and email",
+      });
+    });
+
+    it("thrid test fail user not found ", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        forgotPassword: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_NOT_FOUND,
+            msg: "User Not Found",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+  });
+
+  describe("forgot UserName Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        forgotUserName: async (userName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotUserName(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {},
+      };
+      const UserService = {
+        forgotUserName: async (password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotUserName(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide email",
+      });
+    });
+
+    it("thrid test fail user not found ", async () => {
+      const req = {
+        body: {
+          userName: "ahmed",
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        forgotUserName: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_NOT_FOUND,
+            msg: "User Not Found",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.forgotUserName(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+  });
+
+  describe("reset password Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          token: "token",
+        },
+        body: {
+          password: "Aa1234",
+          confirmPassword: "Aa1234",
+        },
+      };
+      const UserService = {
+        resetPassword: async (resetToken, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.resetPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        params: {
+          token: "token",
+        },
+        body: {
+          password: "Aa1234",
+        },
+      };
+      const UserService = {
+        resetPassword: async (resetToken, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.resetPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide correct Passwords",
+      });
+    });
+
+    it("thrid test expired token ", async () => {
+      const req = {
+        params: {
+          token: "token",
+        },
+        body: {
+          password: "Aa1234",
+          confirmPassword: "Aa1234",
+        },
+      };
+      const UserService = {
+        resetPassword: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.INVALID_RESET_TOKEN,
+            msg: "Token Invalid or Has Expired",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.resetPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Token Invalid or Has Expired",
+      });
+    });
+    it("fourth test password not equal confirmPassword ", async () => {
+      const req = {
+        params: {
+          token: "token",
+        },
+        body: {
+          password: "Aa1234",
+          confirmPassword: "Aa12345",
+        },
+      };
+      const UserService = {
+        resetPassword: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.INVALID_RESET_TOKEN,
+            msg: "Provide correct Passwords",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.resetPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Token Invalid or Has Expired",
+      });
+    });
+  });
+
+  describe("authorize  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token)=>{
+          return "1";
+        }
+      };
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next);
+      expect(next).to.have.been.calledOnce;
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        cookies: {},
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token)=>{
+          return "1";
+        }
+      };
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Unauthorized",
+      });
+    });
+
+    it("thrid test fail password change after token created ", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token)=>{
+          return "1";
+        }
+      };
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Password is changed , Please login again",
       });
     });
   });
