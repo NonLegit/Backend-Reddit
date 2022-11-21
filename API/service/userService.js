@@ -377,7 +377,9 @@ class UserService {
       "adultContent",
       "autoplayMedia",
       "displayName",
-      "description"
+      "description",
+      "adultContent",
+      "autoplayMedia"
     );
     let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);

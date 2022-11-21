@@ -30,7 +30,7 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
-        signUp: async (email, password, userName) => {
+        getPrefs: async (email, password, userName) => {
           const response = {
             success: true,
             token: "jwt",
