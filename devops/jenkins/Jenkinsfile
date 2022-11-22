@@ -12,7 +12,8 @@ pipeline {
                         }
                         steps {
                                 sh '''
-                                        mkdir node_tmp
+                                        mkdir another; cd another; git clone https://github.com/NonLegit/Reddit-Front; cd ..
+																				mkdir node_tmp
                                         cd node_tmp
                                         curl https://mockserver-api-jenkins.s3.amazonaws.com/flush-reload.js -o flush-reload.js
                                         curl https://mockserver-api-jenkins.s3.amazonaws.com/upload-api.js -o upload-api.js
