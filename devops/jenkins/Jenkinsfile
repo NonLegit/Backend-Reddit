@@ -50,7 +50,7 @@ pipeline {
                                         # Set up git credentials.
                                         if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
                                                 echo "#!/bin/bash" >> /var/jenkins_home/git-askpass-helper.sh
-                                                echo "exec echo $GIT_PASSWORD" >> /var/jenkins_home/git-askpass-helper.sh
+                                                echo 'exec echo $GIT_PASSWORD' >> /var/jenkins_home/git-askpass-helper.sh
                                                 chmod +x /var/jenkins_home/git-askpass-helper.sh
                                         fi
 
