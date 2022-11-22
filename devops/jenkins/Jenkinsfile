@@ -46,7 +46,7 @@ pipeline {
                         steps {
                                 sh '''
                                         #cd API
-
+																				mkdir test ; cd test
                                         # Set up git credentials.
                                         if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
                                                 echo "#!/bin/bash" >> /var/jenkins_home/git-askpass-helper.sh
