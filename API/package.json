@@ -6,8 +6,8 @@
   "scripts": {
     "test": "mocha --timeout 1000000 --recursive --exit --spec",
     "start": "nodemon server.js",
-    "migrate": "migrate create new  -d mongodb://localhost:27017/redditDB",
-    "up": "migrate up new  -d mongodb://localhost:27017/redditDB",
+    "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
+    "up": "migrate up seeder -d mongodb://localhost:27017/redditDB",
     "jsdoc": "jsdoc -c jsdoc.json"
   },
   "author": "",
