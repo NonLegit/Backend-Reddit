@@ -244,7 +244,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request (0 -> not provide body, 1 -> weak password, 2 -> user already exists)",
             "content": {
               "application/json": {
                 "schema": {
@@ -255,8 +255,15 @@
                       "example": "fail"
                     },
                     "errorMessage": {
-                      "type": "string",
-                      "example": "userName already exists"
+                      "type": "string"
+                    },
+                    "errorType": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        2
+                      ]
                     }
                   }
                 }

@@ -165,7 +165,7 @@ paths:
                     type: string
                     format: date-time
         400:
-          description: Bad Request
+          description: Bad Request (0 -> not provide body, 1 -> weak password, 2 -> user already exists)
           content:
             application/json:
               schema:
@@ -176,7 +176,13 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example: userName already exists
+                  errorType:
+                    type: integer
+                    enum:
+                    - 0
+                    - 1
+                    - 2
+                    
 
   /users/forgot_username:
     post:
