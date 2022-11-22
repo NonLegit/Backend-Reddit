@@ -37,6 +37,13 @@ describe("Authentication Controller Test", () => {
           };
           return response;
         },
+        signUp: async (email, password, userName) => {
+          const response = {
+            success: true,
+            token: "jwt",
+          };
+          return response;
+        },
         checkPasswordStrength: (password) => {
           return "medium";
         },
@@ -411,11 +418,14 @@ describe("Authentication Controller Test", () => {
           token: "token",
         },
         body: {
-          password: "Aa1234",
-          confirmPassword: "Aa1234",
+          password: "Aa123456*",
+          confirmPassword: "Aa123456*",
         },
       };
       const UserService = {
+        checkPasswordStrength: (password) => {
+          return "Medium";
+        },
         resetPassword: async (resetToken, userName) => {
           const response = {
             success: true,
@@ -438,6 +448,9 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
+        checkPasswordStrength: (password) => {
+          return "Weak";
+        },
         resetPassword: async (resetToken, userName) => {
           const response = {
             success: true,
@@ -451,7 +464,8 @@ describe("Authentication Controller Test", () => {
       expect(res.status).to.have.been.calledWith(400);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
-        errorMessage: "Provide correct Passwords",
+        errorMessage: "Provide password and confirm password",
+        errorType:0
       });
     });
 
@@ -461,11 +475,14 @@ describe("Authentication Controller Test", () => {
           token: "token",
         },
         body: {
-          password: "Aa1234",
-          confirmPassword: "Aa1234",
+          password: "Aa123456*",
+          confirmPassword: "Aa123456*",
         },
       };
       const UserService = {
+        checkPasswordStrength: (password) => {
+          return "Medium";
+        },
         resetPassword: async (password, userName) => {
           const response = {
             success: false,
@@ -494,6 +511,41 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
+        checkPasswordStrength: (password) => {
+          return "Weak";
+        },
+        resetPassword: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.INVALID_RESET_TOKEN,
+            msg: "Provide correct Passwords",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.resetPassword(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Provide Equal Passwords",
+        errorType:1
+      });
+    });
+    it("fifth test weak ", async () => {
+      const req = {
+        params: {
+          token: "token",
+        },
+        body: {
+          password: "Aa1234",
+          confirmPassword: "Aa1234",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: (password) => {
+          return "Weak";
+        },
         resetPassword: async (password, userName) => {
           const response = {
             success: false,
@@ -508,7 +560,8 @@ describe("Authentication Controller Test", () => {
       expect(res.status).to.have.been.calledWith(400);
       expect(res.status(400).json).to.deep.calledWith({
         status: "fail",
-        errorMessage: "Token Invalid or Has Expired",
+        errorMessage: "Weak password",
+        errorType:2
       });
     });
   });

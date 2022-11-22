@@ -235,23 +235,42 @@ class AuthenticationController {
     const resetToken = req.params.token;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
-    if (!password || !confirmPassword || password !== confirmPassword) {
+    if (!password || !confirmPassword) {
       res.status(400).json({
         status: "fail",
-        errorMessage: "Provide correct Passwords",
+        errorMessage: "Provide password and confirm password",
+        errorType: 0,
+      });
+    } else if (password !== confirmPassword) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide Equal Passwords",
+        errorType: 1,
       });
     } else {
-      const user = await this.UserServices.resetPassword(resetToken, password);
-      if (user.success === true) {
-        this.createCookie(res, user.token, 200);
-      } else {
-        const response = this.errorResponse(user.error, user.msg);
-        res.status(response.stat).json({
+      const passwordStrength =
+        this.UserServices.checkPasswordStrength(password);
+      if (passwordStrength === "Too weak" || passwordStrength === "Weak") {
+        res.status(400).json({
           status: "fail",
-          errorMessage: response.msg,
+          errorMessage: passwordStrength + " password",
+          errorType: 2,
         });
+      } else {
+        const user = await this.UserServices.resetPassword(
+          resetToken,
+          password
+        );
+        if (user.success === true) {
+          this.createCookie(res, user.token, 200);
+        } else {
+          const response = this.errorResponse(user.error, user.msg);
+          res.status(response.stat).json({
+            status: "fail",
+            errorMessage: response.msg,
+          });
+        }
       }
-
       //res.status(response.status).json(response.body);
     }
   };
@@ -331,7 +350,7 @@ class AuthenticationController {
    */
   facebookValidation = async (req, res, next) => {
     let user = req.user;
-    console.log(user)
+    console.log(user);
     if (user.status == "fail") {
       // user should be created
       const userName = "user";
