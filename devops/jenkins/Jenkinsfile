@@ -38,14 +38,14 @@ pipeline {
                 }
                 stage('Building backend') {
                         when {
-                                branch "development"
+                                branch "API_documentation"
                         }
                         environment {
                                 GIT_PASSWORD = credentials('github-token')
                         }
                         steps {
                                 sh '''
-                                        cd API
+                                        #cd API
 
                                         # Set up git credentials.
                                         if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
