@@ -58,7 +58,7 @@ pipeline {
                                         export GIT_PASSWORD=$GIT_PASSWORD
 
                                         # Getting the backend Dockerfile
-                                        git clone https://github.com/NonLegit/devops.git
+                                        git clone https://cynico@github.com/NonLegit/devops.git
                                         cp devops/dockerfiles/backend/Dockerfile .
                                         rm -rf devops
                                         cat Dockerfile 
