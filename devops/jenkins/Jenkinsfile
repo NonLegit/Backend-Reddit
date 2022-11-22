@@ -81,7 +81,8 @@ pipeline {
                                 branch "development"
                         }
                         steps {
-                        }
+                        				echo xd
+												}
                 }
         }
 }
