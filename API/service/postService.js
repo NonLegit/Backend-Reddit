@@ -137,6 +137,13 @@ class PostService {
   async getUserPosts(author, sortType) {
     if (sortType === "Hot") {
       // algorithm
+      console.log("Hot");
+      const posts = await this.postRepo.getUserPosts(
+        author,
+        { sort: "-votes" },
+        "owner"
+      );
+      return posts.doc;
     } else if (sortType === "Top") {
       // sort by votes
       console.log("Top");
