@@ -41,7 +41,7 @@ pipeline {
                                 branch "API_documentation"
                         }
                         environment {
-                                GIT_PASSWORD = credentials('github-token')
+                                GIT_PASSWORD = credentials('github-pat')
                         }
                         steps {
                                 sh '''
