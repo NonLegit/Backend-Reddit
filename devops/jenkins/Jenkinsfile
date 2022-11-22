@@ -1,5 +1,5 @@
 pipeline {
-        agent { label '!master' }
+        agent { label '!master && git' }
 
         stages {
                 stage('Upgrading mockserver') {
