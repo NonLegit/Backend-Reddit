@@ -2,7 +2,7 @@ const awilix = require("awilix");
 
 // Require Controllers
 const UserController = require("./controllers/userController");
-const AuthenticationController = require("./controllers/AuthenticationController");
+const AuthenticationController = require("./controllers/authenticationController");
 const PostController = require("./controllers/postController");
 const CommentController = require("./controllers/commentController");
 const subredditController = require("./controllers/subredditController");
