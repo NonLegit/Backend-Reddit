@@ -1,5 +1,5 @@
 pipeline {
-			  agent any	
+        agent any	
         stages {
                 stage('Upgrading mockserver') {
                         when {
@@ -38,15 +38,14 @@ pipeline {
                 }
                 stage('Building backend') {
                         when {
-                                branch "API_documentation"
+                                branch "development"
                         }
                         environment {
                                 GIT_PASSWORD = credentials('github-pat')
                         }
                         steps {
                                 sh '''
-                                        #cd API
-																				mkdir test ; cd test
+                                        cd API
                                         # Set up git credentials.
                                         if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
                                                 echo "#!/bin/bash" >> /var/jenkins_home/git-askpass-helper.sh
@@ -61,8 +60,6 @@ pipeline {
                                         git clone https://cynico@github.com/NonLegit/devops.git
                                         cp devops/dockerfiles/backend/Dockerfile .
                                         rm -rf devops
-                                        cat Dockerfile 
-
 
                                         # Modify the necessary files.
 
