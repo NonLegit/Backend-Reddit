@@ -308,6 +308,26 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "User Not Found"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -347,6 +367,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "User Not Found"
+                    }
+                  }
                 }
               }
             }
@@ -427,7 +467,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "Bad Request (0 -> not provide body, 1 -> provide equal, 2 -> weak password , 3 ->Token is invalid or has expired )",
             "content": {
               "application/json": {
                 "schema": {
@@ -438,8 +478,16 @@
                       "example": "fail"
                     },
                     "errorMessage": {
-                      "type": "string",
-                      "example": "Token is invalid or has expired"
+                      "type": "string"
+                    },
+                    "errorType": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        2,
+                        3
+                      ]
                     }
                   }
                 }
