@@ -1,7 +1,6 @@
 pipeline {
-
+			  agent any	
         stages {
-                agent { label '!master && node' }
                 stage('Upgrading mockserver') {
                         when {
                                 branch "API_documentation"
