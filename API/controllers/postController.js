@@ -4,22 +4,9 @@ class PostController {
   constructor({ PostService, UserService }) {
     this.postServices = PostService;
     this.userServices = UserService;
-    this.createPost = this.createPost.bind(this);
-    this.updatePost = this.updatePost.bind(this);
-    this.deletePost = this.deletePost.bind(this);
-    // this.userPosts = this.userPosts.bind(this);
-    // this.getSavedPosts = this.getSavedPosts.bind(this);
-    // this.getHiddenPosts = this.getHiddenPosts.bind(this);
-    // this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
-    // this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
-
-    //this.getBestPosts = this.getBestPosts.bind(this);
-    //this.getTopPosts = this.getTopPosts.bind(this);
-    // this.getHotPosts = this.getHotPosts.bind(this);
-    // this.getNewPosts = this.getNewPosts.bind(this);
   }
 
-  async createPost(req, res) {
+  createPost = async (req, res) => {
     const data = req.body;
     data.author = req.user._id;
 
@@ -66,7 +53,7 @@ class PostController {
     });
   }
 
-  async deletePost(req, res) {
+  deletePost = async (req, res) => {
     //validate request params
     const id = req.params.postId;
     if (!id) {
@@ -104,7 +91,7 @@ class PostController {
     });
   }
 
-  async updatePost(req, res) {
+  updatePost = async (req, res) => {
     const id = req.params.postId;
     const data = req.body;
     if (!id || !data.text) {

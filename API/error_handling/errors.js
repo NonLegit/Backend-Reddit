@@ -40,10 +40,9 @@ exports.userErrors = Object.freeze({
   USER_NOT_FOUND: 1,
   USER_ALREADY_EXISTS: 2,
   INCORRECT_PASSWORD: 3,
-  EMAIL_ERROR:5,
-  INVALID_TOKEN:6,
-  INVALID_RESET_TOKEN:7,
-
+  EMAIL_ERROR: 5,
+  INVALID_TOKEN: 6,
+  INVALID_RESET_TOKEN: 7,
 });
 
 exports.mongoErrors = Object.freeze({
@@ -76,4 +75,12 @@ exports.decorateError = (err) => {
   }
 
   return { error, msg };
+};
+
+exports.errorHandler = (err, req, res, next) => {
+  console.log("inside handle errors");
+  res.status(500).send({
+    status: "fail",
+    message: "Internal server error",
+  });
 };
