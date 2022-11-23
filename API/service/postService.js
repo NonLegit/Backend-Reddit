@@ -115,18 +115,15 @@ class PostService {
    * @returns {Object} object containing array of posts
    */
   async getPosts(query, filter) {
-    try {
-      const posts = await this.postRepo.getAll(filter, query);
-      console.log(posts);
-      return posts;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+    
+    const posts = await this.postRepo.getPosts(filter, query,"");
+    if (posts.success) return { success: true, data: posts.doc };
+
+    // if (!posts.success && posts.error)
+    //   return { sucess: false, error: posts.error };
+    
+    return { sucess: false, error: postErrors.MONGO_ERR, msg: posts.msg };
+      
   }
   /**
    * @property {Function} getUserPosts get posts which created by user

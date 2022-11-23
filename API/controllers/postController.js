@@ -1,4 +1,4 @@
-const { postErrors } = require("../error_handling/errors");
+const { postErrors,subredditErrors } = require("../error_handling/errors");
 
 class PostController {
   constructor({ PostService, UserService }) {
@@ -13,8 +13,8 @@ class PostController {
     // this.userUpvotedPosts = this.userUpvotedPosts.bind(this);
     // this.userDownvotedPosts = this.userDownvotedPosts.bind(this);
 
-    this.getBestPosts = this.getBestPosts.bind(this);
-    this.getTopPosts = this.getTopPosts.bind(this);
+    //this.getBestPosts = this.getBestPosts.bind(this);
+    //this.getTopPosts = this.getTopPosts.bind(this);
     // this.getHotPosts = this.getHotPosts.bind(this);
     // this.getNewPosts = this.getNewPosts.bind(this);
   }
@@ -304,23 +304,48 @@ class PostController {
   getHotPosts = async (req, res) =>{
     try {
       req.query.sort = "-createdAt,-votes,-commentCount";
-      console.log(req.query);
-      let response = await this.postServices.getPosts(req.query, req.toFilter);
-      // console.log( response);
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
+      //console.log("ppppppppppppppppppppppp");
+      //console.log(req.user);
+      //let posts;
+      // if (req.user) {
+      //   // let hiddenPostsIds = await req.user.populate("hidden");
+      //   // console.log(hiddenPostsIds);
+      //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
+      // }
+      // else {
+      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+     
+      // }
+      if (!posts.success) {
+        let message, statusCode, status;
+        switch (posts.error) {
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message
         });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+        
       }
+        
+       res.status(200).json({
+          status: 'OK',
+          data: posts.data,
+          
+        });
+     
     } catch (err) {
       console.log("error in subredditservices " + err);
-      res.status(500).json({
+       res.status(500).json({
         status: "fail",
       });
     }
@@ -328,20 +353,37 @@ class PostController {
   getNewPosts = async (req, res) =>{
     try {
       req.query.sort = "-createdAt";
-      console.log(req.query);
-      let response = await this.postServices.getPosts(req.query, req.toFilter);
-      // console.log( response);
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
+      //console.log(req.query);
+      
+        
+      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      
+      if (!posts.success) {
+        let message, statusCode, status;
+        switch (posts.error) {
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message
         });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+        
       }
+       
+       res.status(200).json({
+          status: 'OK',
+          data: posts.data,
+          
+        });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -349,23 +391,53 @@ class PostController {
       });
     }
   }
-  async getTopPosts(req, res) {
+  getTopPosts=async (req, res)=> {
     try {
       req.query.sort = "-votes";
-      console.log(req.query);
-      let response = await this.postServices.getPosts(req.query, req.toFilter);
-      console.log(response);
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
+      //console.log(req.query);
+     
+      // let filter = (req.toFilter) ? req.toFilter : {};
+      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+
+      
+       if (!posts.success) {
+        let message, statusCode, status;
+        switch (posts.error) {
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message
         });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+        
       }
+      // if (req.user)
+      // {
+      //   let me = req.user;
+        
+      //   posts = this.postServices.setVotePostStatus(me, posts);
+      //   console.log(posts);
+      //   posts = this.postServices.setSavedPostStatus(me, posts);
+      //   posts = this.postServices.setHiddenPostStatus(me, posts);
+      //   posts = this.postServices.removeHiddenPosts(me, posts);
+      //   posts = this.postServices.setPostOwnerData(posts);
+
+      //   }
+      
+       res.status(200).json({
+          status: 'OK',
+          data: posts.data,
+          
+        });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -373,23 +445,39 @@ class PostController {
       });
     }
   }
-  async getBestPosts(req, res) {
+  getBestPosts=async (req, res)=>{
     try {
       req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
-      console.log(req.query);
-      let response = await this.postServices.getPosts(req.query, {});
-      // console.log( response);
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
+      
+     
+      let posts = await this.postServices.getPosts(req.query,req.toFilter);
+      
+      if (!posts.success) {
+        let message, statusCode, status;
+        switch (posts.error) {
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message
         });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+        
       }
+      
+       res.status(200).json({
+          status: 'OK',
+          data: posts.data,
+          
+        });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
