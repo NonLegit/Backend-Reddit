@@ -7,7 +7,7 @@ class UserRepository extends Repository {
   }
 
   //can be further extended to allow select and populate
-  async findByUserName(userName, select,pop) {
+  async findByUserName(userName, select, pop) {
     let query = this.model.findOne({ userName: userName });
     if (select) query = query.select(select);
     if (pop) query = query.populate(pop);
@@ -57,6 +57,36 @@ class UserRepository extends Repository {
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updateEmailById(id, email) {
+    try {
+      const user = await this.model.findByIdAndUpdate(
+        id,
+        { email: email },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      return { success: true, doc: user };
+    } catch (error) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updateOne(id, data) {
+    try {
+      const user = await this.model.findByIdAndUpdate(id, data, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
     } catch (err) {
       return { success: false, ...decorateError(err) };
     }

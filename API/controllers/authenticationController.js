@@ -1,4 +1,5 @@
 const { OAuth2Client } = require("google-auth-library");
+var validator = require("email-validator");
 const { trusted } = require("mongoose");
 const { userErrors } = require("../error_handling/errors");
 /**
@@ -60,9 +61,11 @@ class AuthenticationController {
       expires: new Date(
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
-      httpOnly: true,
+      httpOnly: false,
+      secure: false,
     };
     if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+    if (process.env.NODE_ENV === "production") cookieOptions.httpOnly = true;
     res.cookie("jwt", token, cookieOptions);
     res.status(statusCode).json({
       status: "success",
@@ -232,23 +235,42 @@ class AuthenticationController {
     const resetToken = req.params.token;
     const password = req.body.password;
     const confirmPassword = req.body.confirmPassword;
-    if (!password || !confirmPassword || password !== confirmPassword) {
+    if (!password || !confirmPassword) {
       res.status(400).json({
         status: "fail",
-        errorMessage: "Provide correct Passwords",
+        errorMessage: "Provide password and confirm password",
+        errorType: 0,
+      });
+    } else if (password !== confirmPassword) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide Equal Passwords",
+        errorType: 1,
       });
     } else {
-      const user = await this.UserServices.resetPassword(resetToken, password);
-      if (user.success === true) {
-        this.createCookie(res, user.token, 200);
-      } else {
-        const response = this.errorResponse(user.error, user.msg);
-        res.status(response.stat).json({
+      const passwordStrength =
+        this.UserServices.checkPasswordStrength(password);
+      if (passwordStrength === "Too weak" || passwordStrength === "Weak") {
+        res.status(400).json({
           status: "fail",
-          errorMessage: response.msg,
+          errorMessage: passwordStrength + " password",
+          errorType: 2,
         });
+      } else {
+        const user = await this.UserServices.resetPassword(
+          resetToken,
+          password
+        );
+        if (user.success === true) {
+          this.createCookie(res, user.token, 200);
+        } else {
+          const response = this.errorResponse(user.error, user.msg);
+          res.status(response.stat).json({
+            status: "fail",
+            errorMessage: response.msg,
+          });
+        }
       }
-
       //res.status(response.status).json(response.body);
     }
   };
@@ -328,6 +350,7 @@ class AuthenticationController {
    */
   facebookValidation = async (req, res, next) => {
     let user = req.user;
+    console.log(user);
     if (user.status == "fail") {
       // user should be created
       const userName = "user";
@@ -338,12 +361,13 @@ class AuthenticationController {
       //   });
       // } else {
       const email = user.email;
+      console.log(email);
       const password = this.UserServices.generateRandomPassword();
-      let user = await this.UserServices.signUp(email, userName, password);
-      if (user.success === true) {
-        this.createCookie(res, response.token, 201);
+      let newUser = await this.UserServices.signUp(email, userName, password);
+      if (newUser.success === true) {
+        this.createCookie(res, newUser.token, 201);
       } else {
-        const response = this.errorResponse(user.error, user.msg);
+        const response = this.errorResponse(newUser.error, newUser.msg);
         res.status(response.stat).json({
           status: "fail",
           errorMessage: response.msg,
@@ -377,7 +401,7 @@ class AuthenticationController {
         });
         const payload = key.getPayload();
         const email = payload["email"];
-        const user = await this.UserServices.getUserByEmail(email);
+        let user = await this.UserServices.getUserByEmail(email);
         if (user.success === false) {
           // user not found, signup new user
           const userName = "user";
@@ -387,7 +411,7 @@ class AuthenticationController {
           //     errorMessage: "provide userName",
           //   });
           // } else {
-
+          const password = this.UserServices.generateRandomPassword();
           let user = await this.UserServices.signUp(email, userName, password);
           if (user.success === true) {
             this.createCookie(res, user.token, 201);
@@ -400,7 +424,7 @@ class AuthenticationController {
           }
           //}
         } else {
-          const token = await this.UserServices.createToken(user.doc._id);
+          const token = await this.UserServices.createToken(user.data._id);
           this.createCookie(res, token, 200);
         }
       } catch (error) {
@@ -408,6 +432,56 @@ class AuthenticationController {
           status: "fail",
           errorMessage: "provide valid token",
         });
+      }
+    }
+  };
+  changeEmail = async (req, res, next) => {
+    if (!req.body.newEmail || !req.body.password) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide New Email and password",
+      });
+    } else {
+      const newEmail = req.body.newEmail;
+      const password = req.body.password;
+      if (req.user.email === newEmail) {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: "Insert different email",
+        });
+      } else {
+        if (validator.validate(newEmail)) {
+          if (
+            await this.UserServices.checkPassword(password, req.user.userName)
+          ) {
+            const user = await this.UserServices.getUserByEmail(newEmail);
+            if (user.success === true) {
+              res.status(400).json({
+                status: "fail",
+                errorMessage: "Email is already taken by another user",
+              });
+            } else {
+              //change email using update email
+              const email = await this.UserServices.updateUserEmail(
+                req.user._id,
+                newEmail
+              );
+              res.status(204).json({
+                status: "success",
+              });
+            }
+          } else {
+            res.status(400).json({
+              status: "fail",
+              errorMessage: "Incorrect password",
+            });
+          }
+        } else {
+          res.status(400).json({
+            status: "fail",
+            errorMessage: "Invaild Email",
+          });
+        }
       }
     }
   };

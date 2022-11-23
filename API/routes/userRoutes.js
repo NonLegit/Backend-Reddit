@@ -54,6 +54,7 @@ router.post(
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
+router.post("/change_email", AuthenticationController.changeEmail);
 router.get("/me", UserController.getMe);
 router.get("/me/prefs", UserController.getPrefs);
 router.patch(

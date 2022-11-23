@@ -12,8 +12,8 @@ dotenv.config();
 
 async function up() {
   // Write migration here
-  // const seeder = require("./seed");
-  // await seeder();
+  const seeder = require("./seed");
+  await seeder();
 }
 
 /**
