@@ -11,7 +11,7 @@ pipeline {
             }
             steps {
                     sh '''
-                            /home/jenkins/test-script.sh $AWS_ACCESS_KEY
+                            /var/jenkins_home/test-script.sh $AWS_ACCESS_KEY
                     '''
             }
         }
