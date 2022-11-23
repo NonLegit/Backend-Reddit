@@ -6262,6 +6262,9 @@ components:
 
     fullSubredditExecludedModerators:
       properties:
+        isJoined:
+          type: boolean
+          default: false
         createdAt:
           type: string
           format: date-time
@@ -6287,6 +6290,8 @@ components:
                 - Posts only
                 - Comments only
         name:
+          type: string
+        fixedName:
           type: string
         description:
           type: string
