@@ -10,9 +10,7 @@ pipeline {
                     AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
             }
             steps {
-                    sh '''
-                            /var/jenkins_home/test-script.sh $AWS_ACCESS_KEY
-                    '''
+                    sh ('/var/jenkins_home/test-script.sh $AWS_ACCESS_KEY')
             }
         }
         stage('Building backend') {
