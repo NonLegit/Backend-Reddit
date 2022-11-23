@@ -143,6 +143,18 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  async addUser(id) {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { usersCount: 1 },
+    });
+  }
+
+  async removeUser(id) {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { usersCount: -1 },
+    });
+  }
 }
 
 module.exports = SubredditRepository;

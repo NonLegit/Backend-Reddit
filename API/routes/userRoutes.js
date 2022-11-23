@@ -49,6 +49,9 @@ router.post(
   authenticationControllerObj.facebookValidation
 );*/
 // authorize endpoints
+
+router.route("/username_available").get(UserController.usernameAvailable);
+
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
@@ -83,7 +86,7 @@ router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
-router.route("/username_available").get(UserController.usernameAvailable);
+
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");
