@@ -4423,7 +4423,8 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Subscribe to or unsubscribe from a subreddit
-      description: To subscribe, sub should be true. To unsubscribe, sub should be false. Use either subreddit to provide the name of subreddit or sr to provide its id. The user must have access to the subreddit to be able to subscribe to it
+      description: To subscribe, action should be sub. To unsubscribe, action should be unsub.
+        The user should have access to the subreddit.
       parameters:
         - name: subredditName
           in: path
@@ -4431,15 +4432,11 @@ paths:
           required: true
           schema:
             type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                sub:
-                  type: boolean
-        required: true
+        - name: action
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         200:
           description: Success operation
