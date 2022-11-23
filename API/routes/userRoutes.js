@@ -7,9 +7,12 @@ const { container } = require("./../di-setup");
 const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
+const FileController = container.resolve("FileController");
 const router = express.Router();
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
+//router.get("/images/:userName/:fileName", FileController.getUserProfileImage);
+router.get("/images/:fileName", FileController.getUserProfileImage);
 router.post("/signup", AuthenticationController.signUp);
 router.post("/login", AuthenticationController.logIn);
 router.post("/logout", AuthenticationController.logOut);
