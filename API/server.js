@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const dotenv = require("dotenv");
 dotenv.config();
-const config = require("config");
+//const config = require("config");
 const { setup } = require("./di-setup");
 
 process.on("uncaughtException", (err) => {
@@ -31,10 +31,7 @@ if (process.env.NODE_ENV === "test") {
   });
 } else if (process.env.NODE_ENV === "production") {
   //const DB = process.env.DATABASE;
-  const DB = process.env.DATABASE.replace(
-    "<PASSWORD>",
-    process.env.DATABASE_PASSWORD
-  );
+  const DB = process.env.DATABASE;
   mongoose.connect(DB).then(() => {});
 } else {
   const DB = process.env.DATABASE;

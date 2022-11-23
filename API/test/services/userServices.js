@@ -1,11 +1,11 @@
 const assert = require("chai").assert;
 const expect = require("chai").expect;
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
-console.log("secret " + process.env.JWT_SECRET);
+const { mongoErrors, userErrors } = require("./../../error_handling/errors");
+dotenv.config();
 const UserService = require("./../../service/userService");
 
-const emailServiceObj = {
+const Email = {
   sendPasswordReset: (user, resetURL) => {
     return true;
   },
@@ -13,15 +13,13 @@ const emailServiceObj = {
     return true;
   },
 };
-
 describe("Authentication Test", () => {
   describe("Sign-up services Test", () => {
     it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        createOne: (userData) => {
+      const UserRepository = {
+        createOne: function (userData) {
           const response = {
-            status: "success",
-            statusCode: 201,
+            success: true,
             doc: {
               _id: "1",
             },
@@ -29,48 +27,54 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
+      console.log("hi");
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.signUp(
+        "ahmed@gmail",
+        "ahmed",
+        "Aa1234*"
       );
-      const output = await userServiceObj.signUp("", "", "");
-      assert.equal(output.status, 201);
-      assert.notEqual(output.body.token, false);
+      assert.equal(output.success, true);
+      assert.notEqual(output.token, false);
     });
     it("second test(fail operation of database)", async () => {
-      const RepositoryObj = {
+      const UserRepository = {
         createOne: (userData) => {
           const response = {
-            status: "fail",
-            statusCode: 400,
-            err: "mongoose err",
+            success: false,
+            error: mongoErrors.NOT_FOUND,
           };
           return response;
         },
       };
 
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.signUp(
+        "ahmed@gmail",
+        "ahmed",
+        "Aa1234*"
       );
-      const output = await userServiceObj.signUp("", "", "");
-      assert.equal(output.status, 400);
-      assert.equal(output.body.errorMessage, "User already Exists");
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.USER_ALREADY_EXISTS);
     });
   });
 
   describe("Log-in services Test", () => {
     it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByUserName: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 201,
+            success: true,
             doc: {
               _id: "1",
-              checkPassword: (password, passwordDB) => {
+              password: "Aa1234*",
+              checkPassword: async (data1, data2) => {
                 return true;
               },
             },
@@ -78,24 +82,41 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
-      const output = await userServiceObj.logIn("", "");
-      assert.equal(output.status, 200);
-      assert.notEqual(output.body.token, false);
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.logIn("ahmed", "Aa1234*");
+      assert.equal(output.success, true);
+      assert.notEqual(output.token, false);
     });
     it("second test(success operation of database but wrong password)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByUserName: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 201,
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.logIn("", "");
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.USER_NOT_FOUND);
+    });
+    it("thrid test(incorrect password)", async () => {
+      const UserRepository = {
+        findByUserName: (userData) => {
+          const response = {
+            success: true,
             doc: {
               _id: "1",
-              checkPassword: (password, passwordDB) => {
+              password: "123456",
+              checkPassword: async (data1, data2) => {
                 return false;
               },
             },
@@ -103,89 +124,88 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
-      const output = await userServiceObj.logIn("", "");
-      assert.equal(output.status, 400);
-      assert.notEqual(output.body.token, true);
-    });
-    it("thrid test(fail operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            err: "mongoose err",
-          };
-          return response;
-        },
-      };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
-      const output = await userServiceObj.logIn("", "");
-      //console.log(output);
-      assert.equal(output.status, 400);
-      assert.notEqual(output.body.token, true);
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.logIn("ahmed", "1234");
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.INCORRECT_PASSWORD);
     });
   });
 
   describe("Forgot-username services Test", () => {
     it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByEmail: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 200,
+            success: true,
             doc: {
               _id: "1",
+              password: "Aa1234*",
+              checkPassword: async (data1, data2) => {
+                return true;
+              },
             },
           };
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
       const output = await userServiceObj.forgotUserName("");
-      assert.equal(output.status, 204);
+      assert.equal(output.success, true);
     });
-    it("secone test(fao; operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+    it("second test(fail operation of database)", async () => {
+      const UserRepository = {
+        findByEmail: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 404,
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.forgotUserName("");
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.USER_NOT_FOUND);
+    });
+    it("third test(exception in mail service)", async () => {
+      const UserRepository = {
+        findByEmail: (userData) => {
+          const response = {
+            success: true,
             doc: {
               _id: "1",
+              password: "Aa1234*",
+              checkPassword: async (data1, data2) => {
+                return true;
+              },
             },
           };
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+      });
       const output = await userServiceObj.forgotUserName("");
-      assert.equal(output.status, 404);
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.EMAIL_ERROR);
     });
   });
   describe("Forgot-password services Test", () => {
     it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByEmailAndUserName: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 200,
+            success: true,
             doc: {
               _id: "1",
               save: (password, passwordDB) => {
@@ -199,20 +219,18 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
       const output = await userServiceObj.forgotPassword("", "");
-      assert.equal(output.status, 204);
+      assert.equal(output.success, true);
     });
     it("second test(success operation of database but  exception occured)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByEmailAndUserName: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 200,
+            success: true,
             doc: {
               _id: "1",
               save: (password, passwordDB) => {
@@ -223,50 +241,38 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+      });
       const output = await userServiceObj.forgotPassword("", "");
-      assert.equal(output.status, 400);
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.EMAIL_ERROR);
     });
-    it("thrid test(fao; operation of database)", async () => {
-      const RepositoryObj = {
+    it("thrid test(fail operation of database)", async () => {
+      const UserRepository = {
         getOne: (userData) => {
           const response = {
-            status: "fail",
-            statusCode: 404,
-            doc: {
-              _id: "1",
-              save: (password, passwordDB) => {
-                return true;
-              },
-              createPasswordResetToken: () => {
-                return true;
-              },
-            },
+            success: false,
+            error: mongoErrors.NOT_FOUND,
           };
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
       const output = await userServiceObj.forgotPassword("", "");
-      assert.equal(output.status, 404);
-      assert.notEqual(output.body.token, false);
+      assert.equal(output.success, false);
+      assert.notEqual(output.error, userErrors.USER_NOT_FOUND);
     });
   });
   describe("reset-password services Test", () => {
     it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByResetPassword: (userData) => {
           const response = {
-            status: "success",
-            statusCode: 200,
+            success: true,
             doc: {
               _id: "1",
               save: (password, passwordDB) => {
@@ -277,83 +283,59 @@ describe("Authentication Test", () => {
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
       const output = await userServiceObj.resetPassword("", "");
-      assert.equal(output.status, 200);
+      assert.equal(output.success, true);
+      assert.notEqual(output.token, false);
     });
 
     it("second test(fao; operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
+      const UserRepository = {
+        findByResetPassword: (userData) => {
           const response = {
-            status: "fail",
-            statusCode: 404,
-            doc: {
-              _id: "1",
-              save: (password, passwordDB) => {
-                return true;
-              },
-              createPasswordResetToken: () => {
-                return true;
-              },
-            },
+            success: false,
+            error: mongoErrors.NOT_FOUND,
           };
           return response;
         },
       };
-      const userServiceObj = new UserService(
-        "",
-        RepositoryObj,
-        emailServiceObj
-      );
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
       const output = await userServiceObj.resetPassword("", "");
-      assert.equal(output.status, 400);
-      assert.notEqual(output.body.token, false);
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.INVALID_RESET_TOKEN);
     });
   });
 });
 describe("User Services Test", () => {
   describe("Get user preferences ", () => {
     it("test should be success", () => {
-      const userServiceObj = new UserService("", "", "");
+      const userServiceObj = new UserService({});
       let user = {
-        contentVisibility: true,
         canbeFollowed: true,
         nsfw: true,
-        allowInboxMessage: true,
-        allowMentions: true,
-        allowCommentsOnPosts: true,
-        allowUpvotesOnComments: true,
-        allowUpvotesOnPosts: true,
         displayName: "ahmed",
         profilePicture: "img.png",
       };
       let result = userServiceObj.getPrefs(user);
-      assert.equal(result.contentvisibility, user.contentvisibility);
       assert.equal(result.displayName, user.displayName);
-      assert.equal(result.allowUpvotesOnComments, user.allowUpvotesOnComments);
       assert.equal(result.nsfw, user.nsfw);
     });
   });
 
   describe("Update user preferences ", async () => {
     it("test should be success", async () => {
-      const RepositoryObj = {
+      const UserRepository = {
         updateOne: (userData, body) => {
           const response = {
             doc: {
-              contentVisibility: false,
               canbeFollowed: false,
               nsfw: true,
-              allowInboxMessage: true,
-              allowMentions: true,
-              allowCommentsOnPosts: true,
-              allowUpvotesOnComments: true,
-              allowUpvotesOnPosts: true,
               displayName: "ahmed",
               profilePicture: "img.png",
             },
@@ -362,15 +344,14 @@ describe("User Services Test", () => {
         },
       };
 
-      const userServiceObj = new UserService("", RepositoryObj, "");
+      const userServiceObj = new UserService({
+        UserRepository,
+      });
       const query = {
-        contentVisibility: false,
         canbeFollowed: false,
       };
 
       let result = await userServiceObj.updatePrefs(query, "");
-      expect(result.contentVisibility).to.equal(false);
-      assert.equal(result.contentVisibility, false);
       assert.equal(result.displayName, "ahmed");
       assert.equal(result.canbeFollowed, false);
       assert.equal(result.nsfw, true);

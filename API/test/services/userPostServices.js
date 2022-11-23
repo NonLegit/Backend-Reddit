@@ -1,8 +1,7 @@
 const assert = require("chai").assert;
 const expect = require("chai").expect;
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
-console.log("secret " + process.env.JWT_SECRET);
+dotenv.config();
 const PostService = require("./../../service/postService");
 
 describe("User Post Test", () => {
@@ -116,6 +115,221 @@ describe("User Post Test", () => {
         const result = postservices.setVotePostStatus(user, posts);
         expect(result[0].postVoteStatus).to.equal("0");
         expect(result[1].postVoteStatus).to.equal("0");
+      });
+    });
+
+    describe("getUserPosts function ", () => {
+      const PostRepository = {
+        getUserPosts: async (userId, sortType) => {
+          return {
+            success: true,
+            doc: [
+              {
+                _id: "1",
+                title: "First Post",
+                kind: "self",
+                text: "this is my first post on NONLEGIT",
+                author: "1",
+                owner: "1",
+                ownerType: "User",
+                nsfw: false,
+                spoiler: false,
+                sendReplies: true,
+                suggestedSort: "top",
+                scheduled: false,
+                votes: 2,
+              },
+            ],
+          };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      it("first test,", async () => {
+        posts = await postservices.getUserPosts("", "");
+        console.log(posts);
+        expect(posts.length).to.equal(1);
+        expect(posts[0]["_id"]).to.equal("1");
+      });
+    });
+    describe("removehiddenposts function ", () => {
+      const postservices = new PostService({});
+      it("first test,", async () => {
+        let user = {
+          hidden: ["1", "4"],
+        };
+        let user2 = {
+          hidden: ["10"],
+        };
+        let posts = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        let posts2 = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        const result = postservices.removeHiddenPosts(user, posts);
+        const result2 = postservices.removeHiddenPosts(user2, posts2);
+        expect(result.length).to.equal(2);
+        expect(result2.length).to.equal(4);
+      });
+    });
+    describe("setSavedPostStatus function ", () => {
+      const postservices = new PostService({});
+      it("first test,", () => {
+        let user = {
+          saved: ["1", "4"],
+        };
+        let user2 = {
+          saved: ["10"],
+        };
+        let posts = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        let posts2 = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        const result = postservices.setSavedPostStatus(user, posts);
+        const result2 = postservices.setSavedPostStatus(user2, posts2);
+        expect(result.length).to.equal(4);
+        expect(result[0]["isSaved"]).to.equal(true);
+        expect(result[1]["isSaved"]).to.equal(false);
+        expect(result[2]["isSaved"]).to.equal(true);
+        expect(result[3]["isSaved"]).to.equal(false);
+        expect(result2.length).to.equal(4);
+        expect(result2[0]["isSaved"]).to.equal(false);
+        expect(result2[1]["isSaved"]).to.equal(false);
+        expect(result2[2]["isSaved"]).to.equal(false);
+        expect(result2[3]["isSaved"]).to.equal(false);
+      });
+    });
+
+    describe("setHiddenPostStatus function ", () => {
+      const postservices = new PostService({});
+      it("first test,", () => {
+        let user = {
+          hidden: ["1", "4"],
+        };
+        let user2 = {
+          hidden: ["10"],
+        };
+        let posts = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        let posts2 = [
+          {
+            _id: "1",
+          },
+          {
+            _id: "3",
+          },
+          {
+            _id: "4",
+          },
+          {
+            _id: "6",
+          },
+        ];
+        const result = postservices.setHiddenPostStatus(user, posts);
+        const result2 = postservices.setHiddenPostStatus(user2, posts2);
+        expect(result.length).to.equal(4);
+        expect(result[0]["isHidden"]).to.equal(true);
+        expect(result[1]["isHidden"]).to.equal(false);
+        expect(result[2]["isHidden"]).to.equal(true);
+        expect(result[3]["isHidden"]).to.equal(false);
+        expect(result2.length).to.equal(4);
+        expect(result2[0]["isHidden"]).to.equal(false);
+        expect(result2[1]["isHidden"]).to.equal(false);
+        expect(result2[2]["isHidden"]).to.equal(false);
+        expect(result2[3]["isHidden"]).to.equal(false);
+      });
+    });
+
+    describe("setPostOwnerData function ", () => {
+      const postservices = new PostService({});
+      it("first test,", () => {
+        let posts = [
+          {
+            _id: "1",
+            ownerType:"User",
+            owner:{userName:"ahmed"}
+          },
+          {
+            _id: "3",
+            ownerType:"User",
+            owner:{userName:"ahmed2"}
+          },
+          {
+            _id: "4",
+            ownerType:"Subreddit",
+            owner:{name:"ahmed3"}
+          },
+          {
+            _id: "6",
+            ownerType:"Subreddit",
+            owner:{name:"ahmed4"}
+          },
+        ];
+        const result = postservices.setPostOwnerData( posts);
+        expect(result.length).to.equal(4);
+        expect(result[0]["name"]).to.equal("ahmed");
+        expect(result[1]["name"]).to.equal("ahmed2");
+        expect(result[2]["name"]).to.equal("ahmed3");
+        expect(result[3]["name"]).to.equal("ahmed4");
+
       });
     });
   });
