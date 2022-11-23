@@ -494,6 +494,21 @@ class AuthenticationController {
       }
     }
   };
+  checkResetTokentime = async (req, res, next) => {
+    const resetToken = req.params.token;
+    let result = await this.UserServices.checkResetTokenTime(resetToken);
+    if (result.success === true) {
+      res.status(200).json({
+        status: "success",
+        msg: "valid token",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        msg: "Invalid token or has expired",
+      });
+    }
+  };
 }
 
 module.exports = AuthenticationController;

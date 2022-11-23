@@ -19,6 +19,10 @@ router.post("/logout", AuthenticationController.logOut);
 router.post("/forgot_username", AuthenticationController.forgotUserName);
 router.post("/forgot_password", AuthenticationController.forgotPassword);
 router.post("/reset_password/:token", AuthenticationController.resetPassword);
+router.get(
+  "/check_reset_token/:token",
+  AuthenticationController.checkResetTokentime
+);
 // facebook authentication
 passport.use(
   new FacebookTokenStrategy(
