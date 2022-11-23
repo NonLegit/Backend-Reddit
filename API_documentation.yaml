@@ -345,6 +345,45 @@ paths:
                     - 2
                     - 3
 
+  /users/check_reset_token/{token}:
+    description: User Resource
+    get:
+      tags:
+        - "Users"
+      description: Check Token Valid
+      summary: Check Token Valid
+      parameters:
+        - in: path
+          name: token
+          description: reset token
+          required: true
+          schema:
+            type: string
+      responses:
+        204:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        400:
+          description: Bad Request (Token is invalid or has expired )
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: "Token is invalid or has expired"
+
   /users/google/:
     description: User Resource
     post:
