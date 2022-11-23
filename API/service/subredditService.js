@@ -771,6 +771,13 @@ class subredditService {
 
     return { success: true, _id: subreddit.doc._id };
   }
+
+  async updateUserCount(id, action){
+    if(action == "sub")
+      await this.subredditRepository.addUser(id);
+    else
+      await this.subredditRepository.removeUser(id);
+  }
 }
 
 module.exports = subredditService;

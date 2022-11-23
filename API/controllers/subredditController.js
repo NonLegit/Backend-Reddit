@@ -835,13 +835,11 @@ class subredditController {
       });
       return;
     }
-    console.log("kiroo");
     //check if subreddit exists
     const subreddit = await this.subredditServices.subscriable(
       subredditName,
       req.user._id
     );
-    console.log("kiroo 2️⃣");
     if (!subreddit.success) {
       let msg, stat;
       switch (subreddit.error) {
@@ -862,7 +860,6 @@ class subredditController {
     }
 
     //subscribe or unsubscribe user according to sub
-    console.log("kiroo0000000000");
     const subscribed = await this.userServices.subscribe(
       req.user._id,
       subreddit._id,
@@ -877,6 +874,8 @@ class subredditController {
         return;
       }
     }
+
+    await this.subredditServices.updateUserCount(subreddit._id, action);
 
     res.status(200).json({
       status: "success",

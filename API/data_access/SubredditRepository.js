@@ -145,27 +145,29 @@ class SubredditRepository extends Repository {
   }
   async getSubredditFlairs(subredditName) {
     try {
+      console.log('inside subreddit flairs')
       const doc = await this.model
         .findOne({ name: subredditName })
         .populate("flairIds")
         .select({ populated: 1, _id: 0, createdAt: 1 });
-      
+
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
-      
     } catch (err) {
-        return { success: false, ...decorateError(err) };
+      return { success: false, ...decorateError(err) };
     }
   }
   async addFlairToSubreddit(subredditName, flairId) {
     try {
-      const doc = await this.model.findOneAndUpdate({ name: subredditName },
-          { $push: { flairIds: flairId } });
+      const doc = await this.model.findOneAndUpdate(
+        { name: subredditName },
+        { $push: { flairIds: flairId } }
+      );
       if (!doc) {
-       return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: false, error: mongoErrors.NOT_FOUND };
       }
-      
+
       return { success: true, doc: doc };
     } catch (err) {
       return { success: false, ...decorateError(err) };
@@ -173,16 +175,30 @@ class SubredditRepository extends Repository {
   }
   async removeFlairFromSubreddit(subredditName, flairId) {
     try {
-      const doc = await this.model.findOneAndUpdate({ name: subredditName },
-        { $pull: { flairIds: flairId } });
+      const doc = await this.model.findOneAndUpdate(
+        { name: subredditName },
+        { $pull: { flairIds: flairId } }
+      );
       if (!doc) {
-       return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: false, error: mongoErrors.NOT_FOUND };
       }
-     
+
       return { success: true, doc: doc };
     } catch (err) {
-       return { success: false, ...decorateError(err) };
+      return { success: false, ...decorateError(err) };
     }
+  }
+
+  async addUser(id) {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { usersCount: 1 },
+    });
+  }
+
+  async removeUser(id) {
+    await this.model.findByIdAndUpdate(id, {
+      $inc: { usersCount: -1 },
+    });
   }
 }
 

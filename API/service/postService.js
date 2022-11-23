@@ -80,33 +80,31 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
-    if (data.ownerType === "User") data.owner = data.author;
+    if (data.ownerType === "User"){
+      data.owner = data.author;
+      if(data.flairId) delete data.flairId;
+    }
     //validate subreddit if the post is created in one
     else if (data.ownerType === "Subreddit") {
       if (!data.owner)
         return { success: false, error: postErrors.INVALID_OWNER };
-      const validSubreddit = await this.subredditRepo.isValidId(data.owner);
-      if (!validSubreddit)
+      const subreddit = await this.subredditRepo.findById(
+        data.owner,
+        "flairIds"
+      );
+      if (!subreddit.success)
         return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
-    }
 
-    // if (data.flair) {
-    //   await this.subredditRepo.getById(data.owner, "flairs");
-    // }
+      if (data.flairId && !subreddit.doc.flairIds.includes(data.flairId)) {
+        return { success: false, error: postErrors.FLAIR_NOT_FOUND };
+      }
+    }
 
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
     return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
-
-  // async checkFlair(subredditId, flairId) {
-  //   const flairs = (
-  //     await this.subredditRepo.getById(subredditId, "flairs")
-  //   ).flairs;
-  //   if (!flairs || !flairs.includes(flairId)) return false;
-  //   return true;
-  // }
 
   /**
    * get posts
@@ -115,15 +113,13 @@ class PostService {
    * @returns {Object} object containing array of posts
    */
   async getPosts(query, filter) {
-    
-    const posts = await this.postRepo.getPosts(filter, query,"");
+    const posts = await this.postRepo.getPosts(filter, query, "");
     if (posts.success) return { success: true, data: posts.doc };
 
     // if (!posts.success && posts.error)
     //   return { sucess: false, error: posts.error };
-    
+
     return { sucess: false, error: postErrors.MONGO_ERR, msg: posts.msg };
-      
   }
   /**
    * @property {Function} getUserPosts get posts which created by user
@@ -313,10 +309,10 @@ class PostService {
     let post = await this.postRepo.findById(postId);
     console.log(post);
     if (!post.success) {
-      return {sucess:false, error:postErrors.POST_NOT_FOUND};
-      }
+      return { sucess: false, error: postErrors.POST_NOT_FOUND };
+    }
 
-      return post;
+    return post;
   }
 }
 
