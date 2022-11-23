@@ -309,6 +309,15 @@ class PostService {
     });
     return newPost;
   }
+  async getPost(postId) {
+    let post = await this.postRepo.findById(postId);
+    console.log(post);
+    if (!post.success) {
+      return {sucess:false, error:postErrors.POST_NOT_FOUND};
+      }
+
+      return post;
+  }
 }
 
 module.exports = PostService;

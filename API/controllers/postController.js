@@ -485,6 +485,54 @@ class PostController {
       });
     }
   }
+  getPost=async (req, res)=>{
+    let postId = req.params.postId;
+    
+    if (!postId) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
+    try {
+      let post = await this.postServices.getPost(
+        postId
+      );
+      if (!post.success) {
+        let message, statusCode,status;
+        switch (post.error) {
+          case postErrors.POST_NOT_FOUND:
+            message= 'Post not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case postErrors.MONGO_ERR:
+            message= 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+         return res.status(statusCode).json({
+           status: status,
+           message: message
+         });
+         
+      }
+     
+        res.status(200).json({
+          status: 'OK',
+          data: post.doc,
+          
+        });
+      
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
 }
 
 module.exports = PostController;
