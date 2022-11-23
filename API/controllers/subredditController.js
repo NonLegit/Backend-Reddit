@@ -101,8 +101,10 @@ class subredditController {
     });
   };
 
+  // TODO: fix return object
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
+    let userId = req.user._id;
 
     if (!subredditName) {
       res.status(400).json({
@@ -113,6 +115,7 @@ class subredditController {
     }
 
     let subreddit = await this.subredditServices.retrieveSubreddit(
+      userId,
       subredditName
     );
 
