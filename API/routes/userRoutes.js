@@ -16,6 +16,8 @@ router.post("/logout", AuthenticationController.logOut);
 router.post("/forgot_username", AuthenticationController.forgotUserName);
 router.post("/forgot_password", AuthenticationController.forgotPassword);
 router.post("/reset_password/:token", AuthenticationController.resetPassword);
+router.get("/best", PostController.getBestPosts);
+
 // facebook authentication
 passport.use(
   new FacebookTokenStrategy(
@@ -78,15 +80,15 @@ router.patch(
 );
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
-router.get("/best", PostController.getBestPosts);
-router.get("/top", PostController.getTopPosts);
-router.get("/hot", PostController.getHotPosts);
-router.get("/new", PostController.getNewPosts);
+
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
 
+router.get("/top", PostController.getTopPosts);
+router.get("/hot", PostController.getHotPosts);
+router.get("/new", PostController.getNewPosts);
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

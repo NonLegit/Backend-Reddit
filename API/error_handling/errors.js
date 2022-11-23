@@ -32,6 +32,7 @@ exports.subredditErrors = Object.freeze({
   NOT_MODERATOR: 5,
   ALREADY_EXISTS: 6,
   INVALID_ENUM: 7,
+  FLAIR_NOT_FOUND: 8,
 });
 
 exports.userErrors = Object.freeze({

@@ -143,17 +143,33 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  async getSubredditFlairs(subredditName) {
+    try {
+      const doc = await this.model
+        .findOne({ name: subredditName })
+        .populate("flairIds")
+        .select({ populated: 1, _id: 0, createdAt: 1 });
+      
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
-  async addUser(id) {
-    await this.model.findByIdAndUpdate(id, {
-      $inc: { usersCount: 1 },
-    });
+      return { success: true, doc: doc };
+      
+    } catch (err) {
+        return { success: false, ...decorateError(err) };
+    }
   }
-
-  async removeUser(id) {
-    await this.model.findByIdAndUpdate(id, {
-      $inc: { usersCount: -1 },
-    });
+  async addFlairToSubreddit(subredditName, flairId) {
+    try {
+      const doc = await this.model.findOneAndUpdate({ name: subredditName },
+          { $push: { flairIds: flairId } });
+      if (!doc) {
+       return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
   }
 }
 
