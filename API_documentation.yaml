@@ -6206,6 +6206,9 @@ components:
 
     fullSubreddit:
       properties:
+        isJoined:
+          type: boolean
+          default: false
         createdAt:
           type: string
           format: date-time
@@ -6219,6 +6222,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/rules"
+        fixedName:
+          type: string
         name:
           type: string
         description:
