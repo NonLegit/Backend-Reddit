@@ -294,6 +294,13 @@ class AuthenticationController {
     let token;
     if (req.cookies.jwt) {
       token = req.cookies.jwt;
+    } else {
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+      ) {
+        token = req.headers.authorization.split(" ")[1];
+      }
     }
     if (!token) {
       res.status(401).json({
