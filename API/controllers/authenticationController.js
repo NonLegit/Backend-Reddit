@@ -1,4 +1,5 @@
 const { OAuth2Client } = require("google-auth-library");
+const fs = require("fs");
 var validator = require("email-validator");
 const { trusted } = require("mongoose");
 const { userErrors } = require("../error_handling/errors");
@@ -104,6 +105,14 @@ class AuthenticationController {
         const user = await this.UserServices.signUp(email, userName, password);
         if (user.success === true) {
           //res.status(201).json(response.body);
+          try {
+            var fs = require("fs");
+            var dir = `./public/users/${userName}`;
+            if (!fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+          } catch (error) {}
+
           this.createCookie(res, user.token, 201);
         } else {
           const response = this.errorResponse(user.error, user.msg);
@@ -483,6 +492,20 @@ class AuthenticationController {
           });
         }
       }
+    }
+  };
+  checkResetTokentime = async (req, res, next) => {
+    const resetToken = req.params.token;
+    let result = await this.UserServices.checkResetTokenTime(resetToken);
+    if (result.success === true) {
+      res.status(204).json({
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Token is invalid or has expired",
+      });
     }
   };
 }

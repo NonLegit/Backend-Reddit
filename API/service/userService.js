@@ -458,6 +458,28 @@ class UserService {
       return response;
     }
   }
+  async checkResetTokenTime(resetToken) {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    let user = await this.userRepository.findByResetPassword(hashedToken);
+    if (user.success === false) {
+      // invalid token or time passed
+      const response = {
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
+      };
+      return response;
+    } else {
+      const response = {
+        success: true,
+        msg: "valid token",
+      };
+      return response;
+    }
+  }
 }
 
 module.exports = UserService;

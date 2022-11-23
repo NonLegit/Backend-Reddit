@@ -7,15 +7,22 @@ const { container } = require("./../di-setup");
 const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
+const FileController = container.resolve("FileController");
 const router = express.Router();
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
+//router.get("/images/:userName/:fileName", FileController.getUserProfileImage);
+router.get("/images/:fileName", FileController.getUserProfileImage);
 router.post("/signup", AuthenticationController.signUp);
 router.post("/login", AuthenticationController.logIn);
 router.post("/logout", AuthenticationController.logOut);
 router.post("/forgot_username", AuthenticationController.forgotUserName);
 router.post("/forgot_password", AuthenticationController.forgotPassword);
 router.post("/reset_password/:token", AuthenticationController.resetPassword);
+router.get(
+  "/check_reset_token/:token",
+  AuthenticationController.checkResetTokentime
+);
 router.get("/best", PostController.getBestPosts);
 
 // facebook authentication
