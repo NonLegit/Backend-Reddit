@@ -41,8 +41,16 @@ pipeline {
             environment {
                 GIT_PASSWORD = credentials('github-pat')
                 DB_CREDS = credentials('db-creds')
+                DB_NAME = credentials('db-name')
                 EMAIL_CREDS = credentials('email-creds')
                 DOCKER_CREDS = credentials('docker-creds')
+                FACEBOOK_APP_ID = credentials('facebook-app-id')
+                FACEBOOK_APP_SECRET = credentials('facebook-app-secret')
+                GOOGLE_APP_ID = credentials('google-app-id')
+                GOOGLE_APP_SECRET = credentials('google-app-secret')
+                JWT_SECRET = credentials('jwt-secret')
+                EMAIL_HOST = credentials('email-host')
+                EMAIL_PORT = credentials('email-port')
             }
             steps {
                 sh '''
@@ -62,7 +70,17 @@ pipeline {
                     rm -rf devops
 
                     # Modify the necessary files.
-                    sed -i 's/<USER>/$DB_CREDS_USR/g;s/<PASSWORD>/$DB_CREDS_PSW/g;s/<EMAIL_PASSWORD>/$EMAIL_CREDS_PSW/g;s/<EMAILUSER>/$EMAIL_CREDS_USR/g' config/config.env package.json
+                    
+                    sed -i 's/<DB_USER>/$DB_CREDS_USR/g;s/<DB_PASSWORD>/$DB_CREDS_PSW/g;s/<DB_NAME>/$DB_NAME/g' config/config.env package.json
+                    
+                    sed -i 's/<EMAIL_PASSWORD>/$EMAIL_CREDS_PSW/g;s/<EMAIL_USER>/$EMAIL_CREDS_USR/g;s/<EMAIL_HOST>/$EMAIL_HOST/g;s/<EMAIL_PORT>/$EMAIL_PORT/g' config/config.env
+                    
+                    sed -i 's/<FACEBOOK_APP_ID>/$FACEBOOK_APP_ID/g;s/<FACEBOOK_APP_SECRET>/$FACEBOOK_APP_SECRET/g;'
+                    
+                    sed -i 's/<GOOGLE_APP_ID>/$GOOGLE_APP_ID/g;s/<GOOGLE_APP_SECRET>/$GOOGLE_APP_SECRET/g;'
+                    
+                    sed -i 's/<JWT_SECRET>/$JWT_SECRET/g'
+
 
                     # Build the docker image
                     docker build -t cynic0/reddit-backend:latest . 
@@ -70,6 +88,12 @@ pipeline {
                     # Push the docker image.
                     docker login --username $DOCKER_CREDS_USR --password $DOCKER_CREDS_PSW
                     docker push cynic0/reddit-backend:latest
+
+                    # Deleting credentials file from filesystem.
+                    rm /var/jenkins_home/.docker/config.json
+
+                    # Modify the docker compose file.
+                    sed -i 's/DB_USER/$DB_CREDS_USR/g;s/DB_PASSWORD/$DB_CREDS_PSW/g'
 
                     # Stop the docker compose.
                     docker compose down
