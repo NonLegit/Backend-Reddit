@@ -14,6 +14,7 @@ exports.postErrors = Object.freeze({
   SUBREDDIT_NOT_FOUND: 4,
   POST_NOT_FOUND: 5,
   NOT_EDITABLE: 7,
+  FLAIR_NOT_FOUND: 8,
 });
 
 exports.commentErrors = Object.freeze({
@@ -78,7 +79,6 @@ exports.decorateError = (err) => {
 };
 
 exports.errorHandler = (err, req, res, next) => {
-  console.log("inside handle errors");
   res.status(500).send({
     status: "fail",
     message: "Internal server error",

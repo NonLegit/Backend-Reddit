@@ -145,6 +145,7 @@ class SubredditRepository extends Repository {
   }
   async getSubredditFlairs(subredditName) {
     try {
+      console.log('inside subreddit flairs')
       const doc = await this.model
         .findOne({ name: subredditName })
         .populate("flairIds")

@@ -1,4 +1,4 @@
-const { postErrors,subredditErrors } = require("../error_handling/errors");
+const { postErrors, subredditErrors } = require("../error_handling/errors");
 
 class PostController {
   constructor({ PostService, UserService }) {
@@ -36,6 +36,10 @@ class PostController {
           msg = "Subreddit not found";
           stat = 404;
           break;
+        case postErrors.FLAIR_NOT_FOUND:
+          msg = "Flair not found";
+          stat = 404;
+          break;
         case postErrors.MONGO_ERR:
           msg = post.msg;
           stat = 400;
@@ -51,7 +55,7 @@ class PostController {
       status: "success",
       data: post.data,
     });
-  }
+  };
 
   deletePost = async (req, res) => {
     //validate request params
@@ -89,7 +93,7 @@ class PostController {
       status: "success",
       data: null,
     });
-  }
+  };
 
   updatePost = async (req, res) => {
     const id = req.params.postId;
@@ -134,7 +138,7 @@ class PostController {
       status: "success",
       data: post.data,
     });
-  }
+  };
   /**
    * @property {Function} userPosts  get created posts by user
    * @param {object} req - request object sent by client
@@ -142,7 +146,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-   userPosts = async (req, res, next) => {
+  userPosts = async (req, res, next) => {
     // i have user id
     let me = req.user;
     if (!req.params.userName) {
@@ -158,37 +162,33 @@ class PostController {
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
-      if(user.success === true)
-      {
+      if (user.success === true) {
         let userId = user.data._id;
 
         // check if this user block me or i blocked him in order to show posts , TODO
-  
+
         // get post which he creates
         let posts = await this.postServices.getUserPosts(userId, sortType);
-  
+
         // get vote of me if these post i vote on it
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
         posts = this.postServices.setHiddenPostStatus(me, posts);
         posts = this.postServices.setPostOwnerData(posts);
         //console.log(posts[0]);
-  
+
         res.status(200).json({
           status: "success",
           posts: posts,
         });
-      }
-      else
-      {
+      } else {
         res.status(404).json({
           status: "success",
           errorMessage: "User Not Found",
         });
       }
-      
     }
-  }
+  };
   /**
    *
    * @property {Function} getSavedPosts  get saved posts of user
@@ -197,7 +197,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-   getSavedPosts = async (req, res, next) => {
+  getSavedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -214,7 +214,7 @@ class PostController {
       status: "success",
       posts: posts,
     });
-  }
+  };
   /**
    * @property {Function} getHiddenPosts get hidden posts of user
    * @param {object} req - request object sent by client
@@ -222,7 +222,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-   getHiddenPosts = async (req, res, next)=> {
+  getHiddenPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -237,7 +237,7 @@ class PostController {
       status: "success",
       posts: posts,
     });
-  }
+  };
   /**
    * @property {Function} userUpvotedPosts  get upvoted posts of user
    * @param {object} req - request object sent by client
@@ -245,7 +245,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-   userUpvotedPosts = async (req, res, next) => {
+  userUpvotedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -262,7 +262,7 @@ class PostController {
       status: "success",
       posts: posts,
     });
-  }
+  };
   /**
    *
    * @property {Function} userDownvotedPosts get downvoted posts of user
@@ -271,7 +271,7 @@ class PostController {
    * @param {Function} next -  function to execute next middleware
    * @returns void
    */
-   userDownvotedPosts = async (req, res, next) => {
+  userDownvotedPosts = async (req, res, next) => {
     let me = req.user;
 
     // check if the owner of post block me or i blocked him in order to show posts , TODO
@@ -286,9 +286,9 @@ class PostController {
       status: "success",
       posts: posts,
     });
-  }
+  };
 
-  getHotPosts = async (req, res) =>{
+  getHotPosts = async (req, res) => {
     try {
       req.query.sort = "-createdAt,-votes,-commentCount";
       //console.log("ppppppppppppppppppppppp");
@@ -301,116 +301,108 @@ class PostController {
       // }
       // else {
       let posts = await this.postServices.getPosts(req.query, req.toFilter);
-     
+
       // }
       if (!posts.success) {
         let message, statusCode, status;
         switch (posts.error) {
           case subredditErrors.SUBREDDIT_NOT_FOUND:
-            message= 'Subreddit not found';
+            message = "Subreddit not found";
             statusCode = 404;
-            status = 'Not Found';
+            status = "Not Found";
             break;
           case subredditErrors.MONGO_ERR:
-            message = 'Internal server error';
+            message = "Internal server error";
             statusCode = 500;
-            status = 'Internal Server Error';
+            status = "Internal Server Error";
             break;
         }
         return res.status(statusCode).json({
           status: status,
-          message: message
+          message: message,
         });
-        
       }
-        
-       res.status(200).json({
-          status: 'OK',
-          data: posts.data,
-          
-        });
-     
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-       res.status(500).json({
-        status: "fail",
+
+      res.status(200).json({
+        status: "OK",
+        data: posts.data,
       });
-    }
-  }
-  getNewPosts = async (req, res) =>{
-    try {
-      req.query.sort = "-createdAt";
-      //console.log(req.query);
-      
-        
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
-      
-      if (!posts.success) {
-        let message, statusCode, status;
-        switch (posts.error) {
-          case subredditErrors.SUBREDDIT_NOT_FOUND:
-            message= 'Subreddit not found';
-            statusCode = 404;
-            status = 'Not Found';
-            break;
-          case subredditErrors.MONGO_ERR:
-            message = 'Internal server error';
-            statusCode = 500;
-            status = 'Internal Server Error';
-            break;
-        }
-        return res.status(statusCode).json({
-          status: status,
-          message: message
-        });
-        
-      }
-       
-       res.status(200).json({
-          status: 'OK',
-          data: posts.data,
-          
-        });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
         status: "fail",
       });
     }
-  }
-  getTopPosts=async (req, res)=> {
+  };
+  getNewPosts = async (req, res) => {
     try {
-      req.query.sort = "-votes";
+      req.query.sort = "-createdAt";
       //console.log(req.query);
-     
-      // let filter = (req.toFilter) ? req.toFilter : {};
+
       let posts = await this.postServices.getPosts(req.query, req.toFilter);
 
-      
-       if (!posts.success) {
+      if (!posts.success) {
         let message, statusCode, status;
         switch (posts.error) {
           case subredditErrors.SUBREDDIT_NOT_FOUND:
-            message= 'Subreddit not found';
+            message = "Subreddit not found";
             statusCode = 404;
-            status = 'Not Found';
+            status = "Not Found";
             break;
           case subredditErrors.MONGO_ERR:
-            message = 'Internal server error';
+            message = "Internal server error";
             statusCode = 500;
-            status = 'Internal Server Error';
+            status = "Internal Server Error";
             break;
         }
         return res.status(statusCode).json({
           status: status,
-          message: message
+          message: message,
         });
-        
+      }
+
+      res.status(200).json({
+        status: "OK",
+        data: posts.data,
+      });
+    } catch (err) {
+      console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  };
+  getTopPosts = async (req, res) => {
+    try {
+      req.query.sort = "-votes";
+      //console.log(req.query);
+
+      // let filter = (req.toFilter) ? req.toFilter : {};
+      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+
+      if (!posts.success) {
+        let message, statusCode, status;
+        switch (posts.error) {
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message = "Subreddit not found";
+            statusCode = 404;
+            status = "Not Found";
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = "Internal server error";
+            statusCode = 500;
+            status = "Internal Server Error";
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message,
+        });
       }
       // if (req.user)
       // {
       //   let me = req.user;
-        
+
       //   posts = this.postServices.setVotePostStatus(me, posts);
       //   console.log(posts);
       //   posts = this.postServices.setSavedPostStatus(me, posts);
@@ -419,62 +411,58 @@ class PostController {
       //   posts = this.postServices.setPostOwnerData(posts);
 
       //   }
-      
-       res.status(200).json({
-          status: 'OK',
-          data: posts.data,
-          
-        });
+
+      res.status(200).json({
+        status: "OK",
+        data: posts.data,
+      });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
         status: "fail",
       });
     }
-  }
-  getBestPosts=async (req, res)=>{
+  };
+  getBestPosts = async (req, res) => {
     try {
       req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
-      
-     
-      let posts = await this.postServices.getPosts(req.query,req.toFilter);
-      
+
+      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+
       if (!posts.success) {
         let message, statusCode, status;
         switch (posts.error) {
           case subredditErrors.SUBREDDIT_NOT_FOUND:
-            message= 'Subreddit not found';
+            message = "Subreddit not found";
             statusCode = 404;
-            status = 'Not Found';
+            status = "Not Found";
             break;
           case subredditErrors.MONGO_ERR:
-            message = 'Internal server error';
+            message = "Internal server error";
             statusCode = 500;
-            status = 'Internal Server Error';
+            status = "Internal Server Error";
             break;
         }
         return res.status(statusCode).json({
           status: status,
-          message: message
+          message: message,
         });
-        
       }
-      
-       res.status(200).json({
-          status: 'OK',
-          data: posts.data,
-          
-        });
+
+      res.status(200).json({
+        status: "OK",
+        data: posts.data,
+      });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
         status: "fail",
       });
     }
-  }
-  getPost=async (req, res)=>{
+  };
+  getPost = async (req, res) => {
     let postId = req.params.postId;
-    
+
     if (!postId) {
       res.status(400).json({
         status: "fail",
@@ -483,43 +471,38 @@ class PostController {
       return;
     }
     try {
-      let post = await this.postServices.getPost(
-        postId
-      );
+      let post = await this.postServices.getPost(postId);
       if (!post.success) {
-        let message, statusCode,status;
+        let message, statusCode, status;
         switch (post.error) {
           case postErrors.POST_NOT_FOUND:
-            message= 'Post not found';
+            message = "Post not found";
             statusCode = 404;
-            status = 'Not Found';
+            status = "Not Found";
             break;
           case postErrors.MONGO_ERR:
-            message= 'Internal server error';
+            message = "Internal server error";
             statusCode = 500;
-            status = 'Internal Server Error';
+            status = "Internal Server Error";
             break;
         }
-         return res.status(statusCode).json({
-           status: status,
-           message: message
-         });
-         
-      }
-     
-        res.status(200).json({
-          status: 'OK',
-          data: post.doc,
-          
+        return res.status(statusCode).json({
+          status: status,
+          message: message,
         });
-      
+      }
+
+      res.status(200).json({
+        status: "OK",
+        data: post.doc,
+      });
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
         status: "fail",
       });
     }
-  }
+  };
 }
 
 module.exports = PostController;
