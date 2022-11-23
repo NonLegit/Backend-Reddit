@@ -15,10 +15,7 @@ if (process.env.NODE_ENV === "test") {
       .then(() => console.log("Fake DB connection for testing successful!"));
   });
 } else if (process.env.NODE_ENV === "production") {
-  const DB = process.env.DATABASE.replace(
-    "<PASSWORD>",
-    process.env.DATABASE_PASSWORD
-  );
+  const DB = process.env.DATABASE;
   mongoose.connect(DB).then(() => {});
 } else {
   const DB = process.env.DATABASE;
