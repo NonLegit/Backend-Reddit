@@ -23,6 +23,8 @@ router.get(
   "/check_reset_token/:token",
   AuthenticationController.checkResetTokentime
 );
+router.get("/best", PostController.getBestPosts);
+
 // facebook authentication
 passport.use(
   new FacebookTokenStrategy(
@@ -82,14 +84,15 @@ router.patch(
 );
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
-router.get("/best", PostController.getBestPosts);
-router.get("/top", PostController.getTopPosts);
-router.get("/hot", PostController.getHotPosts);
-router.get("/new", PostController.getNewPosts);
+
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
+
+router.get("/top", PostController.getTopPosts);
+router.get("/hot", PostController.getHotPosts);
+router.get("/new", PostController.getNewPosts);
 router.route("/username_available").get(UserController.usernameAvailable);
 module.exports = router;
 

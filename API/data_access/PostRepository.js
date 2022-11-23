@@ -1,6 +1,6 @@
 //const Post = require("../models/postModel");
 const Repository = require("./repository");
-const { mongoErrors } = require("../error_handling/errors");
+const { mongoErrors ,decorateError} = require("../error_handling/errors");
 const APIFeatures = require("./apiFeatures");
 
 class PostRepository extends Repository {
@@ -48,6 +48,37 @@ class PostRepository extends Repository {
     // const doc = await features.query.explain();
     let doc = await features.query.populate(popOptions);
     return { success: true, doc: doc };
+  }
+  async getPosts(filter, query, popOptions,user) {
+    try {
+      // if (user) {
+      //   //console.log("oooooooooooooooooooo");
+      //   let hiddenPostsIds= await user.populate("hidden",{_id:1,owner:0});
+      //   console.log(user.hidden);
+      // }
+      // //console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+      // console.log(user);
+      // let getSubredditPosts = filter ? { owner: filter, _id:{"$nin":user.hidden._id} } : { _id:{"$nin":user.hidden}};
+
+      let getSubredditPosts = filter ? { owner: filter} : {};
+
+      
+      // console.log(getSubredditPosts);
+      const features = new APIFeatures(this.model.find(getSubredditPosts), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+      //console.log(doc);
+      let doc = await features.query.populate(popOptions);
+       //console.log(doc);
+    if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+      
+    } catch (err) {
+        return { success: false, ...decorateError(err) };
+    }
   }
 }
 module.exports = PostRepository;

@@ -8,6 +8,10 @@ const PostController = container.resolve("PostController");
 // 
 const router = express.Router();
 
+router.get('/:subredditName/top', subredditController.getSubredditId,PostController.getTopPosts);
+router.get('/:subredditName/new',subredditController.getSubredditId, PostController.getNewPosts);
+router.get('/:subredditName/hot',subredditController.getSubredditId, PostController.getHotPosts);
+
 // test data models
 router.use(AuthenticationController.authorize);
 router.post("/", subredditController.createSubreddit);
@@ -20,9 +24,6 @@ router.delete("/:subredditName", subredditController.deleteSubreddit);
 
 
 //router.get('/:subredditName/trending', postControllerObj.getTrendingPosts);
-router.get('/:subredditName/top', subredditController.getSubredditId,PostController.getTopPosts);
-router.get('/:subredditName/new',subredditController.getSubredditId, PostController.getNewPosts);
-router.get('/:subredditName/hot',subredditController.getSubredditId, PostController.getHotPosts);
 
 
 router.route('/:subredditName/flair')
