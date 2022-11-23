@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const dotenv = require("dotenv");
 dotenv.config();
-const config = require("config");
+//const config = require("config");
 const { setup } = require("./di-setup");
 
 process.on("uncaughtException", (err) => {
