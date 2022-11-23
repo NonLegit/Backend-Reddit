@@ -174,7 +174,7 @@ class PostService {
       if (posts[i].ownerType === "User") {
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
-        newPosts[i]["name"] = posts[i].owner.name;
+        newPosts[i]["name"] = posts[i].owner.fixedName;
       }
       newPosts[i]["owner"] = posts[i].owner._id;
     }

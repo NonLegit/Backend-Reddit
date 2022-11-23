@@ -315,12 +315,12 @@ describe("User Post Test", () => {
           {
             _id: "4",
             ownerType:"Subreddit",
-            owner:{name:"ahmed3"}
+            owner:{fixedName:"ahmed3"}
           },
           {
             _id: "6",
             ownerType:"Subreddit",
-            owner:{name:"ahmed4"}
+            owner:{fixedName:"ahmed4"}
           },
         ];
         const result = postservices.setPostOwnerData( posts);
