@@ -359,10 +359,19 @@ class subredditController {
   }
 
   // ! Doaa's controllers
-  async createFlair(req, res) {
+  createFlair=async (req, res)=>{
+
+    
     let data = req.body;
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
+     if (!data.text||!subredditName||!userId) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
     try {
       //  console.log('here2');
       let flair = await this.subredditServices.createFlair(
@@ -370,17 +379,37 @@ class subredditController {
         data,
         userId
       );
-      if (flair.status === "success") {
-        res.status(flair.statusCode).json({
-          status: flair.status,
-          data: flair.doc,
-        });
-      } else {
-        res.status(flair.statusCode).json({
-          status: flair.status,
-          errorMessage: flair.err,
-        });
+
+      if (!flair.success) {
+        let message, statusCode,status;
+        switch (flair.error) {
+          case subredditErrors.NOT_MODERATOR:
+            message = 'Not a subreddit moderator';
+            statusCode = 403;
+            status='Forbidden'
+            break;
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break; 
+          case subredditErrors.MONGO_ERR:
+            message= 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+       return res.status(statusCode).json({
+          status: status,
+          message:message
+        })
       }
+     
+        res.status(201).json({
+          status: 'Created',
+          data: flair.data,
+        });
+      
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -388,30 +417,65 @@ class subredditController {
       });
     }
   }
-  async updateFlair(req, res) {
+  updateFlair=async (req, res)=>{
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    //   console.log('hello');
     let data = req.body;
+    
+    if (!flairId||!subredditName||!userId||!data) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
+    
     try {
-      let response = await this.subredditServices.updateFlair(
+      let flair = await this.subredditServices.updateFlair(
         subredditName,
         flairId,
         data,
         userId
       );
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+
+
+       if (!flair.success) {
+        let message, statusCode,status;
+        switch (flair.error) {
+          case subredditErrors.NOT_MODERATOR:
+            message = 'Not a subreddit moderator';
+            statusCode = 403;
+            status='Forbidden'
+            break;
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.FLAIR_NOT_FOUND:
+            message= 'Flair not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message= 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+         res.status(statusCode).json({
+           status: status,
+           message: message
+         });
+         return;
       }
+     
+        res.status(200).json({
+          status: 'OK',
+          data: flair.data.doc,
+        });
+
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -419,29 +483,58 @@ class subredditController {
       });
     }
   }
-  async deleteFlair(req, res) {
+  deleteFlair=async (req, res)=>{
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    // console.log('HII there ❌');
-    //console.log(subredditName);
-    //deleteSubreddit(subredditName)
+
+    if (!flairId||!subredditName||!userId) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
     try {
-      let response = await this.subredditServices.deleteFlair(
+      let flair = await this.subredditServices.deleteFlair(
         subredditName,
         flairId,
         userId
       );
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+       if (!flair.success) {
+        let message, statusCode,status;
+        switch (flair.error) {
+          case subredditErrors.NOT_MODERATOR:
+            message = 'Not a subreddit moderator';
+            statusCode = 403;
+            status='Forbidden'
+            break;
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.FLAIR_NOT_FOUND:
+            message= 'Flair not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message= 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+       return  res.status(statusCode).json({
+           status: status,
+           message: message
+         });
+        
       }
+     
+        return res.status(204).send();
+      
+     
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -449,25 +542,54 @@ class subredditController {
       });
     }
   }
-  async getFlair(req, res) {
+  getFlair=async (req, res)=>{
     let flairId = req.params.flairId;
     let subredditName = req.params.subredditName;
+    if (!flairId||!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
     try {
-      let response = await this.subredditServices.getFlair(
+      let flair = await this.subredditServices.getFlair(
         subredditName,
         flairId
       );
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+      if (!flair.success) {
+        let message, statusCode,status;
+        switch (flair.error) {
+          
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message= 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.FLAIR_NOT_FOUND:
+            message= 'Flair not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message= 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+         return res.status(statusCode).json({
+           status: status,
+           message: message
+         });
+         
       }
+     
+        res.status(200).json({
+          status: 'OK',
+          data: flair.data.doc,
+          
+        });
+      
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -476,22 +598,47 @@ class subredditController {
     }
   }
 
-  async getFlairs(req, res) {
+  getFlairs=async (req, res)=>{
     let subredditName = req.params.subredditName;
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+      return;
+    }
     try {
-      let response = await this.subredditServices.getFlairs(subredditName);
-      // console.log( response);
-      if (response.status === "success") {
-        res.status(response.statusCode).json({
-          status: response.status,
-          data: response.doc,
+      let flairs = await this.subredditServices.getFlairs(subredditName);
+      
+      
+
+      if (!flairs.success) {
+        let message, statusCode, status;
+        switch (flair.error) {
+          
+          case subredditErrors.SUBREDDIT_NOT_FOUND:
+            message = 'Subreddit not found';
+            statusCode = 404;
+            status = 'Not Found';
+            break;
+          case subredditErrors.MONGO_ERR:
+            message = 'Internal server error';
+            statusCode = 500;
+            status = 'Internal Server Error';
+            break;
+        }
+        return res.status(statusCode).json({
+          status: status,
+          message: message
         });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
-        });
+        
       }
+       res.status(200).json({
+          status: 'OK',
+          data: flairs.data.doc,
+          
+        });
+     
     } catch (err) {
       console.log("error in subredditservices " + err);
       res.status(500).json({
@@ -500,21 +647,20 @@ class subredditController {
     }
   }
 
-  async getSubredditId(req, res, next) {
+   getSubredditId=async(req, res, next)=>{
     let subredditName = req.params.subredditName;
     try {
-      let response = await this.subredditServices.getSubreddit({
-        name: subredditName,
-      });
+      let response = await this.subredditServices.checkSubreddit(
+        subredditName
+      );
       console.log(response);
-      if (response.status === "success") {
-        req.toFilter = { owner: response.doc._id };
-        console.log(req.toFilter);
+      if (response.success) {
+        req.toFilter = response.doc._id;
         next();
       } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          errorMessage: response.err,
+        res.status(404).json({
+          status: 'Not Found',
+          message:'Subreddit not found',
         });
       }
     } catch (err) {
