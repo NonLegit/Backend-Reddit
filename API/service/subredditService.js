@@ -22,7 +22,10 @@ class subredditService {
    */
   async createSubreddit(data, userName, profilePicture) {
     // ..
-    let subredditExisted = await this.retrieveSubreddit(data.fixedName);
+    let subredditExisted = await this.retrieveSubreddit(
+      data.owner,
+      data.fixedName
+    );
     if (!subredditExisted.success) {
       let subreddit = await this.subredditRepository.create(
         data,
@@ -30,6 +33,12 @@ class subredditService {
         profilePicture
       );
       if (subreddit.success) return { success: true, data: subreddit.doc };
+      else
+        return {
+          success: false,
+          error: subredditErrors.MONGO_ERR,
+          msg: subreddit.msg,
+        };
     } else return { success: false, error: subredditErrors.ALREADY_EXISTS };
   }
 
@@ -41,7 +50,7 @@ class subredditService {
    */
   async deleteSubreddit(subredditName, userId) {
     // ..
-    let subreddit = await this.retrieveSubreddit(subredditName);
+    let subreddit = await this.retrieveSubreddit(userId, subredditName);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
@@ -61,8 +70,8 @@ class subredditService {
    * @returns {Object} - a response containing the updated subreddit.
    */
   async updateSubreddit(subredditName, userId, data) {
-    // .. //! check subreddit exists - check iam moderator - update
-    let subreddit = await this.retrieveSubreddit(subredditName);
+    // ..
+    let subreddit = await this.retrieveSubreddit(userId, subredditName);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
@@ -83,10 +92,14 @@ class subredditService {
    * @param {object} name - a query to select a certain subreddit from database
    * @returns {Object} - a response containing the retrieved subreddit
    */
-  async retrieveSubreddit(name) {
+  async retrieveSubreddit(userId, name) {
     let subreddit = await this.subredditRepository.getsubreddit(name, "", "");
-    if (subreddit.success) return { success: true, data: subreddit.doc };
-    else return subreddit;
+    if (subreddit.success) {
+      let joined = this.userRepository.isSubscribed(userId, subreddit.doc._id);
+      subreddit.doc.isJoined = await joined;
+      return { success: true, data: subreddit.doc };
+    } else
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
   }
 
   /**

@@ -19,6 +19,13 @@ class subredditController {
       });
       return;
     }
+    if (isEmpty(data)) {
+      res.status(400).json({
+        status: "fail",
+        message: "please provide a body",
+      });
+      return;
+    }
 
     // set the owner (user already logged in) in data
     data.owner = userId;
@@ -44,15 +51,16 @@ class subredditController {
       }
       res.status(stat).json({
         status: "fail",
-        message: msg,
+        errorMessage: msg,
       });
       return;
     }
     res.status(200).json({
-      status: "success",
-      data: subreddit.data._id,
+      id: subreddit.data._id,
     });
   };
+
+  
 
   updateSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
@@ -63,6 +71,13 @@ class subredditController {
       res.status(400).json({
         status: "fail",
         message: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (isEmpty(data)) {
+      res.status(400).json({
+        status: "fail",
+        message: "please provide a body",
       });
       return;
     }
@@ -91,7 +106,7 @@ class subredditController {
       }
       res.status(stat).json({
         status: "fail",
-        message: msg,
+        errorMessage: msg,
       });
       return;
     }
@@ -101,8 +116,10 @@ class subredditController {
     });
   };
 
+  // TODO: fix return object
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
+    let userId = req.user._id;
 
     if (!subredditName) {
       res.status(400).json({
@@ -113,6 +130,7 @@ class subredditController {
     }
 
     let subreddit = await this.subredditServices.retrieveSubreddit(
+      userId,
       subredditName
     );
 
@@ -131,7 +149,7 @@ class subredditController {
       }
       res.status(stat).json({
         status: "fail",
-        message: msg,
+        errorMessage: msg,
       });
       return;
     }
@@ -180,7 +198,7 @@ class subredditController {
       }
       res.status(stat).json({
         status: "fail",
-        message: msg,
+        errorMessage: msg,
       });
       return;
     }
@@ -253,7 +271,7 @@ class subredditController {
       }
       res.status(stat).json({
         status: "fail",
-        message: msg,
+        errorMessage: msg,
       });
       return;
     }
@@ -882,6 +900,12 @@ class subredditController {
     });
   };
 }
-
+function isEmpty(obj) {
+  for(var prop in obj) {
+      if(obj.hasOwnProperty(prop))
+          return false;
+  }
+  return JSON.stringify(obj) === JSON.stringify({});
+}
 //export default userController;
 module.exports = subredditController;

@@ -23,6 +23,7 @@ const subredditSchema = new mongoose.Schema({
     ],
   }, // TODO: this will be unique and replaced with name
   name: { type: String, default: " " },
+  isJoined: { type: Boolean, default: false },
   rules: [
     {
       type: Object,

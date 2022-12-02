@@ -37,11 +37,11 @@ class SubredditRepository extends Repository {
 
   async getsubreddit(name, select, popOptions) {
     try {
-      let tempDoc = this.model.findOne({ fixedName: name }).select(select);
+      let tempDoc = this.model.findOne({ fixedName: name }).select(select+"-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
-      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };    
 
       return { success: true, doc: doc };
     } catch (err) {
