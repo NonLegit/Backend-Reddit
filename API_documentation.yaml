@@ -4757,6 +4757,56 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+  /subreddits/moderator/{username}:
+    get:
+      tags:
+        - Subreddit
+      summary: Get Subreddits moderated by this user
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: username
+          description: username of user want to get subreddits moderated by him
+          required: true
+
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  subreddits:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Subreddit"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
 
   /subreddits/{subredditName}/search:
     get:
