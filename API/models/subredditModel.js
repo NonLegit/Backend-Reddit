@@ -23,6 +23,7 @@ const subredditSchema = new mongoose.Schema({
     ],
   }, // TODO: this will be unique and replaced with name
   name: { type: String, default: " " },
+  isJoined: { type: Boolean, default: false },
   rules: [
     {
       type: Object,
@@ -129,7 +130,7 @@ const subredditSchema = new mongoose.Schema({
     required: false,
     trim: true, // *TODO: it will be unique with time stamp and username
   },
-  usersCount: {
+  membersCount: {
     type: Number,
     required: false,
     default: 1,

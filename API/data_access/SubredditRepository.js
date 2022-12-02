@@ -37,7 +37,9 @@ class SubredditRepository extends Repository {
 
   async getsubreddit(name, select, popOptions) {
     try {
-      let tempDoc = this.model.findOne({ fixedName: name }).select(select);
+      let tempDoc = this.model
+        .findOne({ fixedName: name })
+        .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
@@ -129,11 +131,16 @@ class SubredditRepository extends Repository {
     }
   }
 
-  async getSubreddits(userId) {
+  async getSubreddits(userId, type) {
     try {
-      let tempDoc = this.model
-        .find({ "moderators.id": userId })
-        .select("_id name icon usersCount description");
+      let tempDoc =
+        type === "id"
+          ? this.model
+              .find({ "moderators.id": userId })
+              .select("_id name icon usersCount description")
+          : this.model
+              .find({ "moderators.userName": userId })
+              .select("_id name icon usersCount description");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -143,9 +150,10 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
   async getSubredditFlairs(subredditName) {
     try {
-      console.log('inside subreddit flairs')
+      console.log("inside subreddit flairs");
       const doc = await this.model
         .findOne({ name: subredditName })
         .populate("flairIds")
