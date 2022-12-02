@@ -3663,7 +3663,7 @@ paths:
             schema:
               type: object
               properties:
-                name:
+                fixedName:
                   type: string
                 type:
                   type: string
@@ -3736,7 +3736,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/fullSubreddit"
+                $ref: "#/components/schemas/SUBREDDIT"
 
         "400":
           description: Bad Request
@@ -3793,7 +3793,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/fullSubreddit"
+                $ref: "#/components/schemas/SUBREDDIT"
 
         "400":
           description: Bad Request
@@ -6203,9 +6203,22 @@ components:
             - Posts and comments
             - Posts only
             - Comments only
+            
+    SUBREDDIT:
+      properties:
+        status:
+          type: string
+          default: "success"
+        data:
+          type: object
+          items:
+            $ref: "#/components/schemas/fullSubreddit"
+          
 
     fullSubreddit:
       properties:
+        _id:
+          type: string
         isJoined:
           type: boolean
           default: false
