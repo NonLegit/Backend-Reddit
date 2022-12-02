@@ -130,7 +130,7 @@ const subredditSchema = new mongoose.Schema({
     required: false,
     trim: true, // *TODO: it will be unique with time stamp and username
   },
-  usersCount: {
+  membersCount: {
     type: Number,
     required: false,
     default: 1,

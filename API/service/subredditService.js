@@ -379,7 +379,7 @@ class subredditService {
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
-      let subreddits = await this.subredditRepository.getSubreddits(userId);
+      let subreddits = await this.subredditRepository.getSubreddits(userId,"id");
       if (!subreddits.success) return subreddits;
       else return { success: true, data: subreddits.doc };
     } else if (location === "subscriber") {
@@ -388,6 +388,11 @@ class subredditService {
       if (!subreddits.success) return subreddits;
       else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
+  }
+  async subredditsModeratedBy(userName){
+    let subreddits = await this.subredditRepository.getSubreddits(userName,"name");
+      if (!subreddits.success) return subreddits;
+      else return { success: true, data: subreddits.doc };
   }
   /**
    * This function update the permissions of the moderator by another older moderator
