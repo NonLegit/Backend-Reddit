@@ -67,6 +67,10 @@ pipeline {
                     mv Dockerfile API/
                     cd API
 
+                    # Cleaning unnecessary files.
+                    rm -f README* .gitignore
+                    rm -rf config
+
                     # Creating the necessary files.
                     cat <<EOF > .env
                     NODE_ENV=production
