@@ -6210,8 +6210,6 @@ components:
           type: string
           default: "success"
         data:
-          type: object
-          items:
             $ref: "#/components/schemas/fullSubreddit"
           
 
