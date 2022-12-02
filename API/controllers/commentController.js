@@ -3,13 +3,9 @@ const { commentErrors } = require("../error_handling/errors");
 class CommentController {
   constructor({ CommentService }) {
     this.commentServices = CommentService;
-
-    this.createComment = this.createComment.bind(this);
-    this.updateComment = this.updateComment.bind(this);
-    this.deleteComment = this.deleteComment.bind(this);
   }
 
-  async createComment(req, res) {
+  createComment = async (req, res) => {
     const data = req.body;
     data.author = req.user._id;
 
@@ -49,9 +45,9 @@ class CommentController {
     });
 
     //mentions
-  }
+  };
 
-  async updateComment(req, res) {
+  updateComment = async (req, res) => {
     //validate request params
     const id = req.params.commentId;
     const data = req.body;
@@ -95,9 +91,9 @@ class CommentController {
       status: "success",
       data: comment.data,
     });
-  }
+  };
 
-  async deleteComment(req, res) {
+  deleteComment = async (req, res) => {
     //validate request params
     const id = req.params.commentId;
     if (!id) {
@@ -133,7 +129,7 @@ class CommentController {
       status: "success",
       data: null,
     });
-  }
+  };
 }
 
 module.exports = CommentController;

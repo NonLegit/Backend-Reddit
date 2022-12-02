@@ -523,6 +523,19 @@ class subredditService {
 
   //! Doaa's part
 
+
+
+
+
+
+
+
+
+
+
+
+
+
   /**
    *
    * @param {String} subredditName the name of the subreddit to create flair into
@@ -531,43 +544,46 @@ class subredditService {
    * @returns {Object} returns created flair or an error object
    */
   async createFlair(subredditName, data, userId) {
-    try {
-      let subreddit = await this.checkSubreddit(subredditName);
-      if (subreddit.status !== "success") {
-        return subreddit;
-      }
-      //console.log(subreddit);
+    //check if existing subreddit to create flair in
+   
+    let subreddit = await this.checkSubreddit(subredditName);
+    console.log("oooooooooooooooooooooooooooooooo");
+    console.log(subreddit);
+      if (!subreddit.success) {
+        return {success:false , error: subredditErrors.SUBREDDIT_NOT_FOUND};
+    }
+     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+     //check if user is moderator of subreddit to create flair in
       let isModerator = this.checkModerator(subreddit, userId);
-      console.log(isModerator);
-      if (isModerator.status !== "success") {
-        return isModerator;
+      
+      if (!isModerator.success) {
+        return {success:false , error: subredditErrors.NOT_MODERATOR};
       }
 
+    //create the flair
       let flair = await this.flairRepository.createOne(data);
 
-      if (flair.status !== "success") {
-        return flair;
+      if (!flair.success) {
+        return {success:false , error: subredditErrors.MONGO_ERR};
       }
 
+    console.log("hellllllllllllllllllllll");
+    console.log(flair);
+    //add flair to list of refrences flairs in the subreddit
       let addedTorefrencedFlairs =
-        await this.subredditRepository.addToRefrenced(
-          { name: subredditName },
-          { $push: { flairIds: flair.doc._id } }
+        await this.subredditRepository.addFlairToSubreddit(
+          subredditName,
+          flair.doc._id
         );
 
-      if (addedTorefrencedFlairs.status !== "success") {
-        return flair;
+      if (!addedTorefrencedFlairs.success) {
+        return {success:false , error: subredditErrors.MONGO_ERR};
       }
 
-      return flair;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+    console.log(flair);
+      return {success:true , data: flair};
+    
+    
   }
 
   /**
@@ -576,30 +592,20 @@ class subredditService {
    * @returns {Object} returns the found subreddit object id found and an error object if not
    */
   async checkSubreddit(subredditName) {
-    try {
-      let subreddit = await this.subredditRepository.getOne({
-        name: subredditName,
-      });
-      //console.log(subreddit);
-      if (subreddit.status !== "success") {
-        const error = {
-          status: "Not Found",
-          statusCode: 404,
-          err: subreddit.err,
-        };
-        return error;
+    console.log("in chek subreddit");
+   
+      let subreddit = await this.subredditRepository.findByName(
+        subredditName,
+      );
+     
+     
+      if (!subreddit.success) {
+       
+        return {sucess:false, error:subredditErrors.SUBREDDIT_NOT_FOUND};
       }
 
       return subreddit;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+
   }
 
   /**
@@ -610,14 +616,10 @@ class subredditService {
    */
   checkFlair(subreddit, flairId) {
     if (!subreddit.doc.flairIds.includes(flairId)) {
-      const error = {
-        status: "Not Found",
-        statusCode: 404,
-        err: "Flair not in subreddit",
-      };
-      return error;
+
+      return {success:false, error:subredditErrors.FLAIR_NOT_FOUND  };
     }
-    return subreddit;
+    return {success:true, data:subreddit};
   }
 
   /**
@@ -627,20 +629,12 @@ class subredditService {
    * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
    */
   checkModerator(subreddit, userID) {
-    // console.log("hiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    // console.log(typeof(subreddit.doc.owner));
-    // console.log(typeof(userID));
-    //console.log((subreddit.doc.owner).localeCompare(userID));
+   
 
     if (!subreddit.doc.owner.equals(userID)) {
-      const error = {
-        status: "forbidden",
-        statusCode: 403,
-        err: "you are not a moderator",
-      };
-      return error;
+      return {success:false, error:subredditErrors.NOT_MODERATOR};
     }
-    // console.log("outsideeeeeeeeeeeeeeeeeeeee");
+    
     return subreddit;
   }
 
@@ -653,37 +647,31 @@ class subredditService {
    * @returns {Object} returns the updated flair if success and an error object if not
    */
   async updateFlair(subredditName, flairId, data, userId) {
-    try {
+   
       let subreddit = await this.checkSubreddit(subredditName);
-      if (subreddit.status !== "success") {
-        return subreddit;
+      if (!subreddit.success) {
+        return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
       }
       let isModerator = this.checkModerator(subreddit, userId);
-      if (isModerator.status !== "success") {
-        return isModerator;
+      if (!isModerator.success) {
+        return {success:false, error: subredditErrors.NOT_MODERATOR};
       }
 
       let checkFlair = this.checkFlair(subreddit, flairId);
 
-      if (checkFlair.status !== "success") {
-        return checkFlair;
+      if (!checkFlair.success) {
+        return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
       }
-      let response = await this.flairRepository.updateOne(
-        { _id: flairId },
+      let flair = await this.flairRepository.updateFlair(
+         flairId ,
         data
       );
-      console.log(response);
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      // console.log(err);
-      return error;
-    }
+      if (!flair.success) {
+        return {success:false, error: subredditErrors.MONGO_ERR};
+      }
+     return {success:true, data:flair};
+   
+    
   }
 
   /**
@@ -694,45 +682,33 @@ class subredditService {
    * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
    */
   async deleteFlair(subredditName, flairId, userId) {
-    try {
+    
       let subreddit = await this.checkSubreddit(subredditName);
-      if (subreddit.status !== "success") {
-        return subreddit;
+      if (!subreddit.success) {
+         return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
       }
-      console.log(subreddit.doc.owner);
+      
       let isModerator = this.checkModerator(subreddit, userId);
-      if (isModerator.status !== "success") {
-        return isModerator;
+      if (!isModerator.success) {
+         return {success:false, error: subredditErrors.NOT_MODERATOR};
       }
 
       let checkFlair = this.checkFlair(subreddit, flairId);
-      console.log(checkFlair);
-      if (checkFlair.status !== "success") {
-        return checkFlair;
+      
+      if (!checkFlair.success) {
+         return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
       }
-      console.log(checkFlair);
-      let response = await this.subredditRepository.removeFromRefrenced(
-        { name: subredditName },
-        { $pull: { flairIds: flairId } }
+     
+      let editedSubreddit = await this.subredditRepository.removeFlairFromSubreddit(
+        subredditName,
+        flairId
       );
-      if (response.status !== "success") {
-        const error = {
-          status: "fail",
-          statusCode: 400,
-          err: response.err,
-        };
-        return error;
+      if (!editedSubreddit.success) {
+       
+        return {success:false, error: subredditErrors.MONGO_ERR};
       }
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+      return {success:true, data:editedSubreddit};
+    
   }
 
   /**
@@ -742,27 +718,23 @@ class subredditService {
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
-    try {
+    
       let subreddit = await this.checkSubreddit(subredditName);
-      if (subreddit.status !== "success") {
-        return subreddit;
+      if (!subreddit.success) {
+        return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
       }
       let checkFlair = this.checkFlair(subreddit, flairId);
-      if (checkFlair.status !== "success") {
-        return checkFlair;
+      if (!checkFlair.success) {
+        return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
       }
 
-      let response = await this.flairRepository.getOneById(flairId);
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err: err,
-      };
-      return error;
-    }
+      let response = await this.flairRepository.findById(flairId);
+       if (!response.success) {
+       
+        return {success:false, error: subredditErrors.MONGO_ERR};
+      }
+      return {success:true, data:response};
+   
   }
 
   /**
@@ -771,24 +743,17 @@ class subredditService {
    * @returns {Object} object containing all flairs if subreddit exists and an error object if not
    */
   async getFlairs(subredditName) {
-    try {
-      // console.log('in service');
-      // eslint-disable-next-line max-len, quotes
-      let response = await this.subredditRepository.getRefrenced(
-        { name: subredditName },
-        "flairIds"
+    
+      
+    let flairs = await this.subredditRepository.getSubredditFlairs(
+        subredditName      
       );
 
-      return response;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
+    if (!flairs.success) {
+      return {success:false, data:subredditErrors.SUBREDDIT_NOT_FOUND};
     }
+      return {success:true, data:flairs};
+    
   }
 
   /**
@@ -818,6 +783,13 @@ class subredditService {
     if (isBanned) return { success: false, error: subredditErrors.BANNED };
 
     return { success: true, _id: subreddit.doc._id };
+  }
+
+  async updateUserCount(id, action){
+    if(action == "sub")
+      await this.subredditRepository.addUser(id);
+    else
+      await this.subredditRepository.removeUser(id);
   }
 }
 

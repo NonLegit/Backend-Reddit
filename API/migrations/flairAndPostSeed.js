@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 
-const Post = require("./postModel");
-const User = require("./userModel");
+const Post = require("../models/postModel");
+const User = require("../models/userModel");
 
-const Flair = require("./flairModel");
-const Subreddit = require("./subredditModel");
+const Flair = require("../models/flairModel");
+const Subreddit = require("../models/subredditModel");
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
+dotenv.config();
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE_LOCAL;
   const mockgoose = new Mockgoose(mongoose);

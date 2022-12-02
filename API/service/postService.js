@@ -80,33 +80,31 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
-    if (data.ownerType === "User") data.owner = data.author;
+    if (data.ownerType === "User"){
+      data.owner = data.author;
+      if(data.flairId) delete data.flairId;
+    }
     //validate subreddit if the post is created in one
     else if (data.ownerType === "Subreddit") {
       if (!data.owner)
         return { success: false, error: postErrors.INVALID_OWNER };
-      const validSubreddit = await this.subredditRepo.isValidId(data.owner);
-      if (!validSubreddit)
+      const subreddit = await this.subredditRepo.findById(
+        data.owner,
+        "flairIds"
+      );
+      if (!subreddit.success)
         return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
-    }
 
-    // if (data.flair) {
-    //   await this.subredditRepo.getById(data.owner, "flairs");
-    // }
+      if (data.flairId && !subreddit.doc.flairIds.includes(data.flairId)) {
+        return { success: false, error: postErrors.FLAIR_NOT_FOUND };
+      }
+    }
 
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
     return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
-
-  // async checkFlair(subredditId, flairId) {
-  //   const flairs = (
-  //     await this.subredditRepo.getById(subredditId, "flairs")
-  //   ).flairs;
-  //   if (!flairs || !flairs.includes(flairId)) return false;
-  //   return true;
-  // }
 
   /**
    * get posts
@@ -115,18 +113,13 @@ class PostService {
    * @returns {Object} object containing array of posts
    */
   async getPosts(query, filter) {
-    try {
-      const posts = await this.postRepo.getAll(filter, query);
-      console.log(posts);
-      return posts;
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+    const posts = await this.postRepo.getPosts(filter, query, "");
+    if (posts.success) return { success: true, data: posts.doc };
+
+    // if (!posts.success && posts.error)
+    //   return { sucess: false, error: posts.error };
+
+    return { sucess: false, error: postErrors.MONGO_ERR, msg: posts.msg };
   }
   /**
    * @property {Function} getUserPosts get posts which created by user
@@ -137,6 +130,13 @@ class PostService {
   async getUserPosts(author, sortType) {
     if (sortType === "Hot") {
       // algorithm
+      console.log("Hot");
+      const posts = await this.postRepo.getUserPosts(
+        author,
+        { sort: "-votes" },
+        "owner"
+      );
+      return posts.doc;
     } else if (sortType === "Top") {
       // sort by votes
       console.log("Top");
@@ -167,7 +167,7 @@ class PostService {
       if (posts[i].ownerType === "User") {
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
-        newPosts[i]["name"] = posts[i].owner.name;
+        newPosts[i]["name"] = posts[i].owner.fixedName;
       }
       newPosts[i]["owner"] = posts[i].owner._id;
     }
@@ -304,6 +304,15 @@ class PostService {
       }
     });
     return newPost;
+  }
+  async getPost(postId) {
+    let post = await this.postRepo.findById(postId);
+    console.log(post);
+    if (!post.success) {
+      return { sucess: false, error: postErrors.POST_NOT_FOUND };
+    }
+
+    return post;
   }
 }
 

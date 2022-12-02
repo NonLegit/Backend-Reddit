@@ -6,8 +6,9 @@
   "scripts": {
     "test": "mocha --timeout 1000000 --recursive --exit --spec",
     "start": "nodemon server.js",
-    "migrate": "migrate create new  -d mongodb://localhost:27017/redditDB",
-    "up": "migrate up new  -d mongodb://localhost:27017/redditDB",
+    "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
+    "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",
+    "testDB":"migrate up  -d mongodb://localhost:27017/redditDB" ,
     "jsdoc": "jsdoc -c jsdoc.json"
   },
   "author": "",
@@ -23,7 +24,9 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.0.3",
+    "email-validator": "^2.0.4",
     "express": "^4.18.2",
+    "express-async-errors": "^3.1.1",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.6.0",
     "fs": "^0.0.1-security",

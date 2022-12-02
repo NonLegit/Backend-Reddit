@@ -1,3 +1,4 @@
+require("express-async-errors");
 const express = require("express");
 const https = require("https");
 const morgan = require("morgan");
@@ -8,6 +9,7 @@ const subredditRouter = require("./routes/subredditRoutes");
 const postRouter = require("./routes/postRoutes");
 const commentRouter = require("./routes/commentRoutes");
 const cors = require("cors");
+const { errorHandler } = require("./error_handling/errors");
 
 const app = express();
 app.enable("trust proxy");
@@ -16,7 +18,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: true,
+    origin: process.env.FRONTDOMAIN,
   })
 );
 
@@ -46,6 +48,8 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subreddits", subredditRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
+
+app.use(errorHandler);
 
 app.all("*", (req, res, next) => {
   res.status(500).send("problem!");

@@ -97,7 +97,7 @@ class UserService {
       userName: userName,
       password: password,
     };
-    this.checkPasswordStrength(password);
+    //this.checkPasswordStrength(password);
     let user = await this.userRepository.createOne(userData);
     if (user.success === false) {
       // user with this email or username is exists
@@ -131,6 +131,7 @@ class UserService {
         success: false,
         error: userErrors.USER_NOT_FOUND,
         msg: user.msg,
+        // msg:"invaild userName or password",
       };
       return response;
     } else {
@@ -146,6 +147,7 @@ class UserService {
           success: false,
           error: userErrors.INCORRECT_PASSWORD,
           msg: "Incorrect Password",
+          // msg:"invaild userName or password",
         };
         return response;
       }
@@ -160,7 +162,8 @@ class UserService {
     try {
       let user = await this.userRepository.findByEmail(email);
       if (user.success === true) {
-        await this.emailServices.sendUserName(user.doc);
+        const resetURL = `${process.env.FRONTDOMAIN}/login`;
+        await this.emailServices.sendUserName(user.doc, resetURL);
         const response = {
           success: true,
         };
@@ -200,7 +203,7 @@ class UserService {
       if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
         await user.doc.save({ validateBeforeSave: false });
-        const resetURL = `${process.env.FRONTDOMAIN}resetPassword/${resetToken}`;
+        const resetURL = `${process.env.FRONTDOMAIN}/resetpassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
         const response = {
           success: true,
@@ -215,6 +218,7 @@ class UserService {
         return response;
       }
     } catch (err) {
+      console.log(err);
       const response = {
         success: false,
         error: userErrors.EMAIL_ERROR,
@@ -346,17 +350,14 @@ class UserService {
    */
   getPrefs(user) {
     let prefs = {
-      contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
       gender: user.gender,
-      allowInboxMessage: user.allowInboxMessage,
-      allowMentions: user.allowMentions,
-      allowCommentsOnPosts: user.allowCommentsOnPosts,
-      allowUpvotesOnComments: user.allowUpvotesOnComments,
-      allowUpvotesOnPosts: user.allowUpvotesOnPosts,
+      adultContent: user.adultContent,
+      autoplayMedia: user.autoplayMedia,
       displayName: user.displayName,
       profilePicture: user.profilePicture,
+      profileBackground: user.profileBackground,
       description: user.description,
     };
     return prefs;
@@ -370,19 +371,17 @@ class UserService {
   async updatePrefs(query, id) {
     const filteredBody = this.filterObj(
       query,
-      "contentVisibility",
       "canbeFollowed",
       "nsfw",
       "gender",
-      "allowInboxMessage",
-      "allowMentions",
-      "allowCommentsOnPosts",
-      "allowUpvotesOnComments",
-      "allowUpvotesOnPosts",
+      "adultContent",
+      "autoplayMedia",
       "displayName",
-      "description"
+      "description",
+      "adultContent",
+      "autoplayMedia"
     );
-    let user = await this.userRepository.updateOne({ _id: id }, filteredBody);
+    let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);
   }
   /**
@@ -437,6 +436,49 @@ class UserService {
     }
 
     return false;
+  }
+  async checkPassword(password, userName) {
+    let user = await this.userRepository.findByUserName(userName, "+password");
+    return await user.doc.checkPassword(password, user.doc.password);
+  }
+  async updateUserEmail(id, email) {
+    const user = await this.userRepository.updateEmailById(id, email);
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
+  }
+  async checkResetTokenTime(resetToken) {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    let user = await this.userRepository.findByResetPassword(hashedToken);
+    if (user.success === false) {
+      // invalid token or time passed
+      const response = {
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
+      };
+      return response;
+    } else {
+      const response = {
+        success: true,
+        msg: "valid token",
+      };
+      return response;
+    }
   }
 }
 

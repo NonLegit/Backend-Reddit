@@ -7,15 +7,24 @@ const { container } = require("./../di-setup");
 const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
+const FileController = container.resolve("FileController");
 const router = express.Router();
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
+//router.get("/images/:userName/:fileName", FileController.getUserProfileImage);
+router.get("/images/:fileName", FileController.getUserProfileImage);
 router.post("/signup", AuthenticationController.signUp);
 router.post("/login", AuthenticationController.logIn);
 router.post("/logout", AuthenticationController.logOut);
 router.post("/forgot_username", AuthenticationController.forgotUserName);
 router.post("/forgot_password", AuthenticationController.forgotPassword);
 router.post("/reset_password/:token", AuthenticationController.resetPassword);
+router.get(
+  "/check_reset_token/:token",
+  AuthenticationController.checkResetTokentime
+);
+router.get("/best", PostController.getBestPosts);
+
 // facebook authentication
 passport.use(
   new FacebookTokenStrategy(
@@ -49,9 +58,13 @@ router.post(
   authenticationControllerObj.facebookValidation
 );*/
 // authorize endpoints
+
+router.route("/username_available").get(UserController.usernameAvailable);
+
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
+router.post("/change_email", AuthenticationController.changeEmail);
 router.get("/me", UserController.getMe);
 router.get("/me/prefs", UserController.getPrefs);
 router.patch(
@@ -74,15 +87,15 @@ router.patch(
 );
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
-router.get("/best", PostController.getBestPosts);
-router.get("/top", PostController.getTopPosts);
-router.get("/hot", PostController.getHotPosts);
-router.get("/new", PostController.getNewPosts);
+
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
-router.route("/username_available").get(UserController.usernameAvailable);
+
+router.get("/top", PostController.getTopPosts);
+router.get("/hot", PostController.getHotPosts);
+router.get("/new", PostController.getNewPosts);
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

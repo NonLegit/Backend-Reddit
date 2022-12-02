@@ -3,15 +3,18 @@ const { container } = require("./../di-setup");
 
 const AuthenticationController = container.resolve("AuthenticationController");
 const PostController = container.resolve("PostController");
+const FileController = container.resolve("FileController");
 
 const router = express.Router();
 
+router.get("/images/:fileName", FileController.getPostImage);
 router.use(AuthenticationController.authorize);
 
 router.route("/").post(PostController.createPost);
 router
   .route("/:postId")
   .patch(PostController.updatePost)
+  .get(PostController.getPost)
   .delete(PostController.deletePost);
 
 module.exports = router;

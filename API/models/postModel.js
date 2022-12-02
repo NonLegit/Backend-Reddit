@@ -26,7 +26,7 @@ const postSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
-  flair: {
+  flairId: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Flair",
     required: false,

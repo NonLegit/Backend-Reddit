@@ -10,28 +10,28 @@ class UserController {
   constructor({ UserService }) {
     this.userServices = UserService; // can be mocked in unit testing
   }
-  createUser = async (req, res, next) => {
-    let data = req.body;
-    try {
-      let user = await this.userServices.createUser(data);
-      if (user.status === "success") {
-        res.status(user.statusCode).json({
-          status: user.status,
-          user: user.doc,
-        });
-      } else {
-        res.status(user.statusCode).json({
-          status: user.status,
-          message: user.err,
-        });
-      }
-    } catch (err) {
-      console.log("error in userservices " + err);
-      res.status(500).json({
-        status: "fail",
-      });
-    }
-  };
+  // createUser = async (req, res, next) => {
+  //   let data = req.body;
+  //   try {
+  //     let user = await this.userServices.createUser(data);
+  //     if (user.status === "success") {
+  //       res.status(user.statusCode).json({
+  //         status: user.status,
+  //         user: user.doc,
+  //       });
+  //     } else {
+  //       res.status(user.statusCode).json({
+  //         status: user.status,
+  //         message: user.err,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.log("error in userservices " + err);
+  //     res.status(500).json({
+  //       status: "fail",
+  //     });
+  //   }
+  // };
   /**
    * @property {Function} getPrefs get user preferences
    * @param {object} req - request object sent by client
@@ -98,7 +98,7 @@ class UserController {
       userName: user.userName,
       email: user.email,
       profilePicture: user.profilePicture,
-      contentVisibility: user.contentVisibility,
+      profileBackground: user.profileBackground,
       canbeFollowed: user.canbeFollowed,
       lastUpdatedPassword: user.lastUpdatedPassword,
       followersCount: user.followersCount,
@@ -110,6 +110,8 @@ class UserController {
       commentKarma: user.commentKarma,
       createdAt: user.joinDate,
       description: user.description,
+      adultContent: user.adultContent,
+      nsfw: user.nsfw,
     };
     res.status(200).json({
       status: "success",
@@ -139,25 +141,29 @@ class UserController {
       if (user.success !== false) {
         // check if i followed him
         const relation = me.meUserRelationship.find(
-          (element) => element.userId === user.doc._id
+          (element) => element.userId === user.data._id
         );
         let isFollowed = false;
         if (relation) {
           if (relation.status === "followed") isFollowed = true;
         }
         const searchUser = {
-          id: user.doc._id,
-          userName: user.doc.userName,
-          profilePicture: user.doc.profilePicture,
-          contentVisibility: user.doc.contentVisibility,
-          canbeFollowed: user.doc.canbeFollowed,
-          followersCount: user.doc.followersCount,
-          friendsCount: user.doc.friendsCount,
-          gender: user.doc.gender,
-          displayName: user.doc.displayName,
-          postKarma: user.doc.postKarma,
-          commentKarma: user.doc.commentKarma,
-          description: user.doc.description,
+          id: user.data._id,
+          userName: user.data.userName,
+          profilePicture: user.data.profilePicture,
+          profileBackground: user.data.profileBackground,
+          canbeFollowed: user.data.canbeFollowed,
+          followersCount: user.data.followersCount,
+          friendsCount: user.data.friendsCount,
+          gender: user.data.gender,
+          displayName: user.data.displayName,
+          postKarma: user.data.postKarma,
+          commentKarma: user.data.commentKarma,
+          description: user.data.description,
+          createdAt: user.data.joinDate,
+          nsfw: user.data.nsfw,
+          autoplayMedia: user.data.autoplayMedia,
+          adultContent: user.data.adultContent,
           isFollowed: isFollowed,
         };
         res.status(200).json({
@@ -165,9 +171,9 @@ class UserController {
           user: searchUser,
         });
       } else {
-        res.status(200).json({
+        res.status(404).json({
           status: "fail",
-          errorMessage: "user not found",
+          errorMessage: "User Not Found",
         });
       }
     }
