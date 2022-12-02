@@ -44,43 +44,61 @@ pipeline {
                 DB_NAME = credentials('db-name')
                 EMAIL_CREDS = credentials('email-creds')
                 DOCKER_CREDS = credentials('docker-creds')
-                FACEBOOK_APP_ID = credentials('facebook-app-id')
-                FACEBOOK_APP_SECRET = credentials('facebook-app-secret')
-                GOOGLE_APP_ID = credentials('google-app-id')
-                GOOGLE_APP_SECRET = credentials('google-app-secret')
+                FACEBOOK_APP = credentials('facebook-app')
+                GOOGLE_APP = credentials('google-app')
                 JWT_SECRET = credentials('jwt-secret')
                 EMAIL_HOST = credentials('email-host')
                 EMAIL_PORT = credentials('email-port')
             }
             steps {
                 sh '''
-                    cd API
                     # Set up git credentials.
                     if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
                         echo "#!/bin/bash" >> /var/jenkins_home/git-askpass-helper.sh
                         echo 'exec echo $GIT_PASSWORD' >> /var/jenkins_home/git-askpass-helper.sh
                         chmod +x /var/jenkins_home/git-askpass-helper.sh
                     fi
-
                     export GIT_ASKPASS=/var/jenkins_home/git-askpass-helper.sh
 
-                    # Getting the backend Dockerfile
+                    # Getting the backend docker files
                     git clone https://cynico@github.com/NonLegit/devops.git
                     cp devops/dockerfiles/backend/Dockerfile devops/docker-compose/backend/docker-compose.yaml .
                     rm -rf devops
+                    mv Dockerfile API/
+                    cd API
 
-                    # Modify the necessary files.
-                    
-                    sed -i 's/<DB_USER>/$DB_CREDS_USR/g;s/<DB_PASSWORD>/$DB_CREDS_PSW/g;s/<DB_NAME>/$DB_NAME/g' config/config.env package.json
-                    
-                    sed -i 's/<EMAIL_PASSWORD>/$EMAIL_CREDS_PSW/g;s/<EMAIL_USER>/$EMAIL_CREDS_USR/g;s/<EMAIL_HOST>/$EMAIL_HOST/g;s/<EMAIL_PORT>/$EMAIL_PORT/g' config/config.env
-                    
-                    sed -i 's/<FACEBOOK_APP_ID>/$FACEBOOK_APP_ID/g;s/<FACEBOOK_APP_SECRET>/$FACEBOOK_APP_SECRET/g;'
-                    
-                    sed -i 's/<GOOGLE_APP_ID>/$GOOGLE_APP_ID/g;s/<GOOGLE_APP_SECRET>/$GOOGLE_APP_SECRET/g;'
-                    
-                    sed -i 's/<JWT_SECRET>/$JWT_SECRET/g'
+                    # Creating the necessary files.
+                    cat <<EOF > .env
+                    NODE_ENV=production
+                    PORT=8000
+                    DATABASE=mongodb://$DB_CREDS_USR:$DB_CREDS_PSW@mongodb/$DB_NAME?authSource=admin
 
+                    FRONTDOMAIN="https://web.nonlegit.click"
+                    JWT_SECRET=$JWT_SECRET
+                    JWT_EXPIRES_IN=3d
+                    JWT_COOKIE_EXPIRES_IN=3
+
+                    EMAIL_FROM=$EMAIL_CREDS_USR
+                    NONLEGITEMAIL=$EMAIL_CREDS_USR
+                    NONLEGITPASSWORD=$EMAIL_CREDS_PSW
+                    EMAIL_PORT=$EMAIL_PORT
+                    EMAIL_HOST=$EMAIL_HOST
+                    BACKDOMAIN="https://api.nonlegit.click"
+
+                    FACEBOOK_APP_ID=$FACEBOOK_APP_USR
+                    FACEBOOK_APP_SECRET=$FACEBOOK_APP_PSW
+
+                    GOOGLE_APP_ID=$GOOGLE_APP_USR
+                    GOOGLE_APP_SECRET=$GOOGLE_APP_PSW
+                    EOF
+
+                    # Creating the script-up.sh for the backend container (migrate db files first, then start the server)
+                    cat <<EOF > script-up.sh
+                    #!/bin/sh
+
+                    npm run up
+                    node server.js
+                    EOF
 
                     # Build the docker image
                     docker build -t cynic0/reddit-backend:latest . 
@@ -93,13 +111,12 @@ pipeline {
                     rm /var/jenkins_home/.docker/config.json
 
                     # Modify the docker compose file.
-                    sed -i 's/DB_USER/$DB_CREDS_USR/g;s/DB_PASSWORD/$DB_CREDS_PSW/g'
-
-                    # Stop the docker compose.
-                    docker compose down
-
-                    # Restart docker compose
-                    docker compose up -d
+                    cd ..
+                    sed -i 's/DB_USER/$DB_CREDS_USR/g;s/DB_PASSWORD/$DB_CREDS_PSW/g' docker-compose.yaml
+                    if [ ! -d /var/jenkins_home/docker-compose ]; then
+                        mkdir -p /var/jenkins_home/docker-compose/{backend,frontend}
+                    fi
+                    mv docker-compose.yaml /var/jenkins_home/docker-compose/backend                    
                 '''
             }
         }
@@ -108,7 +125,11 @@ pipeline {
                 branch "development"
             }
             steps {
-                echo xd
+                sh '''
+                    cd /var/jenkins_home/docker-compose/backend
+                    docker compose down
+                    docker compose up -d
+                '''
             }
         }
     }
