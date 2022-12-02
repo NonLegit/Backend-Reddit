@@ -33,6 +33,12 @@ class subredditService {
         profilePicture
       );
       if (subreddit.success) return { success: true, data: subreddit.doc };
+      else
+        return {
+          success: false,
+          error: subredditErrors.MONGO_ERR,
+          msg: subreddit.msg,
+        };
     } else return { success: false, error: subredditErrors.ALREADY_EXISTS };
   }
 
