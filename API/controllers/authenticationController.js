@@ -71,7 +71,8 @@ class AuthenticationController {
     res.status(statusCode).json({
       status: "success",
       token,
-      expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+      // expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+      expiresIn: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000)
     });
   };
   /**
