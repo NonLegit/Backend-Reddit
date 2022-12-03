@@ -38,15 +38,20 @@ class UserRepository extends Repository {
   }
 
   async isSubscribed(user, subreddit) {
-    const subscribed = await this.model.findOne(
-      { _id: user, subscribed: subreddit },
-      "_id"
+    const query = await this.model.findOne(
+      { _id: user },
+      "subscribed"
     );
-
-    if (subscribed) return true;
-    return false;
+    let subscribed=false;
+    for (const subredditID of query.subscribed) {
+      if (subredditID.equals(subreddit)) {
+        subscribed = true;
+        break;
+      }
+    }
+    return subscribed;
   }
-
+    
   async getSubreddits(userId) {
     try {
       let tempDoc = this.model
