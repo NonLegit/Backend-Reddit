@@ -38,21 +38,26 @@ class UserRepository extends Repository {
   }
 
   async isSubscribed(user, subreddit) {
-    const subscribed = await this.model.findOne(
-      { _id: user, subscribed: subreddit },
-      "_id"
+    const query = await this.model.findOne(
+      { _id: user },
+      "subscribed"
     );
-
-    if (subscribed) return true;
-    return false;
+    let subscribed=false;
+    for (const subredditID of query.subscribed) {
+      if (subredditID.equals(subreddit)) {
+        subscribed = true;
+        break;
+      }
+    }
+    return subscribed;
   }
-
+    
   async getSubreddits(userId) {
     try {
       let tempDoc = this.model
         .find({ _id: userId })
         .select("subscribed")
-        .populate("subscribed", "_id name icon usersCount description");
+        .populate("subscribed", "_id fixedName icon membersCount description");
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 

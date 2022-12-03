@@ -91,6 +91,7 @@ router.patch(
 );
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
+router.get("/:userName/overview", PostController.userPosts);
 
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);

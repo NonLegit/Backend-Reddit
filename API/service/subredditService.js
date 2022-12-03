@@ -24,7 +24,8 @@ class subredditService {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
       data.owner,
-      data.fixedName
+      data.fixedName,
+      true
     );
     if (!subredditExisted.success) {
       let subreddit = await this.subredditRepository.create(
@@ -50,7 +51,7 @@ class subredditService {
    */
   async deleteSubreddit(subredditName, userId) {
     // ..
-    let subreddit = await this.retrieveSubreddit(userId, subredditName);
+    let subreddit = await this.retrieveSubreddit(userId, subredditName,true);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
@@ -71,7 +72,7 @@ class subredditService {
    */
   async updateSubreddit(subredditName, userId, data) {
     // ..
-    let subreddit = await this.retrieveSubreddit(userId, subredditName);
+    let subreddit = await this.retrieveSubreddit(userId, subredditName,true);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
@@ -92,11 +93,16 @@ class subredditService {
    * @param {object} name - a query to select a certain subreddit from database
    * @returns {Object} - a response containing the retrieved subreddit
    */
-  async retrieveSubreddit(userId, name) {
+  async retrieveSubreddit(userId, name, checkOnly) {
     let subreddit = await this.subredditRepository.getsubreddit(name, "", "");
     if (subreddit.success) {
-      let joined = this.userRepository.isSubscribed(userId, subreddit.doc._id);
-      subreddit.doc.isJoined = await joined;
+      if (!checkOnly) {
+        let joined = this.userRepository.isSubscribed(
+          userId,
+          subreddit.doc._id
+        );
+        subreddit.doc.isJoined = await joined;
+      }
       return { success: true, data: subreddit.doc };
     } else
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
@@ -379,7 +385,10 @@ class subredditService {
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
-      let subreddits = await this.subredditRepository.getSubreddits(userId);
+      let subreddits = await this.subredditRepository.getSubreddits(
+        userId,
+        "id"
+      );
       if (!subreddits.success) return subreddits;
       else return { success: true, data: subreddits.doc };
     } else if (location === "subscriber") {
@@ -388,6 +397,14 @@ class subredditService {
       if (!subreddits.success) return subreddits;
       else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
+  }
+  async subredditsModeratedBy(userName) {
+    let subreddits = await this.subredditRepository.getSubreddits(
+      userName,
+      "name"
+    );
+    if (!subreddits.success) return subreddits;
+    else return { success: true, data: subreddits.doc };
   }
   /**
    * This function update the permissions of the moderator by another older moderator
@@ -523,19 +540,6 @@ class subredditService {
 
   //! Doaa's part
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   /**
    *
    * @param {String} subredditName the name of the subreddit to create flair into
@@ -545,45 +549,46 @@ class subredditService {
    */
   async createFlair(subredditName, data, userId) {
     //check if existing subreddit to create flair in
-   
+
     let subreddit = await this.checkSubreddit(subredditName);
     console.log("oooooooooooooooooooooooooooooooo");
     console.log(subreddit);
-      if (!subreddit.success) {
-        return {success:false , error: subredditErrors.SUBREDDIT_NOT_FOUND};
+    if (!subreddit.success) {
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+    console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+    //check if user is moderator of subreddit to create flair in
+    let isModerator = this.checkModerator(subreddit, userId);
+
+    if (!isModerator.success) {
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+    }
+     
      //check if user is moderator of subreddit to create flair in
-      let isModerator = await this.checkModerator(subreddit, userId);
-    console.log(isModerator);
-      if (!isModerator.success) {
-        return {success:false , error: subredditErrors.NOT_MODERATOR};
-      }
+      
 
     //create the flair
-      let flair = await this.flairRepository.createOne(data);
+    let flair = await this.flairRepository.createOne(data);
 
-      if (!flair.success) {
-        return {success:false , error: subredditErrors.MONGO_ERR};
-      }
+    if (!flair.success) {
+      return { success: false, error: subredditErrors.MONGO_ERR };
+    }
 
     console.log("hellllllllllllllllllllll");
     console.log(flair);
     //add flair to list of refrences flairs in the subreddit
-      let addedTorefrencedFlairs =
-        await this.subredditRepository.addFlairToSubreddit(
-          subredditName,
-          flair.doc._id
-        );
+    let addedTorefrencedFlairs =
+      await this.subredditRepository.addFlairToSubreddit(
+        subredditName,
+        flair.doc._id
+      );
 
-      if (!addedTorefrencedFlairs.success) {
-        return {success:false , error: subredditErrors.MONGO_ERR};
-      }
+    if (!addedTorefrencedFlairs.success) {
+      return { success: false, error: subredditErrors.MONGO_ERR };
+    }
 
     console.log(flair);
-      return {success:true , data: flair};
-    
-    
+    return { success: true, data: flair };
   }
 
   /**
@@ -593,19 +598,14 @@ class subredditService {
    */
   async checkSubreddit(subredditName) {
     console.log("in chek subreddit");
-   
-      let subreddit = await this.subredditRepository.findByName(
-        subredditName,
-      );
-     
-     
-      if (!subreddit.success) {
-       
-        return {sucess:false, error:subredditErrors.SUBREDDIT_NOT_FOUND};
-      }
 
-      return subreddit;
+    let subreddit = await this.subredditRepository.findByName(subredditName);
 
+    if (!subreddit.success) {
+      return { sucess: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    }
+
+    return subreddit;
   }
 
   /**
@@ -616,10 +616,9 @@ class subredditService {
    */
   checkFlair(subreddit, flairId) {
     if (!subreddit.doc.flairIds.includes(flairId)) {
-
-      return {success:false, error:subredditErrors.FLAIR_NOT_FOUND  };
+      return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
-    return {success:true, data:subreddit};
+    return { success: true, data: subreddit };
   }
 
   // /**
@@ -634,7 +633,7 @@ class subredditService {
     if (!subreddit.doc.moderators.find(el=>el.id.equals(userID))) {
       return {success:false, error:subredditErrors.NOT_MODERATOR};
     }
-    
+
     return subreddit;
   }
 
@@ -647,31 +646,25 @@ class subredditService {
    * @returns {Object} returns the updated flair if success and an error object if not
    */
   async updateFlair(subredditName, flairId, data, userId) {
-   
-      let subreddit = await this.checkSubreddit(subredditName);
-      if (!subreddit.success) {
-        return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
-      }
-      let isModerator = this.checkModerator(subreddit, userId);
-      if (!isModerator.success) {
-        return {success:false, error: subredditErrors.NOT_MODERATOR};
-      }
+    let subreddit = await this.checkSubreddit(subredditName);
+    if (!subreddit.success) {
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    }
+    let isModerator = this.checkModerator(subreddit, userId);
+    if (!isModerator.success) {
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+    }
 
-      let checkFlair = this.checkFlair(subreddit, flairId);
+    let checkFlair = this.checkFlair(subreddit, flairId);
 
-      if (!checkFlair.success) {
-        return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
-      }
-      let flair = await this.flairRepository.updateFlair(
-         flairId ,
-        data
-      );
-      if (!flair.success) {
-        return {success:false, error: subredditErrors.MONGO_ERR};
-      }
-     return {success:true, data:flair};
-   
-    
+    if (!checkFlair.success) {
+      return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
+    }
+    let flair = await this.flairRepository.updateFlair(flairId, data);
+    if (!flair.success) {
+      return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+    return { success: true, data: flair };
   }
 
   /**
@@ -682,33 +675,31 @@ class subredditService {
    * @returns {Object} subreddit object where the flair is deleted if success and error object if failure
    */
   async deleteFlair(subredditName, flairId, userId) {
-    
-      let subreddit = await this.checkSubreddit(subredditName);
-      if (!subreddit.success) {
-         return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
-      }
-      
-      let isModerator = this.checkModerator(subreddit, userId);
-      if (!isModerator.success) {
-         return {success:false, error: subredditErrors.NOT_MODERATOR};
-      }
+    let subreddit = await this.checkSubreddit(subredditName);
+    if (!subreddit.success) {
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    }
 
-      let checkFlair = this.checkFlair(subreddit, flairId);
-      
-      if (!checkFlair.success) {
-         return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
-      }
-     
-      let editedSubreddit = await this.subredditRepository.removeFlairFromSubreddit(
+    let isModerator = this.checkModerator(subreddit, userId);
+    if (!isModerator.success) {
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+    }
+
+    let checkFlair = this.checkFlair(subreddit, flairId);
+
+    if (!checkFlair.success) {
+      return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
+    }
+
+    let editedSubreddit =
+      await this.subredditRepository.removeFlairFromSubreddit(
         subredditName,
         flairId
       );
-      if (!editedSubreddit.success) {
-       
-        return {success:false, error: subredditErrors.MONGO_ERR};
-      }
-      return {success:true, data:editedSubreddit};
-    
+    if (!editedSubreddit.success) {
+      return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+    return { success: true, data: editedSubreddit };
   }
 
   /**
@@ -718,23 +709,20 @@ class subredditService {
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
-    
-      let subreddit = await this.checkSubreddit(subredditName);
-      if (!subreddit.success) {
-        return {success:false, error: subredditErrors.SUBREDDIT_NOT_FOUND};
-      }
-      let checkFlair = this.checkFlair(subreddit, flairId);
-      if (!checkFlair.success) {
-        return {success:false, error: subredditErrors.FLAIR_NOT_FOUND};
-      }
+    let subreddit = await this.checkSubreddit(subredditName);
+    if (!subreddit.success) {
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    }
+    let checkFlair = this.checkFlair(subreddit, flairId);
+    if (!checkFlair.success) {
+      return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
+    }
 
-      let response = await this.flairRepository.findById(flairId);
-       if (!response.success) {
-       
-        return {success:false, error: subredditErrors.MONGO_ERR};
-      }
-      return {success:true, data:response};
-   
+    let response = await this.flairRepository.findById(flairId);
+    if (!response.success) {
+      return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+    return { success: true, data: response };
   }
 
   /**
@@ -743,17 +731,14 @@ class subredditService {
    * @returns {Object} object containing all flairs if subreddit exists and an error object if not
    */
   async getFlairs(subredditName) {
-    
-      
     let flairs = await this.subredditRepository.getSubredditFlairs(
-        subredditName      
-      );
+      subredditName
+    );
 
     if (!flairs.success) {
-      return {success:false, data:subredditErrors.SUBREDDIT_NOT_FOUND};
+      return { success: false, data: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-      return {success:true, data:flairs};
-    
+    return { success: true, data: flairs };
   }
 
   /**
@@ -785,11 +770,9 @@ class subredditService {
     return { success: true, _id: subreddit.doc._id };
   }
 
-  async updateUserCount(id, action){
-    if(action == "sub")
-      await this.subredditRepository.addUser(id);
-    else
-      await this.subredditRepository.removeUser(id);
+  async updateUserCount(id, action) {
+    if (action == "sub") await this.subredditRepository.addUser(id);
+    else await this.subredditRepository.removeUser(id);
   }
 }
 

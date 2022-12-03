@@ -8,7 +8,7 @@
     "start": "nodemon server.js",
     "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",
-    "testDB":"migrate up  -d mongodb://127.0.0.1:27017/redditDB" ,
+    "testDB":"migrate up  -d mongodb://localhost:27017/redditDB --autosync" ,
     "jsdoc": "jsdoc -c jsdoc.json"
   },
   "author": "",

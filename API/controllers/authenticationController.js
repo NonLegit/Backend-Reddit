@@ -71,7 +71,8 @@ class AuthenticationController {
     res.status(statusCode).json({
       status: "success",
       token,
-      expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+      // expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
+      expiresIn: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000)
     });
   };
   /**
@@ -308,25 +309,32 @@ class AuthenticationController {
         errorMessage: "Unauthorized",
       });
     } else {
-      const decoded = await this.UserServices.decodeToken(token);
-      const userId = decoded.id;
-      const time = decoded.iat;
-      const user = await this.UserServices.getUser(userId);
-      if (user.success === false) {
-        res.status(404).json({
-          status: "fail",
-          errorMessage: "User not found",
-        });
-      } else {
-        if (user.data.changedPasswordAfter(time)) {
-          res.status(400).json({
+      try {
+        const decoded = await this.UserServices.decodeToken(token);
+        const userId = decoded.id;
+        const time = decoded.iat;
+        const user = await this.UserServices.getUser(userId);
+        if (user.success === false) {
+          res.status(404).json({
             status: "fail",
-            errorMessage: "Password is changed , Please login again",
+            errorMessage: "User not found",
           });
         } else {
-          req.user = user.data;
-          next();
+          if (user.data.changedPasswordAfter(time)) {
+            res.status(400).json({
+              status: "fail",
+              errorMessage: "Password is changed , Please login again",
+            });
+          } else {
+            req.user = user.data;
+            next();
+          }
         }
+      } catch (err) {
+        res.status(401).json({
+          status: "fail",
+          errorMessage: "Unauthorized",
+        });
       }
     }
   };

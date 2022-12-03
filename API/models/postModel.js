@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Comment = require('./commentModel')
+const Comment = require("./commentModel");
 const Url = require("mongoose-type-url");
 const validator = require("validator");
 require("mongoose-type-url");
