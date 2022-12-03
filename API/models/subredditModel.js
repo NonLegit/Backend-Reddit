@@ -18,8 +18,8 @@ const subredditSchema = new mongoose.Schema({
       "A subreddit name must have less or equal then 40 characters",
     ],
     minlength: [
-      10,
-      "A subreddit name must have more or equal then 10 characters",
+      2,
+      "A subreddit name must have more or equal then 2 characters",
     ],
   }, // TODO: this will be unique and replaced with name
   name: { type: String, default: " " },
