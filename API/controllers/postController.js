@@ -152,7 +152,7 @@ class PostController {
     if (!req.params.userName) {
       res.status(400).json({
         status: "fail",
-        message: "Provide userName ",
+        errorMessage: "Provide userName ",
       });
     } else {
       let sortType = "New";
@@ -169,7 +169,6 @@ class PostController {
 
         // get post which he creates
         let posts = await this.postServices.getUserPosts(userId, sortType);
-
         // get vote of me if these post i vote on it
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
@@ -183,7 +182,7 @@ class PostController {
         });
       } else {
         res.status(404).json({
-          status: "success",
+          status: "fail",
           errorMessage: "User Not Found",
         });
       }
