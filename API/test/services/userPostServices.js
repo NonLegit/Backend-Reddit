@@ -304,32 +304,56 @@ describe("User Post Test", () => {
         let posts = [
           {
             _id: "1",
-            ownerType:"User",
-            owner:{userName:"ahmed"}
+            ownerType: "User",
+            owner: { _id: "1", userName: "ahmed" },
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
           },
           {
             _id: "3",
-            ownerType:"User",
-            owner:{userName:"ahmed2"}
+            ownerType: "User",
+            owner: {
+              _id: "3",
+              userName: "ahmed2",
+            },
+            author: {
+              _id: "3",
+              userName: "ahmed2",
+            },
           },
           {
             _id: "4",
-            ownerType:"Subreddit",
-            owner:{fixedName:"ahmed3"}
+            ownerType: "Subreddit",
+            owner: {
+              _id: "1",
+              fixedName: "ahmed3",
+            },
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
           },
           {
             _id: "6",
-            ownerType:"Subreddit",
-            owner:{fixedName:"ahmed4"}
+            ownerType: "Subreddit",
+            owner: {
+              _id: "2",
+              fixedName: "ahmed4",
+            },
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
           },
         ];
-        const result = postservices.setPostOwnerData( posts);
+        const result = postservices.setPostOwnerData(posts);
         expect(result.length).to.equal(4);
         expect(result[0]["name"]).to.equal("ahmed");
         expect(result[1]["name"]).to.equal("ahmed2");
         expect(result[2]["name"]).to.equal("ahmed3");
         expect(result[3]["name"]).to.equal("ahmed4");
-
       });
     });
   });
