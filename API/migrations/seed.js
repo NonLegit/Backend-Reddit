@@ -274,11 +274,186 @@ module.exports = async function seeder() {
   );
   try {
     let subreddit1 = await Subreddit.create({
+      owner: user1._id,
+      fixedName: "Nonlegit",
+      type: "Private",
+      nsfw: false,
+    });
+    await Subreddit.findOneAndUpdate(
+      { _id: subreddit1 },
+      {
+        description: "this is a Nonlegit subreddit",
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        membersCount: 1000,
+        rules: [
+          {
+            defaultName: "rule 1",
+            title: "this is a title",
+          },
+        ],
+        $push: {
+          moderators: {
+            id: user1._id,
+            userName: user1.userName,
+            joiningDate: Date.now(),
+            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            moderatorPermissions: {
+              all: true,
+              access: true,
+              config: true,
+              flair: true,
+              posts: true,
+            },
+          },
+        },
+      },
+      { new: true }
+    );
+
+    let subreddit2 = await Subreddit.create({
       owner: user2._id,
-      name: "hosny_Subreddit",
+      fixedName: "selm alsodan",
       type: "Public",
       nsfw: true,
     });
+    await Subreddit.findOneAndUpdate(
+      { _id: subreddit2 },
+      {
+        description: "this is a selm alsodan subreddit",
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        membersCount: 1000,
+        rules: [
+          {
+            defaultName: "rule 1",
+            title: "this is a title",
+          },
+        ],
+        $push: {
+          moderators: {
+            id: user2._id,
+            userName: user2.userName,
+            joiningDate: Date.now(),
+            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            moderatorPermissions: {
+              all: true,
+              access: true,
+              config: true,
+              flair: true,
+              posts: true,
+            },
+          },
+        },
+      },
+      { new: true }
+    );
+    let subreddit3 = await Subreddit.create({
+      owner: user2._id,
+      fixedName: "yaaah yalmedan",
+      type: "Restricted",
+      nsfw: true,
+    });
+    await Subreddit.findOneAndUpdate(
+      { _id: subreddit3 },
+      {
+        description: "this is a yaaah yalmedan subreddit",
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        membersCount: 1230,
+        rules: [
+          {
+            defaultName: "rule 1",
+            title: "this is a title",
+          },
+        ],
+        $push: {
+          moderators: {
+            id: user3._id,
+            userName: user3.userName,
+            joiningDate: Date.now(),
+            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            moderatorPermissions: {
+              all: true,
+              access: true,
+              config: true,
+              flair: true,
+              posts: true,
+            },
+          },
+        },
+      },
+      { new: true }
+    );
+    let subreddit4 = await Subreddit.create({
+      owner: user2._id,
+      fixedName: "fl share3",
+      type: "Public",
+      nsfw: true,
+    });
+    await Subreddit.findOneAndUpdate(
+      { _id: subreddit4 },
+      {
+        description: "this is a yaaah fl share3 subreddit",
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        membersCount: 1230,
+        rules: [
+          {
+            defaultName: "rule 1",
+            title: "this is a title",
+          },
+        ],
+        $push: {
+          moderators: {
+            id: user4._id,
+            userName: user4.userName,
+            joiningDate: Date.now(),
+            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            moderatorPermissions: {
+              all: true,
+              access: true,
+              config: true,
+              flair: true,
+              posts: true,
+            },
+          },
+        },
+      },
+      { new: true }
+    );
+    let subreddit5 = await Subreddit.create({
+      owner: user2._id,
+      fixedName: "al3enb al3enb al3enb",
+      type: "Public",
+      nsfw: false,
+    });
+    await Subreddit.findOneAndUpdate(
+      { _id: subreddit5 },
+      {
+        description: "this is a al3enb al3enb al3enb subreddit",
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        membersCount: 123330,
+        rules: [
+          {
+            defaultName: "rule 1",
+            title: "this is a title",
+          },
+        ],
+        $push: {
+          moderators: {
+            id: user5._id,
+            userName: user5.userName,
+            joiningDate: Date.now(),
+            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            moderatorPermissions: {
+              all: true,
+              access: true,
+              config: true,
+              flair: true,
+              posts: true,
+            },
+          },
+        },
+      },
+      { new: true }
+    );
   } catch (error) {
     console.log(error);
   }
