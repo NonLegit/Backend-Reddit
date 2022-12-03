@@ -103,6 +103,9 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
                     node server.js
                     ' > script-up.sh
 
+
+                    sed -i 's/<USER>/\'$DB_CREDS_USR\'/g;s/<PASSWORD>/\'$DB_CREDS_PSW\'/g' package.json
+
                     # Build the docker image
                     docker build -t cynic0/reddit-backend:latest . 
 
