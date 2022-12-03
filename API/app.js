@@ -19,6 +19,8 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.FRONTDOMAIN,
+    allowedHeaders: "Content-Type,*",
+    methods: "GET,PUT,POST,DELETE,OPTIONS,PATCH",
   })
 );
 

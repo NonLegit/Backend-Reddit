@@ -52,7 +52,7 @@ class UserRepository extends Repository {
       let tempDoc = this.model
         .find({ _id: userId })
         .select("subscribed")
-        .populate("subscribed", "_id name icon usersCount description");
+        .populate("subscribed", "_id fixedName icon membersCount description");
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
