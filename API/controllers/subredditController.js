@@ -118,7 +118,7 @@ class subredditController {
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-
+    console.log("khaled hesham sayed");
     if (!subredditName) {
       res.status(400).json({
         status: "fail",
@@ -129,7 +129,8 @@ class subredditController {
 
     let subreddit = await this.subredditServices.retrieveSubreddit(
       userId,
-      subredditName
+      subredditName,
+      false
     );
 
     if (!subreddit.success) {
