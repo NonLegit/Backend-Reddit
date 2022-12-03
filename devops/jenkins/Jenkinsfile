@@ -111,7 +111,7 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
                     # docker push cynic0/reddit-backend:latest
 
                     # Deleting credentials file from filesystem.
-                    rm /var/jenkins_home/.docker/config.json
+                    rm -f /var/jenkins_home/.docker/config.json
 
                     # Modify the docker compose file.
                     cd ..
