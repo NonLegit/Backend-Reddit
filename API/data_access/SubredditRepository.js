@@ -137,10 +137,10 @@ class SubredditRepository extends Repository {
         type === "id"
           ? this.model
               .find({ "moderators.id": userId })
-              .select("_id name icon usersCount description")
+              .select("_id fixedName icon membersCount description")
           : this.model
               .find({ "moderators.userName": userId })
-              .select("_id name icon usersCount description");
+              .select("_id fixedName icon membersCount description");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };

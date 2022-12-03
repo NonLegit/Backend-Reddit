@@ -11,7 +11,7 @@ class subredditController {
     let userId = req.user._id;
     let userName = req.user.userName;
 
-    const validReq = data.fixedName && data.type && data.nsfw;
+    const validReq = data.fixedName && data.type;
     if (!validReq) {
       res.status(400).json({
         status: "fail",
