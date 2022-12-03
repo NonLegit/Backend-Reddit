@@ -79,7 +79,7 @@ PORT=8000
 DATABASE=mongodb://\'$DB_CREDS_USR\':\'$DB_CREDS_PSW\'@mongodb/\'$DB_NAME\'?authSource=admin
 
 FRONTDOMAIN="https://web.nonlegit.click"
-JWT_SECRET=$JWT_SECRET
+JWT_SECRET=\'$JWT_SECRET\'
 JWT_EXPIRES_IN=3d
 JWT_COOKIE_EXPIRES_IN=3
 
@@ -97,9 +97,11 @@ GOOGLE_APP_ID=\'$GOOGLE_APP_USR\'
 GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
 
                     # Creating the script-up.sh for the backend container (migrate db files first, then start the server)
-                    echo 
-                    '#!/bin/sh
-                    npm run up ; node server.js' > script-up.sh
+                    echo '
+                    #!/bin/sh
+                    npm run up
+                    node server.js
+                    ' > script-up.sh
 
                     # Build the docker image
                     docker build -t cynic0/reddit-backend:latest . 
