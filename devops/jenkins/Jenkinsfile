@@ -63,7 +63,7 @@ pipeline {
                     # Getting the backend docker files
                     mkdir tmp && cd tmp
                     git clone https://cynico@github.com/NonLegit/devops.git
-                    cp devops/dockerfiles/backend/Dockerfile devops/docker-compose/backend/docker-compose.yaml ..
+                    cp devops/dockerfiles/backend/{Dockerfile,docker-compose.yaml} ..
                     cd .. && rm -rf tmp
                     mv Dockerfile API/
                     cd API
