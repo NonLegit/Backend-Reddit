@@ -116,23 +116,22 @@ class PostService {
        // let newPosts = (!me)?Array.from(posts):posts;
      let newPosts=(!me)?[]:posts;
      for (var i = 0; i < posts.length; i++) {
-      //  console.log(typeof (posts[i]));
-      //  if(!typeof(newPosts[i]).equals("object"))
-       // newPosts.push(posts[i]);
+      
        if(!me)
        newPosts.push(posts[i].toObject()) ;
       
  
        let owner = { ...posts[i].owner };
        let author = { ...posts[i].author };
-       console.log("jjjjjjjjjjjjjjjjj");
-       console.log(newPosts);
+       if (!me) {
+         owner = owner._doc;
+         author = author._doc;
+       }
+       
        delete newPosts[i].owner;
        delete newPosts[i].author;
-console.log("mmmmmmmmmmmmmmmmmmmj");
-       console.log(newPosts);
-       console.log("pppppppppppppppppj");
-       console.log(owner);
+
+       
       if (posts[i].ownerType === "User") {
         
         newPosts[i]["owner"] = {
@@ -156,7 +155,7 @@ console.log("mmmmmmmmmmmmmmmmmmmj");
        }
       
      }
-     //console.log(newPosts);
+    
     return newPosts;
   }
   /**
