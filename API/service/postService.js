@@ -13,9 +13,8 @@ class PostService {
   constructor({ PostRepository, SubredditRepository }) {
     this.postRepo = PostRepository;
     this.subredditRepo = SubredditRepository;
-   //this.printo = this.printo.bind(this);
+    //this.printo = this.printo.bind(this);
   }
-
 
   /**
    * Updates the text of the post with the given id
@@ -82,9 +81,9 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
-    if (data.ownerType === "User"){
+    if (data.ownerType === "User") {
       data.owner = data.author;
-      if(data.flairId) delete data.flairId;
+      if (data.flairId) delete data.flairId;
     }
     //validate subreddit if the post is created in one
     else if (data.ownerType === "Subreddit") {
@@ -108,54 +107,45 @@ class PostService {
     return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
 
- 
-
-   getPostOwnerAndAuthor(posts,me) {
+  getPostOwnerAndAuthor(posts, me) {
     //let newPosts = Array.from(posts);
-    
-       // let newPosts = (!me)?Array.from(posts):posts;
-     let newPosts=(!me)?[]:posts;
-     for (var i = 0; i < posts.length; i++) {
-      
-       if(!me)
-       newPosts.push(posts[i].toObject()) ;
-      
- 
-       let owner = { ...posts[i].owner };
-       let author = { ...posts[i].author };
-       if (!me) {
-         owner = owner._doc;
-         author = author._doc;
-       }
-       
-       delete newPosts[i].owner;
-       delete newPosts[i].author;
 
-       
+    // let newPosts = (!me)?Array.from(posts):posts;
+    let newPosts = !me ? [] : posts;
+    for (var i = 0; i < posts.length; i++) {
+      if (!me) newPosts.push(posts[i].toObject());
+
+      let owner = { ...posts[i].owner };
+      let author = { ...posts[i].author };
+      if (!me) {
+        owner = owner._doc;
+        author = author._doc;
+      }
+
+      delete newPosts[i].owner;
+      delete newPosts[i].author;
+
       if (posts[i].ownerType === "User") {
-        
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: owner.profilePicture
+          icon: owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
-          _id:owner._id,
+          _id: owner._id,
           name: owner.fixedName,
-          icon: owner.icon
-          
+          icon: owner.icon,
         };
       }
-     
-       newPosts[i]["author"] = {
-         _id: author._id,
-         name: author.userName
-       }
-      
-     }
-    
+
+      newPosts[i]["author"] = {
+        _id: author._id,
+        name: author.userName,
+      };
+    }
+
     return newPosts;
   }
   /**
@@ -164,34 +154,28 @@ class PostService {
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-  async getPosts(query, filter, me ,sortType) {
-    
-    const posts = await this.postRepo.getPosts(filter, query,sortType);
+  async getPosts(query, filter, me, sortType) {
+    const posts = await this.postRepo.getPosts(filter, query, sortType);
 
     if (posts.success) {
-      
       if (posts.doc.length == 0) {
         return { success: true, data: posts.doc };
       } else if (me == undefined) {
-
-        let postList = this.getPostOwnerAndAuthor( posts.doc,me );
+        let postList = this.getPostOwnerAndAuthor(posts.doc, me);
         return { success: true, data: postList };
-        
       } else {
-       let  postList = this.removeHiddenPosts(me,posts.doc );
-     postList = this.getPostOwnerAndAuthor(postList,me);
+        let postList = this.removeHiddenPosts(me, posts.doc);
+        postList = this.getPostOwnerAndAuthor(postList, me);
         postList = this.setSavedPostStatus(me, postList);
         // postList = this.getPostOwnerAndAuthor(postList);
         postList = this.setSavedPostStatus(me, postList);
         postList = this.setVotePostStatus(me, postList);
         postList = this.setSpamPostStatus(me, postList);
-  
-     
-        return { success: true, data: postList };
 
+        return { success: true, data: postList };
       }
     }
-    
+
     // if (!posts.success && posts.error)
     //   return { sucess: false, error: posts.error };
 
@@ -235,19 +219,40 @@ class PostService {
    */
   setPostOwnerData(posts) {
     //let newPosts = Array.from(posts);
+    console.log(posts);
     let newPosts = posts;
+    let owner = {};
     for (var i = 0; i < posts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
         console.log(newPosts[i]);
       } catch (err) {}
       if (posts[i].ownerType === "User") {
+        owner["_id"] = posts[i].owner._id;
+        owner["name"] = posts[i].owner.userName;
+        owner["icon"] =
+          `${process.env.BACKDOMAIN}/api/v1/users/image/` +
+          posts[i].owner.profilePicture;
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
+        owner["_id"] = posts[i].owner._id;
+        owner["name"] = posts[i].owner.fixedName;
+        owner["icon"] =
+          `${process.env.BACKDOMAIN}/api/v1/users/image/` + posts[i].owner.icon;
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
-      newPosts[i]["owner"] = posts[i].owner._id;
-      
+
+      newPosts[i]["owner"] = owner;
+    }
+    let author = {};
+    for (var i = 0; i < posts.length; i++) {
+      author["_id"] = posts[i].author._id;
+      author["name"] = posts[i].author.userName;
+      author["icon"] =
+        `${process.env.BACKDOMAIN}/api/v1/users/image/` +
+        posts[i].author.profilePicture;
+
+      newPosts[i]["author"] = author;
     }
     return newPosts;
   }
@@ -283,9 +288,8 @@ class PostService {
    * @returns {Array<object>} - list of posts
    */
   setSavedPostStatus(user, posts) {
-    
     let newPosts = Array.from(posts);
-    
+
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
       hash[user.saved[i]] = user.saved[i];
@@ -307,8 +311,7 @@ class PostService {
     return newPosts;
   }
 
-
-   setSpamPostStatus(user, posts){
+  setSpamPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
     for (var i = 0; i < user.spam.length; i++) {
