@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Comment = require('./commentModel')
+const Comment = require("./commentModel");
 const Url = require("mongoose-type-url");
 const validator = require("validator");
 require("mongoose-type-url");
@@ -130,8 +130,8 @@ const postSchema = new mongoose.Schema({
 });
 
 //Whoever added this middleware should add more restrictions
-postSchema.pre('find', function() {
-  this.populate('owner');
+postSchema.pre("find", function () {
+  this.populate("owner");
 });
 
 // postSchema.pre("findOneAndUpdate", async function (next) {

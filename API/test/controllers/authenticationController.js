@@ -465,7 +465,7 @@ describe("Authentication Controller Test", () => {
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "Provide password and confirm password",
-        errorType:0
+        errorType: 0,
       });
     });
 
@@ -529,7 +529,7 @@ describe("Authentication Controller Test", () => {
       expect(res.status(401).json).to.deep.calledWith({
         status: "fail",
         errorMessage: "Provide Equal Passwords",
-        errorType:1
+        errorType: 1,
       });
     });
     it("fifth test weak ", async () => {
@@ -561,7 +561,7 @@ describe("Authentication Controller Test", () => {
       expect(res.status(400).json).to.deep.calledWith({
         status: "fail",
         errorMessage: "Weak password",
-        errorType:2
+        errorType: 2,
       });
     });
   });
@@ -585,9 +585,9 @@ describe("Authentication Controller Test", () => {
           };
           return response;
         },
-        decodeToken: async (token)=>{
+        decodeToken: async (token) => {
           return "1";
-        }
+        },
       };
       const authObj = new auth({ UserService });
       await authObj.authorize(req, res, next);
@@ -596,6 +596,13 @@ describe("Authentication Controller Test", () => {
     it("second test bad request not provide all body data", async () => {
       const req = {
         cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return false;
+            },
+          },
+        },
       };
       const UserService = {
         getUser: async (userId) => {
@@ -609,9 +616,9 @@ describe("Authentication Controller Test", () => {
           };
           return response;
         },
-        decodeToken: async (token)=>{
+        decodeToken: async (token) => {
           return "1";
-        }
+        },
       };
       const authObj = new auth({ UserService });
       await authObj.authorize(req, res, next);
@@ -640,9 +647,9 @@ describe("Authentication Controller Test", () => {
           };
           return response;
         },
-        decodeToken: async (token)=>{
+        decodeToken: async (token) => {
           return "1";
-        }
+        },
       };
       const authObj = new auth({ UserService });
       await authObj.authorize(req, res, "");

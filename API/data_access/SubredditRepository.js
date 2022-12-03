@@ -199,13 +199,13 @@ class SubredditRepository extends Repository {
 
   async addUser(id) {
     await this.model.findByIdAndUpdate(id, {
-      $inc: { usersCount: 1 },
+      $inc: { membersCount: 1 },
     });
   }
 
   async removeUser(id) {
     await this.model.findByIdAndUpdate(id, {
-      $inc: { usersCount: -1 },
+      $inc: { membersCount: -1 },
     });
   }
 }
