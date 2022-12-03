@@ -8,12 +8,17 @@ const PostController = container.resolve("PostController");
 // 
 const router = express.Router();
 
-router.get('/:subredditName/top', subredditController.getSubredditId,PostController.getTopPosts);
-router.get('/:subredditName/new',subredditController.getSubredditId, PostController.getNewPosts);
-router.get('/:subredditName/hot',subredditController.getSubredditId, PostController.getHotPosts);
-
 // test data models
+
+
+
+
+router.get('/:subredditName/top', AuthenticationController.checkAuthorize,subredditController.getSubredditId,PostController.getTopPosts);
+router.get('/:subredditName/new',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getNewPosts);
+router.get('/:subredditName/hot',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getHotPosts);
+
 router.use(AuthenticationController.authorize);
+
 router.post("/", subredditController.createSubreddit);
 router.patch("/:subredditName", subredditController.updateSubredditSettings);
 router.get("/:subredditName", subredditController.getSubredditSettings);

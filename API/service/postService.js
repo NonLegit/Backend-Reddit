@@ -108,28 +108,39 @@ class PostService {
     return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
 
-  printo() {
-    console.log("hrllooo");
-    return;
-  }
+ 
 
-   getPostOwnerAndAuthor(posts) {
+   getPostOwnerAndAuthor(posts,me) {
     //let newPosts = Array.from(posts);
-    let newPosts = posts;
+    
+       // let newPosts = (!me)?Array.from(posts):posts;
+     let newPosts=(!me)?[]:posts;
      for (var i = 0; i < posts.length; i++) {
+      //  console.log(typeof (posts[i]));
+      //  if(!typeof(newPosts[i]).equals("object"))
+       // newPosts.push(posts[i]);
+       if(!me)
+       newPosts.push(posts[i].toObject()) ;
       
-      
+ 
        let owner = { ...posts[i].owner };
-      let author = { ...posts[i].author };
+       let author = { ...posts[i].author };
+       console.log("jjjjjjjjjjjjjjjjj");
+       console.log(newPosts);
        delete newPosts[i].owner;
        delete newPosts[i].author;
+console.log("mmmmmmmmmmmmmmmmmmmj");
+       console.log(newPosts);
+       console.log("pppppppppppppppppj");
+       console.log(owner);
       if (posts[i].ownerType === "User") {
-       
+        
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
           icon: owner.profilePicture
         };
+        console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id:owner._id,
@@ -144,7 +155,8 @@ class PostService {
          name: author.userName
        }
       
-    }
+     }
+     //console.log(newPosts);
     return newPosts;
   }
   /**
@@ -153,20 +165,24 @@ class PostService {
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-  async getPosts(query, filter, me = {}) {
+  async getPosts(query, filter, me ,sortType) {
     
-    const posts = await this.postRepo.getPosts(filter, query, me);
-    console.log("filter");
-    
-    if (posts.success&&me!={}) {
-   // let postList = selectPostsWithVotes(posts.doc , "-1");
+    const posts = await this.postRepo.getPosts(filter, query,sortType);
+
+    if (posts.success) {
+      
       if (posts.doc.length == 0) {
         return { success: true, data: posts.doc };
+      } else if (me == undefined) {
+
+        let postList = this.getPostOwnerAndAuthor( posts.doc,me );
+        return { success: true, data: postList };
+        
       } else {
-        let postList = this.removeHiddenPosts(me, posts.doc);
-     
+       let  postList = this.removeHiddenPosts(me,posts.doc );
+     postList = this.getPostOwnerAndAuthor(postList,me);
         postList = this.setSavedPostStatus(me, postList);
-        postList = this.getPostOwnerAndAuthor(postList);
+        // postList = this.getPostOwnerAndAuthor(postList);
         postList = this.setSavedPostStatus(me, postList);
         postList = this.setVotePostStatus(me, postList);
         postList = this.setSpamPostStatus(me, postList);
@@ -176,6 +192,7 @@ class PostService {
 
       }
     }
+    
     // if (!posts.success && posts.error)
     //   return { sucess: false, error: posts.error };
 

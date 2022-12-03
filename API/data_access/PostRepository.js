@@ -49,7 +49,7 @@ class PostRepository extends Repository {
     let doc = await features.query.populate(popOptions);
     return { success: true, doc: doc };
   }
-  async getPosts(filter, query, popOptions,user) {
+  async getPosts(filter, query,sortType) {
     try {
       // if (user) {
       //   //console.log("oooooooooooooooooooo");
@@ -62,13 +62,22 @@ class PostRepository extends Repository {
 
       let getSubredditPosts = filter ? { owner: filter} : {};
 
+      if (sortType == "hot") {
+        query.sort= "-sortOnHot";
+      }else if (sortType == "new") {
+        query.sort = "-createdAt";
+      }else if (sortType == "top") {
+        query.sort = "-votes";
+      }else  {//best
+        query.sort = "-sortOnBest";
+      }
       
-       console.log(getSubredditPosts);
+      console.log(query.sort);
       const features = new APIFeatures(this.model.find(getSubredditPosts), query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
+        .filter()
+        .limitFields()
+        .paginate()
+        .sort();
       //console.log(doc);
       let doc = await features.query;
        //console.log(doc);
