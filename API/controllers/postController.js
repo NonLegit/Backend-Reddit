@@ -152,7 +152,7 @@ class PostController {
     if (!req.params.userName) {
       res.status(400).json({
         status: "fail",
-        message: "Provide userName ",
+        errorMessage: "Provide userName ",
       });
     } else {
       let sortType = "New";
@@ -169,7 +169,6 @@ class PostController {
 
         // get post which he creates
         let posts = await this.postServices.getUserPosts(userId, sortType);
-
         // get vote of me if these post i vote on it
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
@@ -183,7 +182,7 @@ class PostController {
         });
       } else {
         res.status(404).json({
-          status: "success",
+          status: "fail",
           errorMessage: "User Not Found",
         });
       }
@@ -290,8 +289,10 @@ class PostController {
 
   getHotPosts = async (req, res) => {
     try {
-      req.query.sort = "-createdAt,-votes,-commentCount";
-      //console.log("ppppppppppppppppppppppp");
+      //req.query.sort = "-createdAt,-votes,-commentCount";
+      let sortType = "hot";
+      let me =(req.isAuthorized==true)?req.user:undefined;
+    
       //console.log(req.user);
       //let posts;
       // if (req.user) {
@@ -300,7 +301,7 @@ class PostController {
       //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
       // }
       // else {
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
 
       // }
       if (!posts.success) {
@@ -336,10 +337,12 @@ class PostController {
   };
   getNewPosts = async (req, res) => {
     try {
-      req.query.sort = "-createdAt";
+      //req.query.sort = "-createdAt";
       //console.log(req.query);
 
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let sortType = "new";
+     let me =(req.isAuthorized==true)?req.user:undefined;
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -374,11 +377,15 @@ class PostController {
   };
   getTopPosts = async (req, res) => {
     try {
-      req.query.sort = "-votes";
+      //req.query.sort = "-votes";
       //console.log(req.query);
 
+
+      let me =(req.isAuthorized==true)?req.user:undefined;
+
+      let sortType = "top";
       // let filter = (req.toFilter) ? req.toFilter : {};
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -425,9 +432,18 @@ class PostController {
   };
   getBestPosts = async (req, res) => {
     try {
-      req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
+      //req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
 
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+       
+
+      let sortType = "best";
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+
+     let me =(req.isAuthorized==true)?req.user:undefined;
+       
+    // get post which he creates
+      
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
 
       if (!posts.success) {
         let message, statusCode, status;

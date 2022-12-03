@@ -70,7 +70,7 @@ const userSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    default: `default.png`,
+    default: "default.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
@@ -135,6 +135,12 @@ const userSchema = new mongoose.Schema({
     },
   ],
   hidden: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Post",
+    },
+  ],
+  spam: [
     {
       type: mongoose.Schema.ObjectId,
       ref: "Post",
@@ -265,10 +271,12 @@ userSchema.pre(/^find/, function (next) {
 });
 userSchema.post(/^findOne/, function (doc) {
   // this points to the current query
-  doc.profilePicture =
-    `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profilePicture;
-  doc.profileBackground =
-    `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profileBackground;
+  if (doc) {
+    doc.profilePicture =
+      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profilePicture;
+    doc.profileBackground =
+      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profileBackground;
+  }
   //next();
 });
 

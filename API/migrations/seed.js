@@ -23,8 +23,8 @@ if (process.env.NODE_ENV === "test") {
 }
 
 module.exports = async function seeder() {
-  let defaultImg = `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`;
-  let postImg = `${process.env.BACKDOMAIN}/api/v1/posts/images/default.jpg`;
+  let defaultImg = `default.png`;
+  let postImg = `default.jpg`;
 
   let user0 = await User.create({
     userName: "Mohab",

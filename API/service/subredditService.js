@@ -563,6 +563,9 @@ class subredditService {
     if (!isModerator.success) {
       return { success: false, error: subredditErrors.NOT_MODERATOR };
     }
+     
+     //check if user is moderator of subreddit to create flair in
+      
 
     //create the flair
     let flair = await this.flairRepository.createOne(data);
@@ -618,15 +621,17 @@ class subredditService {
     return { success: true, data: subreddit };
   }
 
-  /**
-   *
-   * @param {Object} subreddit subreddit object
-   * @param {string} userID id of the moderaror to check whether it exists in the subreddit
-   * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
-   */
+  // /**
+  //  *
+  //  * @param {Object} subreddit subreddit object
+  //  * @param {string} userID id of the moderaror to check whether it exists in the subreddit
+  //  * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
+  //  */
   checkModerator(subreddit, userID) {
-    if (!subreddit.doc.owner.equals(userID)) {
-      return { success: false, error: subredditErrors.NOT_MODERATOR };
+   
+
+    if (!subreddit.doc.moderators.find(el=>el.id.equals(userID))) {
+      return {success:false, error:subredditErrors.NOT_MODERATOR};
     }
 
     return subreddit;

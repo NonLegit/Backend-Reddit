@@ -523,6 +523,43 @@ class AuthenticationController {
       });
     }
   };
+
+
+  checkAuthorize = async (req, res, next) => {
+    let token;
+    if (req.cookies.jwt) {
+      token = req.cookies.jwt;
+    } else {
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+      ) {
+        token = req.headers.authorization.split(" ")[1];
+      }
+    }
+    if (!token) {
+      req.isAuthorized = false;
+      next();
+    } else {
+      const decoded = await this.UserServices.decodeToken(token);
+      const userId = decoded.id;
+      const time = decoded.iat;
+      const user = await this.UserServices.getUser(userId);
+      if (user.success === false) {
+       req.isAuthorized = false;
+      next();
+      } else {
+        if (user.data.changedPasswordAfter(time)) {
+          req.isAuthorized = false;
+      next();
+        } else {
+          req.user = user.data;
+           req.isAuthorized = true;
+          next();
+        }
+      }
+    }
+  };
 }
 
 module.exports = AuthenticationController;
