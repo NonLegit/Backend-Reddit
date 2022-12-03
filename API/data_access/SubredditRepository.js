@@ -74,6 +74,23 @@ class SubredditRepository extends Repository {
     }
   }
 
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
   /**
    * this function checks if user is owner or not by passing @subredditName and @iD
    * @param {string} subredditName - name of subreddit i want to check from

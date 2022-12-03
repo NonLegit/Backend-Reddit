@@ -13,7 +13,9 @@ class PostService {
   constructor({ PostRepository, SubredditRepository }) {
     this.postRepo = PostRepository;
     this.subredditRepo = SubredditRepository;
+   //this.printo = this.printo.bind(this);
   }
+
 
   /**
    * Updates the text of the post with the given id
@@ -106,16 +108,74 @@ class PostService {
     return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
 
+  printo() {
+    console.log("hrllooo");
+    return;
+  }
+
+   getPostOwnerAndAuthor(posts) {
+    //let newPosts = Array.from(posts);
+    let newPosts = posts;
+     for (var i = 0; i < posts.length; i++) {
+      
+      
+       let owner = { ...posts[i].owner };
+      let author = { ...posts[i].author };
+       delete newPosts[i].owner;
+       delete newPosts[i].author;
+      if (posts[i].ownerType === "User") {
+       
+        newPosts[i]["owner"] = {
+          _id: owner._id,
+          name: owner.userName,
+          icon: owner.profilePicture
+        };
+      } else {
+        newPosts[i]["owner"] = {
+          _id:owner._id,
+          name: owner.fixedName,
+          icon: owner.icon
+          
+        };
+      }
+     
+       newPosts[i]["author"] = {
+         _id: author._id,
+         name: author.userName
+       }
+      
+    }
+    return newPosts;
+  }
   /**
    * get posts
    * @param {String} query query to apply
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-  async getPosts(query, filter) {
-    const posts = await this.postRepo.getPosts(filter, query, "");
-    if (posts.success) return { success: true, data: posts.doc };
+  async getPosts(query, filter, me = {}) {
+    
+    const posts = await this.postRepo.getPosts(filter, query, me);
+    console.log("filter");
+    
+    if (posts.success&&me!={}) {
+   // let postList = selectPostsWithVotes(posts.doc , "-1");
+      if (posts.doc.length == 0) {
+        return { success: true, data: posts.doc };
+      } else {
+        let postList = this.removeHiddenPosts(me, posts.doc);
+     
+        postList = this.setSavedPostStatus(me, postList);
+        postList = this.getPostOwnerAndAuthor(postList);
+        postList = this.setSavedPostStatus(me, postList);
+        postList = this.setVotePostStatus(me, postList);
+        postList = this.setSpamPostStatus(me, postList);
+  
+     
+        return { success: true, data: postList };
 
+      }
+    }
     // if (!posts.success && posts.error)
     //   return { sucess: false, error: posts.error };
 
@@ -163,6 +223,7 @@ class PostService {
     for (var i = 0; i < posts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
+        console.log(newPosts[i]);
       } catch (err) {}
       if (posts[i].ownerType === "User") {
         newPosts[i]["name"] = posts[i].owner.userName;
@@ -170,6 +231,7 @@ class PostService {
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
       newPosts[i]["owner"] = posts[i].owner._id;
+      
     }
     return newPosts;
   }
@@ -205,7 +267,9 @@ class PostService {
    * @returns {Array<object>} - list of posts
    */
   setSavedPostStatus(user, posts) {
+    
     let newPosts = Array.from(posts);
+    
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
       hash[user.saved[i]] = user.saved[i];
@@ -221,6 +285,30 @@ class PostService {
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
         newPosts[i]["isSaved"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+    }
+    return newPosts;
+  }
+
+
+   setSpamPostStatus(user, posts){
+    let newPosts = Array.from(posts);
+    let hash = {};
+    for (var i = 0; i < user.spam.length; i++) {
+      hash[user.spam[i]] = user.spam[i];
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newPosts.length; i++) {
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (hash[posts[i]._id]) {
+        newPosts[i]["isSpam"] = true;
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newPosts[i]["isSpam"] = false;
         //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
     }

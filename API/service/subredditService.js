@@ -554,8 +554,8 @@ class subredditService {
     }
      console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
      //check if user is moderator of subreddit to create flair in
-      let isModerator = this.checkModerator(subreddit, userId);
-      
+      let isModerator = await this.checkModerator(subreddit, userId);
+    console.log(isModerator);
       if (!isModerator.success) {
         return {success:false , error: subredditErrors.NOT_MODERATOR};
       }
@@ -622,16 +622,16 @@ class subredditService {
     return {success:true, data:subreddit};
   }
 
-  /**
-   *
-   * @param {Object} subreddit subreddit object
-   * @param {string} userID id of the moderaror to check whether it exists in the subreddit
-   * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
-   */
+  // /**
+  //  *
+  //  * @param {Object} subreddit subreddit object
+  //  * @param {string} userID id of the moderaror to check whether it exists in the subreddit
+  //  * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
+  //  */
   checkModerator(subreddit, userID) {
    
 
-    if (!subreddit.doc.owner.equals(userID)) {
+    if (!subreddit.doc.moderators.find(el=>el.id.equals(userID))) {
       return {success:false, error:subredditErrors.NOT_MODERATOR};
     }
     

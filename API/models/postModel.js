@@ -133,6 +133,9 @@ const postSchema = new mongoose.Schema({
 postSchema.pre('find', function() {
   this.populate('owner');
 });
+postSchema.pre('find', function() {
+  this.populate('author');
+});
 
 // postSchema.pre("findOneAndUpdate", async function (next) {
 //   if (this._update.isDeleted) {
@@ -144,6 +147,9 @@ postSchema.pre('find', function() {
 //   }
 //   next();
 // });
+postSchema.pre('find', function() {
+  this.populate('flairId');
+});
 
 const Post = mongoose.model("Post", postSchema);
 

@@ -23,7 +23,6 @@ router.get(
   "/check_reset_token/:token",
   AuthenticationController.checkResetTokentime
 );
-router.get("/best", PostController.getBestPosts);
 
 // facebook authentication
 passport.use(
@@ -96,6 +95,8 @@ router.get("/downvoted", PostController.userDownvotedPosts);
 router.get("/top", PostController.getTopPosts);
 router.get("/hot", PostController.getHotPosts);
 router.get("/new", PostController.getNewPosts);
+router.get("/best", PostController.getBestPosts);
+
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

@@ -140,6 +140,12 @@ const userSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
+  spam: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Post",
+    },
+  ],
   votePost: [
     {
       posts: {

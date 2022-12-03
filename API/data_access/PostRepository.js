@@ -63,14 +63,14 @@ class PostRepository extends Repository {
       let getSubredditPosts = filter ? { owner: filter} : {};
 
       
-      // console.log(getSubredditPosts);
+       console.log(getSubredditPosts);
       const features = new APIFeatures(this.model.find(getSubredditPosts), query)
       .filter()
       .sort()
       .limitFields()
       .paginate();
       //console.log(doc);
-      let doc = await features.query.populate(popOptions);
+      let doc = await features.query;
        //console.log(doc);
     if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 

@@ -291,7 +291,8 @@ class PostController {
   getHotPosts = async (req, res) => {
     try {
       req.query.sort = "-createdAt,-votes,-commentCount";
-      //console.log("ppppppppppppppppppppppp");
+      let me = req.user;
+      console.log("ppppppppppppppppppppppp");
       //console.log(req.user);
       //let posts;
       // if (req.user) {
@@ -300,7 +301,7 @@ class PostController {
       //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
       // }
       // else {
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me);
 
       // }
       if (!posts.success) {
@@ -339,7 +340,8 @@ class PostController {
       req.query.sort = "-createdAt";
       //console.log(req.query);
 
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let me = req.user;
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me);
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -377,8 +379,11 @@ class PostController {
       req.query.sort = "-votes";
       //console.log(req.query);
 
+
+      let me = req.user;
+
       // let filter = (req.toFilter) ? req.toFilter : {};
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me);
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -427,7 +432,15 @@ class PostController {
     try {
       req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
 
-      let posts = await this.postServices.getPosts(req.query, req.toFilter);
+       
+
+    // check if the owner of post block me or i blocked him in order to show posts , TODO
+
+      let me = req.user;
+       
+    // get post which he creates
+      
+      let posts = await this.postServices.getPosts(req.query, req.toFilter,me);
 
       if (!posts.success) {
         let message, statusCode, status;
