@@ -70,7 +70,9 @@ class UserController {
       });
       return;
     }
+
     const available = await this.userServices.isAvailable(req.query.userName);
+
     if (available) {
       res.status(200).json({
         status: "success",
