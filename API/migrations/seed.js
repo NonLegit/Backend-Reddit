@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("../models/userModel");
 const Post = require("../models/postModel");
+const Flair = require("../models/flairModel");
 const dotenv = require("dotenv");
 const Subreddit = require("../models/subredditModel");
 dotenv.config();
@@ -125,7 +126,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 2,
+      votes: 34,
+      views: 90,
+      shareCount: 2,
+    commentCount:9,
   });
   let post2 = await Post.create({
     title: "Second Post",
@@ -139,7 +143,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 0,
+     votes: -60,
+      views: 95,
+      shareCount: 0,
+    commentCount:9,
   });
   let post3 = await Post.create({
     title: "Thrid Post",
@@ -153,7 +160,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 2,
+     votes: 90,
+      views: 500,
+      shareCount:0,
+    commentCount:66,
   });
   let post4 = await Post.create({
     title: "Fourth Post",
@@ -167,7 +177,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 0,
+     votes: 0,
+      views: 0,
+      shareCount: 0,
+    commentCount:0,
   });
   let post5 = await Post.create({
     title: "Fifth Post",
@@ -181,9 +194,37 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: -1,
+    votes: 0,
+      views: 8,
+      shareCount: 0,
+    commentCount:0,
     images: [postImg],
+   
   });
+  
+
+
+   let flair1 = await Flair.create({
+    text: "first flair",
+    backgroundColor: "#111111",
+    textColor: "#ffffff",
+    permissions:"modOnly"
+   });
+   let flair2 = await Flair.create({
+    text: "second flair",
+    backgroundColor: "#121212",
+    textColor: "#eeeeee",
+    permissions:"modOnly"
+   });
+   let flair3 = await Flair.create({
+    text: "third flair",
+    backgroundColor: "#111111",
+    textColor: "#f1f3f3",
+    permissions:"modOnly"
+   });
+  
+
+  
 
   await User.findOneAndUpdate(
     { userName: "Nour" },
@@ -305,6 +346,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -342,6 +384,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -378,6 +421,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -414,6 +458,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -454,6 +499,128 @@ module.exports = async function seeder() {
       },
       { new: true }
     );
+    let post6 = await Post.create({
+    title: "subreddit Post",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user3._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 50,
+      views: 300,
+      shareCount: 30,
+    commentCount:9,
+    images: [postImg],
+    flairId:flair1._id
+   
+    });
+    
+     let post7= await Post.create({
+    title: "subreddit Post 2",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user3._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+      votes: 5,
+      views: 30,
+      shareCount: 100,
+    commentCount:8,
+    images: [postImg],
+    flairId:flair2._id
+   
+     });
+     let post8 = await Post.create({
+    title: "subreddit Post 3",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user1._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+      votes: 1000,
+      views: 100,
+      shareCount: 4,
+    commentCount:0,
+    images: [postImg],
+    flairId:flair1._id
+   
+     });
+     let post9 = await Post.create({
+    title: "subreddit Post 4",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user4._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+      votes: 5,
+      views: 0,
+      shareCount: 0,
+    commentCount:800,
+    images: [postImg],
+    flairId:flair1._id
+   
+     });
+     let post10 = await Post.create({
+    title: "subreddit Post 5",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user3._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+      votes: -200,
+      views: 300,
+      shareCount: 0,
+    commentCount:90,
+    images: [postImg],
+    flairId:flair1._id
+   
+     });
+     let post11 = await Post.create({
+    title: "subreddit Post",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user3._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+      votes: 1000,
+      views: 3000,
+      shareCount: 200,
+    commentCount:300,
+    images: [postImg],
+    flairId:flair3._id
+   
+  });
+
   } catch (error) {
     console.log(error);
   }
