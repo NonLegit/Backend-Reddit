@@ -52,6 +52,7 @@ describe("Authentication Controller Test", () => {
       await authObj.signUp(req, res, "");
       expect(res.status).to.have.been.calledWith(201);
     });
+    // add comment
     it("second test bad request not provide all body data", async () => {
       const req = {
         body: {
