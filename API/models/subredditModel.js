@@ -49,6 +49,7 @@ const subredditSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
+    default:"",
     trim: true,
   },
   language: {
