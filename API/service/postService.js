@@ -129,14 +129,14 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/api/v1/users/image/`+owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon: owner.icon,
+          icon:  `${process.env.BACKDOMAIN}/api/v1/users/image/` +owner.icon
         };
       }
 

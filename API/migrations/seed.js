@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("../models/userModel");
 const Post = require("../models/postModel");
+const Flair = require("../models/flairModel");
 const dotenv = require("dotenv");
 const Subreddit = require("../models/subredditModel");
 dotenv.config();
@@ -183,7 +184,32 @@ module.exports = async function seeder() {
     scheduled: false,
     votes: -1,
     images: [postImg],
+   
   });
+  
+
+
+   let flair1 = await Flair.create({
+    text: "first flair",
+    backgroundColor: "#111111",
+    textColor: "#ffffff",
+    permissions:"modOnly"
+   });
+   let flair2 = await Flair.create({
+    text: "second flair",
+    backgroundColor: "#121212",
+    textColor: "#eeeeee",
+    permissions:"modOnly"
+   });
+   let flair3 = await Flair.create({
+    text: "third flair",
+    backgroundColor: "#111111",
+    textColor: "#f1f3f3",
+    permissions:"modOnly"
+   });
+  
+
+  
 
   await User.findOneAndUpdate(
     { userName: "Nour" },
@@ -305,6 +331,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -342,6 +369,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -378,6 +406,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -414,6 +443,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -454,6 +484,24 @@ module.exports = async function seeder() {
       },
       { new: true }
     );
+    let post6 = await Post.create({
+    title: "subreddit Post",
+    kind: "self",
+    text: "this subreddit post on NONLEGIT",
+    author: user3._id,
+    owner: subreddit1._id,
+    ownerType: "Subreddit",
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: -1,
+    images: [postImg],
+    flairId:flair1._id
+   
+  });
+
   } catch (error) {
     console.log(error);
   }
