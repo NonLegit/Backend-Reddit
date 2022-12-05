@@ -61,8 +61,7 @@ class FileController {
       console.log(req.file.filename);
       var x = 500;
       var y = 500;
-      if(type === "profileBackground")
-      {
+      if (type === "profileBackground") {
         x = 1000;
         y = 1000;
       }
@@ -110,6 +109,62 @@ class FileController {
         status: "fail",
         errorMessage: "Please provide correct type of image you want to save",
       });
+    }
+  };
+
+  uploadSubredditImage = async (req, res, next) => {
+    // check subreddit exists
+
+    // check user is moderator in subreddit
+
+    // create subreddit folder if not exists
+
+    // save image in subreddit folder
+
+    req.file.filename = `${req.user.userName}/user-${
+      req.user.userName
+    }-${Date.now()}.jpeg`;
+    console.log(req.file.filename);
+    var x = 500;
+    var y = 500;
+    try {
+      await sharp(req.file.buffer)
+        .resize(x, y)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/users/${req.file.filename}`);
+      // .toFile(`./../public/users/${req.file.filename}`);
+      let user = await this.UserServices.addUserImageURL(
+        req.user._id,
+        type,
+        req.file.filename
+      );
+      const me = {
+        id: user._id,
+        userName: user.userName,
+        email: user.email,
+        profilePicture: user.profilePicture,
+        profileBackground: user.profileBackground,
+        canbeFollowed: user.canbeFollowed,
+        lastUpdatedPassword: user.lastUpdatedPassword,
+        followersCount: user.followersCount,
+        friendsCount: user.friendsCount,
+        accountActivated: user.accountActivated,
+        gender: user.gender,
+        displayName: user.displayName,
+        postKarma: user.postKarma,
+        commentKarma: user.commentKarma,
+        createdAt: user.joinDate,
+        description: user.description,
+        adultContent: user.adultContent,
+        nsfw: user.nsfw,
+      };
+      res.status(201).json({
+        status: "success",
+        user: me,
+      });
+    } catch (err) {
+      console.log(err);
     }
   };
   getUserProfileImage(req, res, next) {

@@ -359,6 +359,7 @@ class UserService {
       profilePicture: user.profilePicture,
       profileBackground: user.profileBackground,
       description: user.description,
+      email: user.email,
     };
     return prefs;
   }
@@ -484,7 +485,9 @@ class UserService {
     path = "users/" + path;
     let user = {};
     if (type === "profilePicture") {
-      user = await this.userRepository.updateOne(userId, { profilePicture: path });
+      user = await this.userRepository.updateOne(userId, {
+        profilePicture: path,
+      });
     } else {
       user = await this.userRepository.updateOne(userId, {
         profileBackground: path,
