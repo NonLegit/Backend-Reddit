@@ -6439,7 +6439,7 @@ components:
           type: string
           format: int64
           example: 10
-        subredditName:
+        fixedName:
           type: string
           example: uniquesubreddit
         membersCount:
