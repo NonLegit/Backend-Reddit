@@ -328,6 +328,26 @@
                 }
               }
             }
+          },
+          "500": {
+            "description": "Email Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Email service unavailable"
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -385,6 +405,26 @@
                     "errorMessage": {
                       "type": "string",
                       "example": "User Not Found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Email Service unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Email service unavailable"
                     }
                   }
                 }
@@ -1501,9 +1541,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -1563,9 +1611,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -1625,9 +1681,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -1704,9 +1768,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -2705,9 +2777,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/flair"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/flair"
+                      }
+                    }
                   }
                 }
               }
@@ -2798,8 +2878,23 @@
           }
         },
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/flair"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
             "description": "Bad Request",
@@ -2959,7 +3054,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/flair"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/flair"
+                    }
+                  }
                 }
               }
             }
@@ -5700,7 +5803,7 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "name": {
+                  "fixedName": {
                     "type": "string"
                   },
                   "type": {
@@ -5810,7 +5913,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/fullSubreddit"
+                  "$ref": "#/components/schemas/SUBREDDIT"
                 }
               }
             }
@@ -5897,7 +6000,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/fullSubreddit"
+                  "$ref": "#/components/schemas/SUBREDDIT"
                 }
               }
             }
@@ -6857,7 +6960,7 @@
           }
         ],
         "summary": "Subscribe to or unsubscribe from a subreddit",
-        "description": "To subscribe, sub should be true. To unsubscribe, sub should be false. Use either subreddit to provide the name of subreddit or sr to provide its id. The user must have access to the subreddit to be able to subscribe to it",
+        "description": "To subscribe, action should be sub. To unsubscribe, action should be unsub. The user should have access to the subreddit.",
         "parameters": [
           {
             "name": "subredditName",
@@ -6867,23 +6970,16 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "sub": {
-                    "type": "boolean"
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "Success operation",
@@ -7091,9 +7187,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -7171,9 +7275,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -7268,9 +7380,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Post"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/HomePost"
+                      }
+                    }
                   }
                 }
               }
@@ -7327,6 +7447,87 @@
                 "subscriber",
                 "moderator"
               ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "subreddits": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Subreddit"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddits/moderator/{username}": {
+      "get": {
+        "tags": [
+          "Subreddit"
+        ],
+        "summary": "Get Subreddits moderated by this user",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "username",
+            "description": "username of user want to get subreddits moderated by him",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
@@ -8728,7 +8929,7 @@
         }
       }
     },
-    "/users/{fileName}": {
+    "/users/images": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -8744,39 +8945,18 @@
             "cookieAuth": []
           }
         ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "type",
-            "description": "attribute or kind of image you want to save in file",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "profilePicture",
-                "profileBackground"
-              ]
-            }
-          }
-        ],
         "requestBody": {
           "content": {
             "multipart/form-data": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "filename": {
+                  "type": {
                     "type": "string",
-                    "example": "profile.png"
+                    "enum": [
+                      "profilePicture",
+                      "profileBackground"
+                    ]
                   },
                   "file": {
                     "type": "string",
@@ -8798,6 +8978,28 @@
                     "status": {
                       "type": "string",
                       "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string"
                     }
                   }
                 }
@@ -8825,15 +9027,6 @@
         ],
         "parameters": [
           {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "in": "query",
             "name": "type",
             "description": "attribute or kind of image you want to save in file",
@@ -8841,8 +9034,8 @@
             "schema": {
               "type": "string",
               "enum": [
-                "profileicon",
-                "background"
+                "profilePicture",
+                "profileBackground"
               ]
             }
           }
@@ -8858,6 +9051,9 @@
                     "status": {
                       "type": "string",
                       "example": "success"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
                     }
                   }
                 }
@@ -8890,78 +9086,7 @@
         }
       }
     },
-    "/users/{userName}/{fileName}": {
-      "description": "deal with files (images), will be embedded in profilePicture",
-      "get": {
-        "tags": [
-          "Images"
-        ],
-        "description": "get user file in its folder",
-        "summary": "get user (image)",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userName",
-            "description": "user Name (the authenticated user)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "image/*": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Fail operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "image not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subreddits/{subredditName}/{fileName}": {
+    "/subreddits/{subredditName}/images": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -8986,28 +9111,6 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "type",
-            "description": "attribute or kind of image you want to save in file",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "icon",
-                "backgroundImage"
-              ]
-            }
           }
         ],
         "requestBody": {
@@ -9016,10 +9119,6 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "filename": {
-                    "type": "string",
-                    "example": "uniqueuser"
-                  },
                   "file": {
                     "type": "string",
                     "format": "binary",
@@ -9031,7 +9130,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Success operation",
             "content": {
               "application/json": {
@@ -9095,32 +9194,10 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "type",
-            "description": "attribute or kind of image you want to save in file",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "enum": [
-                "icon",
-                "backgroundImage"
-              ]
-            }
           }
         ],
         "responses": {
-          "200": {
+          "204": {
             "description": "Success operation",
             "content": {
               "application/json": {
@@ -9172,67 +9249,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "file not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Images"
-        ],
-        "description": "get subreddit file in its folder",
-        "summary": "get subreddit (image)",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "subredditName",
-            "description": "subreddit Name (the authenticated user)",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "image/*": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Fail operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "image not found"
+                      "example": "subreddit not found"
                     }
                   }
                 }
@@ -9242,7 +9259,7 @@
         }
       }
     },
-    "/posts/{postId}/{fileName}": {
+    "/posts/{postId}/images": {
       "description": "deal with files (images)",
       "post": {
         "tags": [
@@ -9263,15 +9280,6 @@
             "in": "path",
             "name": "postId",
             "description": "id of post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
             "required": true,
             "schema": {
               "type": "string"
@@ -9298,7 +9306,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Success operation",
             "content": {
               "application/json": {
@@ -9336,49 +9344,9 @@
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Images"
-        ],
-        "description": "get post file in its folder",
-        "summary": "get post  (image)",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "id of post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "image/*": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
           },
           "404": {
-            "description": "Fail operation",
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
@@ -9390,7 +9358,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "image not found"
+                      "example": "post not found"
                     }
                   }
                 }
@@ -9418,15 +9386,6 @@
             "in": "path",
             "name": "postId",
             "description": "id of post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "path",
-            "name": "fileName",
-            "description": "filename of file to be saved",
             "required": true,
             "schema": {
               "type": "string"
@@ -9486,7 +9445,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "file not found"
+                      "example": "post not found"
                     }
                   }
                 }
@@ -9654,8 +9613,26 @@
           }
         }
       },
+      "SUBREDDIT": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
+          "data": {
+            "$ref": "#/components/schemas/fullSubreddit"
+          }
+        }
+      },
       "fullSubreddit": {
         "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "isJoined": {
+            "type": "boolean",
+            "default": false
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -9674,6 +9651,9 @@
             "items": {
               "$ref": "#/components/schemas/rules"
             }
+          },
+          "fixedName": {
+            "type": "string"
           },
           "name": {
             "type": "string"
@@ -9737,6 +9717,10 @@
       },
       "fullSubredditExecludedModerators": {
         "properties": {
+          "isJoined": {
+            "type": "boolean",
+            "default": false
+          },
           "createdAt": {
             "type": "string",
             "format": "date-time"
@@ -9773,6 +9757,9 @@
             }
           },
           "name": {
+            "type": "string"
+          },
+          "fixedName": {
             "type": "string"
           },
           "description": {
@@ -10169,16 +10156,191 @@
           }
         }
       },
+      "HomePost": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "description": "The  user who created the post"
+          },
+          "ownerType": {
+            "type": "string",
+            "enum": [
+              "Subreddit",
+              "User"
+            ]
+          },
+          "owner": {
+            "type": "object",
+            "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            }
+          },
+          "replies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "array of comments ids"
+          },
+          "flairId": {
+            "$ref": "#/components/schemas/flair"
+          },
+          "flairText": {
+            "type": "string"
+          },
+          "sharedFrom": {
+            "type": "string",
+            "description": "shared post id"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "link",
+              "self",
+              "image",
+              "video"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "the text of the post in case the kind is self"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "video": {
+            "type": "string",
+            "description": "The video path(the kind must be video)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-07-21T17:32:28.000Z"
+          },
+          "locked": {
+            "type": "boolean",
+            "description": "whether the post can receive comments or not"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "description": "whether the post is deleted or not"
+          },
+          "sendReplies": {
+            "type": "boolean",
+            "description": "indicates whether the post accepts replies in private messages or not"
+          },
+          "nsfw": {
+            "type": "boolean"
+          },
+          "spoiler": {
+            "type": "boolean"
+          },
+          "votes": {
+            "type": "integer",
+            "description": "total number of votes"
+          },
+          "views": {
+            "type": "integer",
+            "description": "view count"
+          },
+          "commentCount": {
+            "type": "integer",
+            "description": "total number of comments"
+          },
+          "shareCount": {
+            "type": "integer",
+            "description": "total number of shares"
+          },
+          "suggestedSort": {
+            "type": "string",
+            "enum": [
+              "top",
+              "new",
+              "best",
+              "old"
+            ]
+          },
+          "scheduled": {
+            "type": "boolean"
+          },
+          "sortOnHot": {
+            "type": "integer",
+            "description": "calculated value to sort on it"
+          },
+          "sortOnBest": {
+            "type": "integer",
+            "description": "calculated value to sort on it"
+          },
+          "isSpam": {
+            "type": "boolean"
+          },
+          "url": {
+            "type": "string",
+            "description": "A valid URL in case the kind is link"
+          },
+          "isSaved": {
+            "type": "boolean"
+          },
+          "postVoteStatus": {
+            "type": "integer"
+          }
+        }
+      },
       "userPost": {
         "type": "object",
         "properties": {
           "author": {
-            "type": "string",
-            "description": "The name of the user who created the post"
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
           },
           "owner": {
-            "type": "string",
-            "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead"
+            "type": "object",
+            "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            }
           },
           "ownerType": {
             "type": "string",
@@ -10252,7 +10414,7 @@
             "description": "whether the post can receive comments or not"
           },
           "flairId": {
-            "type": "string"
+            "$ref": "#/components/schemas/flair"
           },
           "flairText": {
             "type": "string"
@@ -10565,7 +10727,7 @@
       "flair": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "text": {
