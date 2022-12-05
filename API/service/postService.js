@@ -166,7 +166,7 @@ class PostService {
       } else {
         let postList = this.removeHiddenPosts(me, posts.doc);
         postList = this.getPostOwnerAndAuthor(postList, me);
-        postList = this.setSavedPostStatus(me, postList);
+        // postList = this.setSavedPostStatus(me, postList);
         // postList = this.getPostOwnerAndAuthor(postList);
         postList = this.setSavedPostStatus(me, postList);
         postList = this.setVotePostStatus(me, postList);

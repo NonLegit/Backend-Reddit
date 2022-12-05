@@ -599,8 +599,10 @@ class subredditService {
   async checkSubreddit(subredditName) {
     console.log("in chek subreddit");
 
-    let subreddit = await this.subredditRepository.findByName(subredditName);
+    //let subreddit = await this.subredditRepository.findByName(subredditName);
 
+    let subreddit = await this.subredditRepository.getSubreddit(subredditName);
+    console.log(subreddit);
     if (!subreddit.success) {
       return { sucess: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
@@ -736,9 +738,12 @@ class subredditService {
     );
 
     if (!flairs.success) {
-      return { success: false, data: subredditErrors.SUBREDDIT_NOT_FOUND };
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-    return { success: true, data: flairs };
+     console.log("ffffffffffffffffff");
+    // console.log(flairs);
+    console.log("jjjjjjjjjjjjjjjjjj");
+    return { success: true, data: flairs};
   }
 
   /**
