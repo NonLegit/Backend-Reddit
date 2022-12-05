@@ -360,7 +360,9 @@ class UserService {
       profileBackground: user.profileBackground,
       description: user.description,
       email: user.email,
+      socialLinks:user.socialLinks,
     };
+    console.log(prefs)
     return prefs;
   }
   /**

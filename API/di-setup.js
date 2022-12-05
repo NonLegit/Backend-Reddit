@@ -28,6 +28,7 @@ const Comment = require("./models/commentModel");
 const subreddit = require("./models/subredditModel");
 const Message = require("./models/messageModel");
 const Flair = require("./models/flairModel");
+const Social = require("./models/socialModel");
 
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
@@ -64,6 +65,7 @@ function setup() {
     subreddit: awilix.asValue(subreddit),
     Message: awilix.asValue(Message),
     Flair: awilix.asValue(Flair),
+    Social: awilix.asValue(Social),
   });
 }
 

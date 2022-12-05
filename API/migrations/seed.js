@@ -3,8 +3,10 @@ const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("../models/userModel");
 const Post = require("../models/postModel");
 const Flair = require("../models/flairModel");
-const dotenv = require("dotenv");
 const Subreddit = require("../models/subredditModel");
+const Social = require("../models/socialModel");
+
+const dotenv = require("dotenv");
 dotenv.config();
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE;
@@ -26,6 +28,19 @@ if (process.env.NODE_ENV === "test") {
 module.exports = async function seeder() {
   let defaultImg = `default.png`;
   let postImg = `${process.env.BACKDOMAIN}/posts/default.jpg`;
+
+  let facebook = await Social.create({
+    type: "facebook",
+    link: "",
+    popularity: 10000000,
+    icon: "icons/facebook.png",
+  });
+  let twitter = await Social.create({
+    type: "twitter",
+    link: "",
+    popularity: 20000000,
+    icon: "icons/twitter.png",
+  });
 
   let user0 = await User.create({
     userName: "Mohab",
@@ -209,6 +224,12 @@ module.exports = async function seeder() {
           ],
         },
         saved: { $each: [post2._id, post3._id, post4._id] },
+        socialLinks: {
+          $each: [
+            { social: facebook._id, userLink: "facebook" },
+            { social: twitter._id, userLink: "twitter" },
+          ],
+        },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },

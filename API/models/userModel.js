@@ -219,6 +219,21 @@ const userSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+
+  socialLinks: [
+    {
+      social: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Social",
+        autopopulate: true,
+      },
+      userLink: {
+        type: String,
+        required: true,
+        // default: "",
+      },
+    },
+  ],
   /*
   contentVisibility: {
     type: Boolean,
@@ -269,11 +284,15 @@ userSchema.pre(/^find/, function (next) {
   this.find({ accountActivated: { $ne: false } });
   next();
 });
-userSchema.post(/^findOne/, function (doc) {
+userSchema.post(/^findOne/, async function (doc) {
   // this points to the current query
   if (doc) {
-    doc.profilePicture =
-      `${process.env.BACKDOMAIN}/` + doc.profilePicture;
+    await doc.populate({
+      path: "socialLinks.social",
+      select: "-__v",
+      // options: {sort: [["social.popularity","desc"]]},
+    });
+    doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
     doc.profileBackground =
       `${process.env.BACKDOMAIN}/` + doc.profileBackground;
   }

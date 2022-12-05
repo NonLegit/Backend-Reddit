@@ -95,6 +95,7 @@ class UserController {
    */
   getMe = async (req, res, next) => {
     const user = req.user;
+    console.log(user);
     const me = {
       id: user._id,
       userName: user.userName,
@@ -114,6 +115,7 @@ class UserController {
       description: user.description,
       adultContent: user.adultContent,
       nsfw: user.nsfw,
+      socialLinks:user.socialLinks,
     };
     res.status(200).json({
       status: "success",
