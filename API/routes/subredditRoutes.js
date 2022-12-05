@@ -17,6 +17,8 @@ router.get('/:subredditName/top', AuthenticationController.checkAuthorize,subred
 router.get('/:subredditName/new',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getNewPosts);
 router.get('/:subredditName/hot',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getHotPosts);
 
+
+router.route('/:subredditName/flair').get(subredditController.getFlairs);
 router.use(AuthenticationController.authorize);
 
 router.post("/", subredditController.createSubreddit);
@@ -32,8 +34,8 @@ router.delete("/:subredditName", subredditController.deleteSubreddit);
 
 
 router.route('/:subredditName/flair')
-    .post(subredditController.createFlair)
-   .get(subredditController.getFlairs);
+  .post(subredditController.createFlair);
+   
 router.route('/:subredditName/flair/:flairId')
     .get(subredditController.getFlair)
     .patch(subredditController.updateFlair)

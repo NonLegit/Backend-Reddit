@@ -653,7 +653,7 @@ class subredditController {
 
       if (!flairs.success) {
         let message, statusCode, status;
-        switch (flair.error) {
+        switch (flairs.error) {
           case subredditErrors.SUBREDDIT_NOT_FOUND:
             message = "Subreddit not found";
             statusCode = 404;
