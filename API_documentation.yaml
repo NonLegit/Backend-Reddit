@@ -179,10 +179,9 @@ paths:
                   errorType:
                     type: integer
                     enum:
-                    - 0
-                    - 1
-                    - 2
-                    
+                      - 0
+                      - 1
+                      - 2
 
   /users/forgot_username:
     post:
@@ -340,10 +339,10 @@ paths:
                   errorType:
                     type: integer
                     enum:
-                    - 0
-                    - 1
-                    - 2
-                    - 3
+                      - 0
+                      - 1
+                      - 2
+                      - 3
 
   /users/check_reset_token/{token}:
     description: User Resource
@@ -537,12 +536,12 @@ paths:
     post:
       tags:
         - Users
-      summary: Change user email 
+      summary: Change user email
       security:
         - BearerAuth: []
         - cookieAuth: []
       requestBody:
-        description: user's new email 
+        description: user's new email
         content:
           application/json:
             schema:
@@ -553,7 +552,7 @@ paths:
                   format: email
                 password:
                   type: string
-                  
+
       responses:
         "204":
           description: successful operation
@@ -990,9 +989,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         "401":
           description: Authorization Required
           content:
@@ -1027,9 +1031,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         "401":
           description: Authorization Required
           content:
@@ -1064,9 +1073,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         "401":
           description: Authorization Required
           content:
@@ -1114,9 +1128,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         "401":
           description: Authorization Required
           content:
@@ -1737,9 +1756,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/flair"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/flair"
 
         "400":
           description: Bad Request
@@ -1794,8 +1818,17 @@ paths:
             schema:
               $ref: "#/components/schemas/flair"
       responses:
-        "204":
+        "200":
           description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/flair"
 
         "400":
           description: Bad Request
@@ -1903,7 +1936,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/flair"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    $ref: "#/components/schemas/flair"
         "400":
           description: Bad Request
 
@@ -4423,7 +4461,8 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Subscribe to or unsubscribe from a subreddit
-      description: To subscribe, action should be sub. To unsubscribe, action should be unsub.
+      description:
+        To subscribe, action should be sub. To unsubscribe, action should be unsub.
         The user should have access to the subreddit.
       parameters:
         - name: subredditName
@@ -4575,9 +4614,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         404:
           description: failed operation
           content:
@@ -4624,9 +4668,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         404:
           description: failed operation
           content:
@@ -4686,9 +4735,14 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Post"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/HomePost"
         404:
           description: failed operation
           content:
@@ -4757,7 +4811,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
+
   /subreddits/moderator/{username}:
     get:
       tags:
@@ -4771,6 +4825,8 @@ paths:
           name: username
           description: username of user want to get subreddits moderated by him
           required: true
+          schema:
+            type: string
 
       responses:
         200:
@@ -4806,7 +4862,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
 
   /subreddits/{subredditName}/search:
     get:
@@ -6253,15 +6308,14 @@ components:
             - Posts and comments
             - Posts only
             - Comments only
-            
+
     SUBREDDIT:
       properties:
         status:
           type: string
           default: "success"
         data:
-            $ref: "#/components/schemas/fullSubreddit"
-          
+          $ref: "#/components/schemas/fullSubreddit"
 
     fullSubreddit:
       properties:
@@ -6652,6 +6706,121 @@ components:
         flairText:
           type: string
 
+    HomePost:
+      type: object
+      properties:
+        _id:
+          type: string
+        author:
+          type: object
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
+
+          description: The  user who created the post
+        ownerType:
+          type: string
+          enum:
+            - Subreddit
+            - User
+        owner:
+          type: object
+          description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
+            icon:
+              type: string
+        replies:
+          type: array
+          items:
+            type: string
+          description: array of comments ids
+        flairId:
+          $ref: "#/components/schemas/flair"
+        flairText:
+          type: string
+        sharedFrom:
+          type: string
+          description: shared post id
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - link
+            - self
+            - image
+            - video
+        text:
+          type: string
+          description: the text of the post in case the kind is self
+        images:
+          type: array
+          items:
+            type: string
+        video:
+          type: string
+          description: The video path(the kind must be video)
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        locked:
+          type: boolean
+          description: whether the post can receive comments or not
+        isDeleted:
+          type: boolean
+          description: whether the post is deleted or not
+        sendReplies:
+          type: boolean
+          description: indicates whether the post accepts replies in private messages or not
+        nsfw:
+          type: boolean
+        spoiler:
+          type: boolean
+        votes:
+          type: integer
+          description: total number of votes
+        views:
+          type: integer
+          description: view count
+        commentCount:
+          type: integer
+          description: total number of comments
+        shareCount:
+          type: integer
+          description: total number of shares
+        suggestedSort:
+          type: string
+          enum:
+            - top
+            - new
+            - best
+            - old
+        scheduled:
+          type: boolean
+        sortOnHot:
+          type: integer
+          description: calculated value to sort on it
+        sortOnBest:
+          type: integer
+          description: calculated value to sort on it
+        isSpam:
+          type: boolean
+        url:
+          type: string
+          description: A valid URL in case the kind is link
+
+        isSaved:
+          type: boolean
+        postVoteStatus:
+          type: integer
+
     userPost:
       type: object
       properties:
@@ -6946,7 +7115,7 @@ components:
     flair:
       type: object
       properties:
-        id:
+        _id:
           type: string
         text:
           type: string
