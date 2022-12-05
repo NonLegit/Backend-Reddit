@@ -70,13 +70,13 @@ const userSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    default: "default.png",
+    default: "users/default.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
   profileBackground: {
     type: String,
-    default: "default.png",
+    default: "users/default.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
@@ -273,9 +273,9 @@ userSchema.post(/^findOne/, function (doc) {
   // this points to the current query
   if (doc) {
     doc.profilePicture =
-      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profilePicture;
+      `${process.env.BACKDOMAIN}/` + doc.profilePicture;
     doc.profileBackground =
-      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profileBackground;
+      `${process.env.BACKDOMAIN}/` + doc.profileBackground;
   }
   //next();
 });

@@ -480,6 +480,19 @@ class UserService {
       return response;
     }
   }
+  async addUserImageURL(userId, type, path) {
+    path = "users/" + path;
+    let user = {};
+    if (type === "profilePicture") {
+      user = await this.userRepository.updateOne(userId, { profilePicture: path });
+    } else {
+      user = await this.userRepository.updateOne(userId, {
+        profileBackground: path,
+      });
+    }
+
+    return user.doc;
+  }
 }
 
 module.exports = UserService;

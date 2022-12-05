@@ -25,91 +25,67 @@ if (process.env.NODE_ENV === "test") {
 
 module.exports = async function seeder() {
   let defaultImg = `default.png`;
-  let postImg = `${process.env.BACKDOMAIN}/api/v1/users/images/default.jpg`;
+  let postImg = `${process.env.BACKDOMAIN}/posts/default.jpg`;
 
   let user0 = await User.create({
     userName: "Mohab",
     email: "Mohab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user1 = await User.create({
     userName: "Eslam",
     email: "Eslam@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user2 = await User.create({
     userName: "Hosny",
     email: "Hosny@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user3 = await User.create({
     userName: "Nour",
     email: "Nour@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user4 = await User.create({
     userName: "Basma",
     email: "Basma@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user5 = await User.create({
     userName: "Fady",
     email: "Fady@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user6 = await User.create({
     userName: "Adham",
     email: "Adham@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user7 = await User.create({
     userName: "Madbouly",
     email: "Madbouly@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user8 = await User.create({
     userName: "Zeinab",
     email: "Zeinab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user9 = await User.create({
     userName: "Eman",
     email: "Eman@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user10 = await User.create({
     userName: "Fawzy",
     email: "Fawzy@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user11 = await User.create({
     userName: "Amr",
     email: "Amr@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
 
   //let userAhmed = await User.findOne({ userName: "Ahmed" });

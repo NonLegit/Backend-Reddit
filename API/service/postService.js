@@ -129,14 +129,14 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/api/v1/users/image/`+owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon:  `${process.env.BACKDOMAIN}/api/v1/users/image/` +owner.icon
+          icon:  `${process.env.BACKDOMAIN}/` +owner.icon
         };
       }
 
@@ -231,14 +231,14 @@ class PostService {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
         owner["icon"] =
-          `${process.env.BACKDOMAIN}/api/v1/users/image/` +
+          `${process.env.BACKDOMAIN}/` +
           posts[i].owner.profilePicture;
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.fixedName;
         owner["icon"] =
-          `${process.env.BACKDOMAIN}/api/v1/users/image/` + posts[i].owner.icon;
+          `${process.env.BACKDOMAIN}/` + posts[i].owner.icon;
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
 
@@ -249,7 +249,7 @@ class PostService {
       author["_id"] = posts[i].author._id;
       author["name"] = posts[i].author.userName;
       author["icon"] =
-        `${process.env.BACKDOMAIN}/api/v1/users/image/` +
+        `${process.env.BACKDOMAIN}/` +
         posts[i].author.profilePicture;
 
       newPosts[i]["author"] = author;
