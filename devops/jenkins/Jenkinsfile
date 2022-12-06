@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    stages {
+        stage('Upgrading the API documentation index.html') {
+            when {
+                branch "API_documentation"
+            }
+            environment {
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
+            }
+            steps {
+                sh '''
+
+                    if [ ! -d /var/jenkins_home/api_doc ]; then
+                        cd /var/jenkins_home/api_doc
+                    fi
+
+                    cp ./index.html /var/jenkins_home/api_doc
+                    cd /var/jenkins_home/api_doc
+
+                    echo "
+FROM httpd:alpine
+COPY ./index.html /usr/local/apache/htdocs/" > Dockerfile
+
+                    # Building the image
+                    docker build -t cynic0/httpd_apidoc .
+                    rm Dockerfile
+
+                    # Restarting the container
+                    docker rm -f httpd_api_doc || true
+                    docker run -dit --name httpd_api_doc --network api_docs --ip 192.168.0.2 cynic0/httpd_apidoc
+
+                    # Notifying Mohab
+                    export AWS_REGION=us-east-1
+                    aws ses send-email --from $SOURCE_EMAIL --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=mohabmohamedmohamedzaghloul@gmail.com" --region us-east-1 --message "Subject={Data=API Documentation updated},Body={Text={Data=XD}}"
+                '''
+            }
+        }
+    }
+}
