@@ -44,6 +44,8 @@ exports.userErrors = Object.freeze({
   EMAIL_ERROR: 5,
   INVALID_TOKEN: 6,
   INVALID_RESET_TOKEN: 7,
+  MAXSOCIALLINKS:8,
+  INVALID_SOCIALID:9,
 });
 
 exports.mongoErrors = Object.freeze({

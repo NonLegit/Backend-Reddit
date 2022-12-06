@@ -116,7 +116,7 @@ class UserController {
       adultContent: user.adultContent,
       nsfw: user.nsfw,
       socialLinks: user.socialLinks,
-      country: user.country
+      country: user.country,
     };
     res.status(200).json({
       status: "success",
@@ -170,7 +170,7 @@ class UserController {
           autoplayMedia: user.data.autoplayMedia,
           adultContent: user.data.adultContent,
           isFollowed: isFollowed,
-          country: user.country
+          country: user.country,
         };
         res.status(200).json({
           status: "success",
@@ -185,7 +185,7 @@ class UserController {
     }
   };
   getSocialLinks = async (req, res, next) => {
-    data = await this.userServices.getSocialLinks();
+    let data = await this.userServices.getSocialLinks();
 
     res.status(200).json({
       status: "success",
@@ -207,8 +207,8 @@ class UserController {
         errorMessage: "Provide displayText , userLink and socialId ",
       });
     } else {
-      data = await this.userServices.createSocialLinks(
-        me._id,
+      let data = await this.userServices.createSocialLinks(
+        me,
         displayText,
         userLink,
         socialId
@@ -218,10 +218,17 @@ class UserController {
           status: "success",
         });
       } else {
-        res.status(404).json({
-          status: "fail",
-          errorMessage: "Social media id not found",
-        });
+        if (data.error === 8) {
+          res.status(400).json({
+            status: "fail",
+            errorMessage: data.msg,
+          });
+        } else {
+          res.status(404).json({
+            status: "fail",
+            errorMessage: "data.msg",
+          });
+        }
       }
     }
   };
@@ -237,18 +244,33 @@ class UserController {
         errorMessage: "Provide displayText or userLink.",
       });
     } else {
-      data = await this.userServices.updateSocialLinks(
-        me._id,
-        displayText,
+      console.log("start");
+      let data = await this.userServices.updateSocialLinks(
+        me,
+        id,
         userLink,
-        socialId
+        displayText
       );
+      if(data.success === true)
+      {
+        res.status(200).json({
+          status: "success",
+          socialLinks: data.socialLinks,
+        });
+      }
+      else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "socialLink id not found",
+        });
+      }
+
     }
   };
   deleteSocialLink = async (req, res, next) => {
     let id = req.params.id;
     let me = req.user;
-    data = await this.userServices.deleteSocialLinks();
+    let data = await this.userServices.deleteSocialLinks(me, id);
 
     if (data.success === true) {
       res.status(204).json({

@@ -22,17 +22,12 @@ const socialSchema = new mongoose.Schema({
     // it will be unique with time stamp and username
     //unique: true,
   },
-  popularity: {
-    type: Number,
-    default: 0,
-    required: false,
-  },
 });
 
 socialSchema.post("init", function (doc) {
-  console.log("post-init");
-  console.log(doc);
+  //console.log("post-init");
   doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
+  doc.__v = undefined;
 });
 const Social = mongoose.model("Social", socialSchema);
 

@@ -30,16 +30,47 @@ module.exports = async function seeder() {
   let postImg = `${process.env.BACKDOMAIN}/posts/default.jpg`;
 
   let facebook = await Social.create({
-    type: "facebook",
-    link: "",
-    popularity: 10000000,
+    type: "Facebook",
+    baseLink: "https://facebook.com",
+    placeholderLink: "https://facebook.com",
     icon: "icons/facebook.png",
   });
   let twitter = await Social.create({
-    type: "twitter",
-    link: "",
-    popularity: 20000000,
+    type: "Twitter",
+    baseLink: "https://twitter.com",
+    placeholderLink: "@username",
     icon: "icons/twitter.png",
+  });
+  let tiktok = await Social.create({
+    type: "Tiktok",
+    baseLink: "https://tiktok.com",
+    placeholderLink: "@username",
+    icon: "icons/tiktok.png",
+  });
+  let instagram = await Social.create({
+    type: "Instagram",
+    baseLink: "https://instagram.com",
+    placeholderLink: "@username",
+    icon: "icons/instagram.png",
+  });
+
+  let discord = await Social.create({
+    type: "Discord",
+    baseLink: "https://discord.com",
+    placeholderLink: "https://discord.com",
+    icon: "icons/discord.png",
+  });
+  let reddit = await Social.create({
+    type: "Reddit",
+    baseLink: "https://reddit.com",
+    placeholderLink: "r/community, u/user",
+    icon: "icons/reddit.png",
+  });
+  let youtube = await Social.create({
+    type: "Youtube",
+    baseLink: "https://youtube.com",
+    placeholderLink: "https://youtube.com",
+    icon: "icons/youtube.png",
   });
 
   let user0 = await User.create({
@@ -226,8 +257,8 @@ module.exports = async function seeder() {
         saved: { $each: [post2._id, post3._id, post4._id] },
         socialLinks: {
           $each: [
-            { social: facebook._id, userLink: "facebook" },
-            { social: twitter._id, userLink: "twitter" },
+            { social: facebook._id, userLink: "facebook" ,displayText:"Nour"},
+            { social: twitter._id, userLink: "twitter",displayText:"Nour" },
           ],
         },
         // hidden: { $each: [post2._id, post3._id, post4._id] },

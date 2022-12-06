@@ -502,25 +502,69 @@ class UserService {
     return user.doc;
   }
   async getSocialLinks() {
-    data = await this.SocialRepository.getAll();
+    let data = await this.SocialRepository.getAll();
     return data;
   }
-  async createSocialLinks(id, displayText, userLink, socialId) {
+  async createSocialLinks(me, displayText, userLink, socialId) {
     // check if social id is valid
-    data = await this.SocialRepository.findOne(socialId);
-    if (data.success === true) {
-      me.socialLinks.push({
-        social: socialId,
-        displayText: displayText,
-        userLink: userLink,
-      });
+    console.log(me.socialLinks.length);
+    if (me.socialLinks.length === 5) {
+      return {
+        success: false,
+        msg: "Max Links 5",
+        error: userErrors.MAXSOCIALLINKS,
+      };
+    } else {
+      let data = await this.SocialRepository.findOne(socialId);
+      console.log(data);
+      if (data.success === true) {
+        try {
+          me.socialLinks.push({
+            social: socialId,
+            displayText: displayText,
+            userLink: userLink,
+          });
+        } catch (err) {
+          console.log(err);
+        }
+        await me.save();
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          msg: "Invalid social Id",
+          error: userErrors.INVALID_SOCIALID,
+        };
+      }
+    }
+  }
+  async updateSocialLinks(me, id, userLink, displayText) {
+    let index = me.socialLinks.findIndex((item) => item._id == id);
+    if (index != -1) {
+      if (userLink) {
+        me.socialLinks[index].userLink = userLink;
+      }
+      if (displayText) {
+        console.log("should save");
+        me.socialLinks[index].displayText = displayText;
+      }
       await me.save();
+      return { success: true, socialLinks: me.socialLinks };
     } else {
       return { success: false };
     }
   }
-  async updateSocialLinks() {}
-  async deleteSocialLinks() {}
+  async deleteSocialLinks(me, id) {
+    let index = me.socialLinks.findIndex((item) => item._id == id);
+    if (index != -1) {
+      console.log("should delete");
+      me.socialLinks.pull({ _id: id })
+      await me.save();
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  }
 }
 
 module.exports = UserService;

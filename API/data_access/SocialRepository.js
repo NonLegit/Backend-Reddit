@@ -6,15 +6,18 @@ class SocialRepository extends Repository {
     super(Social);
   }
   async getAll() {
-    docs = await this.model.find();
+
+    let docs = await this.model.find({});
+    //console.log(docs);
+
     return docs;
   }
   async findOne(id) {
-    docs = await this.model.findById(id);
+    let docs = await this.model.findById(id);
     if (docs) {
-      return { sucess: true };
+      return { success: true };
     }
-    return { sucess: false };
+    return { success: false };
   }
 }
 module.exports = SocialRepository;
