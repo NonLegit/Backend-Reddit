@@ -89,5 +89,25 @@ class PostRepository extends Repository {
         return { success: false, ...decorateError(err) };
     }
   }
+
+  async getPost(postId) {
+    try {
+     
+    // const doc = await features.query.explain();
+      // const features = new APIFeatures(this.model.find({ _id: postId }), "");
+      // let doc = await features.query;
+      let doc = await this.model.find({ _id : postId });
+      // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+    return { success: true, doc: doc };
+      
+  
+
+      
+      
+    } catch (err) {
+        return { success: false, ...decorateError(err) };
+    }
+  }
 }
 module.exports = PostRepository;

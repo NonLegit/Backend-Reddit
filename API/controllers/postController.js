@@ -478,7 +478,7 @@ class PostController {
   };
   getPost = async (req, res) => {
     let postId = req.params.postId;
-
+let me =(req.isAuthorized==true)?req.user:undefined;
     if (!postId) {
       res.status(400).json({
         status: "fail",
@@ -487,7 +487,7 @@ class PostController {
       return;
     }
     try {
-      let post = await this.postServices.getPost(postId);
+      let post = await this.postServices.getPost(postId,me);
       if (!post.success) {
         let message, statusCode, status;
         switch (post.error) {
