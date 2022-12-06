@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === "test") {
 
 module.exports = async function seeder() {
   let defaultImg = `default.png`;
-  let postImg = `default.jpg`;
+  let postImg = `${process.env.BACKDOMAIN}/api/v1/users/images/default.jpg`;
 
   let user0 = await User.create({
     userName: "Mohab",
@@ -126,10 +126,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-      votes: 34,
-      views: 90,
-      shareCount: 2,
-    commentCount:9,
+    votes: 34,
+    views: 90,
+    shareCount: 2,
+    commentCount: 9,
   });
   let post2 = await Post.create({
     title: "Second Post",
@@ -143,10 +143,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-     votes: -60,
-      views: 95,
-      shareCount: 0,
-    commentCount:9,
+    votes: -60,
+    views: 95,
+    shareCount: 0,
+    commentCount: 9,
   });
   let post3 = await Post.create({
     title: "Thrid Post",
@@ -160,10 +160,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-     votes: 90,
-      views: 500,
-      shareCount:0,
-    commentCount:66,
+    votes: 90,
+    views: 500,
+    shareCount: 0,
+    commentCount: 66,
   });
   let post4 = await Post.create({
     title: "Fourth Post",
@@ -177,10 +177,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-     votes: 0,
-      views: 0,
-      shareCount: 0,
-    commentCount:0,
+    votes: 0,
+    views: 0,
+    shareCount: 0,
+    commentCount: 0,
   });
   let post5 = await Post.create({
     title: "Fifth Post",
@@ -195,36 +195,30 @@ module.exports = async function seeder() {
     suggestedSort: "top",
     scheduled: false,
     votes: 0,
-      views: 8,
-      shareCount: 0,
-    commentCount:0,
+    views: 8,
+    shareCount: 0,
+    commentCount: 0,
     images: [postImg],
-   
   });
-  
 
-
-   let flair1 = await Flair.create({
+  let flair1 = await Flair.create({
     text: "first flair",
     backgroundColor: "#111111",
     textColor: "#ffffff",
-    permissions:"modOnly"
-   });
-   let flair2 = await Flair.create({
+    permissions: "modOnly",
+  });
+  let flair2 = await Flair.create({
     text: "second flair",
     backgroundColor: "#121212",
     textColor: "#eeeeee",
-    permissions:"modOnly"
-   });
-   let flair3 = await Flair.create({
+    permissions: "modOnly",
+  });
+  let flair3 = await Flair.create({
     text: "third flair",
     backgroundColor: "#111111",
     textColor: "#f1f3f3",
-    permissions:"modOnly"
-   });
-  
-
-  
+    permissions: "modOnly",
+  });
 
   await User.findOneAndUpdate(
     { userName: "Nour" },
@@ -324,7 +318,7 @@ module.exports = async function seeder() {
       { _id: subreddit1 },
       {
         description: "this is a Nonlegit subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -362,7 +356,7 @@ module.exports = async function seeder() {
       { _id: subreddit2 },
       {
         description: "this is a selm alsodan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -384,7 +378,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
-           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -399,7 +393,7 @@ module.exports = async function seeder() {
       { _id: subreddit3 },
       {
         description: "this is a yaaah yalmedan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -421,7 +415,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
-           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -436,7 +430,7 @@ module.exports = async function seeder() {
       { _id: subreddit4 },
       {
         description: "this is a yaaah fl share3 subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -458,7 +452,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
-           flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -473,7 +467,7 @@ module.exports = async function seeder() {
       { _id: subreddit5 },
       {
         description: "this is a al3enb al3enb al3enb subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 123330,
         rules: [
           {
@@ -500,127 +494,120 @@ module.exports = async function seeder() {
       { new: true }
     );
     let post6 = await Post.create({
-    title: "subreddit Post",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user3._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
-    votes: 50,
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
       views: 300,
       shareCount: 30,
-    commentCount:9,
-    images: [postImg],
-    flairId:flair1._id
-   
+      commentCount: 9,
+      images: [postImg],
+      flairId: flair1._id,
     });
-    
-     let post7= await Post.create({
-    title: "subreddit Post 2",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user3._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
+
+    let post7 = await Post.create({
+      title: "subreddit Post 2",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
       votes: 5,
       views: 30,
       shareCount: 100,
-    commentCount:8,
-    images: [postImg],
-    flairId:flair2._id
-   
-     });
-     let post8 = await Post.create({
-    title: "subreddit Post 3",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user1._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
+      commentCount: 8,
+      images: [postImg],
+      flairId: flair2._id,
+    });
+    let post8 = await Post.create({
+      title: "subreddit Post 3",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user1._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
       votes: 1000,
       views: 100,
       shareCount: 4,
-    commentCount:0,
-    images: [postImg],
-    flairId:flair1._id
-   
-     });
-     let post9 = await Post.create({
-    title: "subreddit Post 4",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user4._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
+      commentCount: 0,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post9 = await Post.create({
+      title: "subreddit Post 4",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user4._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
       votes: 5,
       views: 0,
       shareCount: 0,
-    commentCount:800,
-    images: [postImg],
-    flairId:flair1._id
-   
-     });
-     let post10 = await Post.create({
-    title: "subreddit Post 5",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user3._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
+      commentCount: 800,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post10 = await Post.create({
+      title: "subreddit Post 5",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
       votes: -200,
       views: 300,
       shareCount: 0,
-    commentCount:90,
-    images: [postImg],
-    flairId:flair1._id
-   
-     });
-     let post11 = await Post.create({
-    title: "subreddit Post",
-    kind: "self",
-    text: "this subreddit post on NONLEGIT",
-    author: user3._id,
-    owner: subreddit1._id,
-    ownerType: "Subreddit",
-    nsfw: true,
-    spoiler: false,
-    sendReplies: true,
-    suggestedSort: "top",
-    scheduled: false,
+      commentCount: 90,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post11 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
       votes: 1000,
       views: 3000,
       shareCount: 200,
-    commentCount:300,
-    images: [postImg],
-    flairId:flair3._id
-   
-  });
-
+      commentCount: 300,
+      images: [postImg],
+      flairId: flair3._id,
+    });
   } catch (error) {
     console.log(error);
   }
