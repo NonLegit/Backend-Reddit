@@ -6313,6 +6313,8 @@ components:
             icon:
               type: string
               example: "icons/facebook.png"
+        _id:
+          type: string
         displayText:
           type: string
         userLink:
@@ -6352,30 +6354,34 @@ components:
           type: string
           example: " info"
         socialLinks:
-          type: object
-          properties:
-            social:
-              type: object
-              properties:
-                baseLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                placeholderLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                _id:
-                  type: string
-                type:
-                  type: string
-                  example: "facebook"
-                icon:
-                  type: string
-                  example: "icons/facebook.png"
-            displayText:
-              type: string
-            userLink:
-              type: string
-              example: "https://facebook.com/ahmed"
+          type: array
+          items: 
+            type: object
+            properties:
+              social:
+                type: object
+                properties:
+                  baseLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  placeholderLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  _id:
+                    type: string
+                  type:
+                    type: string
+                    example: "facebook"
+                  icon:
+                    type: string
+                    example: "icons/facebook.png"
+              _id:
+                type: string
+              displayText:
+                type: string
+              userLink:
+                type: string
+                example: "https://facebook.com/ahmed"
 
     error:
       type: object
@@ -6654,30 +6660,34 @@ components:
           type: string
           example: " info"
         socialLinks:
-          type: object
-          properties:
-            social:
-              type: object
-              properties:
-                baseLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                placeholderLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                _id:
-                  type: string
-                type:
-                  type: string
-                  example: "facebook"
-                icon:
-                  type: string
-                  example: "icons/facebook.png"
-            displayText:
-              type: string
-            userLink:
-              type: string
-              example: "https://facebook.com/ahmed"
+          type: array
+          items:
+            type: object
+            properties:
+              social:
+                type: object
+                properties:
+                  baseLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  placeholderLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  _id:
+                    type: string
+                  type:
+                    type: string
+                    example: "facebook"
+                  icon:
+                    type: string
+                    example: "icons/facebook.png"
+              _id:
+                type: string
+              displayText:
+                type: string
+              userLink:
+                type: string
+                example: "https://facebook.com/ahmed"
 
     Friend:
       type: object
@@ -6733,30 +6743,34 @@ components:
           example: " info"
           
         socialLinks:
-          type: object
-          properties:
-            social:
-              type: object
-              properties:
-                baseLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                placeholderLink:
-                  type: string
-                  example: "httpss://facebook.com"
-                _id:
-                  type: string
-                type:
-                  type: string
-                  example: "facebook"
-                icon:
-                  type: string
-                  example: "icons/facebook.png"
-            displayText:
-              type: string
-            userLink:
-              type: string
-              example: "https://facebook.com/ahmed"
+          type: array
+          items:
+            type: object
+            properties:
+              social:
+                type: object
+                properties:
+                  baseLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  placeholderLink:
+                    type: string
+                    example: "httpss://facebook.com"
+                  _id:
+                    type: string
+                  type:
+                    type: string
+                    example: "facebook"
+                  icon:
+                    type: string
+                    example: "icons/facebook.png"
+              _id:
+                type: string
+              displayText:
+                type: string
+              userLink:
+                type: string
+                example: "https://facebook.com/ahmed"
 
     Subreddit:
       type: object
