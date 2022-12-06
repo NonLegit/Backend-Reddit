@@ -18,11 +18,12 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor({ /*Repository*/ UserRepository, Email }) {
+  constructor({ /*Repository*/ UserRepository, Email, SocialRepository }) {
     //this.User = User; // can be mocked in unit testing
     //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
     this.emailServices = Email;
+    this.SocialRepository = SocialRepository;
     // this.createUser = this.createUser.bind(this);
     // this.createToken = this.createToken.bind(this);
     // this.signUp = this.signUp.bind(this);
@@ -360,9 +361,10 @@ class UserService {
       profileBackground: user.profileBackground,
       description: user.description,
       email: user.email,
-      socialLinks:user.socialLinks,
+      socialLinks: user.socialLinks,
+      country: user.country,
     };
-    console.log(prefs)
+    console.log(prefs);
     return prefs;
   }
   /**
@@ -382,7 +384,8 @@ class UserService {
       "displayName",
       "description",
       "adultContent",
-      "autoplayMedia"
+      "autoplayMedia",
+      "country"
     );
     let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);
@@ -498,6 +501,26 @@ class UserService {
 
     return user.doc;
   }
+  async getSocialLinks() {
+    data = await this.SocialRepository.getAll();
+    return data;
+  }
+  async createSocialLinks(id, displayText, userLink, socialId) {
+    // check if social id is valid
+    data = await this.SocialRepository.findOne(socialId);
+    if (data.success === true) {
+      me.socialLinks.push({
+        social: socialId,
+        displayText: displayText,
+        userLink: userLink,
+      });
+      await me.save();
+    } else {
+      return { success: false };
+    }
+  }
+  async updateSocialLinks() {}
+  async deleteSocialLinks() {}
 }
 
 module.exports = UserService;

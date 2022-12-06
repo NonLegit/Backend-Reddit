@@ -107,6 +107,12 @@ const userSchema = new mongoose.Schema({
   },
 
   // user preferences
+  country: {
+    type: String,
+    required: false,
+    default: "Egypt",
+    trim: true,
+  },
   autoplayMedia: {
     type: Boolean,
     required: false,
@@ -232,6 +238,10 @@ const userSchema = new mongoose.Schema({
         required: true,
         // default: "",
       },
+      displayText: {
+        type: String,
+        required: true,
+      },
     },
   ],
   /*
@@ -274,6 +284,7 @@ userSchema.pre("save", async function (next) {
 
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
+  this.displayName = this.userName;
   this.lastUpdatedPassword = Date.now() - 1000;
   if (this.userName === "user") this.userName = "user" + this._id;
   console.log("user to save", this);

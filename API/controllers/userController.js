@@ -115,7 +115,8 @@ class UserController {
       description: user.description,
       adultContent: user.adultContent,
       nsfw: user.nsfw,
-      socialLinks:user.socialLinks,
+      socialLinks: user.socialLinks,
+      country: user.country
     };
     res.status(200).json({
       status: "success",
@@ -169,6 +170,7 @@ class UserController {
           autoplayMedia: user.data.autoplayMedia,
           adultContent: user.data.adultContent,
           isFollowed: isFollowed,
+          country: user.country
         };
         res.status(200).json({
           status: "success",
@@ -180,6 +182,83 @@ class UserController {
           errorMessage: "User Not Found",
         });
       }
+    }
+  };
+  getSocialLinks = async (req, res, next) => {
+    data = await this.userServices.getSocialLinks();
+
+    res.status(200).json({
+      status: "success",
+      socialLinks: data,
+    });
+  };
+  addSocialLink = async (req, res, next) => {
+    let displayText = req.body.displayText;
+    let userLink = req.body.userLink;
+    let socialId = req.body.socialId;
+    let me = req.user;
+    if (
+      displayText === undefined ||
+      userLink === undefined ||
+      socialId === undefined
+    ) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide displayText , userLink and socialId ",
+      });
+    } else {
+      data = await this.userServices.createSocialLinks(
+        me._id,
+        displayText,
+        userLink,
+        socialId
+      );
+      if (data.success === true) {
+        res.status(201).json({
+          status: "success",
+        });
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "Social media id not found",
+        });
+      }
+    }
+  };
+
+  updateSocialLink = async (req, res, next) => {
+    let displayText = req.body.displayText;
+    let userLink = req.body.userLink;
+    let me = req.user;
+    let id = req.params.id;
+    if (displayText === undefined && userLink === undefined) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide displayText or userLink.",
+      });
+    } else {
+      data = await this.userServices.updateSocialLinks(
+        me._id,
+        displayText,
+        userLink,
+        socialId
+      );
+    }
+  };
+  deleteSocialLink = async (req, res, next) => {
+    let id = req.params.id;
+    let me = req.user;
+    data = await this.userServices.deleteSocialLinks();
+
+    if (data.success === true) {
+      res.status(204).json({
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Invalid Social id",
+      });
     }
   };
 }

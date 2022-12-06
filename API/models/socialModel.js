@@ -6,7 +6,12 @@ const socialSchema = new mongoose.Schema({
     unique: [true, "this social media exists"],
     required: [true, "Enter unique social media"],
   },
-  link: {
+  baseLink: {
+    type: String,
+    required: false,
+    trim: true,
+  },
+  placeholderLink: {
     type: String,
     required: false,
     trim: true,

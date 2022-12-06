@@ -122,6 +122,16 @@ router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
 
+router
+  .route("social_links")
+  .get(UserController.getSocialLinks)
+  .post(UserController.addSocialLink);
+
+router
+  .route("social_links/:id")
+  .patch(UserController.updateSocialLink)
+  .delete(UserController.deleteSocialLink);
+
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

@@ -21,6 +21,7 @@ const PostRepository = require("./data_access/PostRepository");
 const FlairRepository = require("./data_access/FlairRepository");
 const MessageRepository = require("./data_access/MessageRepository");
 const SubredditRepository = require("./data_access/SubredditRepository");
+const SocialRepository = require("./data_access/SocialRepository");
 //Require Models
 const User = require("./models/userModel");
 const Post = require("./models/postModel");
@@ -57,6 +58,7 @@ function setup() {
     FlairRepository: awilix.asClass(FlairRepository),
     MessageRepository: awilix.asClass(MessageRepository),
     SubredditRepository: awilix.asClass(SubredditRepository),
+    SocialRepository: awilix.asClass(SocialRepository),
     // inject knexjs object with database connection pooling
     // support
     User: awilix.asValue(User),
