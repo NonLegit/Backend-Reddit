@@ -22,7 +22,7 @@ pipeline {
 
                     echo "
 FROM httpd:alpine
-COPY ./index.html /usr/local/apache/htdocs/" > Dockerfile
+COPY ./index.html /usr/local/apache2/htdocs/" > Dockerfile
 
                     # Building the image
                     docker build -t cynic0/httpd_apidoc .
