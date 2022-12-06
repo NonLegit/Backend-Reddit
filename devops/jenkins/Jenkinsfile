@@ -16,8 +16,10 @@ pipeline {
                     if [ ! -d /var/jenkins_home/api_doc ]; then
                         cd /var/jenkins_home/api_doc
                     fi
-
-                    cp ./index.html /var/jenkins_home/api_doc
+				
+				            # Generating the html file
+                    /var/jenkins_home/node_modules/.bin/redoc-cli bundle -o xd.html API_documentation.yaml
+                    cp ./xd.html /var/jenkins_home/api_doc/index.html
                     cd /var/jenkins_home/api_doc
 
                     echo "
