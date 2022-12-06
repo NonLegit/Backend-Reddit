@@ -4188,12 +4188,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+
 
     delete:
       tags:
@@ -4241,12 +4236,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+
 
     patch:
       tags:
@@ -5306,15 +5296,9 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        "204":
           description: successful operation
-          content:
-            application/json:
-              schema:
-                type: boolean
-            application/xml:
-              schema:
-                type: boolean
+
         "400":
           description: Bad Request
           content:
@@ -5328,7 +5312,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddits/leave_moderator:
+  /subreddits/{subredditName}/leave_moderator:
     post:
       tags:
         - Subreddit
@@ -5338,6 +5322,13 @@ paths:
       security:
         - BearerAuth: []
         - cookieAuth: []
+      parameters:
+        - in: path
+          name: subredditName
+          description: The subreddit name
+          required: true
+          schema:
+            type: string
       responses:
         "204":
           description: successful operation
@@ -6394,6 +6385,8 @@ components:
     reducedModeratorInfo:
       type: object
       properties:
+        id:
+          type: string
         userName:
           type: string
         joiningDate:
