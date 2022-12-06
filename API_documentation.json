@@ -2482,6 +2482,335 @@
         }
       }
     },
+    "/users/social_links": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all Social Media Links",
+        "description": "Get all Social Media Links",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "socialLinks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Social"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "add Social Media Link to user",
+        "description": "add Social Media Link to user",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "add social links",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userLink": {
+                    "type": "string"
+                  },
+                  "displayText": {
+                    "type": "string"
+                  },
+                  "socialId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Provide displayText .etc"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Social Media Id not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/social_links/{id}": {
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "update Social Media Links of user",
+        "description": "update Social Media Links of user",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "update social links",
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userLink": {
+                    "type": "string"
+                  },
+                  "displayText": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "socialLinks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/SocialLinks"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Social Media Id not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "delete Social Media Link from user",
+        "description": "delete Social Media Link from user",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Social Media Id not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/search": {
       "get": {
         "tags": [
@@ -9458,6 +9787,66 @@
   },
   "components": {
     "schemas": {
+      "Social": {
+        "type": "object",
+        "properties": {
+          "baseLink": {
+            "type": "string",
+            "example": "httpss://facebook.com"
+          },
+          "placeholderLink": {
+            "type": "string",
+            "example": "httpss://facebook.com"
+          },
+          "_id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "example": "facebook"
+          },
+          "icon": {
+            "type": "string",
+            "example": "icons/facebook.png"
+          }
+        }
+      },
+      "SocialLinks": {
+        "type": "object",
+        "properties": {
+          "social": {
+            "type": "object",
+            "properties": {
+              "baseLink": {
+                "type": "string",
+                "example": "httpss://facebook.com"
+              },
+              "placeholderLink": {
+                "type": "string",
+                "example": "httpss://facebook.com"
+              },
+              "_id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "example": "facebook"
+              },
+              "icon": {
+                "type": "string",
+                "example": "icons/facebook.png"
+              }
+            }
+          },
+          "displayText": {
+            "type": "string"
+          },
+          "userLink": {
+            "type": "string",
+            "example": "https://facebook.com/ahmed"
+          }
+        }
+      },
       "userPreferences": {
         "type": "object",
         "properties": {
@@ -9468,6 +9857,9 @@
           "displayName": {
             "type": "string",
             "example": "firstname secondname"
+          },
+          "country": {
+            "type": "string"
           },
           "profilePicture": {
             "type": "string"
@@ -9497,6 +9889,42 @@
           "description": {
             "type": "string",
             "example": " info"
+          },
+          "socialLinks": {
+            "type": "object",
+            "properties": {
+              "social": {
+                "type": "object",
+                "properties": {
+                  "baseLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "placeholderLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "facebook"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "example": "icons/facebook.png"
+                  }
+                }
+              },
+              "displayText": {
+                "type": "string"
+              },
+              "userLink": {
+                "type": "string",
+                "example": "https://facebook.com/ahmed"
+              }
+            }
           }
         }
       },
@@ -9889,6 +10317,42 @@
           "description": {
             "type": "string",
             "example": " info"
+          },
+          "socialLinks": {
+            "type": "object",
+            "properties": {
+              "social": {
+                "type": "object",
+                "properties": {
+                  "baseLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "placeholderLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "facebook"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "example": "icons/facebook.png"
+                  }
+                }
+              },
+              "displayText": {
+                "type": "string"
+              },
+              "userLink": {
+                "type": "string",
+                "example": "https://facebook.com/ahmed"
+              }
+            }
           }
         }
       },
@@ -9959,6 +10423,42 @@
           "description": {
             "type": "string",
             "example": " info"
+          },
+          "socialLinks": {
+            "type": "object",
+            "properties": {
+              "social": {
+                "type": "object",
+                "properties": {
+                  "baseLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "placeholderLink": {
+                    "type": "string",
+                    "example": "httpss://facebook.com"
+                  },
+                  "_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "facebook"
+                  },
+                  "icon": {
+                    "type": "string",
+                    "example": "icons/facebook.png"
+                  }
+                }
+              },
+              "displayText": {
+                "type": "string"
+              },
+              "userLink": {
+                "type": "string",
+                "example": "https://facebook.com/ahmed"
+              }
+            }
           }
         }
       },
