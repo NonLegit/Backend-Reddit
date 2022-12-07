@@ -51,13 +51,13 @@ class subredditService {
    */
   async deleteSubreddit(subredditName, userId) {
     // ..
-    let subreddit = await this.retrieveSubreddit(userId, subredditName,true);
+    let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
     let owner = await this.subredditRepository.isOwner(subredditName, userId);
     if (!owner.success)
-      return { success: false, error: subredditErrors.NOT_MODERATOR };
+      return { success: false, error: subredditErrors.NOT_OWNER };
 
     let response = await this.subredditRepository.delete(subredditName);
     if (!response.success) return response;
@@ -72,7 +72,7 @@ class subredditService {
    */
   async updateSubreddit(subredditName, userId, data) {
     // ..
-    let subreddit = await this.retrieveSubreddit(userId, subredditName,true);
+    let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
     if (!subreddit.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
@@ -395,7 +395,7 @@ class subredditService {
       // ! get it from user (easy too)
       let subreddits = await this.userRepository.getSubreddits(userId);
       if (!subreddits.success) return subreddits;
-      else return { success: true, data: subreddits.doc[0].subscribed };
+      else return { success: true, data: subreddits.doc };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
   }
   async subredditsModeratedBy(userName) {
@@ -563,9 +563,8 @@ class subredditService {
     if (!isModerator.success) {
       return { success: false, error: subredditErrors.NOT_MODERATOR };
     }
-     
-     //check if user is moderator of subreddit to create flair in
-      
+
+    //check if user is moderator of subreddit to create flair in
 
     //create the flair
     let flair = await this.flairRepository.createOne(data);
@@ -628,10 +627,8 @@ class subredditService {
   //  * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
   //  */
   checkModerator(subreddit, userID) {
-   
-
-    if (!subreddit.doc.moderators.find(el=>el.id.equals(userID))) {
-      return {success:false, error:subredditErrors.NOT_MODERATOR};
+    if (!subreddit.doc.moderators.find((el) => el.id.equals(userID))) {
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
     }
 
     return subreddit;
