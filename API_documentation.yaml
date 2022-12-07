@@ -857,16 +857,21 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  status:
                     type: string
-                    example: t2_yb42mk
-                  name:
+                    example: success
+        "304":
+          description: already blocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
                     type: string
-                    example: john
-                  profilePicture:
-                    type: string
+                    example: success
         "400":
-          description: Bad Request
+          description: try blocking yourself
           content:
             application/json:
               schema:
@@ -880,13 +885,13 @@ paths:
                 $ref: "#/components/schemas/error"
 
         "404":
-          description: Not found
+          description: User Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
+        "405":
+          description: Method Not Allowed , other user has blocked you
           content:
             application/json:
               schema:
@@ -909,12 +914,28 @@ paths:
             type: string
 
       responses:
-        "204":
+        "200":
           description: successful operation
-
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "304":
+          description: already unblocked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
         "400":
-          description: Bad Request
-
+          description: try unblocking yourself
           content:
             application/json:
               schema:
@@ -928,13 +949,13 @@ paths:
                 $ref: "#/components/schemas/error"
 
         "404":
-          description: Not found
+          description: User Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
+        "405":
+          description: Method Not Allowed , other user has blocked you
           content:
             application/json:
               schema:
@@ -6271,10 +6292,10 @@ components:
       properties:
         baseLink:
           type: string
-          example: "httpss://facebook.com"
+          example: "https://facebook.com/"
         placeholderLink:
           type: string
-          example: "httpss://facebook.com"
+          example: "https://facebook.com"
         _id:
           type: string
         type:
@@ -6283,6 +6304,9 @@ components:
         icon:
           type: string
           example: "icons/facebook.png"
+        check:
+          type: string
+          example: "https://facebook.com/"
   
     SocialLinks:
       type: object
@@ -6292,10 +6316,10 @@ components:
           properties:
             baseLink:
               type: string
-              example: "httpss://facebook.com"
+              example: "https://facebook.com/"
             placeholderLink:
               type: string
-              example: "httpss://facebook.com"
+              example: "https://facebook.com"
             _id:
               type: string
             type:
@@ -6304,6 +6328,9 @@ components:
             icon:
               type: string
               example: "icons/facebook.png"
+            check:
+              type: string
+              example: "https://facebook.com/"
         _id:
           type: string
         displayText:
@@ -6354,10 +6381,10 @@ components:
                 properties:
                   baseLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com"
                   placeholderLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com"
                   _id:
                     type: string
                   type:
@@ -6366,6 +6393,9 @@ components:
                   icon:
                     type: string
                     example: "icons/facebook.png"
+                  check:
+                    type: string
+                    example: "https://facebook.com/"
               _id:
                 type: string
               displayText:
@@ -6379,6 +6409,7 @@ components:
       properties:
         status:
           type: string
+          example: fail
         errorMessage:
           type: string
 
@@ -6662,10 +6693,10 @@ components:
                 properties:
                   baseLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com/"
                   placeholderLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com"
                   _id:
                     type: string
                   type:
@@ -6674,6 +6705,9 @@ components:
                   icon:
                     type: string
                     example: "icons/facebook.png"
+                  check:
+                    type: string
+                    example: "https://facebook.com/"
               _id:
                 type: string
               displayText:
@@ -6745,10 +6779,10 @@ components:
                 properties:
                   baseLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com/"
                   placeholderLink:
                     type: string
-                    example: "httpss://facebook.com"
+                    example: "https://facebook.com"
                   _id:
                     type: string
                   type:
@@ -6757,6 +6791,9 @@ components:
                   icon:
                     type: string
                     example: "icons/facebook.png"
+                  check:
+                    type: string
+                    example: "https://facebook.com/"
               _id:
                 type: string
               displayText:

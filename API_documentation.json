@@ -1296,16 +1296,25 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
+                    "status": {
                       "type": "string",
-                      "example": "t2_yb42mk"
-                    },
-                    "name": {
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "already blocked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
                       "type": "string",
-                      "example": "john"
-                    },
-                    "profilePicture": {
-                      "type": "string"
+                      "example": "success"
                     }
                   }
                 }
@@ -1313,7 +1322,7 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "try blocking yourself",
             "content": {
               "application/json": {
                 "schema": {
@@ -1333,7 +1342,7 @@
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "User Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1342,8 +1351,8 @@
               }
             }
           },
-          "409": {
-            "description": "Conflict",
+          "405": {
+            "description": "Method Not Allowed , other user has blocked you",
             "content": {
               "application/json": {
                 "schema": {
@@ -1382,11 +1391,40 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "already unblocked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "try unblocking yourself",
             "content": {
               "application/json": {
                 "schema": {
@@ -1406,7 +1444,7 @@
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "User Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1415,8 +1453,8 @@
               }
             }
           },
-          "409": {
-            "description": "Conflict",
+          "405": {
+            "description": "Method Not Allowed , other user has blocked you",
             "content": {
               "application/json": {
                 "schema": {
@@ -6515,16 +6553,6 @@
                 }
               }
             }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
           }
         }
       },
@@ -6588,16 +6616,6 @@
           },
           "404": {
             "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -8256,20 +8274,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              },
-              "application/xml": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
+          "204": {
+            "description": "successful operation"
           },
           "400": {
             "description": "Bad Request",
@@ -8294,7 +8300,7 @@
         }
       }
     },
-    "/subreddits/leave_moderator": {
+    "/subreddits/{subredditName}/leave_moderator": {
       "post": {
         "tags": [
           "Subreddit"
@@ -8307,6 +8313,17 @@
           },
           {
             "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subredditName",
+            "description": "The subreddit name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -9792,11 +9809,11 @@
         "properties": {
           "baseLink": {
             "type": "string",
-            "example": "httpss://facebook.com"
+            "example": "https://facebook.com/"
           },
           "placeholderLink": {
             "type": "string",
-            "example": "httpss://facebook.com"
+            "example": "https://facebook.com"
           },
           "_id": {
             "type": "string"
@@ -9808,6 +9825,10 @@
           "icon": {
             "type": "string",
             "example": "icons/facebook.png"
+          },
+          "check": {
+            "type": "string",
+            "example": "https://facebook.com/"
           }
         }
       },
@@ -9819,11 +9840,11 @@
             "properties": {
               "baseLink": {
                 "type": "string",
-                "example": "httpss://facebook.com"
+                "example": "https://facebook.com/"
               },
               "placeholderLink": {
                 "type": "string",
-                "example": "httpss://facebook.com"
+                "example": "https://facebook.com"
               },
               "_id": {
                 "type": "string"
@@ -9835,6 +9856,10 @@
               "icon": {
                 "type": "string",
                 "example": "icons/facebook.png"
+              },
+              "check": {
+                "type": "string",
+                "example": "https://facebook.com/"
               }
             }
           },
@@ -9903,11 +9928,11 @@
                   "properties": {
                     "baseLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com"
                     },
                     "placeholderLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com"
                     },
                     "_id": {
                       "type": "string"
@@ -9919,6 +9944,10 @@
                     "icon": {
                       "type": "string",
                       "example": "icons/facebook.png"
+                    },
+                    "check": {
+                      "type": "string",
+                      "example": "https://facebook.com/"
                     }
                   }
                 },
@@ -9941,7 +9970,8 @@
         "type": "object",
         "properties": {
           "status": {
-            "type": "string"
+            "type": "string",
+            "example": "fail"
           },
           "errorMessage": {
             "type": "string"
@@ -9951,6 +9981,9 @@
       "reducedModeratorInfo": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "userName": {
             "type": "string"
           },
@@ -10337,11 +10370,11 @@
                   "properties": {
                     "baseLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com/"
                     },
                     "placeholderLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com"
                     },
                     "_id": {
                       "type": "string"
@@ -10353,6 +10386,10 @@
                     "icon": {
                       "type": "string",
                       "example": "icons/facebook.png"
+                    },
+                    "check": {
+                      "type": "string",
+                      "example": "https://facebook.com/"
                     }
                   }
                 },
@@ -10449,11 +10486,11 @@
                   "properties": {
                     "baseLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com/"
                     },
                     "placeholderLink": {
                       "type": "string",
-                      "example": "httpss://facebook.com"
+                      "example": "https://facebook.com"
                     },
                     "_id": {
                       "type": "string"
@@ -10465,6 +10502,10 @@
                     "icon": {
                       "type": "string",
                       "example": "icons/facebook.png"
+                    },
+                    "check": {
+                      "type": "string",
+                      "example": "https://facebook.com/"
                     }
                   }
                 },
