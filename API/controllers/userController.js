@@ -287,76 +287,98 @@ class UserController {
   blockUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
-    let user = await this.userServices.getUserByName(userName, "");
-    if (user.success !== false) {
-      let isBlockedMe = await this.userServices.checkBlockStatus(me, user.data);
-      console.log(isBlockedMe);
-      if (!isBlockedMe) {
-        // Block the user ,check if i block him
-        let meBlockedHim = await this.userServices.checkBlockStatus(
-          user.data,
-          me
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+      if (user.success !== false) {
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
         );
-        console.log(meBlockedHim);
-        if (!meBlockedHim) {
-          await this.userServices.blockUser(me, user.data);
-          res.status(200).json({
-            status: "success",
-          });
+        console.log(isBlockedMe);
+        if (!isBlockedMe) {
+          // Block the user ,check if i block him
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+          console.log(meBlockedHim);
+          if (!meBlockedHim) {
+            await this.userServices.blockUser(me, user.data);
+
+            res.status(200).json({
+              status: "success",
+            });
+          } else {
+            res.status(304).json({
+              status: "success",
+            });
+          }
         } else {
-          res.status(304).json({
-            status: "success",
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
           });
         }
       } else {
-        res.status(405).json({
+        res.status(404).json({
           status: "fail",
-          errorMessage: "Method Not Allowed",
+          errorMessage: "User Not Found",
         });
       }
     } else {
-      res.status(404).json({
+      res.status(400).json({
         status: "fail",
-        errorMessage: "User Not Found",
+        errorMessage: "Try Blocking yourself",
       });
     }
   };
   unBlockUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
-    let user = await this.userServices.getUserByName(userName, "");
 
-    if (user.success !== false) {
-      console.log(user);
-      let isBlockedMe = await this.userServices.checkBlockStatus(me, user.data);
-      console.log(isBlockedMe);
-      if (!isBlockedMe) {
-        // Block the user ,check if i block him
-        let meBlockedHim = await this.userServices.checkBlockStatus(
-          user.data,
-          me
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+
+      if (user.success !== false) {
+        console.log(user);
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
         );
-        console.log(meBlockedHim);
-        if (!meBlockedHim) {
-          await this.userServices.blockUser(me, user.data);
-          res.status(200).json({
-            status: "success",
-          });
+        console.log(isBlockedMe);
+        if (!isBlockedMe) {
+          // Block the user ,check if i block him
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+          console.log(meBlockedHim);
+          if (meBlockedHim) {
+            await this.userServices.unBlockUser(me, user.data);
+            res.status(200).json({
+              status: "success",
+            });
+          } else {
+            res.status(304).json({
+              status: "success",
+            });
+          }
         } else {
-          res.status(304).json({
-            status: "success",
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
           });
         }
       } else {
-        res.status(405).json({
+        res.status(404).json({
           status: "fail",
-          errorMessage: "Method Not Allowed",
+          errorMessage: "User Not Found",
         });
       }
     } else {
-      res.status(404).json({
+      res.status(400).json({
         status: "fail",
-        errorMessage: "User Not Found",
+        errorMessage: "Try UnBlocking yourself",
       });
     }
   };
