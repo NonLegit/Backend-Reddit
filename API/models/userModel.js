@@ -70,13 +70,13 @@ const userSchema = new mongoose.Schema({
   },
   profilePicture: {
     type: String,
-    default: "default.png",
+    default: "users/default.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
   profileBackground: {
     type: String,
-    default: "default.png",
+    default: "users/default.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
@@ -107,6 +107,12 @@ const userSchema = new mongoose.Schema({
   },
 
   // user preferences
+  country: {
+    type: String,
+    required: false,
+    default: "Egypt",
+    trim: true,
+  },
   autoplayMedia: {
     type: Boolean,
     required: false,
@@ -219,6 +225,25 @@ const userSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+
+  socialLinks: [
+    {
+      social: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Social",
+        autopopulate: true,
+      },
+      userLink: {
+        type: String,
+        required: true,
+        // default: "",
+      },
+      displayText: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   /*
   contentVisibility: {
     type: Boolean,
@@ -259,6 +284,7 @@ userSchema.pre("save", async function (next) {
 
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
+  this.displayName = this.userName;
   this.lastUpdatedPassword = Date.now() - 1000;
   if (this.userName === "user") this.userName = "user" + this._id;
   console.log("user to save", this);
@@ -269,16 +295,24 @@ userSchema.pre(/^find/, function (next) {
   this.find({ accountActivated: { $ne: false } });
   next();
 });
-userSchema.post(/^findOne/, function (doc) {
+userSchema.post(/^findOne/, async function (doc) {
   // this points to the current query
   if (doc) {
-    doc.profilePicture =
-      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profilePicture;
+    await doc.populate({
+      path: "socialLinks.social",
+      select: "-__v",
+    });
+    doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
     doc.profileBackground =
-      `${process.env.BACKDOMAIN}/api/v1/users/images/` + doc.profileBackground;
+      `${process.env.BACKDOMAIN}/` + doc.profileBackground;
   }
   //next();
 });
+userSchema.post("init",function(doc){
+  // doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
+  // doc.profileBackground =
+  //   `${process.env.BACKDOMAIN}/` + doc.profileBackground;
+})
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");

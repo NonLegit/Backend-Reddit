@@ -3,8 +3,10 @@ const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("../models/userModel");
 const Post = require("../models/postModel");
 const Flair = require("../models/flairModel");
-const dotenv = require("dotenv");
 const Subreddit = require("../models/subredditModel");
+const Social = require("../models/socialModel");
+
+const dotenv = require("dotenv");
 dotenv.config();
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE;
@@ -25,91 +27,118 @@ if (process.env.NODE_ENV === "test") {
 
 module.exports = async function seeder() {
   let defaultImg = `default.png`;
-  let postImg = `${process.env.BACKDOMAIN}/api/v1/users/images/default.jpg`;
+  let postImg = `${process.env.BACKDOMAIN}/posts/default.jpg`;
+
+  let facebook = await Social.create({
+    type: "Facebook",
+    baseLink: "https://facebook.com/",
+    placeholderLink: "https://facebook.com",
+    check:"https://facebook.com/",
+    icon: "icons/facebook.png",
+  });
+  let twitter = await Social.create({
+    type: "Twitter",
+    baseLink: "https://twitter.com/",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/twitter.png",
+  });
+  let tiktok = await Social.create({
+    type: "Tiktok",
+    baseLink: "https://tiktok.com/@",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/tiktok.png",
+  });
+  let instagram = await Social.create({
+    type: "Instagram",
+    baseLink: "https://instagram.com/",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/instagram.png",
+  });
+
+  let discord = await Social.create({
+    type: "Discord",
+    baseLink: "https://discord.com/",
+    placeholderLink: "https://discord.com",
+    check:"https://discord.com/",
+    icon: "icons/discord.png",
+  });
+  let reddit = await Social.create({
+    type: "Reddit",
+    baseLink: "https://reddit.com/user/",
+    placeholderLink: "u/user",
+    check:"u/",
+    icon: "icons/reddit.png",
+  });
+  let youtube = await Social.create({
+    type: "Youtube",
+    baseLink: "https://youtube.com/",
+    placeholderLink: "https://youtube.com",
+    check:"https://youtube.com/",
+    icon: "icons/youtube.png",
+  });
 
   let user0 = await User.create({
     userName: "Mohab",
     email: "Mohab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user1 = await User.create({
     userName: "Eslam",
     email: "Eslam@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user2 = await User.create({
     userName: "Hosny",
     email: "Hosny@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user3 = await User.create({
     userName: "Nour",
     email: "Nour@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user4 = await User.create({
     userName: "Basma",
     email: "Basma@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user5 = await User.create({
     userName: "Fady",
     email: "Fady@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user6 = await User.create({
     userName: "Adham",
     email: "Adham@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user7 = await User.create({
     userName: "Madbouly",
     email: "Madbouly@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user8 = await User.create({
     userName: "Zeinab",
     email: "Zeinab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user9 = await User.create({
     userName: "Eman",
     email: "Eman@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user10 = await User.create({
     userName: "Fawzy",
     email: "Fawzy@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user11 = await User.create({
     userName: "Amr",
     email: "Amr@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
 
   //let userAhmed = await User.findOne({ userName: "Ahmed" });
@@ -233,6 +262,12 @@ module.exports = async function seeder() {
           ],
         },
         saved: { $each: [post2._id, post3._id, post4._id] },
+        socialLinks: {
+          $each: [
+            { social: facebook._id, userLink: "facebook" ,displayText:"Nour"},
+            { social: twitter._id, userLink: "twitter",displayText:"Nour" },
+          ],
+        },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },

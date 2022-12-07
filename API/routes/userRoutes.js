@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require("multer");
 const hpp = require("hpp");
 const passport = require("passport");
 const FacebookTokenStrategy = require("passport-facebook-token");
@@ -8,11 +9,13 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
+//const upload = FileController.checkUploadedFile();
 const router = express.Router();
 // Non authorized Endpoints
 //router.post("/create", userControllerObj.createUser);
 //router.get("/images/:userName/:fileName", FileController.getUserProfileImage);
-router.get("/images/:fileName", FileController.getUserProfileImage);
+//router.get("/images/:fileName", FileController.getUserProfileImage);
+
 router.post("/signup", AuthenticationController.signUp);
 router.post("/login", AuthenticationController.logIn);
 router.post("/logout", AuthenticationController.logOut);
@@ -59,15 +62,37 @@ router.post(
 // authorize endpoints
 
 router.route("/username_available").get(UserController.usernameAvailable);
-router.get("/top",AuthenticationController.checkAuthorize, PostController.getTopPosts);
-router.get("/hot",AuthenticationController.checkAuthorize, PostController.getHotPosts);
-router.get("/new",AuthenticationController.checkAuthorize, PostController.getNewPosts);
-router.get("/best",AuthenticationController.checkAuthorize, PostController.getBestPosts);
-
+router.get(
+  "/top",
+  AuthenticationController.checkAuthorize,
+  PostController.getTopPosts
+);
+router.get(
+  "/hot",
+  AuthenticationController.checkAuthorize,
+  PostController.getHotPosts
+);
+router.get(
+  "/new",
+  AuthenticationController.checkAuthorize,
+  PostController.getNewPosts
+);
+router.get(
+  "/best",
+  AuthenticationController.checkAuthorize,
+  PostController.getBestPosts
+);
 
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
+
+router
+  .route("/images")
+  .get(FileController.getUserProfileImage)
+  .post(FileController.checkUploadedFile, FileController.uploadUserImage)
+  .delete(FileController.deleteUserImage);
+
 router.post("/change_email", AuthenticationController.changeEmail);
 router.get("/me", UserController.getMe);
 router.get("/me/prefs", UserController.getPrefs);
@@ -98,7 +123,18 @@ router.get("/hidden", PostController.getHiddenPosts);
 router.get("/upvoted", PostController.userUpvotedPosts);
 router.get("/downvoted", PostController.userDownvotedPosts);
 
+router
+  .route("/social_links")
+  .get(UserController.getSocialLinks)
+  .post(UserController.addSocialLink);
 
+router
+  .route("/social_links/:id")
+  .patch(UserController.updateSocialLink)
+  .delete(UserController.deleteSocialLink);
+
+router.post("/:userName/block_user", UserController.blockUser); 
+router.post("/:userName/unblock_user", UserController.unBlockUser); 
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

@@ -40,6 +40,8 @@ describe("User Controller Test", () => {
           description: "",
           adultContent: false,
           nsfw: false,
+          country: "egypt",
+          socialLinks: [],
         },
       };
       const userController = new UserController({});
@@ -66,6 +68,8 @@ describe("User Controller Test", () => {
           description: "",
           adultContent: false,
           nsfw: false,
+          country: "egypt",
+          socialLinks: [],
         },
       });
     });
@@ -87,6 +91,8 @@ describe("User Controller Test", () => {
           profilePicture: "icon.png",
           profileBackground: "icon.png",
           description: "",
+          country: "egypt",
+          socialLinks: [],
         },
       };
       const UserService = {
@@ -101,6 +107,8 @@ describe("User Controller Test", () => {
             profilePicture: "icon.png",
             profileBackground: "icon.png",
             description: "",
+            country: "egypt",
+            socialLinks: [],
           };
           return response;
         },
@@ -120,10 +128,13 @@ describe("User Controller Test", () => {
           profilePicture: "icon.png",
           profileBackground: "icon.png",
           description: "",
+          country: "egypt",
+          socialLinks: [],
         },
       });
     });
   });
+
   describe("update preferences Test", () => {
     it("first test success", async () => {
       const req = {
@@ -140,6 +151,8 @@ describe("User Controller Test", () => {
           profilePicture: "icon.png",
           profileBackground: "icon.png",
           description: "",
+          country: "egypt",
+          socialLinks: [],
         },
       };
       const UserService = {
@@ -154,6 +167,8 @@ describe("User Controller Test", () => {
             profilePicture: "icon.png",
             profileBackground: "icon.png",
             description: "",
+            country: "egypt",
+            socialLinks: [],
           };
           return response;
         },
@@ -173,6 +188,8 @@ describe("User Controller Test", () => {
           profilePicture: "icon.png",
           profileBackground: "icon.png",
           description: "",
+          country: "egypt",
+          socialLinks: [],
         },
       });
     });
@@ -215,6 +232,8 @@ describe("User Controller Test", () => {
               autoplayMedia: false,
               adultContent: false,
               adultContent: false,
+              country: "egypt",
+              socialLinks: [],
             },
           };
           return response;
@@ -242,7 +261,9 @@ describe("User Controller Test", () => {
           nsfw: false,
           autoplayMedia: false,
           adultContent: false,
+          country: "egypt",
           isFollowed: true,
+          socialLinks: [],
         },
       });
     });
@@ -314,6 +335,8 @@ describe("User Controller Test", () => {
               nsfw: false,
               autoplayMedia: false,
               adultContent: false,
+              country: "egypt",
+              socialLinks: [],
             },
           };
           return response;
@@ -341,8 +364,719 @@ describe("User Controller Test", () => {
           nsfw: false,
           autoplayMedia: false,
           adultContent: false,
+          country: "egypt",
           isFollowed: false,
+          socialLinks: [],
         },
+      });
+    });
+  });
+
+  describe("getSocialLinks Test", () => {
+    it("first test success", async () => {
+      const req = {};
+      const UserService = {
+        getSocialLinks: () => {
+          let socialLinks = [
+            {
+              _id: "1",
+              check: "https://facebook.com/",
+              placeholderLink: "https://facebook.com",
+              baseLink: "https://facebook.com/",
+              type: "facebook",
+            },
+          ];
+          return socialLinks;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.getSocialLinks(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        socialLinks: [
+          {
+            _id: "1",
+            check: "https://facebook.com/",
+            placeholderLink: "https://facebook.com",
+            baseLink: "https://facebook.com/",
+            type: "facebook",
+          },
+        ],
+      });
+    });
+  });
+  describe("addSocialLink Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+          socialId: "",
+        },
+      };
+      const UserService = {
+        createSocialLinks: (me, displayText, userLink, socialId) => {
+          let response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.addSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(201);
+      expect(res.status(201).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test bad request", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+        },
+      };
+      const UserService = {
+        createSocialLinks: (me, displayText, userLink, socialId) => {
+          let response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.addSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide displayText , userLink and socialId ",
+      });
+    });
+
+    it("thrid test bad request", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+          socialId: "",
+        },
+      };
+      const UserService = {
+        createSocialLinks: (me, displayText, userLink, socialId) => {
+          let response = {
+            success: false,
+            msg: "error",
+            error: 8,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.addSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "error",
+      });
+    });
+    it("fourth test not found", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+          socialId: "",
+        },
+      };
+      const UserService = {
+        createSocialLinks: (me, displayText, userLink, socialId) => {
+          let response = {
+            success: false,
+            msg: "error",
+            error: 9,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.addSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "error",
+      });
+    });
+  });
+
+  describe("updateSocialLink Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+        },
+        user: {},
+        params: {
+          id: "1",
+        },
+      };
+      const UserService = {
+        updateSocialLinks: () => {
+          let response = {
+            success: true,
+            socialLinks: [
+              {
+                _id: "1",
+                check: "https://facebook.com/",
+                placeholderLink: "https://facebook.com",
+                baseLink: "https://facebook.com/",
+                type: "facebook",
+              },
+            ],
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.updateSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        socialLinks: [
+          {
+            _id: "1",
+            check: "https://facebook.com/",
+            placeholderLink: "https://facebook.com",
+            baseLink: "https://facebook.com/",
+            type: "facebook",
+          },
+        ],
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        body: {
+        },
+        user: {},
+        params: {
+          id: "1",
+        },
+      };
+      const UserService = {
+        updateSocialLinks: () => {
+          let response = {
+            success: true,
+            socialLinks: [
+              {
+                _id: "1",
+                check: "https://facebook.com/",
+                placeholderLink: "https://facebook.com",
+                baseLink: "https://facebook.com/",
+                type: "facebook",
+              },
+            ],
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.updateSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide displayText or userLink.",
+      });
+    });
+
+    it("thrid test fail", async () => {
+      const req = {
+        body: {
+          displayText: "",
+          userLink: "",
+        },
+        user: {},
+        params: {
+          id: "1",
+        },
+      };
+      const UserService = {
+        updateSocialLinks: () => {
+          let response = {
+            success: false,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.updateSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "socialLink id not found",
+      });
+    });
+  });
+
+  describe("deleteSocialLink Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {},
+        params: {
+          id: "1",
+        },
+      };
+      const UserService = {
+        deleteSocialLinks: (me,id) => {
+          let response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.deleteSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        user: {},
+        params: {
+          id: "1",
+        },
+      };
+      const UserService = {
+        deleteSocialLinks: () => {
+          let response = {
+            success: false,
+          };
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.deleteSocialLink(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Invalid Social id",
+      });
+    });
+  });
+
+  describe("blockUser Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(!me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        blockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        blockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("thrid test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:false
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          return false;
+        },
+        blockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(304);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("fourth test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        blockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+    it("fifth test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "2",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        blockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Try Blocking yourself",
+      });
+    });
+  });
+  
+  describe("unBlockUser Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(!me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        unBlockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unBlockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        unBlockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unBlockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("thrid test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:false
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          return false;
+        },
+        unBlockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unBlockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(304);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("fourth test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        unBlockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unBlockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+    it("fifth test fail", async () => {
+      const req = {
+        user: {
+          userName:"2",
+          test:true
+        },
+        params: {
+          userName: "2",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data:{
+              test: true
+            }
+          }
+          return response
+        },
+        checkBlockStatus: async (me,data) => {
+          if(me.test)
+          {
+            return true
+          }
+          else
+          {
+            return false
+          }
+        },
+        unBlockUser: async (me,data) => {
+          return true
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unBlockUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Try Blocking yourself",
       });
     });
   });
