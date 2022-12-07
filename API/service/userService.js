@@ -551,7 +551,7 @@ class UserService {
     }
   }
   async updateSocialLinks(me, id, userLink, displayText) {
-    let index = me.socialLinks.findIndex((item) => item._id == id);
+    let index = me.socialLinks.findIndex((item) => item._id.toString() == id);
     if (index != -1) {
       if (userLink) {
         me.socialLinks[index].userLink = userLink;
@@ -610,6 +610,66 @@ class UserService {
       `${process.env.BACKDOMAIN}/`,
       ""
     );
+  }
+  async checkBlockStatus(me, otherUser) {
+    console.log(otherUser.meUserRelationship);
+    console.log(me._id);
+    const index = otherUser.meUserRelationship.findIndex((element) => {
+      return element.userId.toString() == me._id.toString();
+    });
+    console.log(index);
+    if (index != -1) {
+      console.log(otherUser.meUserRelationship[index].status);
+      if (otherUser.meUserRelationship[index].status === "blocked") {
+        return true;
+      }
+    }
+    return false;
+  }
+  async blockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.meUserRelationship[index].status = "blocked";
+      otherUser.userMeRelationship[index2].status = "Blocked";
+    } else {
+      me.meUserRelationship.push({
+        userId: otherUser._id,
+        status: "blocked",
+      });
+      otherUser.userMeRelationship.push({
+        userId: me._id,
+        status: "blocked",
+      });
+    }
+    await otherUser.save();
+    await me.save();
+    return true;
+  }
+  async unBlockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.meUserRelationship[index].status = "none";
+      otherUser.userMeRelationship[index2].status = "none";
+    } 
+    await otherUser.save();
+    await me.save();
+    return true;
   }
 }
 

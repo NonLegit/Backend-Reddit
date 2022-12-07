@@ -251,20 +251,17 @@ class UserController {
         userLink,
         displayText
       );
-      if(data.success === true)
-      {
+      if (data.success === true) {
         res.status(200).json({
           status: "success",
           socialLinks: data.socialLinks,
         });
-      }
-      else {
+      } else {
         res.status(404).json({
           status: "fail",
           errorMessage: "socialLink id not found",
         });
       }
-
     }
   };
   deleteSocialLink = async (req, res, next) => {
@@ -280,6 +277,86 @@ class UserController {
       res.status(400).json({
         status: "fail",
         errorMessage: "Invalid Social id",
+      });
+    }
+  };
+
+  // should i check that the user i want to block has block me ?
+  // assume Yes
+  // check that user who to block not me
+  blockUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+    let user = await this.userServices.getUserByName(userName, "");
+    if (user.success !== false) {
+      let isBlockedMe = await this.userServices.checkBlockStatus(me, user.data);
+      console.log(isBlockedMe);
+      if (!isBlockedMe) {
+        // Block the user ,check if i block him
+        let meBlockedHim = await this.userServices.checkBlockStatus(
+          user.data,
+          me
+        );
+        console.log(meBlockedHim);
+        if (!meBlockedHim) {
+          await this.userServices.blockUser(me, user.data);
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      } else {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    }
+  };
+  unBlockUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+    let user = await this.userServices.getUserByName(userName, "");
+
+    if (user.success !== false) {
+      console.log(user);
+      let isBlockedMe = await this.userServices.checkBlockStatus(me, user.data);
+      console.log(isBlockedMe);
+      if (!isBlockedMe) {
+        // Block the user ,check if i block him
+        let meBlockedHim = await this.userServices.checkBlockStatus(
+          user.data,
+          me
+        );
+        console.log(meBlockedHim);
+        if (!meBlockedHim) {
+          await this.userServices.blockUser(me, user.data);
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      } else {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "User Not Found",
       });
     }
   };

@@ -133,6 +133,8 @@ router
   .patch(UserController.updateSocialLink)
   .delete(UserController.deleteSocialLink);
 
+router.post("/:userName/block_user", UserController.blockUser); 
+router.post("/:userName/unblock_user", UserController.unBlockUser); 
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");
