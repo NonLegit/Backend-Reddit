@@ -1,406 +1,814 @@
 const assert = require("chai").assert;
 const expect = require("chai").expect;
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
-console.log("secret " + process.env.JWT_SECRET);
-const UserService = require("./../../service/userService");
-const SubredditService = require("./../../service/subredditService");
-
-const emailServiceObj = {
-  sendPasswordReset: (user, resetURL) => {
-    return true;
-  },
-  sendUserName: (user) => {
-    return true;
-  },
-};
+dotenv.config();
+const subredditService = require("./../../service/subredditService");
+const { subredditErrors, mongoErrors } = require("../../error_handling/errors");
 
 describe("Subreddit Test", () => {
-  describe("create subreddit Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        createOne: (subredditData) => {
-          const response = {
-            status: "success",
-            statusCode: 201,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-        getOne: (query, dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 404,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.createSubreddit("");
-      assert.equal(output.statusCode, 201);
-    });
-    it("second test(fail operation of database)", async () => {
-      const RepositoryObj = {
-        createOne: (subredditData) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            err: "mongoose err",
-          };
-          return response;
-        },
-        getOne: (query, dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 404,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
+  describe("Subreddit services Test", () => {
+    describe("createSubreddit function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          createOne: async (userData) => {
+            const response = {
+              success: true,
+              doc: {
+                _id: "10",
+              },
+            };
+            return response;
+          },
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+              data: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+        let userName = "khaled";
 
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.createSubreddit("");
-      assert.equal(output.statusCode, 400);
+        let data = {
+          owner: userName,
+          fixedName: "subreddit",
+          type: "Public",
+          nsfw: true,
+        };
+
+        let profilePicture = "profile.png";
+
+        const result = await subredditServices.createSubreddit(
+          data,
+          userName,
+          profilePicture
+        );
+
+        expect(result.data._id).to.equal("10");
+      });
+
+      it("second test (fail) ", async () => {
+        const UserRepository = {
+          createOne: async (userData) => {
+            const response = {
+              success: true,
+              doc: {
+                _id: "10",
+              },
+            };
+            return response;
+          },
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              data: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+        let userName = "khaled";
+
+        let data = {
+          owner: userName,
+          fixedName: "subreddit",
+          type: "Public",
+          nsfw: true,
+        };
+
+        let profilePicture = "profile.png";
+
+        const result = await subredditServices.createSubreddit(
+          data,
+          userName,
+          profilePicture
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.ALREADY_EXISTS);
+      });
+
+      it("Third test (fail) ", async () => {
+        const UserRepository = {
+          createOne: async (userData) => {
+            const response = {
+              success: true,
+              doc: {
+                _id: "10",
+              },
+            };
+            return response;
+          },
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return {
+              success: false,
+              msg: "Invalid data: A subreddit name must have more or equal then 2 characters",
+            };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+              data: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+        let userName = "khaled";
+
+        let data = {
+          owner: userName,
+          fixedName: "s",
+          type: "Public",
+          nsfw: true,
+        };
+
+        let profilePicture = "profile.png";
+
+        const result = await subredditServices.createSubreddit(
+          data,
+          userName,
+          profilePicture
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.MONGO_ERR);
+        expect(result.msg).to.equal(
+          "Invalid data: A subreddit name must have more or equal then 2 characters"
+        );
+      });
+    });
+    // ! =====================================================
+
+    describe("retrieveSubreddit function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.retrieveSubreddit(
+          "1",
+          "subreddit",
+          true
+        );
+
+        expect(result.data._id).to.equal("10");
+        expect(result.data.fixedName).to.equal("subreddit");
+        expect(result.data.nsfw).to.equal(true);
+      });
+
+      it("second test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+              error: subredditErrors.SUBREDDIT_NOT_FOUND,
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.retrieveSubreddit(
+          "1",
+          "subreddit",
+          true
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.SUBREDDIT_NOT_FOUND);
+      });
+    });
+    // !=====================================================================
+    describe("deleteSubreddit function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isOwner: async (subredditName, userID) => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+          delete: async (subredditName) => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.deleteSubreddit(
+          "subreddit",
+          "1"
+        );
+
+        expect(result.success).to.equal(true);
+      });
+
+      it("second test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isOwner: async (subredditName, userID) => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+          delete: async (subredditName) => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.deleteSubreddit(
+          "subreddit",
+          "1"
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.SUBREDDIT_NOT_FOUND);
+      });
+
+      it("third test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isOwner: async (subredditName, userID) => {
+            return { success: false, error: mongoErrors.NOT_FOUND };
+          },
+          delete: async (subredditName) => {
+            return { success: false, doc: { fixedName: "subreddit" } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.deleteSubreddit(
+          "subreddit",
+          "1"
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.NOT_OWNER);
+      });
+
+      it("fourth test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isOwner: async (subredditName, userID) => {
+            return { success: true, error: mongoErrors.NOT_FOUND };
+          },
+          delete: async (subredditName) => {
+            return {
+              success: false,
+              error: mongoErrors.UNKOWN,
+              msg: "mongo error",
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.deleteSubreddit(
+          "subreddit",
+          "1"
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(mongoErrors.UNKOWN);
+        expect(result.msg).to.equal("mongo error");
+      });
+    });
+    // !==========================================================
+
+    describe("updateSubredit function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator: async (subredditName, userID) => {
+            return { success: true, doc: { moderators: [{ id: "1" }] } };
+          },
+          update: async (subredditName, data) => {
+            return { success: true, doc: { _id: "10", nsfw: false } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.updateSubreddit(
+          "subreddit",
+          "1",
+          {
+            nsfw: false,
+          }
+        );
+        expect(result.success).to.equal(true);
+        expect(result.data._id).to.equal("10");
+        expect(result.data.nsfw).to.equal(false);
+      });
+
+      it("second test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+            };
+          },
+          isModerator: async (subredditName, userID) => {
+            return { success: true, doc: { moderators: [{ id: "1" }] } };
+          },
+          update: async (subredditName, data) => {
+            return { success: true, doc: { _id: "10", nsfw: false } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.updateSubreddit(
+          "subreddit",
+          "1",
+          {
+            nsfw: false,
+          }
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.SUBREDDIT_NOT_FOUND);
+      });
+
+      it("third test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator: async (subredditName, userID) => {
+            return { success: false };
+          },
+          update: async (subredditName, data) => {
+            return { success: true, doc: { _id: "10", nsfw: false } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.updateSubreddit(
+          "subreddit2",
+          "1",
+          {
+            nsfw: false,
+          }
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.NOT_MODERATOR);
+      });
+
+      it("fourth test (fail)", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator: async (subredditName, userID) => {
+            return { success: true, doc: { moderators: [{ id: "1" }] } };
+          },
+          update: async (subredditName, data) => {
+            return {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+              msg: "mongo error",
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.updateSubreddit(
+          "subreddit2",
+          "1",
+          {
+            nsfw: false,
+          }
+        );
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.MONGO_ERR);
+        expect(result.msg).to.equal("mongo error");
+      });
+    });
+    // !=====================================================
+    describe("subredditsIamIn function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return true;
+          },
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsIamIn(
+          "1",
+          "moderator"
+        );
+
+        expect(result.success).to.equal(true);
+        expect(result.data[0].fixedName).to.equal("subreddit");
+      });
+
+      it("second test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return true;
+          },
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsIamIn(
+          "1",
+          "subscriber"
+        );
+
+        expect(result.success).to.equal(true);
+        expect(result.data[0].fixedName).to.equal("subreddit");
+      });
+
+      it("third test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return true;
+          },
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+              msg: "mongo error",
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsIamIn(
+          "1",
+          "moderator"
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.MONGO_ERR);
+      });
+      it("fourth test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return true;
+          },
+          getSubreddits: async (userId, type) => {
+            return {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+              msg: "mongo error",
+            };
+          },
+        };
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsIamIn(
+          "1",
+          "subscriber"
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.MONGO_ERR);
+      });
+
+      it("fifth test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return true;
+          },
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsIamIn("1", "sub");
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.INVALID_ENUM);
+      });
+    });
+
+    describe("subredditsModeratedBy function ", () => {
+      it("first test", async () => {
+        const UserRepository = {};
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: true,
+              doc: [
+                {
+                  fixedName: "subreddit",
+                },
+              ],
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsModeratedBy("khaled");
+
+        expect(result.success).to.equal(true);
+        expect(result.data[0].fixedName).to.equal("subreddit");
+      });
+
+      it("second test", async () => {
+        const UserRepository = {};
+        const SubredditRepository = {
+          getSubreddits: async (userId, type) => {
+            return {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+              msg: "mongo error",
+            };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.subredditsModeratedBy("fathy");
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.MONGO_ERR);
+      });
     });
   });
-
-  describe("delete-subreddit services Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        deleteOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "success",
-            statusCode: 204,
-            data: null,
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.deleteSubreddit("", "");
-      assert.equal(output.statusCode, 204);
-    });
-    it("second test(fail operation of database => doc not found)", async () => {
-      const RepositoryObj = {
-        deleteOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 404,
-            err: "cannot found document",
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.deleteSubreddit("", "");
-      assert.equal(output.statusCode, 404);
-    });
-    it("thrid test(fail operation of database => bad request)", async () => {
-      const RepositoryObj = {
-        deleteOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            err: "bad request",
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.deleteSubreddit("", "");
-      assert.equal(output.statusCode, 400);
-    });
-  });
-
-  describe("update-Subreddit services Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        updateOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "success",
-            statusCode: 200,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.updateSubreddit("", "");
-      assert.equal(output.statusCode, 200);
-    });
-    it("second test(fail operation of database => doc not found)", async () => {
-      const RepositoryObj = {
-        updateOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 404,
-            err: "cannot found document",
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.updateSubreddit("", "");
-      assert.equal(output.statusCode, 404);
-    });
-    it("thrid test(fail operation of database => bad request)", async () => {
-      const RepositoryObj = {
-        updateOneByQuery: (dummy1, dummy2) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            err: "bad request",
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.updateSubreddit("", "");
-      assert.equal(output.statusCode, 400);
-    });
-  });
-  describe("get-Subreddit services Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (dummy1, dummy2, dummy3) => {
-          const response = {
-            status: "success",
-            statusCode: 200,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.getSubreddit("");
-      assert.equal(output.statusCode, 200);
-    });
-    it("second test(fail operation of database => doc not found)", async () => {
-      const RepositoryObj = {
-        getOne: (dummy1, dummy2, dummy3) => {
-          const response = {
-            status: "fail",
-            statusCode: 404,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.getSubreddit("");
-      assert.equal(output.statusCode, 404);
-    });
-    it("thrid test(fail operation of database => bad request)", async () => {
-      const RepositoryObj = {
-        getOne: (dummy1, dummy2, dummy3) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.getSubreddit("");
-      assert.equal(output.statusCode, 400);
-    });
-  });
-  describe("is-Moderator services Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
-          const response = {
-            status: "success",
-            statusCode: 200,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.isModerator("");
-      assert.equal(output, true);
-    });
-
-    it("second test(fail operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.isModerator("");
-      assert.equal(output, false);
-    });
-  });
-
-  describe("is-Owner services Test", () => {
-    it("first test (success operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
-          const response = {
-            status: "success",
-            statusCode: 200,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.isOwner("");
-      assert.equal(output, true);
-    });
-
-    it("second test(fail operation of database)", async () => {
-      const RepositoryObj = {
-        getOne: (userData) => {
-          const response = {
-            status: "fail",
-            statusCode: 400,
-            doc: {
-              _id: "1",
-            },
-          };
-          return response;
-        },
-      };
-      const subredditService = new SubredditService(
-        "",
-        RepositoryObj,
-        "",
-        "",
-        "",
-        ""
-      );
-      const output = await subredditService.isOwner("");
-      assert.equal(output, false);
-    });
-  });
-
 });
