@@ -613,7 +613,7 @@ class UserService {
   }
   async checkBlockStatus(me, otherUser) {
     console.log(otherUser.meUserRelationship);
-    console.log(me._id);
+
     const index = otherUser.meUserRelationship.findIndex((element) => {
       return element.userId.toString() == me._id.toString();
     });

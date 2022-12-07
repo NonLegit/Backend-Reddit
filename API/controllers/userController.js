@@ -95,7 +95,6 @@ class UserController {
    */
   getMe = async (req, res, next) => {
     const user = req.user;
-    console.log(user);
     const me = {
       id: user._id,
       userName: user.userName,
@@ -170,7 +169,8 @@ class UserController {
           autoplayMedia: user.data.autoplayMedia,
           adultContent: user.data.adultContent,
           isFollowed: isFollowed,
-          country: user.country,
+          country: user.data.country,
+          socialLinks: user.data.socialLinks,
         };
         res.status(200).json({
           status: "success",
@@ -244,7 +244,6 @@ class UserController {
         errorMessage: "Provide displayText or userLink.",
       });
     } else {
-      console.log("start");
       let data = await this.userServices.updateSocialLinks(
         me,
         id,
@@ -294,14 +293,14 @@ class UserController {
           me,
           user.data
         );
-        console.log(isBlockedMe);
+
         if (!isBlockedMe) {
           // Block the user ,check if i block him
           let meBlockedHim = await this.userServices.checkBlockStatus(
             user.data,
             me
           );
-          console.log(meBlockedHim);
+
           if (!meBlockedHim) {
             await this.userServices.blockUser(me, user.data);
 
@@ -340,19 +339,16 @@ class UserController {
       let user = await this.userServices.getUserByName(userName, "");
 
       if (user.success !== false) {
-        console.log(user);
         let isBlockedMe = await this.userServices.checkBlockStatus(
           me,
           user.data
         );
-        console.log(isBlockedMe);
         if (!isBlockedMe) {
           // Block the user ,check if i block him
           let meBlockedHim = await this.userServices.checkBlockStatus(
             user.data,
             me
           );
-          console.log(meBlockedHim);
           if (meBlockedHim) {
             await this.userServices.unBlockUser(me, user.data);
             res.status(200).json({
