@@ -226,7 +226,7 @@ class UserController {
         } else {
           res.status(404).json({
             status: "fail",
-            errorMessage: "data.msg",
+            errorMessage: data.msg,
           });
         }
       }

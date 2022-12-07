@@ -90,7 +90,8 @@ router.use(AuthenticationController.authorize);
 router
   .route("/images")
   .get(FileController.getUserProfileImage)
-  .post(FileController.checkUploadedFile, FileController.uploadUserImage);
+  .post(FileController.checkUploadedFile, FileController.uploadUserImage)
+  .delete(FileController.deleteUserImage);
 
 router.post("/change_email", AuthenticationController.changeEmail);
 router.get("/me", UserController.getMe);

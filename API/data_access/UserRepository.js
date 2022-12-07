@@ -93,5 +93,16 @@ class UserRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  async updateSocialLinks(id, data) {
+    const user = await this.model.findByIdAndUpdate(id,  { "$push": { "socialLinks": data } }, {
+      new: true,
+      runValidators: true,
+    });
+    if (!user) {
+      console.log(user);
+      return { success: false, error: mongoErrors.INVALID_ID };
+    }
+    return { success: true, doc: user };
+  }
 }
 module.exports = UserRepository;

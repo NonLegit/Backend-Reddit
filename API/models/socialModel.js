@@ -16,6 +16,11 @@ const socialSchema = new mongoose.Schema({
     required: false,
     trim: true,
   },
+  check: {
+    type: String,
+    required: false,
+    trim: true,
+  },
   icon: {
     type: String,
     default: "icons/default.png",

@@ -301,7 +301,6 @@ userSchema.post(/^findOne/, async function (doc) {
     await doc.populate({
       path: "socialLinks.social",
       select: "-__v",
-      // options: {sort: [["social.popularity","desc"]]},
     });
     doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
     doc.profileBackground =
@@ -309,6 +308,11 @@ userSchema.post(/^findOne/, async function (doc) {
   }
   //next();
 });
+userSchema.post("init",function(doc){
+  // doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
+  // doc.profileBackground =
+  //   `${process.env.BACKDOMAIN}/` + doc.profileBackground;
+})
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");

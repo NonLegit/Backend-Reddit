@@ -66,6 +66,10 @@ class FileController {
         y = 1000;
       }
       try {
+        let dir = "public/users/"+req.user.userName;
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir);
+        }
         await sharp(req.file.buffer)
           .resize(x, y)
           .toFormat("jpeg")
@@ -167,6 +171,33 @@ class FileController {
       console.log(err);
     }
   };
+  deleteUserImage = async (req, res, next) => {
+    let type = req.query.type;
+    console.log(type);
+    if (type === "profilePicture" || type === "profileBackground") {
+      console.log(req.user._id);
+      try {
+        let user = await this.UserServices.addUserImageURL(
+          req.user._id,
+          type,
+          "default.png"
+        );
+      }
+      catch(err)
+      {
+        console.log(err);
+      }
+
+      res.status(204).json({
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "provide type of image",
+      });
+    }
+  }
   getUserProfileImage(req, res, next) {
     const fileName = req.params.fileName;
     const filePath = `./public/users/${fileName}`;

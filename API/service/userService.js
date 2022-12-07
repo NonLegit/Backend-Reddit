@@ -203,6 +203,7 @@ class UserService {
 
       if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
+        this.replaceProfile(user.doc);
         await user.doc.save({ validateBeforeSave: false });
         const resetURL = `${process.env.FRONTDOMAIN}/resetpassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
@@ -253,6 +254,7 @@ class UserService {
       user.doc.password = password;
       user.doc.passwordResetToken = undefined;
       user.doc.passwordResetExpires = undefined;
+      this.replaceProfile(user.doc);
       await user.doc.save();
       const token = this.createToken(user.doc._id);
       const response = {
@@ -487,7 +489,9 @@ class UserService {
     }
   }
   async addUserImageURL(userId, type, path) {
+    console.log(path);
     path = "users/" + path;
+
     let user = {};
     if (type === "profilePicture") {
       user = await this.userRepository.updateOne(userId, {
@@ -518,16 +522,24 @@ class UserService {
       let data = await this.SocialRepository.findOne(socialId);
       console.log(data);
       if (data.success === true) {
-        try {
-          me.socialLinks.push({
-            social: socialId,
-            displayText: displayText,
-            userLink: userLink,
-          });
-        } catch (err) {
-          console.log(err);
-        }
-        await me.save();
+        // bug here should use updateone
+
+        // try {
+        //   me.socialLinks.push({
+        //     social: socialId,
+        //     displayText: displayText,
+        //     userLink: userLink,
+        //   });
+        // } catch (err) {
+        //   console.log(err);
+        // }
+        // await me.save();
+
+        await this.userRepository.updateSocialLinks(me._id, {
+          social: socialId,
+          displayText: displayText,
+          userLink: userLink,
+        });
         return { success: true };
       } else {
         return {
@@ -547,7 +559,18 @@ class UserService {
       if (displayText) {
         console.log("should save");
         me.socialLinks[index].displayText = displayText;
+        let profileBackground = me.profileBackground;
+        let profilePicture = me.profilePicture;
+        me.profilePicture = profilePicture.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
+        me.profileBackground = profileBackground.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
       }
+      console.log(me.profileBackground + " " + me.profilePicture);
       await me.save();
       return { success: true, socialLinks: me.socialLinks };
     } else {
@@ -558,12 +581,35 @@ class UserService {
     let index = me.socialLinks.findIndex((item) => item._id == id);
     if (index != -1) {
       console.log("should delete");
-      me.socialLinks.pull({ _id: id })
+      me.socialLinks.pull({ _id: id });
+      let profileBackground = me.profileBackground;
+      let profilePicture = me.profilePicture;
+      me.profilePicture = profilePicture.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      me.profileBackground = profileBackground.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      console.log(me.profileBackground + " " + me.profilePicture);
       await me.save();
       return { success: true };
     } else {
       return { success: false };
     }
+  }
+  replaceProfile(doc) {
+    let profileBackground = doc.profileBackground;
+    let profilePicture = doc.profilePicture;
+    doc.profilePicture = profilePicture.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
+    doc.profileBackground = profileBackground.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
   }
 }
 

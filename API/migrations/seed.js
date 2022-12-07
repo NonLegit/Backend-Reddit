@@ -31,45 +31,52 @@ module.exports = async function seeder() {
 
   let facebook = await Social.create({
     type: "Facebook",
-    baseLink: "https://facebook.com",
+    baseLink: "https://facebook.com/",
     placeholderLink: "https://facebook.com",
+    check:"https://facebook.com/",
     icon: "icons/facebook.png",
   });
   let twitter = await Social.create({
     type: "Twitter",
-    baseLink: "https://twitter.com",
+    baseLink: "https://twitter.com/",
     placeholderLink: "@username",
+    check:"@",
     icon: "icons/twitter.png",
   });
   let tiktok = await Social.create({
     type: "Tiktok",
-    baseLink: "https://tiktok.com",
+    baseLink: "https://tiktok.com/@",
     placeholderLink: "@username",
+    check:"@",
     icon: "icons/tiktok.png",
   });
   let instagram = await Social.create({
     type: "Instagram",
-    baseLink: "https://instagram.com",
+    baseLink: "https://instagram.com/",
     placeholderLink: "@username",
+    check:"@",
     icon: "icons/instagram.png",
   });
 
   let discord = await Social.create({
     type: "Discord",
-    baseLink: "https://discord.com",
+    baseLink: "https://discord.com/",
     placeholderLink: "https://discord.com",
+    check:"https://discord.com/",
     icon: "icons/discord.png",
   });
   let reddit = await Social.create({
     type: "Reddit",
-    baseLink: "https://reddit.com",
-    placeholderLink: "r/community, u/user",
+    baseLink: "https://reddit.com/user/",
+    placeholderLink: "u/user",
+    check:"u/",
     icon: "icons/reddit.png",
   });
   let youtube = await Social.create({
     type: "Youtube",
-    baseLink: "https://youtube.com",
+    baseLink: "https://youtube.com/",
     placeholderLink: "https://youtube.com",
+    check:"https://youtube.com/",
     icon: "icons/youtube.png",
   });
 
