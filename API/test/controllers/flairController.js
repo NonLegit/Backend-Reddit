@@ -7,6 +7,7 @@ dotenv.config({ path: "config/config.env" });
 //process.env.NODE_ENV = "test";
 const server = require("./../../server");
 
+
 const app = require("./../../app");
 const seeder = require("./../../models/flairAndPostseed");
 const user1 = {
