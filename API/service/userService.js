@@ -18,11 +18,12 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor({ /*Repository*/ UserRepository, Email }) {
+  constructor({ /*Repository*/ UserRepository, Email, SocialRepository }) {
     //this.User = User; // can be mocked in unit testing
     //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
     this.emailServices = Email;
+    this.SocialRepository = SocialRepository;
     // this.createUser = this.createUser.bind(this);
     // this.createToken = this.createToken.bind(this);
     // this.signUp = this.signUp.bind(this);
@@ -202,6 +203,7 @@ class UserService {
 
       if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
+        this.replaceProfile(user.doc);
         await user.doc.save({ validateBeforeSave: false });
         const resetURL = `${process.env.FRONTDOMAIN}/resetpassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
@@ -252,6 +254,7 @@ class UserService {
       user.doc.password = password;
       user.doc.passwordResetToken = undefined;
       user.doc.passwordResetExpires = undefined;
+      this.replaceProfile(user.doc);
       await user.doc.save();
       const token = this.createToken(user.doc._id);
       const response = {
@@ -359,7 +362,11 @@ class UserService {
       profilePicture: user.profilePicture,
       profileBackground: user.profileBackground,
       description: user.description,
+      email: user.email,
+      socialLinks: user.socialLinks,
+      country: user.country,
     };
+    console.log(prefs);
     return prefs;
   }
   /**
@@ -379,7 +386,8 @@ class UserService {
       "displayName",
       "description",
       "adultContent",
-      "autoplayMedia"
+      "autoplayMedia",
+      "country"
     );
     let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);
@@ -479,6 +487,190 @@ class UserService {
       };
       return response;
     }
+  }
+  async addUserImageURL(userId, type, path) {
+    console.log(path);
+    path = "users/" + path;
+
+    let user = {};
+    if (type === "profilePicture") {
+      user = await this.userRepository.updateOne(userId, {
+        profilePicture: path,
+      });
+    } else {
+      user = await this.userRepository.updateOne(userId, {
+        profileBackground: path,
+      });
+    }
+
+    return user.doc;
+  }
+  async getSocialLinks() {
+    let data = await this.SocialRepository.getAll();
+    return data;
+  }
+  async createSocialLinks(me, displayText, userLink, socialId) {
+    // check if social id is valid
+    console.log(me.socialLinks.length);
+    if (me.socialLinks.length === 5) {
+      return {
+        success: false,
+        msg: "Max Links 5",
+        error: userErrors.MAXSOCIALLINKS,
+      };
+    } else {
+      let data = await this.SocialRepository.findOne(socialId);
+      console.log(data);
+      if (data.success === true) {
+        // bug here should use updateone
+
+        // try {
+        //   me.socialLinks.push({
+        //     social: socialId,
+        //     displayText: displayText,
+        //     userLink: userLink,
+        //   });
+        // } catch (err) {
+        //   console.log(err);
+        // }
+        // await me.save();
+
+        await this.userRepository.updateSocialLinks(me._id, {
+          social: socialId,
+          displayText: displayText,
+          userLink: userLink,
+        });
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          msg: "Invalid social Id",
+          error: userErrors.INVALID_SOCIALID,
+        };
+      }
+    }
+  }
+  async updateSocialLinks(me, id, userLink, displayText) {
+    let index = me.socialLinks.findIndex((item) => item._id.toString() == id);
+    if (index != -1) {
+      if (userLink) {
+        me.socialLinks[index].userLink = userLink;
+      }
+      if (displayText) {
+        console.log("should save");
+        me.socialLinks[index].displayText = displayText;
+        let profileBackground = me.profileBackground;
+        let profilePicture = me.profilePicture;
+        me.profilePicture = profilePicture.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
+        me.profileBackground = profileBackground.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
+      }
+      console.log(me.profileBackground + " " + me.profilePicture);
+      await me.save();
+      return { success: true, socialLinks: me.socialLinks };
+    } else {
+      return { success: false };
+    }
+  }
+  async deleteSocialLinks(me, id) {
+    let index = me.socialLinks.findIndex((item) => item._id == id);
+    if (index != -1) {
+      console.log("should delete");
+      me.socialLinks.pull({ _id: id });
+      let profileBackground = me.profileBackground;
+      let profilePicture = me.profilePicture;
+      me.profilePicture = profilePicture.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      me.profileBackground = profileBackground.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      console.log(me.profileBackground + " " + me.profilePicture);
+      await me.save();
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  }
+  replaceProfile(doc) {
+    let profileBackground = doc.profileBackground;
+    let profilePicture = doc.profilePicture;
+    doc.profilePicture = profilePicture.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
+    doc.profileBackground = profileBackground.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
+  }
+  async checkBlockStatus(me, otherUser) {
+    console.log(otherUser.meUserRelationship);
+
+    const index = otherUser.meUserRelationship.findIndex((element) => {
+      return element.userId.toString() == me._id.toString();
+    });
+    console.log(index);
+    if (index != -1) {
+      console.log(otherUser.meUserRelationship[index].status);
+      if (otherUser.meUserRelationship[index].status === "blocked") {
+        return true;
+      }
+    }
+    return false;
+  }
+  async blockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+    console.log(index)
+    console.log(index2);
+    if (index != -1) {
+      me.meUserRelationship[index].status = "blocked";
+      otherUser.userMeRelationship[index2].status = "blocked";
+    } else {
+      me.meUserRelationship.push({
+        userId: otherUser._id,
+        status: "blocked",
+      });
+      otherUser.userMeRelationship.push({
+        userId: me._id,
+        status: "blocked",
+      });
+    }
+    await otherUser.save();
+    await me.save();
+    return true;
+  }
+  async unBlockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.meUserRelationship[index].status = "none";
+      otherUser.userMeRelationship[index2].status = "none";
+    } 
+    await otherUser.save();
+    await me.save();
+    return true;
   }
 }
 
