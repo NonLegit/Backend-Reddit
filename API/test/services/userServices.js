@@ -6,10 +6,10 @@ dotenv.config();
 const UserService = require("./../../service/userService");
 
 const Email = {
-  sendPasswordReset: (user, resetURL) => {
+  sendPasswordReset: async (user, resetURL) => {
     return true;
   },
-  sendUserName: (user) => {
+  sendUserName: async (user) => {
     return true;
   },
 };
@@ -208,6 +208,16 @@ describe("Authentication Test", () => {
             success: true,
             doc: {
               _id: "1",
+              profileBackground: {
+                replace: () => {
+                  return "string";
+                },
+              },
+              profilePicture: {
+                replace: () => {
+                  return "string";
+                },
+              },
               save: (password, passwordDB) => {
                 return true;
               },
@@ -275,6 +285,16 @@ describe("Authentication Test", () => {
             success: true,
             doc: {
               _id: "1",
+              profileBackground: {
+                replace: () => {
+                  return "string";
+                },
+              },
+              profilePicture: {
+                replace: () => {
+                  return "string";
+                },
+              },
               save: (password, passwordDB) => {
                 return true;
               },
@@ -355,6 +375,298 @@ describe("User Services Test", () => {
       assert.equal(result.displayName, "ahmed");
       assert.equal(result.canbeFollowed, false);
       assert.equal(result.nsfw, true);
+    });
+  });
+  describe("addUserImageURL  ", () => {
+    it("test should be success", async () => {
+      const UserRepository = {
+        updateOne: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({ UserRepository });
+      let user = {
+        canbeFollowed: true,
+        nsfw: true,
+        displayName: "ahmed",
+        profilePicture: "img.png",
+        profileBackground: "img.png",
+      };
+      let result = await userServiceObj.addUserImageURL(
+        "!",
+        "profilePicture",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+      result = await userServiceObj.addUserImageURL(
+        "!",
+        "profileBackground",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+    });
+  });
+
+  describe("getSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const SocialRepository = {
+        getAll: (userData, body) => {
+          const response = {
+            canbeFollowed: false,
+            nsfw: true,
+            displayName: "ahmed",
+            profilePicture: "img.png",
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({ SocialRepository });
+      let user = {
+        canbeFollowed: true,
+        nsfw: true,
+        displayName: "ahmed",
+        profilePicture: "img.png",
+        profileBackground: "img.png",
+      };
+      let result = await userServiceObj.getSocialLinks(
+        "!",
+        "profilePicture",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+    });
+  });
+  describe("createSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: [],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: ["1", "2", "3", "4", "5"],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, false);
+      assert.equal(result.msg, "Max Links 5");
+    });
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: false,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: ["1", "2", "3", "4"],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, false);
+      assert.equal(result.msg, "Invalid social Id");
+    });
+  });
+  describe("updateSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.updateSocialLinks(me, "2");
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.updateSocialLinks(me, "5");
+      assert.equal(result.success, false);
+    });
+  });
+  describe("deleteSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.deleteSocialLinks(me, "2");
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.deleteSocialLinks(me, "5");
+      assert.equal(result.success, false);
     });
   });
 });
