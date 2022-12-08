@@ -38,11 +38,8 @@ class UserRepository extends Repository {
   }
 
   async isSubscribed(user, subreddit) {
-    const query = await this.model.findOne(
-      { _id: user },
-      "subscribed"
-    );
-    let subscribed=false;
+    const query = await this.model.findOne({ _id: user }, "subscribed");
+    let subscribed = false;
     for (const subredditID of query.subscribed) {
       if (subredditID.equals(subreddit)) {
         subscribed = true;
@@ -51,7 +48,7 @@ class UserRepository extends Repository {
     }
     return subscribed;
   }
-    
+
   async getSubreddits(userId) {
     try {
       let tempDoc = this.model
@@ -87,6 +84,39 @@ class UserRepository extends Repository {
         new: true,
         runValidators: true,
       });
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async updateByName(userName, subredditId, permissions) {
+    try {
+      const user = await this.model.findOneAndUpdate(
+        { userName: userName },
+        {
+          $push: {
+            pendingInvitations: {
+              subredditId: subredditId,
+              permissions: {
+                all: permissions.all,
+                access: permissions.access,
+                config: permissions.config,
+                flair: permissions.flair,
+                posts: permissions.posts,
+              },
+            },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
       if (!user) {
         return { success: false, error: mongoErrors.NOT_FOUND };

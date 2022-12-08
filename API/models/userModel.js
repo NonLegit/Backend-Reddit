@@ -219,6 +219,24 @@ const userSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  pendingInvitations: [
+    {
+      type: Object,
+      subredditId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Subreddit",
+      },
+      permissions: {
+        type: Object,
+        required: false,
+        all: { type: Boolean },
+        access: { type: Boolean },
+        config: { type: Boolean },
+        flair: { type: Boolean },
+        posts: { type: Boolean },
+      },
+    },
+  ],
   /*
   contentVisibility: {
     type: Boolean,

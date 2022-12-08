@@ -44,10 +44,11 @@ router.get(
 );
 router.get("/mine/:where", subredditController.subredditsJoined);
 router.get("/moderator/:username", subredditController.subredditsModerated);
-// router.post(
-//   "/:subredditName/moderator/:moderatorName",
-//   subredditController.inviteModerator
-// );
+
+router.post(
+  "/:subredditName/moderators/:moderatorName",
+  subredditController.inviteModerator
+);
 // router.delete(
 //   "/:subredditName/moderator/:moderatorName",
 //   subredditController.deletemoderator
