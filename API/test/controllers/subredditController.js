@@ -6,7 +6,10 @@ const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
 
 const SubredditController = require("./../../controllers/subredditController");
-const { subredditErrors } = require("./../../error_handling/errors");
+const {
+  subredditErrors,
+  userErrors,
+} = require("./../../error_handling/errors");
 dotenv.config();
 chai.use(sinonChai);
 // const proxyquire = require("proxyquire");
@@ -774,4 +777,350 @@ describe("Subreddit Controller Test", () => {
 
     //********************************************** */
   });
+  // !================================================
+  describe("invite moderator Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: true };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(204);
+    });
+    // ***********************************************************************
+    it("second test fail", async () => {
+      const req = {
+        params: {
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: true };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+    });
+    // ============================================
+    it("third test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: true };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Missing required parameter moderatorName",
+      });
+    });
+    //********************************************** */
+    it("fourth test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "please provide a permissions",
+      });
+    });
+    //============================================
+    it("fifth test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Subreddit not found",
+      });
+    });
+    // ==================================================
+    it("6th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: subredditErrors.NOT_MODERATOR };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "you are not moderator to preform this action",
+      });
+    });
+    // =====================================================
+    it("7th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: userErrors.USER_NOT_FOUND };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+
+      await subredditController.inviteModerator(req, res);
+
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user not found",
+      });
+    });
+    // ==============================================
+    it("8th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: userErrors.ALREADY_MODERATOR };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+
+      await subredditController.inviteModerator(req, res);
+
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user is already moderator",
+      });
+    });
+    // =============================
+    it("9th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          p: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: subredditErrors.MONGO_ERR };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+
+      await subredditController.inviteModerator(req, res);
+
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: undefined,
+      });
+    });
+  });
+  
 });

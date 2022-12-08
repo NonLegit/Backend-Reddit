@@ -1,4 +1,4 @@
-const { subredditErrors } = require("../error_handling/errors");
+const { subredditErrors, userErrors } = require("../error_handling/errors");
 
 class subredditController {
   constructor({ subredditService, UserService }) {
@@ -343,38 +343,74 @@ class subredditController {
     }
   }
   // TODO: need refactoring
-  async inviteModerator(req, res) {
+  inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    let newModName = req.params.moderatorName;
+    let moderatorName = req.params.moderatorName;
     let data = req.body;
 
-    try {
-      let response = await this.subredditServices.inviteMod(
-        subredditName,
-        userId,
-        newModName,
-        data
-      );
-      console.log(response);
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.message,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.message,
-        });
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+
+    if (!subredditName) {
+      res.status(400).json({
         status: "fail",
+        errorMessage: "Missing required parameter subredditName",
       });
+      return;
     }
-  }
+    if (!moderatorName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter moderatorName",
+      });
+      return;
+    }
+    if (isEmpty(data)) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "please provide a permissions",
+      });
+      return;
+    }
+    let invitation = await this.subredditServices.inviteMod(
+      subredditName,
+      userId,
+      moderatorName,
+      data
+    );
+
+    // console.log(invitation);
+    if (!invitation.success) {
+      let msg, stat;
+      switch (invitation.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.ALREADY_MODERATOR:
+          msg = "user is already moderator";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = invitation.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({ status: "success" });
+  };
   // TODO: need refactoring
   async updatePermissions(req, res) {
     let subredditName = req.params.subredditName;
