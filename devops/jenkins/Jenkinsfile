@@ -1,9 +1,8 @@
 pipeline {
     agent any
     stages {
-    		when { branch "development" }
         stage('Building backend') {
-	
+    	    when { branch "development" }
             environment {
                 GIT_PASSWORD = credentials('github-pat')
                 DB_CREDS = credentials('db-creds')
@@ -93,7 +92,7 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
             }
         }
         stage('Deploying backend') {
-    				when { branch "development" }
+    	    when { branch "development" }
             steps {
                 sh '''
                     cd /var/jenkins_home/docker-compose/backend
