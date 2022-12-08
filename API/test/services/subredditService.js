@@ -601,7 +601,11 @@ describe("Subreddit Test", () => {
               success: true,
               doc: [
                 {
-                  fixedName: "subreddit",
+                  subscribed: [
+                    {
+                      fixedName: "subreddit",
+                    },
+                  ],
                 },
               ],
             };
@@ -611,11 +615,13 @@ describe("Subreddit Test", () => {
           getSubreddits: async (userId, type) => {
             return {
               success: true,
-              doc: [
-                {
-                  fixedName: "subreddit",
-                },
-              ],
+              doc: {
+                subscribed: [
+                  {
+                    fixedName: "subreddit",
+                  },
+                ],
+              },
             };
           },
         };
@@ -630,7 +636,7 @@ describe("Subreddit Test", () => {
           "1",
           "subscriber"
         );
-
+        console.log(result);
         expect(result.success).to.equal(true);
         expect(result.data[0].fixedName).to.equal("subreddit");
       });

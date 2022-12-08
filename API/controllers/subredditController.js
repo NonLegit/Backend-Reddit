@@ -349,7 +349,6 @@ class subredditController {
     let moderatorName = req.params.moderatorName;
     let data = req.body;
 
-    console.log("hiii from controller");
 
     if (!subredditName) {
       res.status(400).json({
@@ -372,7 +371,6 @@ class subredditController {
       });
       return;
     }
-    console.log("hii before call");
     let invitation = await this.subredditServices.inviteMod(
       subredditName,
       userId,
