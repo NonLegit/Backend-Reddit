@@ -753,7 +753,6 @@ class subredditService {
    * @returns {boolean}
    */
   async subscriable(subredditName, userId) {
-    console.log("kiroo service");
     const subreddit = await this.subredditRepository.findByName(
       subredditName,
       "punished _id"
