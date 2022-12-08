@@ -44,6 +44,7 @@ PORT=8000
 DATABASE=mongodb://\'$DB_CREDS_USR\':\'$DB_CREDS_PSW\'@mongodb/\'$DB_NAME\'?authSource=admin
 
 FRONTDOMAIN="https://web.nonlegit.click"
+CROSSDOMAIN="https://app.nonlegit.click"
 JWT_SECRET=\'$JWT_SECRET\'
 JWT_EXPIRES_IN=3d
 JWT_COOKIE_EXPIRES_IN=3
