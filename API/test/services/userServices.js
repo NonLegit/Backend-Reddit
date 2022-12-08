@@ -669,4 +669,251 @@ describe("User Services Test", () => {
       assert.equal(result.success, false);
     });
   });
+
+  // replace profile
+  describe("replaceProfile  ", () => {
+    it("test should be success", () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "http://localhost:8000/icon.png",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = userServiceObj.replaceProfile(me);
+      assert.equal(result.profilePicture, "icon.png");
+      assert.equal(result.profileBackground, me.profileBackground);
+    });
+  });
+  // check block status
+
+  describe("checkBlockStatus ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        meUserRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.checkBlockStatus(me, other);
+      assert.equal(result, false);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        meUserRelationship: [
+          {
+            userId: "1",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.checkBlockStatus(me, other);
+      assert.equal(result, true);
+    });
+  });
+
+
+  // block user
+
+  describe("blockUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.blockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[0].status, "blocked");
+      assert.equal(other.userMeRelationship[0].status, "blocked");
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.blockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[1].status, "blocked");
+      assert.equal(other.userMeRelationship[2].status, "blocked");
+    });
+  });
+
+  // unblock user
+  describe("unBlockUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "blocked",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "blocked",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.unBlockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[0].status, "none");
+      assert.equal(other.userMeRelationship[0].status, "none");
+    });
+  });
 });

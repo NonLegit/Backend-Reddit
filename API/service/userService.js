@@ -608,6 +608,7 @@ class UserService {
       `${process.env.BACKDOMAIN}/`,
       ""
     );
+    return doc
   }
   async checkBlockStatus(me, otherUser) {
     console.log(otherUser.meUserRelationship);
