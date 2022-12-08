@@ -18,7 +18,7 @@ app.use(cookieParser());
 app.use(
   cors({
     credentials: true,
-    origin: process.env.FRONTDOMAIN,
+    origin: [process.env.FRONTDOMAIN, process.env.CROSSDOMAIN],
     allowedHeaders: "Content-Type,*",
     methods: "GET,PUT,POST,DELETE,OPTIONS,PATCH",
   })
@@ -29,10 +29,11 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 app.use(express.json({ limit: "10kb" }));
+app.use(express.urlencoded({ extended: true })); //Parse URL-encoded bodies
 // Data sanitization against NoSQL query injection
 
 // Serving static files
-//app.use(express.static(`${__dirname}/public`));
+app.use(express.static(`${__dirname}/public`));
 
 // app.use(function (req, res, next) {
 //   // process.env.NODE_ENV != "development" &&
@@ -54,7 +55,10 @@ app.use("/api/v1/comments", commentRouter);
 app.use(errorHandler);
 
 app.all("*", (req, res, next) => {
-  res.status(500).send("problem!");
+  res.status(404).json({
+    status: "fail",
+    errorMessage: "Invaild Request URL",
+  });
 });
 
 module.exports = app;

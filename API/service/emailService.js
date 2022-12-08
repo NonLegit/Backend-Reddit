@@ -16,7 +16,9 @@ module.exports = class Email {
     if (process.env.NODE_ENV === "production") {
       // Sendgrid
       return nodemailer.createTransport({
-        service: "SendGrid",
+
+        host: process.env.EMAIL_HOST,
+        port: process.env.EMAIL_PORT,
         auth: {
           user: process.env.NONLEGITEMAIL,
           pass: process.env.NONLEGITPASSWORD,
@@ -64,10 +66,13 @@ module.exports = class Email {
     const transporter = this.newTransport();
     await transporter.sendMail(mailOptions);
   }
-  async sendUserName(user,url) {
+  async sendUserName(user, url) {
     //let testAccount = await nodemailer.createTestAccount();
     console.log("read html");
-    let html = await readFileAsync("./public/html/username_reset.html", "utf-8");
+    let html = await readFileAsync(
+      "./public/html/username_reset.html",
+      "utf-8"
+    );
     html = html.replaceAll("u/username_replace", "u/" + user.userName);
     // replace button link to frontdomain
     html = html.replaceAll("FrontDomain", url);
@@ -75,7 +80,7 @@ module.exports = class Email {
       from: this.from,
       to: user.email,
       subject: "So you wanna know your Reddit username, huh?",
-      html:html,
+      html: html,
       text: `Hi there,
             You forgot it didn't you? Hey, it happens. Here you go:
             Your username is ${user.userName}

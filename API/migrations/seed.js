@@ -2,8 +2,11 @@ const mongoose = require("mongoose");
 const Mockgoose = require("mockgoose").Mockgoose;
 const User = require("../models/userModel");
 const Post = require("../models/postModel");
-const dotenv = require("dotenv");
+const Flair = require("../models/flairModel");
 const Subreddit = require("../models/subredditModel");
+const Social = require("../models/socialModel");
+
+const dotenv = require("dotenv");
 dotenv.config();
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE;
@@ -24,91 +27,118 @@ if (process.env.NODE_ENV === "test") {
 
 module.exports = async function seeder() {
   let defaultImg = `default.png`;
-  let postImg = `default.jpg`;
+  let postImg = `${process.env.BACKDOMAIN}/posts/default.jpg`;
+
+  let facebook = await Social.create({
+    type: "Facebook",
+    baseLink: "https://facebook.com/",
+    placeholderLink: "https://facebook.com",
+    check:"https://facebook.com/",
+    icon: "icons/facebook.png",
+  });
+  let twitter = await Social.create({
+    type: "Twitter",
+    baseLink: "https://twitter.com/",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/twitter.png",
+  });
+  let tiktok = await Social.create({
+    type: "Tiktok",
+    baseLink: "https://tiktok.com/@",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/tiktok.png",
+  });
+  let instagram = await Social.create({
+    type: "Instagram",
+    baseLink: "https://instagram.com/",
+    placeholderLink: "@username",
+    check:"@",
+    icon: "icons/instagram.png",
+  });
+
+  let discord = await Social.create({
+    type: "Discord",
+    baseLink: "https://discord.com/",
+    placeholderLink: "https://discord.com",
+    check:"https://discord.com/",
+    icon: "icons/discord.png",
+  });
+  let reddit = await Social.create({
+    type: "Reddit",
+    baseLink: "https://reddit.com/user/",
+    placeholderLink: "u/user",
+    check:"u/",
+    icon: "icons/reddit.png",
+  });
+  let youtube = await Social.create({
+    type: "Youtube",
+    baseLink: "https://youtube.com/",
+    placeholderLink: "https://youtube.com",
+    check:"https://youtube.com/",
+    icon: "icons/youtube.png",
+  });
 
   let user0 = await User.create({
     userName: "Mohab",
     email: "Mohab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user1 = await User.create({
     userName: "Eslam",
     email: "Eslam@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user2 = await User.create({
     userName: "Hosny",
     email: "Hosny@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user3 = await User.create({
     userName: "Nour",
     email: "Nour@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user4 = await User.create({
     userName: "Basma",
     email: "Basma@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user5 = await User.create({
     userName: "Fady",
     email: "Fady@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user6 = await User.create({
     userName: "Adham",
     email: "Adham@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user7 = await User.create({
     userName: "Madbouly",
     email: "Madbouly@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user8 = await User.create({
     userName: "Zeinab",
     email: "Zeinab@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user9 = await User.create({
     userName: "Eman",
     email: "Eman@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user10 = await User.create({
     userName: "Fawzy",
     email: "Fawzy@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
   let user11 = await User.create({
     userName: "Amr",
     email: "Amr@gmail.com",
     password: "Aa123456*",
-    profilePicture: defaultImg,
-    profileBackground: defaultImg,
   });
 
   //let userAhmed = await User.findOne({ userName: "Ahmed" });
@@ -125,7 +155,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 2,
+    votes: 34,
+    views: 90,
+    shareCount: 2,
+    commentCount: 9,
   });
   let post2 = await Post.create({
     title: "Second Post",
@@ -139,7 +172,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 0,
+    votes: -60,
+    views: 95,
+    shareCount: 0,
+    commentCount: 9,
   });
   let post3 = await Post.create({
     title: "Thrid Post",
@@ -153,7 +189,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 2,
+    votes: 90,
+    views: 500,
+    shareCount: 0,
+    commentCount: 66,
   });
   let post4 = await Post.create({
     title: "Fourth Post",
@@ -168,6 +207,9 @@ module.exports = async function seeder() {
     suggestedSort: "top",
     scheduled: false,
     votes: 0,
+    views: 0,
+    shareCount: 0,
+    commentCount: 0,
   });
   let post5 = await Post.create({
     title: "Fifth Post",
@@ -181,8 +223,30 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: -1,
+    votes: 0,
+    views: 8,
+    shareCount: 0,
+    commentCount: 0,
     images: [postImg],
+  });
+
+  let flair1 = await Flair.create({
+    text: "first flair",
+    backgroundColor: "#111111",
+    textColor: "#ffffff",
+    permissions: "modOnly",
+  });
+  let flair2 = await Flair.create({
+    text: "second flair",
+    backgroundColor: "#121212",
+    textColor: "#eeeeee",
+    permissions: "modOnly",
+  });
+  let flair3 = await Flair.create({
+    text: "third flair",
+    backgroundColor: "#111111",
+    textColor: "#f1f3f3",
+    permissions: "modOnly",
   });
 
   await User.findOneAndUpdate(
@@ -198,6 +262,12 @@ module.exports = async function seeder() {
           ],
         },
         saved: { $each: [post2._id, post3._id, post4._id] },
+        socialLinks: {
+          $each: [
+            { social: facebook._id, userLink: "facebook" ,displayText:"Nour"},
+            { social: twitter._id, userLink: "twitter",displayText:"Nour" },
+          ],
+        },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },
@@ -283,7 +353,7 @@ module.exports = async function seeder() {
       { _id: subreddit1 },
       {
         description: "this is a Nonlegit subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -305,6 +375,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -320,7 +391,7 @@ module.exports = async function seeder() {
       { _id: subreddit2 },
       {
         description: "this is a selm alsodan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -342,6 +413,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -356,7 +428,7 @@ module.exports = async function seeder() {
       { _id: subreddit3 },
       {
         description: "this is a yaaah yalmedan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -378,6 +450,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -392,7 +465,7 @@ module.exports = async function seeder() {
       { _id: subreddit4 },
       {
         description: "this is a yaaah fl share3 subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -414,6 +487,7 @@ module.exports = async function seeder() {
               posts: true,
             },
           },
+          flairIds: { $each: [flair1._id, flair2._id, flair3._id] },
         },
       },
       { new: true }
@@ -428,7 +502,7 @@ module.exports = async function seeder() {
       { _id: subreddit5 },
       {
         description: "this is a al3enb al3enb al3enb subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `default.png`,
         membersCount: 123330,
         rules: [
           {
@@ -454,6 +528,121 @@ module.exports = async function seeder() {
       },
       { new: true }
     );
+    let post6 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
+      views: 300,
+      shareCount: 30,
+      commentCount: 9,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+
+    let post7 = await Post.create({
+      title: "subreddit Post 2",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 5,
+      views: 30,
+      shareCount: 100,
+      commentCount: 8,
+      images: [postImg],
+      flairId: flair2._id,
+    });
+    let post8 = await Post.create({
+      title: "subreddit Post 3",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user1._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 1000,
+      views: 100,
+      shareCount: 4,
+      commentCount: 0,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post9 = await Post.create({
+      title: "subreddit Post 4",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user4._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 5,
+      views: 0,
+      shareCount: 0,
+      commentCount: 800,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post10 = await Post.create({
+      title: "subreddit Post 5",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: -200,
+      views: 300,
+      shareCount: 0,
+      commentCount: 90,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+    let post11 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 1000,
+      views: 3000,
+      shareCount: 200,
+      commentCount: 300,
+      images: [postImg],
+      flairId: flair3._id,
+    });
   } catch (error) {
     console.log(error);
   }

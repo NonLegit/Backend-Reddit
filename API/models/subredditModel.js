@@ -49,6 +49,7 @@ const subredditSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
+    default: "",
     trim: true,
   },
   language: {
@@ -169,7 +170,7 @@ const subredditSchema = new mongoose.Schema({
         type: String,
         required: false,
         trim: true, // *TODO: it will be unique with time stamp and username
-        default: "profile.png",
+        default: "users/default.png",
       },
       moderatorPermissions: {
         type: Object,

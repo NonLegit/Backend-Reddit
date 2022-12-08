@@ -130,34 +130,37 @@ const postSchema = new mongoose.Schema({
   sortOnHot: {
     type: Number,
     required: false,
- 
   },
   sortOnBest: {
     type: Number,
     required: false,
-    
   },
-}
-);
+  isSpam: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+});
 postSchema.pre("save", function (next) {
   // this points to the current query
-  
-  
-  this.sortOnHot =(this.createdAt.getTime())*0.5+ (this.votes) * 0.3 + (this.commentCount) * 0.2;
-  this.sortOnBest=(this.createdAt.getTime())*0.4+(this.votes)*0.25+(this.commentCount)*0.2+(this.shareCount)*0.15;
-  
+
+  this.sortOnHot =
+    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.commentCount * 0.2;
+  this.sortOnBest =
+    this.createdAt.getTime() * 0.4 +
+    this.votes * 0.25 +
+    this.commentCount * 0.2 +
+    this.shareCount * 0.15;
+
   next();
 });
 
-
 //Whoever added this middleware should add more restrictions
-postSchema.pre('find', function() {
-  this.populate('owner');
-  this.populate('author');
-  this.populate('flairId');
- 
+postSchema.pre("find", function () {
+  this.populate("owner");
+  this.populate("author");
+  this.populate("flairId");
 });
-
 
 // postSchema.pre("findOneAndUpdate", async function (next) {
 //   if (this._update.isDeleted) {
@@ -173,7 +176,7 @@ postSchema.pre('find', function() {
 // postSchema.pre('find', function(){
 //   this.sortOnHot = (this.votes) * 0.8 + (this.commentCount) * 0.2;
 //   this.sortOnBest=(this.createdAt.getTime())*0.4+(this.votes)*0.25+(this.commentCount)*0.2+(this.shareCount)*0.15;
-  
+
 // });
 // postSchema.virtual('sortOnHot').get(function () {
 //   return (this.votes)*0.8+(this.commentCount)*0.2;
