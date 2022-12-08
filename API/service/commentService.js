@@ -81,7 +81,7 @@ class CommentService {
     if (!author.equals(userId))
       return { success: false, error: commentErrors.NOT_AUTHOR };
 
-    const updatedComment = await this.commentRepo.updatetext(id, data.text);
+    const updatedComment = await this.commentRepo.updateText(id, data.text);
     return { success: true, data: updatedComment.doc };
   }
 
