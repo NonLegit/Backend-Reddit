@@ -112,7 +112,9 @@ class AuthenticationController {
             if (!fs.existsSync(dir)) {
               fs.mkdirSync(dir, { recursive: true });
             }
-          } catch (error) {}
+          } catch (error) {
+            console.log(error);
+          }
 
           this.createCookie(res, user.token, 201);
         } else {

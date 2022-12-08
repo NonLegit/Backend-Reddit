@@ -114,6 +114,8 @@ class UserController {
       description: user.description,
       adultContent: user.adultContent,
       nsfw: user.nsfw,
+      socialLinks: user.socialLinks,
+      country: user.country,
     };
     res.status(200).json({
       status: "success",
@@ -167,6 +169,8 @@ class UserController {
           autoplayMedia: user.data.autoplayMedia,
           adultContent: user.data.adultContent,
           isFollowed: isFollowed,
+          country: user.data.country,
+          socialLinks: user.data.socialLinks,
         };
         res.status(200).json({
           status: "success",
@@ -178,6 +182,200 @@ class UserController {
           errorMessage: "User Not Found",
         });
       }
+    }
+  };
+  getSocialLinks = async (req, res, next) => {
+    let data = await this.userServices.getSocialLinks();
+
+    res.status(200).json({
+      status: "success",
+      socialLinks: data,
+    });
+  };
+  addSocialLink = async (req, res, next) => {
+    let displayText = req.body.displayText;
+    let userLink = req.body.userLink;
+    let socialId = req.body.socialId;
+    let me = req.user;
+    if (
+      displayText === undefined ||
+      userLink === undefined ||
+      socialId === undefined
+    ) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide displayText , userLink and socialId ",
+      });
+    } else {
+      let data = await this.userServices.createSocialLinks(
+        me,
+        displayText,
+        userLink,
+        socialId
+      );
+      if (data.success === true) {
+        res.status(201).json({
+          status: "success",
+        });
+      } else {
+        if (data.error === 8) {
+          res.status(400).json({
+            status: "fail",
+            errorMessage: data.msg,
+          });
+        } else {
+          res.status(404).json({
+            status: "fail",
+            errorMessage: data.msg,
+          });
+        }
+      }
+    }
+  };
+
+  updateSocialLink = async (req, res, next) => {
+    let displayText = req.body.displayText;
+    let userLink = req.body.userLink;
+    let me = req.user;
+    let id = req.params.id;
+    if (displayText === undefined && userLink === undefined) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide displayText or userLink.",
+      });
+    } else {
+      let data = await this.userServices.updateSocialLinks(
+        me,
+        id,
+        userLink,
+        displayText
+      );
+      if (data.success === true) {
+        res.status(200).json({
+          status: "success",
+          socialLinks: data.socialLinks,
+        });
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "socialLink id not found",
+        });
+      }
+    }
+  };
+  deleteSocialLink = async (req, res, next) => {
+    let id = req.params.id;
+    let me = req.user;
+    let data = await this.userServices.deleteSocialLinks(me, id);
+
+    if (data.success === true) {
+      res.status(204).json({
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Invalid Social id",
+      });
+    }
+  };
+
+  // should i check that the user i want to block has block me ?
+  // assume Yes
+  // check that user who to block not me
+  blockUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+      if (user.success !== false) {
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+
+        if (!isBlockedMe) {
+          // Block the user ,check if i block him
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+
+          if (!meBlockedHim) {
+            await this.userServices.blockUser(me, user.data);
+
+            res.status(200).json({
+              status: "success",
+            });
+          } else {
+            res.status(304).json({
+              status: "success",
+            });
+          }
+        } else {
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "User Not Found",
+        });
+      }
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Try Blocking yourself",
+      });
+    }
+  };
+  unBlockUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+
+      if (user.success !== false) {
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+        if (!isBlockedMe) {
+          // Block the user ,check if i block him
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+          if (meBlockedHim) {
+            await this.userServices.unBlockUser(me, user.data);
+            res.status(200).json({
+              status: "success",
+            });
+          } else {
+            res.status(304).json({
+              status: "success",
+            });
+          }
+        } else {
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "User Not Found",
+        });
+      }
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Try UnBlocking yourself",
+      });
     }
   };
 }

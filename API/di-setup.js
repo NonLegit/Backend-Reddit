@@ -21,6 +21,7 @@ const PostRepository = require("./data_access/PostRepository");
 const FlairRepository = require("./data_access/FlairRepository");
 const MessageRepository = require("./data_access/MessageRepository");
 const SubredditRepository = require("./data_access/SubredditRepository");
+const SocialRepository = require("./data_access/SocialRepository");
 //Require Models
 const User = require("./models/userModel");
 const Post = require("./models/postModel");
@@ -28,6 +29,7 @@ const Comment = require("./models/commentModel");
 const subreddit = require("./models/subredditModel");
 const Message = require("./models/messageModel");
 const Flair = require("./models/flairModel");
+const Social = require("./models/socialModel");
 
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
@@ -56,6 +58,7 @@ function setup() {
     FlairRepository: awilix.asClass(FlairRepository),
     MessageRepository: awilix.asClass(MessageRepository),
     SubredditRepository: awilix.asClass(SubredditRepository),
+    SocialRepository: awilix.asClass(SocialRepository),
     // inject knexjs object with database connection pooling
     // support
     User: awilix.asValue(User),
@@ -64,6 +67,7 @@ function setup() {
     subreddit: awilix.asValue(subreddit),
     Message: awilix.asValue(Message),
     Flair: awilix.asValue(Flair),
+    Social: awilix.asValue(Social),
   });
 }
 

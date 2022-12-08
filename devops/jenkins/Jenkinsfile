@@ -1,43 +1,8 @@
 pipeline {
     agent any
     stages {
-        stage('Upgrading mockserver') {
-            when {
-                branch "API_documentation"
-            }
-            environment {
-                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
-                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-            }
-            steps {
-                sh '''
-                    mkdir node_tmp
-                    cd node_tmp
-                    curl https://mockserver-api-jenkins.s3.amazonaws.com/flush-reload.js -o flush-reload.js
-                    curl https://mockserver-api-jenkins.s3.amazonaws.com/upload-api.js -o upload-api.js
-                    
-                    # Install node.js dependencies.
-                    [ -z "$(npm list mockserver-client | grep empty)" ] || npm install mockserver-client
-                    [ -z "$(npm list @aws-sdk/client-s3 | grep empty)" ] || npm install @aws-sdk/client-s3
-                    
-                    cp ../API_documentation.yaml api.yaml
-                    
-                    export AWS_REGION=us-east-1
-                                                            
-                    sed -i "s/REPLACE_ME/API-v$BUILD_NUMBER.yaml/g" upload-api.js
-                    sed -i "s/REPLACE_ME/API-v$BUILD_NUMBER.yaml/g" flush-reload.js
-
-                    node upload-api.js
-
-                    node flush-reload.js flush
-                    node flush-reload.js load
-                '''
-            }
-        }
         stage('Building backend') {
-            when {
-                branch "development"
-            }
+    	    when { branch "development" }
             environment {
                 GIT_PASSWORD = credentials('github-pat')
                 DB_CREDS = credentials('db-creds')
@@ -79,6 +44,7 @@ PORT=8000
 DATABASE=mongodb://\'$DB_CREDS_USR\':\'$DB_CREDS_PSW\'@mongodb/\'$DB_NAME\'?authSource=admin
 
 FRONTDOMAIN="https://web.nonlegit.click"
+CROSSDOMAIN="https://app.nonlegit.click"
 JWT_SECRET=\'$JWT_SECRET\'
 JWT_EXPIRES_IN=3d
 JWT_COOKIE_EXPIRES_IN=3
@@ -102,7 +68,6 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
                     npm run up
                     node server.js
                     ' > script-up.sh
-
 
                     sed -i 's/<USER>/\'$DB_CREDS_USR\'/g;s/<PASSWORD>/\'$DB_CREDS_PSW\'/g' package.json
 
@@ -128,9 +93,7 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
             }
         }
         stage('Deploying backend') {
-            when {
-                branch "development"
-            }
+    	    when { branch "development" }
             steps {
                 sh '''
                     cd /var/jenkins_home/docker-compose/backend
