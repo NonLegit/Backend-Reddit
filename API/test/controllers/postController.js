@@ -19,6 +19,35 @@ const res = {
   status: sinon.stub().returns({ json: statusJsonSpy }),
   cookie: sinon.spy(),
 };
+const posts = [
+  {
+    _id: "637e7497b207b89c889ac1d6",
+    owner: "637e7493b207b89c889ac1c4",
+    ownerType: "User",
+    author: "637e7493b207b89c889ac1c4",
+    replies: [],
+    title: "First Post",
+    kind: "self",
+    text: "this is my first post on NONLEGIT",
+    images: [],
+    createdAt: "2022-11-23T19:29:21.916Z",
+    locked: false,
+    isDeleted: false,
+    sendReplies: true,
+    nsfw: false,
+    spoiler: false,
+    votes: 2,
+    views: 0,
+    commentCount: 0,
+    shareCount: 0,
+    suggestedSort: "top",
+    scheduled: false,
+    postVoteStatus: "1",
+    isSaved: false,
+    isHidden: false,
+    name: "Nour",
+  },
+];
 
 describe("Post Controller Test", () => {
   describe("userPosts Test", () => {
@@ -613,6 +642,265 @@ describe("Post Controller Test", () => {
       });
     });
   });
+  //////////////////////////////////////////////////////
+
+  describe("get hot posts", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+        // toFilter: " "
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+
+        status: "OK",
+        data: posts
+      })
+
+    });
+
+    it("2) test subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+        // toFilter: " "
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+
+         message : "Subreddit not found",
+            
+            status : "Not Found"
+      })
+
+    })
+
+    
+  });
+
+  describe("get top posts", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getTopPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+
+        status: "OK",
+        data: posts
+      })
+
+    }),
+        it("2) test subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+        // toFilter: " "
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getTopPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+
+         message : "Subreddit not found",
+            
+            status : "Not Found"
+      })
+
+    })
+  })
+
+
+ describe("get new posts", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+
+        status: "OK",
+        data: posts
+      })
+
+    }),
+        it("2) test subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+        // toFilter: " "
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+
+         message : "Subreddit not found",
+            
+            status : "Not Found"
+      })
+
+    })
+  })
+
+describe("get best posts", () => {
+  it("1) test success", async () => {
+    const req = {
+      isAuthorized: true,
+      user: {
+        _id: " "
+      },
+    };
+    const PostService = {
+      getPosts: async () => {
+        const response = {
+          success: true,
+          data: posts
+        }
+        return response;
+      }
+    };
+    const on = {};
+    const postObj = new auth({ PostService, on });
+    await postObj.getBestPosts(req, res);
+    expect(res.status).to.have.been.calledWith(200);
+    expect(res.status(200).json).to.have.been.calledWith({
+
+      status: "OK",
+      data: posts
+    })
+
+  });
+    it("2) test subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " "
+        },
+        // toFilter: " "
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND
+          }
+          return response;
+        }
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getBestPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+
+         message : "Subreddit not found",
+            
+            status : "Not Found"
+      })
+
+    })
+})
+  //////////////////////////////////////////////////
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
 });
 /*
 describe("Post controller test", () => {

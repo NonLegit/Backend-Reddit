@@ -588,7 +588,7 @@ class subredditService {
     }
 
     console.log(flair);
-    return { success: true, data: flair };
+    return { success: true, data: flair.doc };
   }
 
   /**
@@ -666,7 +666,7 @@ class subredditService {
     if (!flair.success) {
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    return { success: true, data: flair };
+    return { success: true, data: flair.doc };
   }
 
   /**
@@ -724,7 +724,10 @@ class subredditService {
     if (!response.success) {
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    return { success: true, data: response };
+    console.log("hhhhhhhhhhhhh");
+    console.log(response);
+    console.log("hhhhhhhhhhhhh");
+    return { success: true, data: response.doc };
   }
 
   /**
@@ -742,8 +745,8 @@ class subredditService {
     }
      console.log("ffffffffffffffffff");
     // console.log(flairs);
-    console.log("jjjjjjjjjjjjjjjjjj");
-    return { success: true, data: flairs};
+    console.log(flairs);
+    return { success: true, data: flairs.doc};
   }
 
   /**
