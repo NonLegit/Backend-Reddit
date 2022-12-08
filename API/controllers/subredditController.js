@@ -889,12 +889,12 @@ class subredditController {
 
   subscribe = async (req, res) => {
     //setting sub default behavior
-    const subredditName = req.params.subredditName;
-    const action = req.query.action || "sub";
-    if (action !== "sub" && action !== "unsub") {
+    const subredditName = req.params?.subredditName;
+    const action = req.query?.action || "sub";
+    if (action !== "sub" && action !== "unsub" || !subredditName) {
       res.status(400).json({
         status: "fail",
-        message: "Invalid action",
+        message: "Invalid request",
       });
       return;
     }
