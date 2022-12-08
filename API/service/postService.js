@@ -38,7 +38,7 @@ class PostService {
     if (kind !== "self" || sharedFrom)
       return { success: false, error: postErrors.NOT_EDITABLE };
 
-    const updatedPost = await this.postRepo.updatetext(id, data.text);
+    const updatedPost = await this.postRepo.updateText(id, data.text);
     return { success: true, data: updatedPost.doc };
   }
 
@@ -99,12 +99,12 @@ class PostService {
       if (data.flairId && !subreddit.doc.flairIds.includes(data.flairId)) {
         return { success: false, error: postErrors.FLAIR_NOT_FOUND };
       }
-    }
+    } else return { success: false, error: postErrors.INVALID_OWNER };
 
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
-    return { sucess: false, error: postErrors.MONGO_ERR, msg: post.msg };
+    return { success: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
 
   getPostOwnerAndAuthor(posts, me) {
@@ -129,14 +129,16 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/api/v1/users/image/`+owner.profilePicture,
+          icon:
+            `${process.env.BACKDOMAIN}/api/v1/users/image/` +
+            owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon:  `${process.env.BACKDOMAIN}/api/v1/users/image/` +owner.icon
+          icon: `${process.env.BACKDOMAIN}/api/v1/users/image/` + owner.icon,
         };
       }
 

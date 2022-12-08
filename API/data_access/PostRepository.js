@@ -1,6 +1,6 @@
 //const Post = require("../models/postModel");
 const Repository = require("./repository");
-const { mongoErrors ,decorateError} = require("../error_handling/errors");
+const { mongoErrors, decorateError } = require("../error_handling/errors");
 const APIFeatures = require("./apiFeatures");
 
 class PostRepository extends Repository {
@@ -8,7 +8,7 @@ class PostRepository extends Repository {
     super(Post);
   }
 
-  async updatetext(id, text) {
+  async updateText(id, text) {
     const post = await this.model.findByIdAndUpdate(
       id,
       { text: text },
@@ -49,7 +49,7 @@ class PostRepository extends Repository {
     let doc = await features.query.populate(popOptions);
     return { success: true, doc: doc };
   }
-  async getPosts(filter, query,sortType) {
+  async getPosts(filter, query, sortType) {
     try {
       // if (user) {
       //   //console.log("oooooooooooooooooooo");
@@ -60,33 +60,36 @@ class PostRepository extends Repository {
       // console.log(user);
       // let getSubredditPosts = filter ? { owner: filter, _id:{"$nin":user.hidden._id} } : { _id:{"$nin":user.hidden}};
 
-      let getSubredditPosts = filter ? { owner: filter} : {};
+      let getSubredditPosts = filter ? { owner: filter } : {};
 
       if (sortType == "hot") {
-        query.sort= "-sortOnHot";
-      }else if (sortType == "new") {
+        query.sort = "-sortOnHot";
+      } else if (sortType == "new") {
         query.sort = "-createdAt";
-      }else if (sortType == "top") {
+      } else if (sortType == "top") {
         query.sort = "-votes";
-      }else  {//best
+      } else {
+        //best
         query.sort = "-sortOnBest";
       }
-      
+
       console.log(query.sort);
-      const features = new APIFeatures(this.model.find(getSubredditPosts), query)
+      const features = new APIFeatures(
+        this.model.find(getSubredditPosts),
+        query
+      )
         .filter()
         .limitFields()
         .paginate()
         .sort();
       //console.log(doc);
       let doc = await features.query;
-       //console.log(doc);
-    if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      //console.log(doc);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
-      
     } catch (err) {
-        return { success: false, ...decorateError(err) };
+      return { success: false, ...decorateError(err) };
     }
   }
 }
