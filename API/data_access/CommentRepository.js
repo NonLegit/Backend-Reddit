@@ -19,7 +19,7 @@ class CommentRepository extends Repository {
     });
   }
 
-  async updatetext(id, text) {
+  async updateText(id, text) {
     const comment = await this.model.findByIdAndUpdate(
       id,
       { text: text },
