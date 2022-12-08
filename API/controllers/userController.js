@@ -63,7 +63,7 @@ class UserController {
   };
 
   usernameAvailable = async (req, res) => {
-    if (!req.query.userName) {
+    if (!req.query || !req.query.userName) {
       res.status(400).json({
         status: "fail",
         message: "userName query paramater is required",
