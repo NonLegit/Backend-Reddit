@@ -39,9 +39,24 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model
         .findOne({ fixedName: name })
-        .select(select + "-__v -punished");
+      .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+   async getSubreddit(name) {
+    try {
+      let doc = await this.model
+        .findOne({ fixedName: name });
+      
+      
+     
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -75,24 +90,6 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-
-
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
   /**
    * this function checks if user is owner or not by passing @subredditName and @iD
    * @param {string} subredditName - name of subreddit i want to check from
@@ -172,13 +169,14 @@ class SubredditRepository extends Repository {
     try {
       console.log("inside subreddit flairs");
       const doc = await this.model
-        .findOne({ name: subredditName })
+        .findOne({ fixedName: subredditName })
         .populate("flairIds")
         .select({ populated: 1, _id: 0, createdAt: 1 });
-
+      
+      
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-
-      return { success: true, doc: doc };
+     
+      return { success: true, doc: doc.flairIds };
     } catch (err) {
       return { success: false, ...decorateError(err) };
     }
@@ -186,7 +184,7 @@ class SubredditRepository extends Repository {
   async addFlairToSubreddit(subredditName, flairId) {
     try {
       const doc = await this.model.findOneAndUpdate(
-        { name: subredditName },
+        { fixedName: subredditName },
         { $push: { flairIds: flairId } }
       );
       if (!doc) {
@@ -201,7 +199,7 @@ class SubredditRepository extends Repository {
   async removeFlairFromSubreddit(subredditName, flairId) {
     try {
       const doc = await this.model.findOneAndUpdate(
-        { name: subredditName },
+        { fixedName: subredditName },
         { $pull: { flairIds: flairId } }
       );
       if (!doc) {

@@ -15,14 +15,14 @@ class subredditController {
     if (!validReq) {
       res.status(400).json({
         status: "fail",
-        message: "Invalid request",
+        errorMessage: "Invalid request",
       });
       return;
     }
     if (isEmpty(data)) {
       res.status(400).json({
         status: "fail",
-        message: "please provide a body",
+        errorMessage: "please provide a body",
       });
       return;
     }
@@ -68,14 +68,14 @@ class subredditController {
     if (!subredditName) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter subredditName",
+        errorMessage: "Missing required parameter subredditName",
       });
       return;
     }
     if (isEmpty(data)) {
       res.status(400).json({
         status: "fail",
-        message: "please provide a body",
+        errorMessage: "please provide a body",
       });
       return;
     }
@@ -118,11 +118,10 @@ class subredditController {
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    console.log("khaled hesham sayed");
     if (!subredditName) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter subredditName",
+        errorMessage: "Missing required parameter subredditName",
       });
       return;
     }
@@ -165,7 +164,7 @@ class subredditController {
     if (!subredditName) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter subredditName",
+        errorMessage: "Missing required parameter subredditName",
       });
       return;
     }
@@ -245,7 +244,7 @@ class subredditController {
     if (!location) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter location",
+        errorMessage: "Missing required parameter location",
       });
       return;
     }
@@ -280,13 +279,13 @@ class subredditController {
     });
   };
 
-  sibredditsModerated = async (req, res) => {
+  subredditsModerated = async (req, res) => {
     let userName = req.params.username;
 
     if (!userName) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter userName",
+        errorMessage: "Missing required parameter userName",
       });
       return;
     }
@@ -297,11 +296,6 @@ class subredditController {
     if (!subreddits.success) {
       let msg, stat;
       switch (subreddits.error) {
-        case subredditErrors.INVALID_ENUM:
-          msg = "Invalid location value !";
-          stat = 400;
-          break;
-
         case subredditErrors.MONGO_ERR:
           msg = subreddits.msg;
           stat = 400;
@@ -653,7 +647,7 @@ class subredditController {
 
       if (!flairs.success) {
         let message, statusCode, status;
-        switch (flair.error) {
+        switch (flairs.error) {
           case subredditErrors.SUBREDDIT_NOT_FOUND:
             message = "Subreddit not found";
             statusCode = 404;
