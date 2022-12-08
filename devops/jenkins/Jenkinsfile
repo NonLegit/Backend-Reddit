@@ -32,7 +32,7 @@ COPY ./index.html /usr/local/apache2/htdocs/" > Dockerfile
 
                     # Restarting the container
                     docker rm -f httpd_api_doc || true
-                    docker run -dit --name httpd_api_doc --network api_docs --ip 192.168.0.2 cynic0/httpd_apidoc
+                    docker run -dit --name httpd_api_doc --network api_docs --restart=always --ip 192.168.0.2 cynic0/httpd_apidoc
 
                     # Notifying Mohab
                     export AWS_REGION=us-east-1
