@@ -49,12 +49,12 @@ class CommentController {
 
   updateComment = async (req, res) => {
     //validate request params
-    const id = req.params.commentId;
+    const id = req.params?.commentId;
     const data = req.body;
     if (!id || !data.text) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter",
+        message: "Invalid request",
       });
       return;
     }
@@ -95,7 +95,7 @@ class CommentController {
 
   deleteComment = async (req, res) => {
     //validate request params
-    const id = req.params.commentId;
+    const id = req.params?.commentId;
     if (!id) {
       res.status(400).json({
         status: "fail",

@@ -29,7 +29,7 @@ class PostController {
           stat = 400;
           break;
         case postErrors.INVALID_OWNER:
-          msg = "Invalid ower type";
+          msg = "Invalid owner type";
           stat = 400;
           break;
         case postErrors.SUBREDDIT_NOT_FOUND:
@@ -59,8 +59,8 @@ class PostController {
 
   deletePost = async (req, res) => {
     //validate request params
-    const id = req.params.postId;
-    if (!id) {
+    const id = req.params?.postId;
+    if (!req.params || !id) {
       res.status(400).json({
         status: "fail",
         message: "Missing required parameter postId",
@@ -96,12 +96,12 @@ class PostController {
   };
 
   updatePost = async (req, res) => {
-    const id = req.params.postId;
+    const id = req.params?.postId;
     const data = req.body;
     if (!id || !data.text) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter",
+        message: "Invalid request",
       });
       return;
     }

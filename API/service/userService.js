@@ -431,7 +431,7 @@ class UserService {
     );
     //In order to subscribe, user should not be already subscribed
     if (action === "sub" && !alreadySubscribed) {
-      const temp = await this.userRepository.push(userId, {
+      await this.userRepository.push(userId, {
         subscribed: subredditId,
       });
       return true;

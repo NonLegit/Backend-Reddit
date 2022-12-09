@@ -1457,5 +1457,86 @@ describe("Subreddit Controller Test", () => {
         });
       });
     });
+
+    describe("Subscribe Test", () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        query: {
+          action: "sub",
+        },
+        user: {
+          _id: "10",
+        },
+      };
+
+      const UserService = {
+        subscribe: async () => true,
+      };
+      const subredditService = {
+        subscriable: async () => {
+          return { success: true };
+        },
+        updateUserCount: async () => {},
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      it("successful subscribe", async () => {
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "success",
+        });
+      });
+
+      it("invalid action", async () => {
+        UserService.subscribe = async () => false;
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid subscribtion action",
+        });
+      });
+
+      it("user banned", async () => {
+        subredditService.subscriable = async () => {
+          return { success: false, error: subredditErrors.BANNED };
+        };
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "user is banned from subreddit",
+        });
+      });
+
+      it("subreddit not found", async () => {
+        subredditService.subscriable = async () => {
+          return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+        };
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Subreddit not found",
+        });
+      });
+
+      it("invalid request", async () => {
+        delete req.params.subredditName;
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid request",
+        });
+      });
+    });
   });
 });

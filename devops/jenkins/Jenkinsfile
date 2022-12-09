@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    when { branch "development" }
     stages {
         stage('Building backend') {
+    	    when { branch "development" }
             environment {
                 GIT_PASSWORD = credentials('github-pat')
                 DB_CREDS = credentials('db-creds')
@@ -44,6 +44,7 @@ PORT=8000
 DATABASE=mongodb://\'$DB_CREDS_USR\':\'$DB_CREDS_PSW\'@mongodb/\'$DB_NAME\'?authSource=admin
 
 FRONTDOMAIN="https://web.nonlegit.click"
+CROSSDOMAIN="https://app.nonlegit.click"
 JWT_SECRET=\'$JWT_SECRET\'
 JWT_EXPIRES_IN=3d
 JWT_COOKIE_EXPIRES_IN=3
@@ -92,6 +93,7 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
             }
         }
         stage('Deploying backend') {
+    	    when { branch "development" }
             steps {
                 sh '''
                     cd /var/jenkins_home/docker-compose/backend
