@@ -573,7 +573,7 @@ class subredditService {
     if (!subreddit.doc.flairIds.includes(flairId)) {
       return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
-    return { success: true, data: subreddit };
+    return { success: true, data: subreddit.doc };
   }
 
   // /**
@@ -662,23 +662,18 @@ class subredditService {
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
-    let subreddit = await this.checkSubreddit(subredditName);
+    let subreddit = await this.subredditRepository.getSubredditFlairs(subredditName)
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-    let checkFlair = this.checkFlair(subreddit, flairId);
-    if (!checkFlair.success) {
+   
+    let flairIndex = subreddit.doc.find((el) => el._id.equals(flairId))
+    if (!flairIndex) {
       return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
 
-    let response = await this.flairRepository.findById(flairId);
-    if (!response.success) {
-      return { success: false, error: subredditErrors.MONGO_ERR };
-    }
-    console.log("hhhhhhhhhhhhh");
-    console.log(response);
-    console.log("hhhhhhhhhhhhh");
-    return { success: true, data: response.doc };
+    
+    return { success: true, data: flairIndex };
   }
 
   /**
