@@ -844,7 +844,7 @@ paths:
       parameters:
         - name: userName
           in: path
-          description: id of the user
+          description: user of the user
           required: true
           schema:
             type: string
@@ -908,7 +908,7 @@ paths:
       parameters:
         - name: userName
           in: path
-          description: id of the user
+          description: username of the user
           required: true
           schema:
             type: string
@@ -965,24 +965,41 @@ paths:
       tags:
         - Users
       summary: Follow a certain user
+      description: start seeing post & cooments and get notification from this user
       security:
         - BearerAuth: []
         - cookieAuth: []
       parameters:
         - name: userName
           in: path
-          description: id of the user
+          description: username of the user
           required: true
           schema:
             type: string
 
       responses:
-        "204":
+        "200":
           description: successful operation
-
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "304":
+          description: already followed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
         "400":
-          description: Bad Request
-
+          description: try following yourself
           content:
             application/json:
               schema:
@@ -996,18 +1013,192 @@ paths:
                 $ref: "#/components/schemas/error"
 
         "404":
-          description: Not found
+          description: User Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
+        "405":
+          description: Method Not Allowed , other user has blocked you
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
 
+  /users/{userName}/unfollow:
+    post:
+      tags:
+        - Users
+      summary: unfollow a certain user
+      description: stop seeing post & cooments or get notification from this user
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: userName
+          in: path
+          description: username of the user
+          required: true
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "304":
+          description: already unfollowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "400":
+          description: try unfollowing yourself
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: User Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "405":
+          description: Method Not Allowed , other user has blocked you
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/followers:
+    get:
+      tags:
+        - Users
+      summary: get my followers
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  followers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                          _id: 
+                            type: string
+                            example: ahmed
+                          userName: 
+                            type: string
+                            example: ahmed
+                          profilePicture:
+                            type: string
+                            example: users/ahmed/ahmed.png
+                          isFollowed:
+                            type: boolean
+                            example: truw
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/blocked:
+    get:
+      tags:
+        - Users
+      summary: get my blocked users
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: page
+          description: The page number
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  blocked:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                          _id: 
+                            type: string
+                            example: ahmed
+                          userName: 
+                            type: string
+                            example: ahmed
+                          profilePicture:
+                            type: string
+                            example: users/ahmed/ahmed.png
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+              
   /users/best:
     get:
       tags:
@@ -2505,8 +2696,31 @@ paths:
                   status:
                     type: string
                     example: success
+        304:
+          description: already hidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
         404:
-          description: failed operation
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2518,6 +2732,19 @@ paths:
                   errorMessage:
                     type: string
                     example: post not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post)
   /posts/{postId}/unhide:
     post:
       tags:
@@ -2544,8 +2771,31 @@ paths:
                   status:
                     type: string
                     example: success
+        304:
+          description: already unhidden
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
         404:
-          description: failed operation
+          description: Not Found
           content:
             application/json:
               schema:
@@ -2557,6 +2807,19 @@ paths:
                   errorMessage:
                     type: string
                     example: post not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post)
   /posts/{postId}/save:
     post:
       tags:
@@ -2575,36 +2838,65 @@ paths:
             type: string
 
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already saved
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
+        404:
+          description: Not Found
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: post not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post)
   /posts/{postId}/unsave:
     post:
       tags:
@@ -2623,36 +2915,220 @@ paths:
             type: string
 
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already unsaved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: post not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post)
+  
+  /posts/{postId}/pin:
+    post:
+      tags:
+        - Posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: pin a post in overview
+      description: This post is added to the list of the user pinned posts
+      parameters:
+        - name: postId
+          in: path
+          description: id of the post
+          required: true
+          schema:
+            type: string
 
-        "401":
-          description: Authorization Required
+      responses:
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already pinned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: post not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
+  /posts/{postId}/unpin:
+    post:
+      tags:
+        - Posts
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: unpin a  pinned post
+      description: This post is removed from the list of the user pinned posts
+      parameters:
+        - name: postId
+          in: path
+          description: id of the post
+          required: true
+          schema:
+            type: string
 
-        "404":
-          description: Not found
+      responses:
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already unpinned
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example:  Unauthorized
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
+  
   /posts/{postId}/marknsfw:
     patch:
       tags:
@@ -2945,14 +3421,22 @@ paths:
           required: true
           schema:
             type: string
-        - in: query
-          name: dir
-          description: "1 for upvote  0 for novote -1 for downvote"
-          required: true
-          schema:
-            type: integer
+      requestBody:
+        required: true
+        description: "1 for upvote  0 for novote -1 for downvote"
+        content:
+          application/json:
+            schema:
+                type: object
+                properties:
+                  dir:
+                    type: integer
+                    enum:
+                    - 1
+                    - 0
+                    - -1
       responses:
-        201:
+        200:
           description: Success operation
           content:
             application/json:
@@ -2962,8 +3446,8 @@ paths:
                   status:
                     type: string
                     example: success
-        409:
-          description: Conflict Not Completed Request
+        304:
+          description: Success operation
           content:
             application/json:
               schema:
@@ -2974,7 +3458,20 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example: "you already upvote (downvote) post"
+                    example: "you already upvote or  downvote or novote post"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -2988,7 +3485,19 @@ paths:
                   errorMessage:
                     type: string
                     example: post not found
-
+        405:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author)
   /posts/{postId}/spam:
     patch:
       tags:
