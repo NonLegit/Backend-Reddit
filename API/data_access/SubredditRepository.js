@@ -39,7 +39,7 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model
         .findOne({ fixedName: name })
-      .select(select + "-__v -punished");
+        .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
@@ -50,13 +50,9 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-   async getSubreddit(name) {
+  async getSubreddit(name) {
     try {
-      let doc = await this.model
-        .findOne({ fixedName: name });
-      
-      
-     
+      let doc = await this.model.findOne({ fixedName: name });
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -165,6 +161,39 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async addModerator(userId, userName, PP, subredditName, permissions) {
+    try {
+      // ---> problem here
+      let doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            moderators: {
+              id: userId,
+              userName: userName,
+              joiningDate: Date.now(),
+              profilePicture: PP,
+              moderatorPermissions: {
+                all: permissions.all,
+                access: permissions.access,
+                config: permissions.config,
+                flair: permissions.flair,
+                posts: permissions.posts,
+              },
+            },
+          },
+        }
+      );
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async getSubredditFlairs(subredditName) {
     try {
       console.log("inside subreddit flairs");
@@ -172,10 +201,9 @@ class SubredditRepository extends Repository {
         .findOne({ fixedName: subredditName })
         .populate("flairIds")
         .select({ populated: 1, _id: 0, createdAt: 1 });
-      
-      
+
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-     
+
       return { success: true, doc: doc.flairIds };
     } catch (err) {
       return { success: false, ...decorateError(err) };

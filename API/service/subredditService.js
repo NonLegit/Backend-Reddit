@@ -169,6 +169,62 @@ class subredditService {
       }
     }
   }
+
+  // TODO: unit testing
+  async handleInvitation(
+    userId,
+    userName,
+    profilePicture,
+    subredditName,
+    action
+  ) {
+    let subredditExisted = await this.retrieveSubreddit(
+      userId,
+      subredditName,
+      true
+    );
+    // console.log(subredditExisted);
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let invited = await this.userRepository.checkInvetation(
+      userId,
+      subredditExisted.data._id
+    );
+    if (!invited.success)
+      return {
+        success: false,
+        error: subredditErrors.NO_INVITATION,
+      };
+    if (action === "accept") {
+      let accepted = await this.subredditRepository.addModerator(
+        userId,
+        userName,
+        profilePicture,
+        subredditName,
+        invited.doc.pendingInvitations[0].permissions
+      );
+
+      if (!accepted.success)
+        return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+    //delete pending invitation
+
+    let allInvitations = await this.userRepository.returnInvitations(userId);
+    let invitations = allInvitations.doc.pendingInvitations;
+    let afterDelete = this.remove(invitations, subredditExisted.data._id);
+    let updateInvitations = await this.userRepository.updateInvitations(
+      userId,
+      afterDelete
+    );
+
+    return { success: true };
+  }
+  remove(list, value) {
+    return list.filter(function (ele) {
+      return !value.equals(ele.subredditId);
+    });
+  }
   /**
    * this function removes user from being moderator in a certain subreddit
    * @param {string} subredditName - name of subreddit i want to remove moderator from
@@ -178,115 +234,56 @@ class subredditService {
    */
   async deleteMod(subredditName, userId, modName) {
     // ..
-    try {
-      // TODO: fix update error
-      //! check subreddit existed or not
-      let subredditExisted = await this.getSubreddit({ name: subredditName });
-      if (subredditExisted.status === "fail") {
-        const response = {
-          status: "fail",
-          statusCode: 404,
-          message: "subreddit doesn't exist",
-        };
-        return response;
-      } else {
-        //! 2]check user is moderator
-        let canDelete = await this.subredditRepository.getOne(
-          { name: subredditName, "moderators.username": userId },
-          { "moderators.mod_time.$": 1 },
+    // let removeHim = await this.subredditRepository.updateOneByQuery(
+    //   {
+    //     name: subredditName,
+    //     "moderators.username": userExisted.doc._id,
+    //   },
+    //   { $pull: { "moderators.username": userExisted.doc._id } }
+    // );
+
+    let subredditExisted = await this.retrieveSubreddit(
+      userId,
+      subredditName,
+      true
+    );
+    // console.log(subredditExisted);
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    else {
+      // 2]check user is moderator
+      let canDelete = await this.subredditRepository.isModerator(
+        subredditName,
+        userId
+      );
+      console.log(canDelete);
+      if (!canDelete.success)
+        return { success: false, error: subredditErrors.NOT_MODERATOR };
+      else {
+        // he is moderator and subreddit is existed => 3]check username existed
+        let userExisted = await this.userRepository.findByUserName(
+          modName,
+          "",
           ""
         );
-        if (canDelete.status === "fail") {
-          const response = {
-            status: "fail",
-            statusCode: 401,
-            message: "you are not moderator to this subreddit",
-          };
-          return response;
-        } else {
-          //! he is moderator and subreddit is existed => 3]check username existed
-          let userExisted = await this.userRepository.getOne(
-            {
-              userName: modName,
-            },
-            "",
-            ""
+        console.log(userExisted);
+        if (!userExisted.success)
+          return { success: false, error: userErrors.USER_NOT_FOUND };
+        else {
+          //  4] check if he is mod to this subreddit
+          let UserIsMod = await this.subredditRepository.isModerator(
+            subredditName,
+            userExisted.doc._id
           );
-          console.log(userExisted.doc);
-          if (userExisted.status === "fail") {
-            const response = {
-              status: "fail",
-              statusCode: 404,
-              message: "this username doesn't exist",
-            };
-            return response;
-          } else {
-            // ! 4] check if he is mod to this subreddit
-            let UserIsMod = await this.subredditRepository.getOne(
-              {
-                name: subredditName,
-                "moderators.username": userExisted.doc._id,
-              },
-              { "moderators.mod_time.$": 1 },
-              ""
-            );
-            if (UserIsMod.status === "fail") {
-              const response = {
-                status: "fail",
-                statusCode: 404,
-                message: "this username is not moderator",
-              };
-              return response;
-            } else {
-              // ! check if iam mod before him or not
-              if (
-                parseInt(canDelete.doc.moderators[0]["mod_time"]) <=
-                parseInt(UserIsMod.doc.moderators[0]["mod_time"])
-              ) {
-                // ! remove him
-                console.log(userExisted.doc._id);
-                let removeHim = await this.subredditRepository.updateOneByQuery(
-                  {
-                    name: subredditName,
-                    "moderators.username": userExisted.doc._id,
-                  },
-                  { $pull: { "moderators.username": userExisted.doc._id } }
-                );
-                console.log(removeHim);
-                if (removeHim.status === "fail") {
-                  const response = {
-                    status: "fail",
-                    statusCode: 404,
-                    message: "something went wrong",
-                  };
-                  return response;
-                } else {
-                  const response = {
-                    status: "success",
-                    statusCode: 204,
-                    message: "",
-                  };
-                  return response;
-                }
-              } else {
-                const response = {
-                  status: "fail",
-                  statusCode: 401,
-                  message: "cannot remove moderator elder than you",
-                };
-                return response;
-              }
-            }
+          if (!UserIsMod.success)
+            return { success: false, error: userErrors.Not_MODERATOR };
+          else if (
+            parseInt(canDelete.doc.moderators[0]["mod_time"]) <=
+            parseInt(UserIsMod.doc.moderators[0]["mod_time"])
+          ) {
           }
         }
       }
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
     }
   }
 
@@ -691,10 +688,10 @@ class subredditService {
     if (!flairs.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-     console.log("ffffffffffffffffff");
+    console.log("ffffffffffffffffff");
     // console.log(flairs);
     console.log("jjjjjjjjjjjjjjjjjj");
-    return { success: true, data: flairs};
+    return { success: true, data: flairs };
   }
 
   /**

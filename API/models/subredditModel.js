@@ -21,7 +21,7 @@ const subredditSchema = new mongoose.Schema({
       2,
       "A subreddit name must have more or equal then 2 characters",
     ],
-  }, // TODO: this will be unique and replaced with name
+  },
   name: { type: String, default: " " },
   isJoined: { type: Boolean, default: false },
   rules: [

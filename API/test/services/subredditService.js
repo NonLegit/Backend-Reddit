@@ -869,5 +869,84 @@ describe("Subreddit Test", () => {
         expect(result.success).to.equal(true);
       });
     });
+    // !=======================
+    describe("handleInvitation function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return {
+              success: true,
+              doc: {
+                pendingInvitations: [
+                  {
+                    subredditId: "10",
+                    permissions: {
+                      all: false,
+                      access: true,
+                      config: true,
+                      flair: false,
+                      posts: false,
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          returnInvitations: async (userId) => {
+            return {
+              success: true,
+              doc: {
+                pendingInvitations: [
+                  {
+                    subredditId: "10",
+                    permissions: {
+                      all: false,
+                      access: true,
+                      config: true,
+                      flair: false,
+                      posts: false,
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          updateInvitations: async (userId, invitations) => {
+            return { success: true, doc: { _id: "1" } };
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          addModerator: async () => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+
+        const result = await subredditServices.handleInvitation(
+          "1",
+          "khaled",
+          "default.png",
+          "subreddit",
+          "accept"
+        );
+
+        expect(result.success).to.equal(true);
+      });
+    });
   });
 });

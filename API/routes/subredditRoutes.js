@@ -51,6 +51,7 @@ router.post(
   "/:subredditName/moderators/:moderatorName",
   subredditController.inviteModerator
 );
+router.post("/:subredditName/:action/invitation",subredditController.ModeratorInvitation)
 // router.delete(
 //   "/:subredditName/moderator/:moderatorName",
 //   subredditController.deletemoderator

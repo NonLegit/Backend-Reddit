@@ -49,7 +49,6 @@ class UserRepository extends Repository {
     return subscribed;
   }
 
-
   async getSubreddits(userId) {
     try {
       let tempDoc = this.model
@@ -128,15 +127,73 @@ class UserRepository extends Repository {
     }
   }
   async updateSocialLinks(id, data) {
-    const user = await this.model.findByIdAndUpdate(id,  { "$push": { "socialLinks": data } }, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await this.model.findByIdAndUpdate(
+      id,
+      { $push: { socialLinks: data } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!user) {
       console.log(user);
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };
+  }
+  async checkInvetation(userId, subredditId) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          _id: userId,
+          "pendingInvitations.subredditId": subredditId,
+        })
+        .select({ "pendingInvitations.$": 1 });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updateInvitations(userId, invitations) {
+    try {
+      const user = await this.model.findOneAndUpdate(
+        { _id: userId },
+        { pendingInvitations: invitations },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+      console.log(user);
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async returnInvitations(userId) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          _id: userId,
+        })
+        .select("pendingInvitations");
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
   }
 }
 module.exports = UserRepository;
