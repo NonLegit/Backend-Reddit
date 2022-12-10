@@ -2265,7 +2265,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/flair"
+              type: object
+              properties:
+                text:
+                  type: string
+                backgroundColor:
+                  type: string
+                textColor:
+                  type: string
       responses:
         "200":
           description: successful operation
@@ -6496,7 +6503,7 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
 
   /users/notifications/token:
-    patch:
+    post:
       tags:
         - Notifications
       summary: send the device firebase token
