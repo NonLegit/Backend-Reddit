@@ -1126,18 +1126,18 @@ paths:
                     items:
                       type: object
                       properties:
-                          _id: 
-                            type: string
-                            example: ahmed
-                          userName: 
-                            type: string
-                            example: ahmed
-                          profilePicture:
-                            type: string
-                            example: users/ahmed/ahmed.png
-                          isFollowed:
-                            type: boolean
-                            example: truw
+                        _id:
+                          type: string
+                          example: ahmed
+                        userName:
+                          type: string
+                          example: ahmed
+                        profilePicture:
+                          type: string
+                          example: users/ahmed/ahmed.png
+                        isFollowed:
+                          type: boolean
+                          example: truw
 
         "401":
           description: Authorization Required
@@ -1182,15 +1182,15 @@ paths:
                     items:
                       type: object
                       properties:
-                          _id: 
-                            type: string
-                            example: ahmed
-                          userName: 
-                            type: string
-                            example: ahmed
-                          profilePicture:
-                            type: string
-                            example: users/ahmed/ahmed.png
+                        _id:
+                          type: string
+                          example: ahmed
+                        userName:
+                          type: string
+                          example: ahmed
+                        profilePicture:
+                          type: string
+                          example: users/ahmed/ahmed.png
 
         "401":
           description: Authorization Required
@@ -1198,7 +1198,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-              
+
   /users/best:
     get:
       tags:
@@ -1795,7 +1795,7 @@ paths:
                   message:
                     type: string
                     example: userName query paramater is required
-                    
+
   /users/social_links:
     get:
       tags:
@@ -1813,7 +1813,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  status: 
+                  status:
                     type: string
                     example: success
                   socialLinks:
@@ -1849,7 +1849,7 @@ paths:
                   type: string
                 socialId:
                   type: string
-                  
+
       responses:
         201:
           description: successful operation
@@ -1858,7 +1858,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  status: 
+                  status:
                     type: string
                     example: success
         400:
@@ -1930,7 +1930,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  status: 
+                  status:
                     type: string
                     example: success
                   socialLinks:
@@ -1979,7 +1979,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  status: 
+                  status:
                     type: string
                     example: success
 
@@ -2718,7 +2718,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -2793,7 +2793,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -2870,7 +2870,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -2947,7 +2947,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -2974,7 +2974,7 @@ paths:
                   errorMessage:
                     type: string
                     example: Method Not Allowed (blocked by author or deleted post)
-  
+
   /posts/{postId}/pin:
     post:
       tags:
@@ -3025,7 +3025,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -3102,7 +3102,7 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example:  Unauthorized
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -3128,7 +3128,7 @@ paths:
                   errorMessage:
                     type: string
                     example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
-  
+
   /posts/{postId}/marknsfw:
     patch:
       tags:
@@ -3427,11 +3427,11 @@ paths:
         content:
           application/json:
             schema:
-                type: object
-                properties:
-                  dir:
-                    type: integer
-                    enum:
+              type: object
+              properties:
+                dir:
+                  type: integer
+                  enum:
                     - 1
                     - 0
                     - -1
@@ -4719,7 +4719,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-
     delete:
       tags:
         - Subreddit
@@ -4766,7 +4765,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
 
     patch:
       tags:
@@ -6444,21 +6442,79 @@ paths:
           required: true
           schema:
             type: integer
-        - in: query
-          name: is_deleted
-          description: To determine the view
-          required: true
-          schema:
-            type: boolean
       responses:
         200:
           description: Success operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Notification"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/mark_as_read:
+    patch:
+      tags:
+        - Notifications
+      summary: mark all notifications as read
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+
+      responses:
+        201:
+          description: Success operation
+
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/{notificationId}/mark_as_read:
+    patch:
+      tags:
+        - Notifications
+      summary: mark  notifications as read
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success operation
+
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/{notificationId}/hide:
+    patch:
+      tags:
+        - Notifications
+      summary: hide notification
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success operation
+
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
@@ -6483,8 +6539,8 @@ paths:
                 type:
                   type: string
                   enum:
-                  - profilePicture
-                  - profileBackground
+                    - profilePicture
+                    - profileBackground
                 file:
                   type: string
                   format: binary
@@ -6501,7 +6557,7 @@ paths:
                     example: success
                   user:
                     $ref: "#/components/schemas/User"
-                  
+
         401:
           $ref: "#/components/responses/UnauthorizedError"
         400:
@@ -6669,7 +6725,7 @@ paths:
                     example: subreddit not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
-    
+
   /posts/{postId}/images:
     description: deal with files (images)
     post:
@@ -6724,7 +6780,7 @@ paths:
                     type: string
                     example: you are not owner of this post
         404:
-          description: Not Found 
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6738,7 +6794,7 @@ paths:
                     example: post not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
-          
+
     delete:
       tags:
         - Images
@@ -6779,7 +6835,7 @@ paths:
                     type: string
                     example: you are not owner of this post
         404:
-          description: Not Found 
+          description: Not Found
           content:
             application/json:
               schema:
@@ -6816,7 +6872,7 @@ components:
         check:
           type: string
           example: "https://facebook.com/"
-  
+
     SocialLinks:
       type: object
       properties:
@@ -6882,7 +6938,7 @@ components:
           example: " info"
         socialLinks:
           type: array
-          items: 
+          items:
             type: object
             properties:
               social:
@@ -7277,7 +7333,7 @@ components:
         description:
           type: string
           example: " info"
-          
+
         socialLinks:
           type: array
           items:
@@ -7680,6 +7736,9 @@ components:
     userComment:
       type: object
       properties:
+        _id:
+          type: string
+          description: id of the comment
         parent:
           type: string
           description: id of post or comment who is parent of comment
@@ -8029,24 +8088,25 @@ components:
             - firstCommentUpVote
             - userMention
             - follow
-        followedId:
-          type: string
-        followerId:
-          type: string
-        postId:
-          type: string
-        commentId:
-          type: string
+        followedUser:
+          $ref: "#/components/schemas/User"
+        followerUser:
+          $ref: "#/components/schemas/User"
+        followedSubreddit:
+          $ref: "#/components/schemas/fullSubreddit"
+        post:
+          $ref: "#/components/schemas/Post"
+        comment:
+          $ref: "#/components/schemas/userComment"
         createdAt:
           type: string
           format: date-time
           example: 2017-07-21T17:32:28Z
         seen:
           type: boolean
-        isHidden:
+        hidden:
           type: boolean
-      
-    
+
   securitySchemes:
     BearerAuth:
       type: http
