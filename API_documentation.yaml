@@ -2630,28 +2630,31 @@ paths:
         required: true
       responses:
         200:
-          description: Success operation
+          description: successful operation
+        400:
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
+                $ref: "#/components/schemas/error"
         404:
-          description: failed operation
+          description: Not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: post not found
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
   /posts/random:
     get:
@@ -3145,34 +3148,29 @@ paths:
           required: true
           schema:
             type: string
-
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
+        400:
           description: Bad Request
-
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
+        404:
           description: Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
+        409:
           description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
           content:
             application/json:
               schema:
@@ -3195,32 +3193,28 @@ paths:
             type: string
 
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
+        400:
           description: Bad Request
-
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
+        404:
           description: Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
+        409:
           description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
           content:
             application/json:
               schema:
@@ -3241,33 +3235,22 @@ paths:
           required: true
           schema:
             type: string
-
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
+        400:
           description: Bad Request
-
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
+        404:
           description: Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
+        409:
           description: Conflict
           content:
             application/json:
@@ -3289,33 +3272,22 @@ paths:
           required: true
           schema:
             type: string
-
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
+        400:
           description: Bad Request
-
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
+        404:
           description: Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
+        409:
           description: Conflict
           content:
             application/json:
@@ -3339,29 +3311,32 @@ paths:
           schema:
             type: string
       responses:
-        200:
-          description: Success operation
+        204:
+          description: successful operation
+        400:
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
+                $ref: "#/components/schemas/error"
         404:
-          description: Not Found
+          description: Not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: post not found
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
   /posts/{postId}/unspoiler:
     description: Post Resource
     patch:
@@ -3380,30 +3355,32 @@ paths:
           schema:
             type: string
       responses:
-        200:
-          description: Success operation
+        204:
+          description: successful operation
+        400:
+          description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
+                $ref: "#/components/schemas/error"
         404:
-          description: Not Found
+          description: Not found
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: post not found
-
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
   /posts/{postId}/vote:
     description: Post Resource
     post:
@@ -3498,11 +3475,15 @@ paths:
                   errorMessage:
                     type: string
                     example: Method Not Allowed (blocked by author)
-  /posts/{postId}/spam:
+  /posts/{postId}/{action}:
     patch:
       tags:
         - Posts
-      summary: Mark a post in the subreddit as spam
+      summary: Changes the post state according to action.
+      description: Moderators can change the state of a post. 
+        A post is by default unmoderated, but it can be approved, removed, or spammed.
+        Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed.
+        The post state is overwriten by the most recent action.
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -3513,34 +3494,38 @@ paths:
           required: true
           schema:
             type: string
-
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: 
+            - spam
+            - approve
+            - remove
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
+        400:
           description: Bad Request
-
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
+        404:
           description: Not found
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "409":
+        409:
           description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
           content:
             application/json:
               schema:
@@ -3550,8 +3535,8 @@ paths:
     post:
       tags:
         - Posts
-      summary: "sort comments"
-      description: "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort."
+      summary: sort comments
+      description: Suggested sorts are useful to display comments in a certain preferred way for posts. It allows moderators to set comment sorting preferences at the post level. A sort of an empty string clears the default sort.
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -3568,19 +3553,29 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/suggestedSort"
-
       responses:
-        "204":
+        204:
           description: successful operation
-
-        "400":
-          description: Invalid post id
+        400:
+          description: Bad Request
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-        "404":
+        404:
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
           content:
             application/json:
               schema:
@@ -4245,41 +4240,48 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        200:
           description: successful operation
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: string
                   comments:
                     type: array
                     items:
                       $ref: "#/components/schemas/comment"
                   moreComments:
                     $ref: "#/components/schemas/moreComments"
-
-        "400":
-          description: Bad Request
+        404:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+        400:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
 
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /comments/more_children:
+  /comments/more_children/{postId}:
     get:
       tags:
         - Comments
@@ -4290,14 +4292,14 @@ paths:
         - cookieAuth: []
       parameters:
         - name: postId
-          in: query
+          in: path
           description: The ID of the post whose comments are being fetched
           required: true
           schema:
             type: string
         - name: children
           in: query
-          description: A list of comment IDs that need to be fetched
+          description: A comma separated list of comment IDs that need to be fetched
           required: true
           schema:
             type: array
@@ -4322,42 +4324,47 @@ paths:
           description: If True, only return the children requested.
           schema:
             type: boolean
-
       responses:
-        "200":
+        200:
           description: successful operation
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: string
                   comments:
                     type: array
                     items:
                       $ref: "#/components/schemas/comment"
                   moreComments:
                     $ref: "#/components/schemas/moreComments"
-
-        "400":
-          description: Bad Request
+        404:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+        400:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
 
   #SUBREDDITS
 
@@ -4413,40 +4420,46 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
+        200:
           description: successful operation
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: string
                   comments:
                     type: array
                     items:
                       $ref: "#/components/schemas/comment"
                   moreComments:
                     $ref: "#/components/schemas/moreComments"
-
-        "400":
-          description: Bad Request
+        404:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+        400:
+          description: failed operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
 
   /subreddits:
     post:
@@ -7807,7 +7820,7 @@ components:
           type: integer
           description: total number of votes
         repliesCount:
-          type: string
+          type: integer
 
     moreComments:
       type: object
