@@ -2130,7 +2130,6 @@ paths:
   /subreddits/{subredditName}/flairs:
     post:
       tags:
-        - Subreddit
         - Flair
       summary: insert a new flair in the list of flair belonging to a subreddit
       security:
@@ -2147,7 +2146,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/flair"
+              type: object
+              properties:
+                text:
+                  type: string
+                backgroundColor:
+                  type: string
+                textColor:
+                  type: string
       responses:
         "204":
           description: successful operation
@@ -2181,7 +2187,6 @@ paths:
                 $ref: "#/components/schemas/error"
     get:
       tags:
-        - Subreddit
         - Flair
       summary: get list of flairs belonging to a subreddit
       security:
@@ -2304,7 +2309,6 @@ paths:
 
     delete:
       tags:
-        - Subreddit
         - Flair
       description: delete flair by id
       security:
@@ -2356,7 +2360,6 @@ paths:
 
     get:
       tags:
-        - Subreddit
         - Flair
       summary: get flair by id
       security:
@@ -2602,6 +2605,73 @@ paths:
                   message:
                     type: string
                     example: User must be author
+
+    get:
+      tags:
+        - Posts
+      summary: get post by id
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: postId
+          description: post id
+          required: true
+          schema:
+            type: string
+
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: sucess
+                  post:
+                    $ref: "#/components/schemas/HomePost"
+        404:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: post not found
+
+        400:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+
+        500:
+          description: internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
 
   /posts/{postId}/follow_post:
     post:
@@ -6425,6 +6495,56 @@ paths:
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
+  /users/notifications/token:
+    patch:
+      tags:
+        - Notifications
+      summary: send the device firebase token
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: registration token
+        required: true
+      responses:
+        201:
+          description: Success operation
+
+        401:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: unauthorised
+        400:
+          description: bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  message:
+                    type: string
+                    example: missing parameters
+
   /users/notifications/mark_as_read:
     patch:
       tags:
@@ -7954,11 +8074,7 @@ components:
           type: string
         textColor:
           type: string
-        permissions:
-          type: string
-          enum:
-            - modOnly
-            - allowEdit
+
     messages:
       type: object
       properties:
