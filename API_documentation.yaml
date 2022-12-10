@@ -1706,7 +1706,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/saved"
         "401":
           description: Authorization Required
           content:
@@ -7745,9 +7745,23 @@ components:
         parentType:
           type: string
           description: type of parent who  omments belongs to
+        author:
+          type: object
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
         owner:
-          type: string
-          description: id of subreddit or user who owns post
+          type: object
+          description: The name of the subreddit where the comment was created. 
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
+            icon:
+              type: string
         ownerType:
           type: string
           enum:
@@ -7760,9 +7774,6 @@ components:
         title:
           type: string
           description: post title
-        author:
-          type: string
-          description: The name of the user who created the comment
         text:
           type: string
         createdAt:
@@ -7875,6 +7886,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/userPost"
+        pinnedPosts:
+          type: array
+          items:
+            $ref: "#/components/schemas/userPost"
 
     upvotes:
       type: object
@@ -7886,6 +7901,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/userPost"
+    saved:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/userPost"
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/userComment"
 
     downvotes:
       type: object
