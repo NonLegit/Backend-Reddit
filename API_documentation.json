@@ -2672,7 +2672,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/upvotes"
+                  "$ref": "#/components/schemas/saved"
                 }
               }
             }
@@ -10053,15 +10053,6 @@
             "schema": {
               "type": "integer"
             }
-          },
-          {
-            "in": "query",
-            "name": "is_deleted",
-            "description": "To determine the view",
-            "required": true,
-            "schema": {
-              "type": "boolean"
-            }
           }
         ],
         "responses": {
@@ -10070,13 +10061,114 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Notification"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notification"
+                      }
+                    }
                   }
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/users/notifications/mark_as_read": {
+      "patch": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "mark all notifications as read",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success operation"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/users/notifications/{notificationId}/mark_as_read": {
+      "patch": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "mark  notifications as read",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notificationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success operation"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
+    "/users/notifications/{notificationId}/hide": {
+      "patch": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "hide notification",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "notificationId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success operation"
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -11833,6 +11925,10 @@
       "userComment": {
         "type": "object",
         "properties": {
+          "_id": {
+            "type": "string",
+            "description": "id of the comment"
+          },
           "parent": {
             "type": "string",
             "description": "id of post or comment who is parent of comment"
@@ -11841,9 +11937,31 @@
             "type": "string",
             "description": "type of parent who  omments belongs to"
           },
+          "author": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          },
           "owner": {
-            "type": "string",
-            "description": "id of subreddit or user who owns post"
+            "type": "object",
+            "description": "The name of the subreddit where the comment was created.",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            }
           },
           "ownerType": {
             "type": "string",
@@ -11860,10 +11978,6 @@
           "title": {
             "type": "string",
             "description": "post title"
-          },
-          "author": {
-            "type": "string",
-            "description": "The name of the user who created the comment"
           },
           "text": {
             "type": "string"
@@ -12018,6 +12132,12 @@
             "items": {
               "$ref": "#/components/schemas/userPost"
             }
+          },
+          "pinnedPosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/userPost"
+            }
           }
         }
       },
@@ -12032,6 +12152,27 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/userPost"
+            }
+          }
+        }
+      },
+      "saved": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "posts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/userPost"
+            }
+          },
+          "comments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/userComment"
             }
           }
         }
@@ -12310,17 +12451,20 @@
               "follow"
             ]
           },
-          "followedId": {
-            "type": "string"
+          "followedUser": {
+            "$ref": "#/components/schemas/User"
           },
-          "followerId": {
-            "type": "string"
+          "followerUser": {
+            "$ref": "#/components/schemas/User"
           },
-          "postId": {
-            "type": "string"
+          "followedSubreddit": {
+            "$ref": "#/components/schemas/fullSubreddit"
           },
-          "commentId": {
-            "type": "string"
+          "post": {
+            "$ref": "#/components/schemas/Post"
+          },
+          "comment": {
+            "$ref": "#/components/schemas/userComment"
           },
           "createdAt": {
             "type": "string",
@@ -12330,7 +12474,7 @@
           "seen": {
             "type": "boolean"
           },
-          "isHidden": {
+          "hidden": {
             "type": "boolean"
           }
         }

@@ -1706,7 +1706,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/upvotes"
+                $ref: "#/components/schemas/saved"
         "401":
           description: Authorization Required
           content:
@@ -4680,7 +4680,11 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Invite a moderator to the subreddit
-      description: A moderator of the subreddit invite a user to be a moderator using the id of the user
+      description: A moderator of the subreddit invite a user to be a moderator using the id of the user permissions  (all => everything)
+        (access => can edit users)
+        (config => manage settings)
+        (flair => manage flairs)
+        (posts => manage posts)
       parameters:
         - name: subredditName
           in: path
@@ -4694,6 +4698,26 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        description: Send the new permission
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                permissions:
+                  type: object
+                  properties:
+                    all:
+                      type: boolean
+                    access:
+                      type: boolean
+                    config:
+                      type: boolean
+                    flair:
+                      type: boolean
+                    posts:
+                      type: boolean
       responses:
         "204":
           description: successful operation
@@ -4774,7 +4798,16 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Edit the permissions of a moderator in the subreddit
-      description: An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one
+        (all => everything)
+        (access => can edit users)
+        (config => manage settings)
+        (flair => manage flairs)
+        (posts => manage posts)
+      description: An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one  (all => everything)
+        (access => can edit users)
+        (config => manage settings)
+        (flair => manage flairs)
+        (posts => manage posts)
       parameters:
         - name: subredditName
           in: path
@@ -4845,15 +4878,15 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddits/{subredditName}/ban/{userName}:
+  /subreddits/{subredditName}/Ban_settings/{action}/{userName}:
     post:
       tags:
         - Subreddit
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: Ban a certain user in the subreddit
-      description: Ban a certain user on the subreddit
+      summary: Ban/unBan a certain user in the subreddit
+      description: Ban/unBan a certain user on the subreddit if action is unBan dont provide a body
       parameters:
         - name: subredditName
           in: path
@@ -4867,6 +4900,15 @@ paths:
           required: true
           schema:
             type: string
+        - name: action
+          in: path
+          description: id of the user
+          required: true
+          schema:
+            type: string
+            enum :
+              - ban
+              - unban
 
       requestBody:
         description: Send ban info
@@ -4906,74 +4948,17 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-    patch:
-      tags:
-        - Subreddit
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: Edit ban info of a certain banned user in the subreddit
-      description: Edit ban info of a certain banned user in the subreddit
-      parameters:
-        - name: subredditName
-          in: path
-          description: id of the subreddit
-          required: true
-          schema:
-            type: string
-        - name: userName
-          in: path
-          description: id of the user
-          required: true
-          schema:
-            type: string
 
-      requestBody:
-        description: Send ban info
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/banInfo"
-      responses:
-        "204":
-          description: successful operation
 
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /subreddits/{subredditName}/unban/{userName}:
+  /subreddits/{subredditName}/mute_settings/{action}/{userName}:
     post:
       tags:
         - Subreddit
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: unban a banned user in the subreddit
-      description: A moderator unban a certain user on the subreddit using the user id
+      summary: Mute/unMute a certain user in the subreddit
+      description: Mute/unMute a certain user on the subreddit if action is unMute dont provide a body 
       parameters:
         - name: subredditName
           in: path
@@ -4987,39 +4972,16 @@ paths:
           required: true
           schema:
             type: string
-      responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /subreddits/{subredditName}/mute/{userName}:
-    post:
-      tags:
-        - Subreddit
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: Mute a certain user in the subreddit
-      description: Mute a certain user on the subreddit
-      parameters:
-        - name: subredditName
-          in: path
-          description: id of the subreddit
-          required: true
-          schema:
-            type: string
-        - name: userName
+        - name: action
           in: path
           description: id of the user
           required: true
           schema:
             type: string
+            enum :
+              - mute
+              - unmute
+              
       requestBody:
         description: Send mute info
         content:
@@ -5057,100 +5019,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-    patch:
-      tags:
-        - Subreddit
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: edit mute info of  a certain user in the subreddit
 
-      parameters:
-        - name: subredditName
-          in: path
-          description: id of the subreddit
-          required: true
-          schema:
-            type: string
-        - name: userName
-          in: path
-          description: id of the user
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Send mute info
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/muteInfo"
-
-      responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /subreddits/{subredditName}/unmute/{userName}:
-    post:
-      tags:
-        - Subreddit
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: unmute a certain user in the subreddit
-
-      parameters:
-        - name: subredditName
-          in: path
-          description: id of the subreddit
-          required: true
-
-          schema:
-            type: string
-        - name: userName
-          description: id of the user
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
+ 
   /subreddits/{subredditName}/posts/{postId}/approve:
     patch:
       tags:
@@ -5769,6 +5639,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+  /subreddits/{subredditName}/favourites:
+    get:
+      tags:
+        - Subreddit
+      summary: ""
+      description: "Get list of subreddits marked as favourites"
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: subredditName
+          description: The subreddit name
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                  $ref: "#/components/schemas/favourites"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
   /subreddits/{subredditName}/about/muted:
     get:
       tags:
@@ -5808,7 +5716,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddits/{subredditName}/accept_moderator_invite:
+  /subreddits/{subredditName}/{action}/invitation:
     post:
       tags:
         - Subreddit
@@ -5824,6 +5732,18 @@ paths:
           required: true
           schema:
             type: string
+        - in: path
+          name: action
+          description: invitation action
+          required: true
+          schema:
+            type: string
+            enum: 
+              - accept
+              - reject
+            
+              
+            
       responses:
         "204":
           description: successful operation
@@ -5874,6 +5794,42 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+  /subreddits/{subredditName}/favourite:
+    post:
+      tags:
+        - Subreddit
+      summary: "mark or unmark subreddit as favourite/unfavourite"
+      description: "mark or unmark subreddit as favourite/unfavourite"
+
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: subredditName
+          description: The subreddit name
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+                
+
 
   /subreddits/leaderboard/{category}:
     get:
@@ -6443,21 +6399,79 @@ paths:
           required: true
           schema:
             type: integer
-        - in: query
-          name: is_deleted
-          description: To determine the view
-          required: true
-          schema:
-            type: boolean
       responses:
         200:
           description: Success operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Notification"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Notification"
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/mark_as_read:
+    patch:
+      tags:
+        - Notifications
+      summary: mark all notifications as read
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+
+      responses:
+        201:
+          description: Success operation
+
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/{notificationId}/mark_as_read:
+    patch:
+      tags:
+        - Notifications
+      summary: mark  notifications as read
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success operation
+
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
+  /users/notifications/{notificationId}/hide:
+    patch:
+      tags:
+        - Notifications
+      summary: hide notification
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: notificationId
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Success operation
+
         401:
           $ref: "#/components/responses/UnauthorizedError"
 
@@ -6992,6 +7006,25 @@ components:
             - Posts and comments
             - Posts only
             - Comments only
+            
+    arraySubreddit:
+      properties:
+        fixedName:
+          type: string
+        icon:
+          type: string
+            
+    favourites:
+      properties:
+        status:
+          type: string
+          default: "success"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/arraySubreddit"
+
+      
 
     SUBREDDIT:
       properties:
@@ -7679,15 +7712,32 @@ components:
     userComment:
       type: object
       properties:
+        _id:
+          type: string
+          description: id of the comment
         parent:
           type: string
           description: id of post or comment who is parent of comment
         parentType:
           type: string
           description: type of parent who  omments belongs to
+        author:
+          type: object
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
         owner:
-          type: string
-          description: id of subreddit or user who owns post
+          type: object
+          description: The name of the subreddit where the comment was created. 
+          properties:
+            _id:
+              type: string
+            name:
+              type: string
+            icon:
+              type: string
         ownerType:
           type: string
           enum:
@@ -7700,9 +7750,6 @@ components:
         title:
           type: string
           description: post title
-        author:
-          type: string
-          description: The name of the user who created the comment
         text:
           type: string
         createdAt:
@@ -7815,6 +7862,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/userPost"
+        pinnedPosts:
+          type: array
+          items:
+            $ref: "#/components/schemas/userPost"
 
     upvotes:
       type: object
@@ -7826,6 +7877,20 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/userPost"
+    saved:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/userPost"
+        comments:
+          type: array
+          items:
+            $ref: "#/components/schemas/userComment"
 
     downvotes:
       type: object
@@ -7983,17 +8048,17 @@ components:
       required:
         - ban reason
       properties:
-        ban_reason:
+        punish_type:
           type: string
           enum:
             - No Spoiler
             - Spam
             - Personal And confidential Information
             - Threatening, harassing or inciting violence
-        moderatorNote:
+        Note:
           type: string
           description: short note about the ban
-        banMessage:
+        punishReason:
           type: string
           description: more info about the ban to be sent to the user
         duration:
@@ -8010,7 +8075,7 @@ components:
           type: string
         profilePicture:
           type: string
-        joiningDate:
+        banDate:
           type: string
           format: date-time
         baninfo:
@@ -8028,21 +8093,23 @@ components:
             - firstCommentUpVote
             - userMention
             - follow
-        followedId:
-          type: string
-        followerId:
-          type: string
-        postId:
-          type: string
-        commentId:
-          type: string
+        followedUser:
+          $ref: "#/components/schemas/User"
+        followerUser:
+          $ref: "#/components/schemas/User"
+        followedSubreddit:
+          $ref: "#/components/schemas/fullSubreddit"
+        post:
+          $ref: "#/components/schemas/Post"
+        comment:
+          $ref: "#/components/schemas/userComment"
         createdAt:
           type: string
           format: date-time
           example: 2017-07-21T17:32:28Z
         seen:
           type: boolean
-        isHidden:
+        hidden:
           type: boolean
 
   securitySchemes:
