@@ -7,6 +7,7 @@ const PostController = require("./controllers/postController");
 const CommentController = require("./controllers/commentController");
 const subredditController = require("./controllers/subredditController");
 const FileController = require("./controllers/fileController");
+const NotificationController = require("./controllers/notificationController");/////
 // Require Services
 const UserService = require("./service/userService");
 const Email = require("./service/emailService");
@@ -44,6 +45,7 @@ function setup() {
     CommentController: awilix.asClass(CommentController),
     subredditController: awilix.asClass(subredditController),
     FileController: awilix.asClass(FileController),
+    NotificationController: awilix.asClass(NotificationController),
     // services
     Email: awilix.asClass(Email),
     UserService: awilix.asClass(UserService),

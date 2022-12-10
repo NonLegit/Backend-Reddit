@@ -43,6 +43,7 @@ class UserService {
     // this.subscribe = this.subscribe.bind(this);
   }
 
+  
   generateRandomPassword() {
     var password = generator.generate({
       length: 10,
