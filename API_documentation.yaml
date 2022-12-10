@@ -3480,7 +3480,7 @@ paths:
       tags:
         - Posts
       summary: Changes the post state according to action.
-      description: Moderators can change the state of a post. 
+      description: Moderators can change the state of a post.
         A post is by default unmoderated, but it can be approved, removed, or spammed.
         Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed.
         The post state is overwriten by the most recent action.
@@ -3499,10 +3499,10 @@ paths:
           required: true
           schema:
             type: string
-            enum: 
-            - spam
-            - approve
-            - remove
+            enum:
+              - spam
+              - approve
+              - remove
       responses:
         204:
           description: successful operation
@@ -4495,7 +4495,7 @@ paths:
               schema:
                 type: object
                 properties:
-                  id:
+                  _id:
                     description: created subreddit id
                     type: string
 
@@ -4692,7 +4692,8 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Invite a moderator to the subreddit
-      description: A moderator of the subreddit invite a user to be a moderator using the id of the user permissions  (all => everything)
+      description:
+        A moderator of the subreddit invite a user to be a moderator using the id of the user permissions  (all => everything)
         (access => can edit users)
         (config => manage settings)
         (flair => manage flairs)
@@ -4815,7 +4816,8 @@ paths:
         (config => manage settings)
         (flair => manage flairs)
         (posts => manage posts)
-      description: An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one  (all => everything)
+      description:
+        An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one  (all => everything)
         (access => can edit users)
         (config => manage settings)
         (flair => manage flairs)
@@ -4918,7 +4920,7 @@ paths:
           required: true
           schema:
             type: string
-            enum :
+            enum:
               - ban
               - unban
 
@@ -4961,7 +4963,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-
   /subreddits/{subredditName}/mute_settings/{action}/{userName}:
     post:
       tags:
@@ -4970,7 +4971,7 @@ paths:
         - BearerAuth: []
         - cookieAuth: []
       summary: Mute/unMute a certain user in the subreddit
-      description: Mute/unMute a certain user on the subreddit if action is unMute dont provide a body 
+      description: Mute/unMute a certain user on the subreddit if action is unMute dont provide a body
       parameters:
         - name: subredditName
           in: path
@@ -4990,10 +4991,10 @@ paths:
           required: true
           schema:
             type: string
-            enum :
+            enum:
               - mute
               - unmute
-              
+
       requestBody:
         description: Send mute info
         content:
@@ -5032,7 +5033,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
- 
   /subreddits/{subredditName}/posts/{postId}/approve:
     patch:
       tags:
@@ -5651,7 +5651,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
+
   /subreddits/{subredditName}/favourites:
     get:
       tags:
@@ -5674,7 +5674,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/favourites"
+                $ref: "#/components/schemas/favourites"
 
         "400":
           description: Bad Request
@@ -5750,12 +5750,10 @@ paths:
           required: true
           schema:
             type: string
-            enum: 
+            enum:
               - accept
               - reject
-            
-              
-            
+
       responses:
         "204":
           description: successful operation
@@ -5806,7 +5804,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
+
   /subreddits/{subredditName}/favourite:
     post:
       tags:
@@ -5840,8 +5838,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
-
 
   /subreddits/leaderboard/{category}:
     get:
@@ -6950,7 +6946,7 @@ components:
     reducedModeratorInfo:
       type: object
       properties:
-        id:
+        _id:
           type: string
         userName:
           type: string
@@ -6977,14 +6973,14 @@ components:
       properties:
         name:
           type: string
-        id:
+        _id:
           type: string
         icon:
           type: string
 
     sentMessage:
       properties:
-        id:
+        _id:
           type: string
         isRead:
           type: boolean
@@ -7018,14 +7014,14 @@ components:
             - Posts and comments
             - Posts only
             - Comments only
-            
+
     arraySubreddit:
       properties:
         fixedName:
           type: string
         icon:
           type: string
-            
+
     favourites:
       properties:
         status:
@@ -7035,8 +7031,6 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/arraySubreddit"
-
-      
 
     SUBREDDIT:
       properties:
@@ -7180,7 +7174,7 @@ components:
     User:
       type: object
       properties:
-        id:
+        _id:
           type: string
           format: int64
           example: 10
@@ -7272,7 +7266,7 @@ components:
     Friend:
       type: object
       properties:
-        id:
+        _id:
           type: string
           format: int64
           example: 10
@@ -7360,7 +7354,7 @@ components:
       properties:
         icon:
           type: string
-        id:
+        _id:
           type: string
           format: int64
           example: 10
@@ -7742,7 +7736,7 @@ components:
               type: string
         owner:
           type: object
-          description: The name of the subreddit where the comment was created. 
+          description: The name of the subreddit where the comment was created.
           properties:
             _id:
               type: string
@@ -7976,7 +7970,7 @@ components:
     message:
       type: object
       properties:
-        id:
+        _id:
           type: string
         text:
           type: string
@@ -8044,7 +8038,7 @@ components:
     mutedUser:
       type: object
       properties:
-        id:
+        _id:
           type: string
         userName:
           type: string
@@ -8081,7 +8075,7 @@ components:
     bannedUser:
       type: object
       properties:
-        id:
+        _id:
           type: string
         userName:
           type: string
@@ -8096,6 +8090,8 @@ components:
     Notification:
       type: object
       properties:
+        _id:
+          type: string
         type:
           type: string
           enum:
