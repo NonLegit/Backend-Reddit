@@ -3202,7 +3202,7 @@ paths:
                     type: string
                     example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
 
-  /posts/{postId}/marknsfw:
+  /posts/{postId}/mark_nsfw:
     patch:
       tags:
         - Posts
@@ -3245,7 +3245,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /posts/{postId}/unmarknsfw:
+  /posts/{postId}/unmark_nsfw:
     patch:
       tags:
         - Posts
