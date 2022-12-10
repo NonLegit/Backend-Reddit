@@ -3475,11 +3475,15 @@ paths:
                   errorMessage:
                     type: string
                     example: Method Not Allowed (blocked by author)
-  /posts/{postId}/spam:
+  /posts/{postId}/{action}:
     patch:
       tags:
         - Posts
-      summary: Mark a post in the subreddit as spam
+      summary: Changes the post state according to action.
+      description: Moderators can change the state of a post. 
+        A post is by default unmoderated, but it can be approved, removed, or spammed.
+        Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed.
+        The post state is overwriten by the most recent action.
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -3490,7 +3494,15 @@ paths:
           required: true
           schema:
             type: string
-
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum: 
+            - spam
+            - approve
+            - remove
       responses:
         204:
           description: successful operation
