@@ -1,4 +1,8 @@
-const { subredditErrors, mongoErrors } = require("../error_handling/errors");
+const {
+  subredditErrors,
+  mongoErrors,
+  userErrors,
+} = require("../error_handling/errors");
 
 /**
  * this class is used for implementing Subreddit Service functions
@@ -118,102 +122,51 @@ class subredditService {
    */
   async inviteMod(subredditName, userId, modName, data) {
     // ..
-    try {
-      // ! check subreddit existed or not
-      let subredditExisted = await this.getSubreddit({ name: subredditName });
-      if (subredditExisted.status === "fail") {
-        const response = {
-          status: "fail",
-          statusCode: 404,
-          message: "subreddit doesn't exist",
-        };
-        return response;
-      } else {
-        //! 2]check user is moderator
-        let canInvite = await this.isModerator(subredditName, userId);
-        if (!canInvite) {
-          const response = {
-            status: "fail",
-            statusCode: 401,
-            message: "you are not moderator to this subreddit",
-          };
-          return response;
-        } else {
-          //! he is moderator and subreddit is existed => 3]check username existed
-          let userExisted = await this.userRepository.getOne(
-            {
-              userName: modName,
-            },
-            "",
-            ""
+    //  check subreddit existed or not
+    let subredditExisted = await this.retrieveSubreddit(
+      userId,
+      subredditName,
+      true
+    );
+    // console.log(subredditExisted);
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    else {
+      // 2]check user is moderator
+      let canInvite = await this.subredditRepository.isModerator(
+        subredditName,
+        userId
+      );
+      if (!canInvite.success)
+        return { success: false, error: subredditErrors.NOT_MODERATOR };
+      else {
+        // he is moderator and subreddit is existed => 3]check username existed
+        let userExisted = await this.userRepository.findByUserName(
+          modName,
+          "",
+          ""
+        );
+        if (!userExisted.success)
+          return { success: false, error: userErrors.USER_NOT_FOUND };
+        else {
+          //  4] check if he is not mod to this subreddit
+          let UserIsMod = await this.subredditRepository.isModerator(
+            subredditName,
+            userExisted.doc._id
           );
-          if (userExisted.status === "fail") {
-            const response = {
-              status: "fail",
-              statusCode: 404,
-              message: "this username doesn't exist",
-            };
-            return response;
-          } else {
-            // ! 4] check if he is not mod to this subreddit
-            let UserIsMod = await this.isModerator(
-              subredditName,
-              userExisted.doc._id
+          if (!UserIsMod.success) {
+            //  send him invite then
+            let updateModerators = await this.userRepository.updateByName(
+              modName,
+              subredditExisted.data._id,
+              data.permissions
             );
-            if (!UserIsMod) {
-              // ! make him mod then
-              let updateModerators = await this.updateSubreddit(
-                { name: subredditName },
-                {
-                  $push: {
-                    moderators: {
-                      username: userExisted.doc._id,
-                      mod_time: Date.now(),
-                      permissions: {
-                        all: data.permissions.all,
-                        access: data.permissions.access,
-                        config: data.permissions.config,
-                        flair: data.permissions.flair,
-                        posts: data.permissions.posts,
-                      },
-                    },
-                  },
-                }
-              );
-              if (updateModerators.status === "fail") {
-                const response = {
-                  status: "fail",
-                  statusCode: 400,
-                  message: "failed to update",
-                };
-                return response;
-              } else {
-                // * hurraaay
-                const response = {
-                  status: "success",
-                  statusCode: 204,
-                  message: "Added to moderators",
-                };
-                return response;
-              }
-            } else {
-              const response = {
-                status: "fail",
-                statusCode: 400,
-                message: "That user is already moderator",
-              };
-              return response;
-            }
-          }
+            console.log(updateModerators);
+            if (!updateModerators.success) return updateModerators;
+            else return { success: true }; //  finally sent
+          } else return { success: false, error: userErrors.ALREADY_MODERATOR };
         }
       }
-    } catch (err) {
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
     }
   }
   /**
@@ -394,8 +347,9 @@ class subredditService {
     } else if (location === "subscriber") {
       // ! get it from user (easy too)
       let subreddits = await this.userRepository.getSubreddits(userId);
+      // console.log(subreddits);
       if (!subreddits.success) return subreddits;
-      else return { success: true, data: subreddits.doc };
+      else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
   }
   async subredditsModeratedBy(userName) {
@@ -750,7 +704,6 @@ class subredditService {
    * @returns {boolean}
    */
   async subscriable(subredditName, userId) {
-    console.log("kiroo service");
     const subreddit = await this.subredditRepository.findByName(
       subredditName,
       "punished _id"

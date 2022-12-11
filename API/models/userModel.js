@@ -225,6 +225,24 @@ const userSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
+  pendingInvitations: [
+    {
+      type: Object,
+      subredditId: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Subreddit",
+      },
+      permissions: {
+        type: Object,
+        required: false,
+        all: { type: Boolean },
+        access: { type: Boolean },
+        config: { type: Boolean },
+        flair: { type: Boolean },
+        posts: { type: Boolean },
+      },
+    },
+  ],
 
   socialLinks: [
     {
@@ -308,11 +326,12 @@ userSchema.post(/^findOne/, async function (doc) {
   }
   //next();
 });
-userSchema.post("init",function(doc){
+userSchema.post("init", function (doc) {
   // doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
   // doc.profileBackground =
   //   `${process.env.BACKDOMAIN}/` + doc.profileBackground;
-})
+  
+});
 
 userSchema.methods.createPasswordResetToken = function () {
   const resetToken = crypto.randomBytes(32).toString("hex");

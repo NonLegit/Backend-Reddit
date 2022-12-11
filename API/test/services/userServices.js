@@ -377,6 +377,75 @@ describe("User Services Test", () => {
       assert.equal(result.nsfw, true);
     });
   });
+
+  describe("Username available", async () => {
+    it("available", async () => {
+      const UserRepository = {
+        findByUserName: async (userName) => {
+          return { success: false };
+        },
+      };
+      const userServices = new UserService({
+        UserRepository,
+      });
+      const available = await userServices.isAvailable("kiro");
+      expect(available).to.equal(true);
+    });
+    it("unavailable", async () => {
+      const UserRepository = {
+        findByUserName: async (userName) => {
+          return { success: true };
+        },
+      };
+      const userServices = new UserService({
+        UserRepository,
+      });
+      const available = await userServices.isAvailable("kiro");
+      expect(available).to.equal(false);
+    });
+  });
+
+  describe("Subscribe", async () => {
+    const UserRepository = {
+      push: async (id, obj) => {},
+      pull: async (id, obj) => {},
+    };
+    const userServices = new UserService({
+      UserRepository,
+    });
+    const userId = "123d493c3ff67d626ec994f7";
+    const subredditId = "456d493c3ff67d626ec994f7";
+    let action = "sub"
+    it("subscribe(success)", async () => {
+      action = "sub"
+      UserRepository.isSubscribed = async (userName) => false
+      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      expect(subscribed).to.equal(true);
+    });
+    it("subscribe(fail)", async () => {
+      action = "sub"
+      UserRepository.isSubscribed = async (userName) => true
+      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      expect(subscribed).to.equal(false);
+    });
+    it("unsubscribe(success)", async () => {
+      action = "unsub";
+      UserRepository.isSubscribed = async (userName) => true
+      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      expect(subscribed).to.equal(true);
+    });
+    it("unsubscribe(fail)", async () => {
+      action = "unsub"
+      UserRepository.isSubscribed = async (userName) => false
+      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      expect(subscribed).to.equal(false);
+    });
+    it("invalid action", async () => {
+      action = "not a valid action"
+      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      expect(subscribed).to.equal(false);
+    });
+  });
   describe("addUserImageURL  ", () => {
     it("test should be success", async () => {
       const UserRepository = {
