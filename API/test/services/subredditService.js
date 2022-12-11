@@ -866,7 +866,7 @@ describe("Subreddit Test", () => {
           }
         );
         console.log(result);
-        expect(result.success).to.equal(true);
+        expect(result.success).to.equal(false);
       });
     });
   });
