@@ -135,6 +135,11 @@ router
 
 router.post("/:userName/block_user", UserController.blockUser); 
 router.post("/:userName/unblock_user", UserController.unBlockUser); 
+router.post("/:userName/follow", UserController.followUser); 
+router.post("/:userName/unfollow", UserController.unfollowUser); 
+
+router.get("/blocked", UserController.blockedUsers); 
+router.get("/followers", UserController.myFollowers); 
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

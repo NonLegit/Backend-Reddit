@@ -49,7 +49,6 @@ class UserRepository extends Repository {
     return subscribed;
   }
 
-
   async getSubreddits(userId) {
     try {
       let tempDoc = this.model
@@ -128,15 +127,35 @@ class UserRepository extends Repository {
     }
   }
   async updateSocialLinks(id, data) {
-    const user = await this.model.findByIdAndUpdate(id,  { "$push": { "socialLinks": data } }, {
-      new: true,
-      runValidators: true,
-    });
+    const user = await this.model.findByIdAndUpdate(
+      id,
+      { $push: { socialLinks: data } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     if (!user) {
       console.log(user);
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };
+  }
+  async followUser(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async unfollowUser(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async getFollowers(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async getBlocked(user) {
+    await user.populate("meUserRelationship.userId");
+    return user.meUserRelationship;
   }
 }
 module.exports = UserRepository;

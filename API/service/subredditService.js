@@ -691,10 +691,10 @@ class subredditService {
     if (!flairs.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-     console.log("ffffffffffffffffff");
+    console.log("ffffffffffffffffff");
     // console.log(flairs);
     console.log("jjjjjjjjjjjjjjjjjj");
-    return { success: true, data: flairs};
+    return { success: true, data: flairs };
   }
 
   /**
@@ -728,6 +728,17 @@ class subredditService {
   async updateUserCount(id, action) {
     if (action == "sub") await this.subredditRepository.addUser(id);
     else await this.subredditRepository.removeUser(id);
+  }
+  async addUserImageURL(subredditName, type, filename) {
+    let subreddit = await this.subredditRepository.updateSubredditImage(
+      subredditName,
+      type,
+      filename
+    );
+    return {
+      icon: subreddit.doc.icon,
+      backgroundImage: subreddit.doc.backgroundImage,
+    };
   }
 }
 

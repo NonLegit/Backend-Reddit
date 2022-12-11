@@ -39,7 +39,7 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model
         .findOne({ fixedName: name })
-      .select(select + "-__v -punished");
+        .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
 
@@ -50,13 +50,9 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-   async getSubreddit(name) {
+  async getSubreddit(name) {
     try {
-      let doc = await this.model
-        .findOne({ fixedName: name });
-      
-      
-     
+      let doc = await this.model.findOne({ fixedName: name });
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -172,10 +168,9 @@ class SubredditRepository extends Repository {
         .findOne({ fixedName: subredditName })
         .populate("flairIds")
         .select({ populated: 1, _id: 0, createdAt: 1 });
-      
-      
+
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-     
+
       return { success: true, doc: doc.flairIds };
     } catch (err) {
       return { success: false, ...decorateError(err) };
@@ -222,6 +217,24 @@ class SubredditRepository extends Repository {
     await this.model.findByIdAndUpdate(id, {
       $inc: { membersCount: -1 },
     });
+  }
+  async updateSubredditImage(subredditName, type, filename) {
+    let doc;
+    if (type === "icon") {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { icon: "subreddits/" + filename },
+        { new: true }
+      );
+    } else {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { backgroundImage: "subreddits/" + filename },
+        { new: true }
+      );
+    }
+    console.log(doc);
+    return { success: true, doc: doc };
   }
 }
 
