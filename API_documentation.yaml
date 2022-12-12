@@ -3209,102 +3209,268 @@ paths:
                     type: string
                     example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
 
-  /posts/{postId}/mark_nsfw:
-    patch:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: mark a post  as NSFW
-      description: This post as NSFW (Not Safe For Work)
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
-      responses:
-        204:
-          description: successful operation
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        409:
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        401:
-          description: Unathorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /posts/{postId}/unmark_nsfw:
-    patch:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: Unmark a NSFW post
-      description: This post is not a NSFW (Not Safe For Work) post anymore
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
+  # /posts/{postId}/mark_nsfw:
+  #   patch:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: mark a post  as NSFW
+  #     description: This post as NSFW (Not Safe For Work)
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       401:
+  #         description: Unathorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  # /posts/{postId}/unmark_nsfw:
+  #   patch:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: Unmark a NSFW post
+  #     description: This post is not a NSFW (Not Safe For Work) post anymore
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
 
-      responses:
-        204:
-          description: successful operation
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        409:
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        401:
-          description: Unathorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /posts/{postId}/lock_comments:
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       401:
+  #         description: Unathorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  # /posts/{postId}/lock_comments:
+  #   patch:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: Lock comments for this post
+  #     description: Nobody can write comments to your post or to the post in a subreddit moderated by you if you lock the post
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  # /posts/{postId}/unlock_comments:
+  #   patch:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: Unlock comments for this post
+  #     description: Comments can be written again to your post or to the post in a subreddit moderated by you if you unlock the locked post
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  # /posts/{postId}/spoiler:
+  #   description: Post Resource
+  #   patch:
+  #     tags:
+  #       - "Posts"
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     description: mark post as spoiler (by author or the subreddit moderator)
+  #     summary: Spoil Post
+  #     parameters:
+  #       - in: path
+  #         name: postId
+  #         description: post id
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       401:
+  #         description: Unathorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  # /posts/{postId}/unspoiler:
+  #   description: Post Resource
+  #   patch:
+  #     tags:
+  #       - "Posts"
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     description: mark post as unspoiler (by author or the subreddit moderator)
+  #     summary: unSpoil Post
+  #     parameters:
+  #       - in: path
+  #         name: postId
+  #         description: post id
+  #         required: true
+  #         schema:
+  #           type: string
+  #     responses:
+  #       204:
+  #         description: successful operation
+  #       400:
+  #         description: Bad Request
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       404:
+  #         description: Not found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       409:
+  #         description: Conflict
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  #       401:
+  #         description: Unathorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               $ref: "#/components/schemas/error"
+  
+  /posts/{postId}/moderate/{action}:
     patch:
       tags:
         - Posts
+      summary: Changes the post state according to action.
+      description: Moderators can change the state of a post.
+        A post is by default unmoderated, but it can be approved, removed, or spammed.
+        Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed.
+        The post state is overwriten by the most recent action.
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: Lock comments for this post
-      description: Nobody can write comments to your post or to the post in a subreddit moderated by you if you lock the post
       parameters:
         - name: postId
           in: path
@@ -3312,6 +3478,15 @@ paths:
           required: true
           schema:
             type: string
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - spam
+              - approve
+              - remove
       responses:
         204:
           description: successful operation
@@ -3333,15 +3508,22 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /posts/{postId}/unlock_comments:
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /posts/{postId}/{action}:
     patch:
       tags:
         - Posts
+      summary: Perform an action on a post
+      description: These actions can only be performed by the post author or a moderator in the subreddit
+        that owns the post.
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: Unlock comments for this post
-      description: Comments can be written again to your post or to the post in a subreddit moderated by you if you unlock the locked post
       parameters:
         - name: postId
           in: path
@@ -3349,44 +3531,18 @@ paths:
           required: true
           schema:
             type: string
-      responses:
-        204:
-          description: successful operation
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        409:
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /posts/{postId}/spoiler:
-    description: Post Resource
-    patch:
-      tags:
-        - "Posts"
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      description: mark post as spoiler (by author or the subreddit moderator)
-      summary: Spoil Post
-      parameters:
-        - in: path
-          name: postId
-          description: post id
+        - name: action
+          in: path
           required: true
           schema:
             type: string
+            enum:
+              - lock_comments
+              - unlock_comments
+              - mark_nsfw
+              - unmark_nsfw
+              - spoiler
+              - unspoiler
       responses:
         204:
           description: successful operation
@@ -3414,50 +3570,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /posts/{postId}/unspoiler:
-    description: Post Resource
-    patch:
-      tags:
-        - "Posts"
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      description: mark post as unspoiler (by author or the subreddit moderator)
-      summary: unSpoil Post
-      parameters:
-        - in: path
-          name: postId
-          description: post id
-          required: true
-          schema:
-            type: string
-      responses:
-        204:
-          description: successful operation
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        409:
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        401:
-          description: Unathorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+
   /posts/{postId}/vote:
     description: Post Resource
     post:
@@ -3552,61 +3665,6 @@ paths:
                   errorMessage:
                     type: string
                     example: Method Not Allowed (blocked by author)
-  /posts/{postId}/{action}:
-    patch:
-      tags:
-        - Posts
-      summary: Changes the post state according to action.
-      description: Moderators can change the state of a post.
-        A post is by default unmoderated, but it can be approved, removed, or spammed.
-        Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed.
-        The post state is overwriten by the most recent action.
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
-        - name: action
-          in: path
-          required: true
-          schema:
-            type: string
-            enum:
-              - spam
-              - approve
-              - remove
-      responses:
-        204:
-          description: successful operation
-        400:
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        404:
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        409:
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        401:
-          description: Unathorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
 
   /posts/{postId}/suggested_sort:
     post:
@@ -7609,7 +7667,13 @@ components:
           description: indicates whether the post accepts replies in private messages or not
         locked:
           type: boolean
-          description: whether the post can receive comments or not
+          description: whether the post can receive comments or not               
+        modState:
+          type: string
+          enum:
+          - approved
+          - removed
+          - spammed        
         flairId:
           type: string
         flairText:
@@ -7907,6 +7971,8 @@ components:
     comment:
       type: object
       properties:
+        _id:
+          type: string
         author:
           type: string
         post:
