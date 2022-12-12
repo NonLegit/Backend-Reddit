@@ -3512,7 +3512,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /posts/{postId}/{action}:
+  /posts/{postId}/actions/{action}:
     patch:
       tags:
         - Posts
@@ -3568,6 +3568,64 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+  /posts/{postId}/spam:
+    patch:
+      tags:
+        - Posts
+      summary: Report a post as spammed
+      description: A moderator can spam a post directly, but a non-mod user can only report it as spammed. 
+        A post exceeding a certain threshold of spam reports is marked as spammed
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: id of the post
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: "1 for spam and -1 for unspam"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dir:
+                  type: integer
+                  enum:
+                    - 1
+                    - -1       
+      responses:
+        204:
+          description: successful operation
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
 
   /posts/{postId}/vote:
     description: Post Resource
