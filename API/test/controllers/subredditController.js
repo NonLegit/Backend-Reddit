@@ -1040,7 +1040,7 @@ describe("Subreddit Controller Test", () => {
       });
     });
     // ==============================================
-    it("8th test success", async () => {
+    it("8th test fail", async () => {
       const req = {
         params: {
           subredditName: "subreddit",
@@ -1415,7 +1415,7 @@ describe("Subreddit Controller Test", () => {
         expect(res.status).to.have.been.calledWith(404);
         expect(res.status(404).json).to.have.been.calledWith({
           status: "fail",
-          errorMessage: "there is no moderation invetation to this subreddit",
+          errorMessage: "there is no moderation invitation to this subreddit",
         });
       });
       //======================================================

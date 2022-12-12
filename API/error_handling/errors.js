@@ -35,6 +35,8 @@ exports.subredditErrors = Object.freeze({
   INVALID_ENUM: 7,
   FLAIR_NOT_FOUND: 8,
   NO_INVITATION: 9,
+  RULE_TAKEN: 15,
+  RULE_NOT_FOUND: 17,
 });
 
 exports.userErrors = Object.freeze({
@@ -49,6 +51,11 @@ exports.userErrors = Object.freeze({
   MAXSOCIALLINKS: 8,
   INVALID_SOCIALID: 9,
   Not_MODERATOR: 20,
+  MODERATOR: 21,
+  ALREADY_BANED: 30,
+  Not_BANED: 22,
+  ALREADY_MUTED: 31,
+  Not_MUTED: 32,
 });
 
 exports.mongoErrors = Object.freeze({

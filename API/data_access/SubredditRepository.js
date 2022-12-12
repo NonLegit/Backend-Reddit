@@ -31,6 +31,7 @@ class SubredditRepository extends Repository {
 
       return { success: true, doc: tempdoc };
     } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }
@@ -42,6 +43,7 @@ class SubredditRepository extends Repository {
         .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
+      console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -58,6 +60,7 @@ class SubredditRepository extends Repository {
 
       return { success: true, doc: doc };
     } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }
@@ -68,7 +71,29 @@ class SubredditRepository extends Repository {
    * @param {string} userID - iD if the user i want to check
    * @returns {boolean} - a boolean true or false,
    */
-  async isModerator(subredditName, userID) {
+  async isModerator_1(subredditName, userID) {
+    //..
+    try {
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+          "moderators.id": userID,
+        })
+        .select({ "moderators.$": 1 });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  //! [Note]
+  // this function is twin to the above function i did that because i use the
+  // it two times with different result so it can only be mocked in
+  // unit testing by doing this
+  async isModerator_2(subredditName, userID) {
     //..
     try {
       let tempDoc = this.model
@@ -194,6 +219,93 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async addRule(subredditName, title, data) {
+    try {
+      let doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            rules: {
+              createdAt: Date.now(),
+              defaultName: data.defaultName,
+              description: data.description,
+              appliesTo: data.appliesTo,
+              title: title,
+            },
+          },
+        }
+      );
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async banUser(user, subredditName, data) {
+    try {
+      let doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            punished: {
+              id: user._id,
+              userName: user.userName,
+              banDate: Date.now(),
+              profilePicture: user.profilePicture,
+              type: "banned",
+              banInfo: {
+                punishReason: data.punishReason,
+                punish_type: data.punish_type,
+                Note: data.Note,
+                duration: data.duration,
+              },
+            },
+          },
+        }
+      );
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async muteUser(user, subredditName, data) {
+    try {
+      let doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            punished: {
+              id: user._id,
+              userName: user.userName,
+              banDate: Date.now(),
+              profilePicture: user.profilePicture,
+              type: "muted",
+              muteInfo: {
+                muteMessage: data.muteMessage,
+              },
+            },
+          },
+        }
+      );
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async getSubredditFlairs(subredditName) {
     try {
       console.log("inside subreddit flairs");
@@ -209,6 +321,151 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  async updateModerators(subredditName, moderators) {
+    try {
+      const doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { moderators: moderators },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!doc) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updatePunished(subredditName, punished) {
+    try {
+      const doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { punished: punished },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!doc) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updateRules(subredditName, rules) {
+    try {
+      const doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { rules: rules },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!doc) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async getModerators(subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+        })
+        .select("moderators");
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async punishedUsers(subredditName) {
+    try {
+      let tempDoc = this.model.findOne({
+        fixedName: subredditName,
+      });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async getPunished(subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+        })
+        .select("punished");
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async checkPunished(userId, subredditName, action) {
+    try {
+      let tempDoc = this.model.findOne({
+        fixedName: subredditName,
+        "punished.id": userId,
+        "punished.type": action,
+      });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async checkRule(title,subredditName)
+  {
+    try {
+      let tempDoc = this.model.findOne({
+        fixedName: subredditName,
+        "rules.title": title,
+      });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+
+  }
+
   async addFlairToSubreddit(subredditName, flairId) {
     try {
       const doc = await this.model.findOneAndUpdate(

@@ -244,6 +244,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
 
+  favourites: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Subreddit",
+    },
+  ],
+
   socialLinks: [
     {
       social: {
@@ -330,7 +337,6 @@ userSchema.post("init", function (doc) {
   // doc.profilePicture = `${process.env.BACKDOMAIN}/` + doc.profilePicture;
   // doc.profileBackground =
   //   `${process.env.BACKDOMAIN}/` + doc.profileBackground;
-  
 });
 
 userSchema.methods.createPasswordResetToken = function () {

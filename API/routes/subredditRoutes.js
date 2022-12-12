@@ -5,20 +5,31 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const subredditController = container.resolve("subredditController");
 const PostController = container.resolve("PostController");
 //const userControllerObj = require("./test");
-// 
+//
 const router = express.Router();
 
 // test data models
 
+router.get(
+  "/:subredditName/top",
+  AuthenticationController.checkAuthorize,
+  subredditController.getSubredditId,
+  PostController.getTopPosts
+);
+router.get(
+  "/:subredditName/new",
+  AuthenticationController.checkAuthorize,
+  subredditController.getSubredditId,
+  PostController.getNewPosts
+);
+router.get(
+  "/:subredditName/hot",
+  AuthenticationController.checkAuthorize,
+  subredditController.getSubredditId,
+  PostController.getHotPosts
+);
 
-
-
-router.get('/:subredditName/top', AuthenticationController.checkAuthorize,subredditController.getSubredditId,PostController.getTopPosts);
-router.get('/:subredditName/new',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getNewPosts);
-router.get('/:subredditName/hot',AuthenticationController.checkAuthorize,subredditController.getSubredditId, PostController.getHotPosts);
-
-
-router.route('/:subredditName/flair').get(subredditController.getFlairs);
+router.route("/:subredditName/flair").get(subredditController.getFlairs);
 router.use(AuthenticationController.authorize);
 
 router.post("/", subredditController.createSubreddit);
@@ -27,19 +38,16 @@ router.get("/:subredditName", subredditController.getSubredditSettings);
 router.delete("/:subredditName", subredditController.deleteSubreddit);
 
 //router.get("/:subredditName/about/:location",subredditControllerObj.relevantPosts);
-// router.get("/mine/:where",subredditControllerObj)
-
 
 //router.get('/:subredditName/trending', postControllerObj.getTrendingPosts);
 
+router.route("/:subredditName/flair").post(subredditController.createFlair);
 
-router.route('/:subredditName/flair')
-  .post(subredditController.createFlair);
-   
-router.route('/:subredditName/flair/:flairId')
-    .get(subredditController.getFlair)
-    .patch(subredditController.updateFlair)
-    .delete(subredditController.deleteFlair);
+router
+  .route("/:subredditName/flair/:flairId")
+  .get(subredditController.getFlair)
+  .patch(subredditController.updateFlair)
+  .delete(subredditController.deleteFlair);
 router.get(
   "/:subredditName/about/:location",
   subredditController.relevantPosts
@@ -51,16 +59,53 @@ router.post(
   "/:subredditName/moderators/:moderatorName",
   subredditController.inviteModerator
 );
-router.post("/:subredditName/:action/invitation",subredditController.ModeratorInvitation)
-// router.delete(
-//   "/:subredditName/moderator/:moderatorName",
-//   subredditController.deletemoderator
-// );
-// router.patch(
-//   "/:subredditName/moderator/:moderatorName",
-//   subredditController.updatePermissions
-// );
-// router.patch("/:subredditName/setPrimaryTopic",subredditController.setPrimaryTopic);
+router.post(
+  "/:subredditName/:action/invitation",
+  subredditController.ModeratorInvitation
+);
+router.delete(
+  "/:subredditName/moderator/:moderatorName",
+  subredditController.deletemoderator
+);
+router.patch(
+  "/:subredditName/moderator/:moderatorName",
+  subredditController.updatePermissions
+);
+router.get("/:subredditName/moderators", subredditController.getModerators);
+router.post(
+  "/:subredditName/leave_moderator",
+  subredditController.leaveModerator
+);
+router.post("/:subredditName/favourite", subredditController.Favourite);
+router.get(
+  "/favourites/get_subreddits",
+  subredditController.favouriteSubreddits
+);
+
+router.post(
+  "/:subredditName/ban_settings/:action/:userName",
+  subredditController.banSettings
+);
+router.get("/:subredditName/banned", subredditController.bannedUsers);
+router.get("/:subredditName/muted", subredditController.mutedUsers);
+
+router.post(
+  "/:subredditName/mute_settings/:action/:userName",
+  subredditController.muteSettings
+);
+
+router.post(
+  "/:subredditName/rules/:title",
+  subredditController.addRule
+);
+router.patch(
+  "/:subredditName/rules/:title",
+  subredditController.editRule
+);
+router.delete(
+  "/:subredditName/rules/:title",
+  subredditController.deleteRule
+);
 
 router
   .route("/:subredditName/flair")
@@ -72,9 +117,7 @@ router
   .patch(subredditController.updateFlair)
   .delete(subredditController.deleteFlair);
 
-router
-  .route("/:subredditName/subscribe")
-  .post(subredditController.subscribe);
+router.route("/:subredditName/subscribe").post(subredditController.subscribe);
 
 module.exports = router;
 
@@ -89,7 +132,6 @@ module.exports = router;
 // const Post = require('./../models/postModel');//model
 // const PostRepositoryObj = new Repository(Post);//dataaccedss send model
 // const postServiceObj = new postService(Post, PostRepositoryObj);
-
 
 // // !================================
 // const SubredditRepositoryObj = new Repository(Subreddit);
@@ -110,8 +152,6 @@ module.exports = router;
 //   User,
 //   UserRepositoryObj
 // );
-
-
 
 // /////////////////////////////////////////////
 

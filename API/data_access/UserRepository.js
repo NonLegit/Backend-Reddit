@@ -63,6 +63,19 @@ class UserRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  async getFavouriteSubreddits(userId) {
+    try {
+      let tempDoc = this.model
+        .find({ _id: userId })
+        .select("favourites")
+        .populate("favourites", "_id fixedName icon membersCount description");
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc[0].favourites };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
   async updateEmailById(id, email) {
     try {
       const user = await this.model.findByIdAndUpdate(
@@ -143,18 +156,73 @@ class UserRepository extends Repository {
   }
   async checkInvetation(userId, subredditId) {
     try {
-      let tempDoc = this.model
-        .findOne({
-          _id: userId,
-          "pendingInvitations.subredditId": subredditId,
-        })
-        .select({ "pendingInvitations.$": 1 });
+      let tempDoc = this.model.findOne({
+        _id: userId,
+        "pendingInvitations.subredditId": subredditId,
+      });
+      // .select({ "pendingInvitations.$": 1 });
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
     } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async checkFavourite(userId, subredditId) {
+    try {
+      let tempDoc = this.model.findOne({
+        _id: userId,
+        favourites: subredditId,
+      });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async addFavourite(userId, subredditId) {
+    try {
+      const user = await this.model.findByIdAndUpdate(
+        userId,
+        { $push: { favourites: subredditId } },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async removefavourite(userId, subredditId) {
+    try {
+      const user = await this.model.findByIdAndUpdate(
+        userId,
+        { $pull: { favourites: subredditId } },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }
@@ -168,7 +236,6 @@ class UserRepository extends Repository {
           runValidators: true,
         }
       );
-      console.log(user);
 
       if (!user) {
         return { success: false, error: mongoErrors.NOT_FOUND };
