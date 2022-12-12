@@ -5691,7 +5691,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /subreddits/{subredditName}/about/moderators:
+  /subreddits/{subredditName}/moderators:
     get:
       tags:
         - Subreddit
