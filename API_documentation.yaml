@@ -5024,6 +5024,180 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+                
+  /subreddits/{subredditName}/rules/{title}:
+    post:
+      tags:
+        - Subreddit
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: add rule to subreddit 
+      description: add rule to subreddit by passing its title
+       
+      parameters:
+        - name: subredditName
+          in: path
+          description: id of the subreddit
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          description: id of rule
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Send the new permission
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                defaultName:
+                  type: string
+                description:
+                  type: string
+                appliesTo:
+                  type: string
+                  enum: ["Posts & comments","Posts only","Comments only"]
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    delete:
+      tags:
+        - Subreddit
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: delete rule from subreddit 
+      description: delete rule from subreddit  by passing its title
+       
+      parameters:
+        - name: subredditName
+          in: path
+          description: id of the subreddit
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          description: id of rule
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+    patch:
+      tags:
+        - Subreddit
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: update rule of subreddit  
+      description: update rule of subreddit by passing its title
+       
+      parameters:
+        - name: subredditName
+          in: path
+          description: id of the subreddit
+          required: true
+          schema:
+            type: string
+        - name: title
+          in: path
+          description: id of rule
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Send the new permission
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                defaultName:
+                  type: string
+                description:
+                  type: string
+                appliesTo:
+                  type: string
+                  enum: ["Posts & comments","Posts only","Comments only"]
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "401":
+          description: Authorization Required
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
   /subreddits/{subredditName}/Ban_settings/{action}/{userName}:
     post:
