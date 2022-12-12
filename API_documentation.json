@@ -1736,6 +1736,14 @@
                           "isFollowed": {
                             "type": "boolean",
                             "example": "truw"
+                          },
+                          "postKarma": {
+                            "type": "integer",
+                            "example": 5
+                          },
+                          "commentKarma": {
+                            "type": "integer",
+                            "example": 5
                           }
                         }
                       }
@@ -2446,18 +2454,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "comments": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/userComment"
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/commentsandoosts"
                 }
               }
             }
@@ -3340,7 +3337,6 @@
     "/subreddits/{subredditName}/flairs": {
       "post": {
         "tags": [
-          "Subreddit",
           "Flair"
         ],
         "summary": "insert a new flair in the list of flair belonging to a subreddit",
@@ -3367,7 +3363,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/flair"
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "backgroundColor": {
+                    "type": "string"
+                  },
+                  "textColor": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -3420,7 +3427,6 @@
       },
       "get": {
         "tags": [
-          "Subreddit",
           "Flair"
         ],
         "summary": "get list of flairs belonging to a subreddit",
@@ -3543,7 +3549,18 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/flair"
+                "type": "object",
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  },
+                  "backgroundColor": {
+                    "type": "string"
+                  },
+                  "textColor": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -3611,7 +3628,6 @@
       },
       "delete": {
         "tags": [
-          "Subreddit",
           "Flair"
         ],
         "description": "delete flair by id",
@@ -3689,7 +3705,6 @@
       },
       "get": {
         "tags": [
-          "Subreddit",
           "Flair"
         ],
         "summary": "get flair by id",
@@ -4075,6 +4090,109 @@
             }
           }
         }
+      },
+      "get": {
+        "tags": [
+          "Posts"
+        ],
+        "summary": "get post by id",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "postId",
+            "description": "post id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "sucess"
+                    },
+                    "post": {
+                      "$ref": "#/components/schemas/HomePost"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "failed operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/posts/{postId}/follow_post": {
@@ -4120,37 +4238,44 @@
         },
         "responses": {
           "200": {
-            "description": "Success operation",
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
                 }
               }
             }
           },
           "404": {
-            "description": "failed operation",
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
                 }
               }
             }
@@ -4673,254 +4798,13 @@
         }
       }
     },
-    "/posts/{postId}/pin": {
-      "post": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "pin a post in overview",
-        "description": "This post is added to the list of the user pinned posts",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "id of the post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "already pinned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "Unauthorized"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "failed operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/unpin": {
-      "post": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "unpin a  pinned post",
-        "description": "This post is removed from the list of the user pinned posts",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "id of the post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "304": {
-            "description": "already unpinned",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "Unauthorized"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "405": {
-            "description": "failed operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/marknsfw": {
+    "/posts/{postId}/moderate/{action}": {
       "patch": {
         "tags": [
           "Posts"
         ],
+        "summary": "Changes the post state according to action.",
+        "description": "Moderators can change the state of a post. A post is by default unmoderated, but it can be approved, removed, or spammed. Users can also mark a post as spammed, but it's different from moderatore spam, users spam doesn't immediately change the state of a post but once it exceeds a certain threshold, the post is spammed. The post state is overwriten by the most recent action.",
         "security": [
           {
             "BearerAuth": []
@@ -4929,8 +4813,6 @@
             "cookieAuth": []
           }
         ],
-        "summary": "mark a post  as NSFW",
-        "description": "This post as NSFW (Not Safe For Work)",
         "parameters": [
           {
             "name": "postId",
@@ -4939,6 +4821,19 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "spam",
+                "approve",
+                "remove"
+              ]
             }
           }
         ],
@@ -4957,7 +4852,7 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
+            "description": "Unathorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -4989,11 +4884,13 @@
         }
       }
     },
-    "/posts/{postId}/unmarknsfw": {
+    "/posts/{postId}/{action}": {
       "patch": {
         "tags": [
           "Posts"
         ],
+        "summary": "Perform an action on a post",
+        "description": "These actions can only be performed by the post author or a moderator in the subreddit that owns the post.",
         "security": [
           {
             "BearerAuth": []
@@ -5002,8 +4899,6 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Unmark a NSFW post",
-        "description": "This post is not a NSFW (Not Safe For Work) post anymore",
         "parameters": [
           {
             "name": "postId",
@@ -5012,6 +4907,22 @@
             "required": true,
             "schema": {
               "type": "string"
+            }
+          },
+          {
+            "name": "action",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "lock_comments",
+                "unlock_comments",
+                "mark_nsfw",
+                "unmark_nsfw",
+                "spoiler",
+                "unspoiler"
+              ]
             }
           }
         ],
@@ -5030,7 +4941,7 @@
             }
           },
           "401": {
-            "description": "Authorization Required",
+            "description": "Unathorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -5055,286 +4966,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/lock_comments": {
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Lock comments for this post",
-        "description": "Nobody can write comments to your post or to the post in a subreddit moderated by you if you lock the post",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "id of the post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/unlock_comments": {
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Unlock comments for this post",
-        "description": "Comments can be written again to your post or to the post in a subreddit moderated by you if you unlock the locked post",
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "id of the post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/spoiler": {
-      "description": "Post Resource",
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "mark post as spoiler (by author or the subreddit moderator)",
-        "summary": "Spoil Post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "post id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/posts/{postId}/unspoiler": {
-      "description": "Post Resource",
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "description": "mark post as unspoiler (by author or the subreddit moderator)",
-        "summary": "unSpoil Post",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "postId",
-            "description": "post id",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
                 }
               }
             }
@@ -5490,85 +5121,13 @@
         }
       }
     },
-    "/posts/{postId}/spam": {
-      "patch": {
-        "tags": [
-          "Posts"
-        ],
-        "summary": "Mark a post in the subreddit as spam",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "postId",
-            "in": "path",
-            "description": "id of the post",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/posts/{postId}/suggested_sort": {
       "post": {
         "tags": [
           "Posts"
         ],
         "summary": "sort comments",
-        "description": "Suggested sorts are useful to display comments in a certain preferred way for posts. For example, casual conversation may be better sorted by new by default, or AMAs may be sorted by Q&A. A sort of an empty string clears the default sort.",
+        "description": "Suggested sorts are useful to display comments in a certain preferred way for posts. It allows moderators to set comment sorting preferences at the post level. A sort of an empty string clears the default sort.",
         "security": [
           {
             "BearerAuth": []
@@ -5603,7 +5162,17 @@
             "description": "successful operation"
           },
           "400": {
-            "description": "Invalid post id",
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathorized",
             "content": {
               "application/json": {
                 "schema": {
@@ -5614,6 +5183,16 @@
           },
           "404": {
             "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
             "content": {
               "application/json": {
                 "schema": {
@@ -6654,6 +6233,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "status": {
+                      "type": "string"
+                    },
                     "comments": {
                       "type": "array",
                       "items": {
@@ -6669,31 +6251,40 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
                 }
               }
             }
@@ -6701,7 +6292,7 @@
         }
       }
     },
-    "/comments/more_children": {
+    "/comments/more_children/{postId}": {
       "get": {
         "tags": [
           "Comments"
@@ -6719,7 +6310,7 @@
         "parameters": [
           {
             "name": "postId",
-            "in": "query",
+            "in": "path",
             "description": "The ID of the post whose comments are being fetched",
             "required": true,
             "schema": {
@@ -6729,7 +6320,7 @@
           {
             "name": "children",
             "in": "query",
-            "description": "A list of comment IDs that need to be fetched",
+            "description": "A comma separated list of comment IDs that need to be fetched",
             "required": true,
             "schema": {
               "type": "array",
@@ -6776,6 +6367,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "status": {
+                      "type": "string"
+                    },
                     "comments": {
                       "type": "array",
                       "items": {
@@ -6791,31 +6385,40 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
                 }
               }
             }
@@ -6911,6 +6514,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "status": {
+                      "type": "string"
+                    },
                     "comments": {
                       "type": "array",
                       "items": {
@@ -6926,31 +6532,40 @@
             }
           },
           "400": {
-            "description": "Bad Request",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "post not found"
+                    }
+                  }
                 }
               }
             }
@@ -7006,7 +6621,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "id": {
+                    "_id": {
                       "description": "created subreddit id",
                       "type": "string"
                     }
@@ -7308,7 +6923,7 @@
           }
         ],
         "summary": "Invite a moderator to the subreddit",
-        "description": "A moderator of the subreddit invite a user to be a moderator using the id of the user",
+        "description": "A moderator of the subreddit invite a user to be a moderator using the id of the user permissions  (all => everything) (access => can edit users) (config => manage settings) (flair => manage flairs) (posts => manage posts)",
         "parameters": [
           {
             "name": "subredditName",
@@ -7329,6 +6944,38 @@
             }
           }
         ],
+        "requestBody": {
+          "description": "Send the new permission",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "permissions": {
+                    "type": "object",
+                    "properties": {
+                      "all": {
+                        "type": "boolean"
+                      },
+                      "access": {
+                        "type": "boolean"
+                      },
+                      "config": {
+                        "type": "boolean"
+                      },
+                      "flair": {
+                        "type": "boolean"
+                      },
+                      "posts": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "successful operation"
@@ -7447,8 +7094,8 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Edit the permissions of a moderator in the subreddit",
-        "description": "An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one",
+        "summary": "Edit the permissions of a moderator in the subreddit (all => everything) (access => can edit users) (config => manage settings) (flair => manage flairs) (posts => manage posts)",
+        "description": "An old moderator of the subreddit can edit the permissions of a newer moderator in the subreddit using the id of the new one  (all => everything) (access => can edit users) (config => manage settings) (flair => manage flairs) (posts => manage posts)",
         "parameters": [
           {
             "name": "subredditName",
@@ -7555,7 +7202,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/ban/{userName}": {
+    "/subreddits/{subredditName}/Ban_settings/{action}/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -7568,8 +7215,8 @@
             "cookieAuth": []
           }
         ],
-        "summary": "Ban a certain user in the subreddit",
-        "description": "Ban a certain user on the subreddit",
+        "summary": "Ban/unBan a certain user in the subreddit",
+        "description": "Ban/unBan a certain user on the subreddit if action is unBan dont provide a body",
         "parameters": [
           {
             "name": "subredditName",
@@ -7588,95 +7235,18 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "requestBody": {
-          "description": "Send ban info",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/banInfo"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Subreddit"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
           },
           {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Edit ban info of a certain banned user in the subreddit",
-        "description": "Edit ban info of a certain banned user in the subreddit",
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "description": "id of the subreddit",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "userName",
+            "name": "action",
             "in": "path",
             "description": "id of the user",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "ban",
+                "unban"
+              ]
             }
           }
         ],
@@ -7737,7 +7307,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/unban/{userName}": {
+    "/subreddits/{subredditName}/mute_settings/{action}/{userName}": {
       "post": {
         "tags": [
           "Subreddit"
@@ -7750,8 +7320,8 @@
             "cookieAuth": []
           }
         ],
-        "summary": "unban a banned user in the subreddit",
-        "description": "A moderator unban a certain user on the subreddit using the user id",
+        "summary": "Mute/unMute a certain user in the subreddit",
+        "description": "Mute/unMute a certain user on the subreddit if action is unMute dont provide a body",
         "parameters": [
           {
             "name": "subredditName",
@@ -7770,57 +7340,18 @@
             "schema": {
               "type": "string"
             }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subreddits/{subredditName}/mute/{userName}": {
-      "post": {
-        "tags": [
-          "Subreddit"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
           },
           {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "Mute a certain user in the subreddit",
-        "description": "Mute a certain user on the subreddit",
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "description": "id of the subreddit",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "userName",
+            "name": "action",
             "in": "path",
             "description": "id of the user",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "mute",
+                "unmute"
+              ]
             }
           }
         ],
@@ -7870,146 +7401,6 @@
           },
           "409": {
             "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Subreddit"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "edit mute info of  a certain user in the subreddit",
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "description": "id of the subreddit",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "userName",
-            "in": "path",
-            "description": "id of the user",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "description": "Send mute info",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/muteInfo"
-              }
-            }
-          }
-        },
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authorization Required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "Conflict",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/error"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subreddits/{subredditName}/unmute/{userName}": {
-      "post": {
-        "tags": [
-          "Subreddit"
-        ],
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "summary": "unmute a certain user in the subreddit",
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "description": "id of the subreddit",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "userName",
-            "description": "id of the user",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
             "content": {
               "application/json": {
                 "schema": {
@@ -8868,7 +8259,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/banned": {
+    "/subreddits/{subredditName}/banned": {
       "get": {
         "tags": [
           "Subreddit"
@@ -8931,7 +8322,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/moderators": {
+    "/subreddits/{subredditName}/moderators": {
       "get": {
         "tags": [
           "Subreddit"
@@ -8994,7 +8385,56 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/muted": {
+    "/subreddits/favourites/get_subreddits": {
+      "get": {
+        "tags": [
+          "Subreddit"
+        ],
+        "summary": "",
+        "description": "Get list of subreddits marked as favourites",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/favourites"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddits/{subredditName}/muted": {
       "get": {
         "tags": [
           "Subreddit"
@@ -9057,12 +8497,78 @@
         }
       }
     },
-    "/subreddits/{subredditName}/accept_moderator_invite": {
+    "/subreddits/{subredditName}/{action}/invitation": {
       "post": {
         "tags": [
           "Subreddit"
         ],
         "description": "make the user moderator in this subreddit",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subredditName",
+            "description": "The subreddit name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "description": "invitation action",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "accept",
+                "reject"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddits/{subredditName}/leave_moderator": {
+      "post": {
+        "tags": [
+          "Subreddit"
+        ],
+        "summary": "leave moderator rule",
+        "description": "make the user un moderator in this subreddit",
         "security": [
           {
             "BearerAuth": []
@@ -9109,13 +8615,13 @@
         }
       }
     },
-    "/subreddits/{subredditName}/leave_moderator": {
+    "/subreddits/{subredditName}/favourite": {
       "post": {
         "tags": [
           "Subreddit"
         ],
-        "summary": "leave moderator rule",
-        "description": "make the user un moderator in this subreddit",
+        "summary": "mark or unmark subreddit as favourite/unfavourite",
+        "description": "mark or unmark subreddit as favourite/unfavourite",
         "security": [
           {
             "BearerAuth": []
@@ -10084,6 +9590,83 @@
         }
       }
     },
+    "/users/notifications/token": {
+      "post": {
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "send the device firebase token",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "description": "registration token"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Success operation"
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "missing parameters"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "failed operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "unauthorised"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/users/notifications/mark_as_read": {
       "patch": {
         "tags": [
@@ -10882,7 +10465,7 @@
       "reducedModeratorInfo": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "userName": {
@@ -10923,7 +10506,7 @@
           "name": {
             "type": "string"
           },
-          "id": {
+          "_id": {
             "type": "string"
           },
           "icon": {
@@ -10933,7 +10516,7 @@
       },
       "sentMessage": {
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "isRead": {
@@ -10981,6 +10564,30 @@
               "Posts only",
               "Comments only"
             ]
+          }
+        }
+      },
+      "arraySubreddit": {
+        "properties": {
+          "fixedName": {
+            "type": "string"
+          },
+          "icon": {
+            "type": "string"
+          }
+        }
+      },
+      "favourites": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "default": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/arraySubreddit"
+            }
           }
         }
       },
@@ -11187,7 +10794,7 @@
       "User": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string",
             "format": "int64",
             "example": 10
@@ -11312,7 +10919,7 @@
       "Friend": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string",
             "format": "int64",
             "example": 10
@@ -11431,7 +11038,7 @@
           "icon": {
             "type": "string"
           },
-          "id": {
+          "_id": {
             "type": "string",
             "format": "int64",
             "example": 10
@@ -11610,6 +11217,14 @@
           "locked": {
             "type": "boolean",
             "description": "whether the post can receive comments or not"
+          },
+          "modState": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "removed",
+              "spammed"
+            ]
           },
           "flairId": {
             "type": "string"
@@ -12019,6 +11634,9 @@
       "comment": {
         "type": "object",
         "properties": {
+          "_id": {
+            "type": "string"
+          },
           "author": {
             "type": "string"
           },
@@ -12059,7 +11677,7 @@
             "description": "total number of votes"
           },
           "repliesCount": {
-            "type": "string"
+            "type": "integer"
           }
         }
       },
@@ -12114,6 +11732,140 @@
           }
         }
       },
+      "commentsandoosts": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "posts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "_id": {
+                  "type": "string"
+                },
+                "author": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "description": "The  user who created the post"
+                },
+                "ownerType": {
+                  "type": "string",
+                  "enum": [
+                    "Subreddit",
+                    "User"
+                  ]
+                },
+                "owner": {
+                  "type": "object",
+                  "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "icon": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "title": {
+                  "type": "string"
+                },
+                "text": {
+                  "type": "string",
+                  "description": "the text of the post in case the kind is self"
+                },
+                "nsfw": {
+                  "type": "boolean"
+                },
+                "comments": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "_id": {
+                        "type": "string",
+                        "description": "id of the comment"
+                      },
+                      "parent": {
+                        "type": "string",
+                        "description": "id of post or comment who is parent of comment"
+                      },
+                      "parentType": {
+                        "type": "string",
+                        "description": "type of parent who  omments belongs to"
+                      },
+                      "author": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          }
+                        }
+                      },
+                      "title": {
+                        "type": "string",
+                        "description": "post title"
+                      },
+                      "text": {
+                        "type": "string"
+                      },
+                      "createdAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2017-07-21T17:32:28.000Z"
+                      },
+                      "votes": {
+                        "type": "integer",
+                        "description": "total number of votes"
+                      },
+                      "commentVoteStatus": {
+                        "type": "string",
+                        "enum": [
+                          "1",
+                          "0",
+                          "-1"
+                        ]
+                      },
+                      "isDeleted": {
+                        "type": "boolean",
+                        "example": false
+                      },
+                      "mentions": {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "example": "userName of mentioned users"
+                        }
+                      },
+                      "isSaved": {
+                        "type": "boolean",
+                        "example": false
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "overview": {
         "type": "object",
         "properties": {
@@ -12128,12 +11880,6 @@
             }
           },
           "posts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/userPost"
-            }
-          },
-          "pinnedPosts": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/userPost"
@@ -12250,13 +11996,6 @@
           },
           "textColor": {
             "type": "string"
-          },
-          "permissions": {
-            "type": "string",
-            "enum": [
-              "modOnly",
-              "allowEdit"
-            ]
           }
         }
       },
@@ -12274,7 +12013,7 @@
       "message": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "text": {
@@ -12368,7 +12107,7 @@
       "mutedUser": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "userName": {
@@ -12392,7 +12131,7 @@
           "ban reason"
         ],
         "properties": {
-          "ban_reason": {
+          "punish_type": {
             "type": "string",
             "enum": [
               "No Spoiler",
@@ -12401,11 +12140,11 @@
               "Threatening, harassing or inciting violence"
             ]
           },
-          "moderatorNote": {
+          "Note": {
             "type": "string",
             "description": "short note about the ban"
           },
-          "banMessage": {
+          "punishReason": {
             "type": "string",
             "description": "more info about the ban to be sent to the user"
           },
@@ -12419,7 +12158,7 @@
       "bannedUser": {
         "type": "object",
         "properties": {
-          "id": {
+          "_id": {
             "type": "string"
           },
           "userName": {
@@ -12428,7 +12167,7 @@
           "profilePicture": {
             "type": "string"
           },
-          "joiningDate": {
+          "banDate": {
             "type": "string",
             "format": "date-time"
           },
@@ -12440,6 +12179,9 @@
       "Notification": {
         "type": "object",
         "properties": {
+          "_id": {
+            "type": "string"
+          },
           "type": {
             "type": "string",
             "enum": [

@@ -1138,7 +1138,12 @@ paths:
                         isFollowed:
                           type: boolean
                           example: truw
-
+                        postKarma:
+                          type: integer
+                          example: 5
+                        commentKarma:
+                          type: integer
+                          example: 5
         "401":
           description: Authorization Required
           content:
@@ -1570,14 +1575,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  status:
-                    type: string
-                    example: success
-                  comments:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/userComment"
+                  $ref: "#/components/schemas/commentsandoosts"
         "400":
           description: Invalid userName supplied
         "404":
@@ -3055,159 +3053,159 @@ paths:
                     type: string
                     example: Method Not Allowed (blocked by author or deleted post)
 
-  /posts/{postId}/pin:
-    post:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: pin a post in overview
-      description: This post is added to the list of the user pinned posts
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
+  # /posts/{postId}/pin:
+  #   post:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: pin a post in overview
+  #     description: This post is added to the list of the user pinned posts
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
 
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        304:
-          description: already pinned
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: Unauthorized
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: post not found
-        405:
-          description: failed operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
-  /posts/{postId}/unpin:
-    post:
-      tags:
-        - Posts
-      security:
-        - BearerAuth: []
-        - cookieAuth: []
-      summary: unpin a  pinned post
-      description: This post is removed from the list of the user pinned posts
-      parameters:
-        - name: postId
-          in: path
-          description: id of the post
-          required: true
-          schema:
-            type: string
+  #     responses:
+  #       200:
+  #         description: Success operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: success
+  #       304:
+  #         description: already pinned
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: success
+  #       401:
+  #         description: Unauthorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #                   example: Unauthorized
+  #       404:
+  #         description: Not Found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #                   example: post not found
+  #       405:
+  #         description: failed operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #                   example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
+  # /posts/{postId}/unpin:
+  #   post:
+  #     tags:
+  #       - Posts
+  #     security:
+  #       - BearerAuth: []
+  #       - cookieAuth: []
+  #     summary: unpin a  pinned post
+  #     description: This post is removed from the list of the user pinned posts
+  #     parameters:
+  #       - name: postId
+  #         in: path
+  #         description: id of the post
+  #         required: true
+  #         schema:
+  #           type: string
 
-      responses:
-        200:
-          description: Success operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        304:
-          description: already unpinned
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: success
-        401:
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: Unauthorized
-        404:
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-        405:
-          description: failed operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                    example: fail
-                  errorMessage:
-                    type: string
-                    example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
+  #     responses:
+  #       200:
+  #         description: Success operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: success
+  #       304:
+  #         description: already unpinned
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: success
+  #       401:
+  #         description: Unauthorized
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #                   example: Unauthorized
+  #       404:
+  #         description: Not Found
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #       405:
+  #         description: failed operation
+  #         content:
+  #           application/json:
+  #             schema:
+  #               type: object
+  #               properties:
+  #                 status:
+  #                   type: string
+  #                   example: fail
+  #                 errorMessage:
+  #                   type: string
+  #                   example: Method Not Allowed (blocked by author or deleted post or reached maximum pinned posts (4))
 
   # /posts/{postId}/mark_nsfw:
   #   patch:
@@ -8041,6 +8039,104 @@ components:
         Comment:
           $ref: "#/components/schemas/comment"
 
+    commentsandoosts:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        posts:
+          type: array
+          items:
+            type: object
+            properties:
+              _id:
+                type: string
+              author:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+      
+                description: The  user who created the post
+              ownerType:
+                type: string
+                enum:
+                  - Subreddit
+                  - User
+              owner:
+                type: object
+                description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+                  icon:
+                    type: string
+              title:
+                type: string
+              text:
+                type: string
+                description: the text of the post in case the kind is self
+              nsfw:
+                type: boolean
+            
+              comments:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: id of the comment
+                    parent:
+                      type: string
+                      description: id of post or comment who is parent of comment
+                    parentType:
+                      type: string
+                      description: type of parent who  omments belongs to
+                    author:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                    title:
+                      type: string
+                      description: post title
+                    text:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                    votes:
+                      type: integer
+                      description: total number of votes
+                    commentVoteStatus:
+                      type: string
+                      enum:
+                        - "1"
+                        - "0"
+                        - "-1"
+                    isDeleted:
+                      type: boolean
+                      example: false
+                    mentions:
+                      type: array
+                      items:
+                        type: string
+                        example: userName of mentioned users
+                    isSaved:
+                      type: boolean
+                      example: false
+
+
+
     overview:
       type: object
       properties:
@@ -8055,10 +8151,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/userPost"
-        pinnedPosts:
-          type: array
-          items:
-            $ref: "#/components/schemas/userPost"
+        # pinnedPosts:
+        #   type: array
+        #   items:
+        #     $ref: "#/components/schemas/userPost"
 
     upvotes:
       type: object
