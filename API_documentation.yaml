@@ -5654,7 +5654,7 @@ paths:
                     items:
                       $ref: "#/components/schemas/comment"
 
-  /subreddits/{subredditName}/about/banned:
+  /subreddits/{subredditName}/banned:
     get:
       tags:
         - Subreddit
@@ -5760,7 +5760,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/error"
 
-  /subreddits/{subredditName}/about/muted:
+  /subreddits/{subredditName}/muted:
     get:
       tags:
         - Subreddit
