@@ -4,7 +4,7 @@
   "description": "backend api",
   "main": "server.js",
   "scripts": {
-    "test": "mocha --timeout 1000000 --recursive --exit --spec",
+    "test": "mocha --timeout 1000000 --recursive --exit ",
     "start": "nodemon server.js",
     "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",

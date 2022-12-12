@@ -82,7 +82,7 @@ class FileController {
           req.file.filename
         );
         const me = {
-          id: user._id,
+          _id: user._id,
           userName: user.userName,
           email: user.email,
           profilePicture: user.profilePicture,

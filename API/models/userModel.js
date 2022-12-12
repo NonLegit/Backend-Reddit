@@ -76,7 +76,7 @@ const userSchema = new mongoose.Schema({
   },
   profileBackground: {
     type: String,
-    default: "users/default.png",
+    default: "users/defaultcover.png",
     // it will be unique with time stamp and username
     //unique: true,
   },
