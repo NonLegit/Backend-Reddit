@@ -508,6 +508,28 @@ class PostService {
   async modAction(postId, action) {
     return await this.postRepo.modAction(postId, action);
   }
+
+  async spam(postId, userId, dir) {
+    const SPAM_THRESHOLD = 5;
+
+    const post = await this.postRepo.findById(postId, "spammedBy spamCount");
+
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const { spammedBy, spamCount } = post.doc;
+    const spammed = spammedBy.includes(userId);
+
+    if ((dir === 1 && spammed) || (dir === -1 && !spammed))
+      return { success: false, error: postErrors.ACTION_ALREADY_DONE };
+
+    await this.postRepo.spam(postId, userId, dir);
+
+    if (spamCount + dir >= SPAM_THRESHOLD)
+      await this.postRepo.modAction(postId, "spam");
+
+    return { success: true };
+  }
 }
 
 module.exports = PostService;

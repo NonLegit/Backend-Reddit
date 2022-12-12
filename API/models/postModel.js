@@ -141,6 +141,15 @@ const postSchema = new mongoose.Schema({
     enum: ["unmoderated", "approved", "removed", "spammed"],
     default: "unmoderated",
   },
+  spamCount: {
+    type: Number,
+    required: true,
+    default: 0
+  },
+  spammedBy: [{
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "User",
+  }]
 });
 postSchema.pre("save", function (next) {
   // this points to the current query

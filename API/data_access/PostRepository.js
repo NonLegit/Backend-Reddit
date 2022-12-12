@@ -136,6 +136,19 @@ class PostRepository extends Repository {
     if (doc) return true;
     return false;
   }
+
+  async spam(postId, userId, dir) {
+    if (dir === 1)
+      await this.model.findByIdAndUpdate(postId, {
+        $push: { spammedBy: userId },
+        $inc: { spamCount: 1 },
+      });
+    else
+      await this.model.findByIdAndUpdate(postId, {
+        $pull: { spammedBy: userId },
+        $inc: { spamCount: -1 },
+      });
+  }
 }
 
 module.exports = PostRepository;

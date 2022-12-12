@@ -1,3 +1,4 @@
+const { Dir } = require("fs");
 const {
   postErrors,
   subredditErrors,
@@ -594,6 +595,44 @@ class PostController {
 
   followPost = async (req, res) => {};
   suggestedSort = async (req, res) => {};
+
+  spam = async (req, res) => {
+    const postId = req.params?.postId;
+    const dir = req.body.dir || 1;
+
+    if (!postId || !dir) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    const { success, error } = await this.postServices.spam(
+      postId,
+      req.user._id, dir
+    );
+    if (!success) {
+      let msg, stat;
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
+        case postErrors.ACTION_ALREADY_DONE:
+          msg = "Action already performed";
+          stat = 409;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(204).json({});
+  };
 
   mustBeMod = async (req, res, next) => {
     const postId = req.params?.postId;

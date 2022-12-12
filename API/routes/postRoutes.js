@@ -18,15 +18,11 @@ router
   .delete(PostController.deletePost);
 
 router.route("/:postId/follow_post").patch(PostController.followPost);
+router.route("/:postId/spam").patch(PostController.spam);
 
 router.param("postId", PostController.mustBeAuthOrMod);
 
-router.route("/:postId/:action").patch(PostController.postActions);
-// router.route("/:postId/unlock_commnets").patch(PostController.unlock);
-// router.route("/:postId/spoiler").patch(PostController.spoiler);
-// router.route("/:postId/unspoiler").patch(PostController.unspoiler);
-// router.route("/:postId/mark_nsfw").patch(PostController.markNsfw);
-// router.route("/:postId/unmark_nsfw").patch(PostController.unmarkNsfw);
+router.route("/:postId/actions/:action").patch(PostController.postActions);
 
 router.param("postId", PostController.mustBeMod);
 

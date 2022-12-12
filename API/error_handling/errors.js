@@ -17,7 +17,8 @@ exports.postErrors = Object.freeze({
   FLAIR_NOT_FOUND: 8,
   NOT_AUTHOR_OR_MOD: 9,
   NOT_MOD: 10,
-  OWNER_NOT_SUBREDDIT: 11
+  OWNER_NOT_SUBREDDIT: 11,
+  ACTION_ALREADY_DONE: 12
 });
 
 exports.postActions = Object.freeze({
