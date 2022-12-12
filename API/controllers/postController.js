@@ -1,4 +1,8 @@
-const { postErrors, subredditErrors } = require("../error_handling/errors");
+const {
+  postErrors,
+  subredditErrors,
+  postActions,
+} = require("../error_handling/errors");
 
 class PostController {
   constructor({ PostService, UserService }) {
@@ -291,8 +295,8 @@ class PostController {
     try {
       //req.query.sort = "-createdAt,-votes,-commentCount";
       let sortType = "hot";
-      let me =(req.isAuthorized==true)?req.user:undefined;
-    
+      let me = req.isAuthorized == true ? req.user : undefined;
+
       //console.log(req.user);
       //let posts;
       // if (req.user) {
@@ -301,7 +305,12 @@ class PostController {
       //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
       // }
       // else {
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       // }
       if (!posts.success) {
@@ -341,8 +350,13 @@ class PostController {
       //console.log(req.query);
 
       let sortType = "new";
-     let me =(req.isAuthorized==true)?req.user:undefined;
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let me = req.isAuthorized == true ? req.user : undefined;
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -380,12 +394,16 @@ class PostController {
       //req.query.sort = "-votes";
       //console.log(req.query);
 
-
-      let me =(req.isAuthorized==true)?req.user:undefined;
+      let me = req.isAuthorized == true ? req.user : undefined;
 
       let sortType = "top";
       // let filter = (req.toFilter) ? req.toFilter : {};
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -434,16 +452,19 @@ class PostController {
     try {
       //req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
 
-       
-
       let sortType = "best";
-    // check if the owner of post block me or i blocked him in order to show posts , TODO
+      // check if the owner of post block me or i blocked him in order to show posts , TODO
 
-     let me =(req.isAuthorized==true)?req.user:undefined;
-       
-    // get post which he creates
-      
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let me = req.isAuthorized == true ? req.user : undefined;
+
+      // get post which he creates
+
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -518,6 +539,127 @@ class PostController {
         status: "fail",
       });
     }
+  };
+
+  postActions = async (req, res) => {
+    const postId = req.params.postId;
+    const action = req.params.action;
+
+    const validActions = [
+      "lock_comments",
+      "unlock_comments",
+      "mark_nsfw",
+      "unmark_nsfw",
+      "spoiler",
+      "unspoiler",
+    ];
+    if (!validActions.includes(action)) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid post action",
+      });
+      return;
+    }
+
+    const success = await this.postServices.postAction(postId, action);
+    if (success) res.status(204).json({});
+    else
+      res.status(409).json({
+        status: "fail",
+        message: "Action already performed",
+      });
+  };
+
+  moderatePost = async (req, res) => {
+    const postId = req.params.postId;
+    const action = req.params?.action;
+
+    const validActions = ["approve", "remove", "spam"];
+    if (!validActions.includes(action)) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid post moderation action",
+      });
+      return;
+    }
+
+    const success = await this.postServices.modAction(postId, action);
+    if (success) res.status(204).json({});
+    else
+      res.status(409).json({
+        status: "fail",
+        message: "Action is already performed",
+      });
+  };
+
+  followPost = async (req, res) => {};
+  suggestedSort = async (req, res) => {};
+
+  mustBeMod = async (req, res, next) => {
+    const postId = req.params?.postId;
+    const userId = req.user._id;
+
+    if (!postId) {
+      res.status(400).send({ status: "fail", message: "Invalid request" });
+      return;
+    }
+
+    const { success, error } = await this.postServices.isMod(postId, userId);
+
+    if (!success) {
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          res.status(404).send({ status: "fail", message: "Post not found" });
+          break;
+        case postErrors.NOT_MOD:
+          res.status(401).send({
+            status: "fail",
+            message: "User must be moderator",
+          });
+          break;
+        case postErrors.OWNER_NOT_SUBREDDIT:
+          res.status(400).send({
+            status: "fail",
+            message: "The post must belong to a subreddit",
+          });
+          break;
+      }
+      return;
+    }
+
+    next();
+  };
+
+  mustBeAuthOrMod = async (req, res, next) => {
+    const postId = req.params?.postId;
+
+    if (!postId) {
+      res.status(400).send({ status: "fail", message: "Invalid request" });
+      return;
+    }
+    const userId = req.user._id;
+
+    const { success, error } = await this.postServices.isAuthOrMod(
+      postId,
+      userId
+    );
+
+    if (!success) {
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          res.status(404).send({ status: "fail", message: "Post not found" });
+          break;
+        case postErrors.NOT_AUTHOR_OR_MOD:
+          res.status(401).send({
+            status: "fail",
+            message: "User must be author or moderator",
+          });
+          break;
+      }
+      return;
+    }
+
+    next();
   };
 }
 

@@ -135,10 +135,11 @@ const postSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
-  isSpam: {
-    type: Boolean,
+  modState: {
+    type: String,
     required: true,
-    default: false,
+    enum: ["unmoderated", "approved", "removed", "spammed"],
+    default: "unmoderated",
   },
 });
 postSchema.pre("save", function (next) {

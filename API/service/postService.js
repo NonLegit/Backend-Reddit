@@ -1,4 +1,8 @@
-const { postErrors, mongoErrors } = require("../error_handling/errors");
+const {
+  postErrors,
+  mongoErrors,
+  postActions,
+} = require("../error_handling/errors");
 
 /**
  * Post Service class for handling Post model and services
@@ -129,14 +133,14 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/` + owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon:  `${process.env.BACKDOMAIN}/` +owner.icon
+          icon: `${process.env.BACKDOMAIN}/` + owner.icon,
         };
       }
 
@@ -231,14 +235,12 @@ class PostService {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
         owner["icon"] =
-          `${process.env.BACKDOMAIN}/` +
-          posts[i].owner.profilePicture;
+          `${process.env.BACKDOMAIN}/` + posts[i].owner.profilePicture;
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.fixedName;
-        owner["icon"] =
-          `${process.env.BACKDOMAIN}/` + posts[i].owner.icon;
+        owner["icon"] = `${process.env.BACKDOMAIN}/` + posts[i].owner.icon;
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
 
@@ -249,8 +251,7 @@ class PostService {
       author["_id"] = posts[i].author._id;
       author["name"] = posts[i].author.userName;
       author["icon"] =
-        `${process.env.BACKDOMAIN}/` +
-        posts[i].author.profilePicture;
+        `${process.env.BACKDOMAIN}/` + posts[i].author.profilePicture;
 
       newPosts[i]["author"] = author;
     }
@@ -420,6 +421,92 @@ class PostService {
     }
 
     return post;
+  }
+
+  /**
+   * Checks if the user is the post author or moderator in the post subreddit
+   * @param {string} postId The post ID
+   * @param {string} userId The ID of the user in question
+   * @returns {object}
+   */
+  async isAuthOrMod(postId, userId) {
+    const post = await this.postRepo.findById(postId, "author owner ownerType");
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const { author, owner, ownerType } = post.doc;
+
+    if (author.equals(userId)) return { success: true };
+
+    if (ownerType === "Subreddit") {
+      const isMod = (await this.subredditRepo.moderator(owner, userId)).success;
+
+      if (isMod) return { success: true };
+    }
+
+    return { success: false, error: postErrors.NOT_AUTHOR_OR_MOD };
+  }
+
+  /**
+   * Checks if the user is moderator in the post subreddit
+   * @param {string} postId The post ID
+   * @param {string} userId The ID of the user in question
+   * @returns {object}
+   */
+  async isMod(postId, userId) {
+    const post = await this.postRepo.findById(postId, "owner ownerType");
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const { owner, ownerType } = post.doc;
+
+    if (ownerType !== "Subreddit")
+      return { success: false, error: postErrors.OWNER_NOT_SUBREDDIT };
+
+    const isMod = (await this.subredditRepo.moderator(owner, userId)).success;
+    if (!isMod) return { success: false, error: postErrors.NOT_MOD };
+
+    return { success: true };
+  }
+
+  /**
+   * Performs an action on post that requires the user to be either author or mod
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @param {bool} dir True for the action, False for its opposite
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async postAction(postId, action) {
+    //If action is positive, dir is true, otherwise dir is false
+    const prefix = action.slice(0, 2);
+    let dir = true;
+    if (prefix === "un") {
+      dir = false;
+      action = action.slice(2);
+    }
+
+    switch (action) {
+      case "lock_comments":
+        action = "locked";
+        break;
+      case "mark_nsfw":
+        action = "nsfw";
+        break;
+      case "spoiler":
+        action = "spoiler";
+        break;
+    }
+    return await this.postRepo.postAction(postId, action, dir);
+  }
+
+  /**
+   * Performs an action on post only by the moderators of the subreddit
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async modAction(postId, action) {
+    return await this.postRepo.modAction(postId, action);
   }
 }
 
