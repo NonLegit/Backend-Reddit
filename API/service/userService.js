@@ -43,7 +43,7 @@ class UserService {
     // this.subscribe = this.subscribe.bind(this);
   }
 
-  
+
   generateRandomPassword() {
     var password = generator.generate({
       length: 10,
@@ -673,6 +673,25 @@ class UserService {
     await me.save();
     return true;
   }
+  async saveFirebaseToken(userId, token) {
+    //check if existing subreddit to create flair in
+
+    let addedToken = await this.userRepository.addTokenToUser(userId, token);
+    if (!addedToken.success) {
+      return { success: false, error: userErrors.MONGO_ERR };
+    }
+    return { success: true };
+  } 
+
+  async getFirebaseToken(userId) {
+    let token = await this.userRepository.getFirebaseToken(userId);
+    if (!token.success) {
+      return { success: false, error: userErrors.MONGO_ERR };
+    }
+    return { success: true ,data : token.doc};
+  }
+  
+
 }
 
 module.exports = UserService;

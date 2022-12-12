@@ -3,12 +3,12 @@ const { container } = require("./../di-setup");
 
 const AuthenticationController = container.resolve("AuthenticationController");
 const CommentController = container.resolve("CommentController");
-
+const NotificationController = container.resolve("NotificationController");
 const router = express.Router();
 
 router.use(AuthenticationController.authorize);
 
-router.route("/").post(CommentController.createComment);
+router.route("/").post(CommentController.createComment,NotificationController.addReplyNotification);
 router
   .route("/:commentId")
   .patch(CommentController.updateComment)

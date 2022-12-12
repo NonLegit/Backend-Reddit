@@ -12,31 +12,34 @@ const notificationSchema = new mongoose.Schema({
             'firstCommentUpVote',
             'follow']
     },
-    postId: {
+    post: {
       type: mongoose.Schema.ObjectId,
       ref: 'Post',
       required: true
     },
-    commentId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'Comment',
+    comment: {
+      type: Object,
       required: true
     },
-    followerId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
+    followedUser: {
+      type: Object,
       required: false
     },
-    followedId: {
-      type: mongoose.Schema.ObjectId,
-      ref: 'User',
+    followerUser: {
+      type: Object,
       required: false
+    },
+    followedSubreddit:{
+        type: Object,
+      
+      required: false
+
     },
     seen: {
       type: Boolean,
       default: false
     },
-    isHidden: {//this one is not included yet in schema
+    hidden: {//this one is not included yet in schema
       type: Boolean,
       default: false
     },

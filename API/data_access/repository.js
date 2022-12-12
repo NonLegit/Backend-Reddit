@@ -15,7 +15,7 @@ class Repository {
   async createOne(data) {
     try {
       const doc = await this.model.create(data);
-      console.log(doc);
+      //console.log(doc);
       return { success: true, doc: doc };
     } catch (err) {
       return { success: false, ...decorateError(err) };

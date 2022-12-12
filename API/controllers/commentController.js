@@ -4,8 +4,11 @@ class CommentController {
   constructor({ CommentService }) {
     this.commentServices = CommentService;
   }
-
-  createComment = async (req, res) => {
+  bls =(req, res) => {
+    console.log(req);
+    return;
+}
+  createComment = async (req, res,next) => {
     const data = req.body;
     data.author = req.user._id;
 
@@ -15,7 +18,7 @@ class CommentController {
         status: "fail",
         message: "Missing required parameter",
       });
-      return;
+      return ;
     }
 
     const comment = await this.commentServices.createComment(data);
@@ -36,14 +39,17 @@ class CommentController {
         status: "fail",
         message: msg,
       });
-      return;
+     
+      return ;
     }
-
+    req.comment = comment.commentToNotify;
+    req.post = comment.postToNotify;
+    //console.log(req);
     res.status(201).json({
       status: "success",
       data: comment.data,
     });
-
+    return next();
     //mentions
   };
 
@@ -92,7 +98,11 @@ class CommentController {
       data: comment.data,
     });
   };
-
+//   bla =(req,res)=> {
+//     console.log("nnnnnnnnnnnnnnnnnn");
+//     console.log(response);
+//     return;
+// }
   deleteComment = async (req, res) => {
     //validate request params
     const id = req.params.commentId;

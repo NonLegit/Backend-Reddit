@@ -46,7 +46,8 @@ exports.userErrors = Object.freeze({
   INVALID_RESET_TOKEN: 7,
   ALREADY_MODERATOR: 10,
   MAXSOCIALLINKS:8,
-  INVALID_SOCIALID:9,
+  INVALID_SOCIALID: 9,
+  
 });
 
 exports.mongoErrors = Object.freeze({

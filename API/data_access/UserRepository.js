@@ -138,5 +138,23 @@ class UserRepository extends Repository {
     }
     return { success: true, doc: user };
   }
+  async addTokenToUser(userId, token) {
+    const user = await this.model.findByIdAndUpdate(userId, { "$push": { "firebaseToken": token } });
+    if (!user) {
+      return { success: false, error: mongoErrors.INVALID_ID };
+    }
+    return { success: true};
+  }
+  async getFirebaseToken(userId) {
+    try {
+      const user = await this.model.findById(userId, "firebaseToken");
+      if (!user) {
+        return { success: false, error: mongoErrors.INVALID_ID };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+       return { success: false, error: mongoErrors.UNKOWN };
+    }
+  }
 }
 module.exports = UserRepository;
