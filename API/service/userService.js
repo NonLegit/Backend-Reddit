@@ -732,7 +732,8 @@ class UserService {
         blocked.push({
           _id: element.userId._id,
           userName: element.userId.userName,
-          profilePicture: process.env.BACKDOMAIN+'/'+element.userId.profilePicture,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
           postKarma: element.userId.postKarma,
           commentKarma: element.userId.commentKarma,
         });
@@ -740,21 +741,34 @@ class UserService {
     });
     return blocked;
   }
-  async getFollowers(user) {
-    let users = await this.userRepository.getFollowers(user);
+  async getFollowers(me) {
+    let users = await this.userRepository.getFollowers(me);
     let followers = [];
     users.forEach((element) => {
       if (element.status === "followed") {
+        let isFollowed = this.isFollowed(me, element.userId._id);
         followers.push({
           _id: element.userId._id,
           userName: element.userId.userName,
-          profilePicture: process.env.BACKDOMAIN+'/'+element.userId.profilePicture,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
           postKarma: element.userId.postKarma,
           commentKarma: element.userId.commentKarma,
+          isFollowed: isFollowed
         });
       }
     });
     return followers;
+  }
+  isFollowed(me, userId) {
+    const relation = me.meUserRelationship.find(
+      (element) => element.userId.toString() === userId.toString()
+    );
+    let isFollowed = false;
+    if (relation) {
+      if (relation.status === "followed") isFollowed = true;
+    }
+    return isFollowed;
   }
 }
 
