@@ -6,10 +6,10 @@ dotenv.config();
 const UserService = require("./../../service/userService");
 
 const Email = {
-  sendPasswordReset: (user, resetURL) => {
+  sendPasswordReset: async (user, resetURL) => {
     return true;
   },
-  sendUserName: (user) => {
+  sendUserName: async (user) => {
     return true;
   },
 };
@@ -208,6 +208,16 @@ describe("Authentication Test", () => {
             success: true,
             doc: {
               _id: "1",
+              profileBackground: {
+                replace: () => {
+                  return "string";
+                },
+              },
+              profilePicture: {
+                replace: () => {
+                  return "string";
+                },
+              },
               save: (password, passwordDB) => {
                 return true;
               },
@@ -275,6 +285,16 @@ describe("Authentication Test", () => {
             success: true,
             doc: {
               _id: "1",
+              profileBackground: {
+                replace: () => {
+                  return "string";
+                },
+              },
+              profilePicture: {
+                replace: () => {
+                  return "string";
+                },
+              },
               save: (password, passwordDB) => {
                 return true;
               },
@@ -424,6 +444,545 @@ describe("User Services Test", () => {
       action = "not a valid action"
       const subscribed = await userServices.subscribe(userId, subredditId, action);
       expect(subscribed).to.equal(false);
+    });
+  });
+  describe("addUserImageURL  ", () => {
+    it("test should be success", async () => {
+      const UserRepository = {
+        updateOne: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({ UserRepository });
+      let user = {
+        canbeFollowed: true,
+        nsfw: true,
+        displayName: "ahmed",
+        profilePicture: "img.png",
+        profileBackground: "img.png",
+      };
+      let result = await userServiceObj.addUserImageURL(
+        "!",
+        "profilePicture",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+      result = await userServiceObj.addUserImageURL(
+        "!",
+        "profileBackground",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+    });
+  });
+
+  describe("getSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const SocialRepository = {
+        getAll: (userData, body) => {
+          const response = {
+            canbeFollowed: false,
+            nsfw: true,
+            displayName: "ahmed",
+            profilePicture: "img.png",
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({ SocialRepository });
+      let user = {
+        canbeFollowed: true,
+        nsfw: true,
+        displayName: "ahmed",
+        profilePicture: "img.png",
+        profileBackground: "img.png",
+      };
+      let result = await userServiceObj.getSocialLinks(
+        "!",
+        "profilePicture",
+        "1"
+      );
+      assert.equal(result.displayName, user.displayName);
+      assert.equal(result.nsfw, user.nsfw);
+    });
+  });
+  describe("createSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: [],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: ["1", "2", "3", "4", "5"],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, false);
+      assert.equal(result.msg, "Max Links 5");
+    });
+    it("test should be success", async () => {
+      const SocialRepository = {
+        findOne: (userData) => {
+          const response = {
+            success: false,
+          };
+          return response;
+        },
+      };
+      const UserRepository = {
+        updateSocialLinks: (userData, body) => {
+          const response = {
+            doc: {
+              canbeFollowed: false,
+              nsfw: true,
+              displayName: "ahmed",
+              profilePicture: "img.png",
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        SocialRepository,
+      });
+      let me = {
+        socialLinks: ["1", "2", "3", "4"],
+        _id: "1",
+      };
+      let result = await userServiceObj.createSocialLinks(
+        me,
+        "profilePicture",
+        "1",
+        "1"
+      );
+      assert.equal(result.success, false);
+      assert.equal(result.msg, "Invalid social Id");
+    });
+  });
+  describe("updateSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.updateSocialLinks(me, "2");
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.updateSocialLinks(me, "5");
+      assert.equal(result.success, false);
+    });
+  });
+  describe("deleteSocialLinks  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.deleteSocialLinks(me, "2");
+      assert.equal(result.success, true);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        socialLinks: [
+          {
+            _id: "1",
+            userLink: "",
+            displayText: "",
+          },
+          {
+            _id: "2",
+            userLink: "",
+            displayText: "",
+          },
+        ],
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.deleteSocialLinks(me, "5");
+      assert.equal(result.success, false);
+    });
+  });
+
+  // replace profile
+  describe("replaceProfile  ", () => {
+    it("test should be success", () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        _id: "3",
+        profileBackground: "",
+        profilePicture: "http://localhost:8000/icon.png",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = userServiceObj.replaceProfile(me);
+      assert.equal(result.profilePicture, "icon.png");
+      assert.equal(result.profileBackground, me.profileBackground);
+    });
+  });
+  // check block status
+
+  describe("checkBlockStatus ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        meUserRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.checkBlockStatus(me, other);
+      assert.equal(result, false);
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        meUserRelationship: [
+          {
+            userId: "1",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.checkBlockStatus(me, other);
+      assert.equal(result, true);
+    });
+  });
+
+
+  // block user
+
+  describe("blockUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.blockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[0].status, "blocked");
+      assert.equal(other.userMeRelationship[0].status, "blocked");
+    });
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.blockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[1].status, "blocked");
+      assert.equal(other.userMeRelationship[2].status, "blocked");
+    });
+  });
+
+  // unblock user
+  describe("unBlockUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "blocked",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "blocked",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.unBlockUser(me, other);
+      assert.equal(result, true);
+      assert.equal(me.meUserRelationship[0].status, "none");
+      assert.equal(other.userMeRelationship[0].status, "none");
     });
   });
 });
