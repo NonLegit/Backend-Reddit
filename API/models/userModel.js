@@ -140,6 +140,12 @@ const userSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
+  savedComment: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Comment",
+    },
+  ],
   hidden: [
     {
       type: mongoose.Schema.ObjectId,

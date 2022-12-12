@@ -1,4 +1,5 @@
 const Repository = require("./repository");
+const APIFeatures = require("./apiFeatures");
 
 class CommentRepository extends Repository {
   constructor({ Comment }) {
@@ -35,6 +36,16 @@ class CommentRepository extends Repository {
   async deleteComment(id) {
     //await Post.findByIdAndUpdate(id, {isDeleted: true})
     await this.model.findByIdAndDelete(id);
+  }
+  async getUserComments(userId, query, popOptions) {
+    const features = new APIFeatures(this.model.find({ author: userId }), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    // const doc = await features.query.explain();
+    let doc = await features.query.populate(popOptions);
+    return { success: true, doc: doc };
   }
 }
 module.exports = CommentRepository;

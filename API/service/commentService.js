@@ -116,6 +116,122 @@ class CommentService {
 
     return { success: true };
   }
+  setVoteCommentStatus(user, comments) {
+    // create map of posts voted by user
+    let newComments = Array.from(comments);
+    let hash = {};
+    for (var i = 0; i < user.voteComment.length; i++) {
+      hash[user.voteComment[i].posts] = user.voteComment[i].commentVoteStatus;
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newComments.length; i++) {
+      try {
+        newComments[i] = newComments[i].toObject();
+      } catch (err) {}
+      if (!hash[comments[i]._id]) {
+        newComments[i]["commentVoteStatus"] = "0";
+        Object.assign(newComments[i], { commentVoteStatus: "0" });
+      } else {
+        newComments[i]["commentVoteStatus"] = hash[comments[i]._id];
+        Object.assign(newComments[i], {
+          commentVoteStatus: hash[comments[i]._id],
+        });
+      }
+    }
+    console.log("new comments", newComments);
+    return newComments;
+  }
+  setSavedCommentStatus(user, comments) {
+    let newComments = Array.from(comments);
+
+    let hash = {};
+    for (var i = 0; i < user.savedComment.length; i++) {
+      hash[user.savedComment[i]] = user.savedComment[i];
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newComments.length; i++) {
+      try {
+        newComments[i] = newComments[i].toObject();
+      } catch (err) {}
+      if (hash[comments[i]._id]) {
+        newComments[i]["isSaved"] = true;
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newComments[i]["isSaved"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+    }
+    return newComments;
+  }
+  async getUserComments(userId, user, query) {
+    let data = await this.commentRepo.getUserComments(userId, query, "post");
+    let post = {};
+    let commentTree = [];
+    //console.log(comments);
+    let comments = this.setVoteCommentStatus(user, data.doc);
+    comments - this.setSavedCommentStatus(user, comments);
+    comments.forEach((element) => {
+      if (
+        post._id === undefined ||
+        post._id.toString() !== element.post._id.toString()
+      ) {
+        if (
+          post._id !== undefined &&
+          post._id.toString() !== element.post._id.toString()
+        ) {
+          commentTree.push(post);
+        }
+        post = {};
+        //console.log(element.post);
+        post["_id"] = element.post._id;
+        post["title"] = element.post.title;
+        // console.log("passed");
+        post["author"] = {
+          _id: element.post.author._id,
+          name: element.post.author.userName,
+        };
+        console.log("passed");
+        post["text"] = element.post.text;
+        post["nsfw"] = element.post.nsfw;
+        post["comments"] = [
+          {
+            _id: element._id,
+            mentions: element.mentions,
+            parent: element.parent,
+            parentType: element.parentType,
+            text: element.text,
+            createdAt: element.createdAt,
+            votes: element.votes,
+            repliesCount: element.repliesCount,
+            isDeleted: element.isDeleted,
+            author: element.author,
+            commentVoteStatus: element.commentVoteStatus,
+            isSaved:element.isSaved,
+          },
+        ];
+      } else {
+        post["comments"].push({
+          _id: element._id,
+          mentions: element.mentions,
+          parent: element.parent,
+          parentType: element.parentType,
+          text: element.text,
+          createdAt: element.createdAt,
+          votes: element.votes,
+          repliesCount: element.repliesCount,
+          isDeleted: element.isDeleted,
+          author: element.author,
+          commentVoteStatus: element.commentVoteStatus,
+          isSaved:element.isSaved,
+        });
+      }
+    });
+    if (post._id !== undefined) commentTree.push(post);
+    //console.log(commentTree);
+    return commentTree;
+  }
 }
 
 module.exports = CommentService;
