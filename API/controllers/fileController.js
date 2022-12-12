@@ -123,8 +123,6 @@ class FileController {
 
     // check user is moderator in subreddit
 
-  
-
     const type = req.body.type;
     req.file.filename = `${req.params.subredditName}/subreddit-${
       req.params.subredditName

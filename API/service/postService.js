@@ -193,7 +193,7 @@ class PostService {
       console.log("Hot");
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-votes" },
+        { sort: "-sortOnHot" },
         "owner"
       );
       return posts.doc;
