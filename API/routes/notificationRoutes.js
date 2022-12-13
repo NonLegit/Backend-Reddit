@@ -11,5 +11,6 @@ const router = express.Router();
 router.use(AuthenticationController.authorize);
 
 router.route("/token").post(NotificationController.addFirebaseToken);
+// router.route("/").get(NotificationController.getAllNotifications);
 
 module.exports = router;

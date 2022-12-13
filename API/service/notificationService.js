@@ -1,4 +1,4 @@
-const { postErrors, mongoErrors } = require("../error_handling/errors");
+const { postErrors, mongoErrors, notificationErrors } = require("../error_handling/errors");
 
 
 class NotificationService {
@@ -30,13 +30,42 @@ class NotificationService {
   }
   async getAllNotifications(userId) {
     const notifications = await this.notificationRepo.getAllNotifications(userId);
+
+     //console.log(notifications);
     if (!notifications.success) {
       return { success: false, error: notifications.error };
     }
     return { success: true, data: notifications.doc };
   }
   
+  async markAllNotificationsAsRead(userId) {
+ const notifications = await this.notificationRepo.markAllNotificationsAsRead(userId);
 
+     //console.log(notifications);
+    if (!notifications.success) {
+      return { success: false, error: notifications.error };
+    }
+    return { success: true }; 
+}
+   async markNotificationAsRead(userId,notificationId) {
+ const notification = await this.notificationRepo.markNotificationAsRead(userId,notificationId);
+
+     //console.log(notifications);
+    if (!notification.success) {
+      return { success: false, error: notificationErrors.NOTIFICATION_NOT_FOUND };
+    }
+    return { success: true }; 
+  }
+  
+     async hideNotification(userId,notificationId) {
+ const notification = await this.notificationRepo.hideNotification(userId,notificationId);
+
+     //console.log(notifications);
+    if (!notification.success) {
+      return { success: false, error: notificationErrors.NOTIFICATION_NOT_FOUND };
+    }
+    return { success: true }; 
+}
   
 
 }

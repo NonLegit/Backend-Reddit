@@ -57,9 +57,9 @@ class NotificationController {
       let message;
       if (tokens.success) {
          message = {
-          to:"eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
-          
-           data: { val: JSON.stringify(notification.data) }
+          //to:"eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
+           to: "e9fZCcAVgdjfaQyMkAq5VO:APA91bEYMvvwaBLo8Ec2OhFgnngTO1gXFgveBwyqSaniasvuMg9gXdG00cpJylY4vdk-RN0W6H2rpyBvE3POgZ3oPDNuDB9yn8FLsNo28R2JjcxwPowY9SyjNvxDolZVGEbu2VVmHFVY",
+             data: { val: JSON.stringify(notification.data) }
           }
         };
         fcm.send(message, (err, response) => {
@@ -82,6 +82,7 @@ class NotificationController {
     try {
       let userId = req.user._id;
       let notifications = await this.notificationServices.getAllNotifications(userId);
+      //console.log(notifications);
       if (!notifications.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -99,6 +100,97 @@ class NotificationController {
       });
     }
   }
+markAllNotificationsAsRead=async (req, res) => {
+    try {
+      let userId = req.user._id;
+      let notifications = await this.notificationServices.markAllNotificationsAsRead(userId);
+      //console.log(notifications);
+      if (!notifications.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(201).json({});
+    } catch (err) {
+        console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
 
+
+  markNotificationAsRead=async (req, res) => {
+    try {
+      let userId = req.user._id;
+      console.log(req.params.notificationId);
+      let notification = await this.notificationServices.markNotificationAsRead(userId,req.params.notificationId);
+      //console.log(notifications);
+      if (!notification.success) {
+
+        let message, statusCode, status;
+        switch (notification.error) {
+          case notificationErrors.NOTIFICATION_NOT_FOUND:
+            message = "Notification not found";
+            statusCode = 404;
+            status = "Not Found";
+            break;
+          case notificationErrors.MONGO_ERR:
+            message = "Internal server error";
+            statusCode = 500;
+            status = "Internal Server Error";
+            break;
+        }
+         return res.status(statusCode).json({
+          status: status,
+          message: message,
+        });
+      }
+      return res.status(201).send();
+    } catch (err) {
+        console.log("error in notification controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
+
+
+
+   hideNotification=async (req, res) => {
+    try {
+      let userId = req.user._id;
+      console.log(req.params.notificationId);
+      let notification = await this.notificationServices.hideNotification(userId,req.params.notificationId);
+      //console.log(notifications);
+      if (!notification.success) {
+
+        let message, statusCode, status;
+        switch (notification.error) {
+          case notificationErrors.NOTIFICATION_NOT_FOUND:
+            message = "Notification not found";
+            statusCode = 404;
+            status = "Not Found";
+            break;
+          case notificationErrors.MONGO_ERR:
+            message = "Internal server error";
+            statusCode = 500;
+            status = "Internal Server Error";
+            break;
+        }
+         return res.status(statusCode).json({
+          status: status,
+          message: message,
+        });
+      }
+      return res.status(201).send();
+    } catch (err) {
+        console.log("error in notification controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+  }
   }
 module.exports = NotificationController;

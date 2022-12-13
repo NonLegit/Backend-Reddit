@@ -24,6 +24,12 @@ exports.commentErrors = Object.freeze({
   COMMENT_NOT_FOUND: 3,
 });
 
+exports.notificationErrors = Object.freeze({
+  MONGO_ERR: 0,
+  NOTIFICATION_NOT_FOUND: 1,
+
+});
+
 exports.subredditErrors = Object.freeze({
   MONGO_ERR: 0,
   SUBREDDIT_NOT_FOUND: 1,
