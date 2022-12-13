@@ -20,11 +20,11 @@ router
 router.route("/:postId/follow_post").patch(PostController.followPost);
 router.route("/:postId/spam").patch(PostController.spam);
 
-//router.param("postId", PostController.mustBeAuthOrMod);
+router.param("postId", PostController.mustBeAuthOrMod);
 
 router.route("/:postId/actions/:action").patch(PostController.postActions);
 
-//router.param("postId", PostController.mustBeMod);
+router.param("postId", PostController.mustBeMod);
 
 router.route("/:postId/moderate/:action").patch(PostController.moderatePost);
 router.route("/:postId/:suggested_sort").patch(PostController.suggestedSort);
