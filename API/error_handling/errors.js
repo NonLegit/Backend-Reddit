@@ -15,6 +15,19 @@ exports.postErrors = Object.freeze({
   POST_NOT_FOUND: 5,
   NOT_EDITABLE: 7,
   FLAIR_NOT_FOUND: 8,
+  NOT_AUTHOR_OR_MOD: 9,
+  NOT_MOD: 10,
+  OWNER_NOT_SUBREDDIT: 11,
+  ACTION_ALREADY_DONE: 12
+});
+
+exports.postActions = Object.freeze({
+  LOCK: 0,
+  UNLCOK: 1,
+  MARK_NSFW: 2,
+  UNMARK_NSFW: 3,
+  SPOILER: 4,
+  UNSPOILER: 5,
 });
 
 exports.commentErrors = Object.freeze({
