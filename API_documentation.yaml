@@ -4449,7 +4449,9 @@ paths:
                   comments:
                     type: array
                     items:
-                      $ref: "#/components/schemas/comment"
+                      anyOf:
+                      - $ref: '#/components/schemas/comment'
+                      - $ref: '#/components/schemas/moreReplies'
         404:
           description: failed operation
           content:
@@ -4527,7 +4529,9 @@ paths:
                   comments:
                     type: array
                     items:
-                      $ref: "#/components/schemas/comment"
+                      anyOf:
+                      - $ref: '#/components/schemas/comment'
+                      - $ref: '#/components/schemas/moreReplies'
         404:
           description: failed operation
           content:
