@@ -1460,6 +1460,12 @@ paths:
           required: false
           schema:
             type: integer
+        - in: query
+          name: sort
+          description: sort type
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: successful operation
@@ -8021,7 +8027,13 @@ components:
         url:
           type: string
           description: A valid URL in case the kind is link
-
+        modState:
+          type: string
+          enum:
+          - "unmoderated"
+          - "approved"
+          - "removed"
+          - "spammed"
         isSaved:
           type: boolean
         postVoteStatus:
@@ -8030,6 +8042,8 @@ components:
     userPost:
       type: object
       properties:
+        _id:
+          type: string
         author:
           type: object
           properties:
@@ -8067,9 +8081,6 @@ components:
         url:
           type: string
           description: A valid URL in case the kind is link
-        sr:
-          type: string
-          description: subreddit name
         votes:
           type: integer
           description: total number of votes
@@ -8116,9 +8127,13 @@ components:
         isHidden:
           type: boolean
           example: true
-        isSpam:
-          type: boolean
-          example: true
+        modState:
+          type: string
+          enum:
+          - "unmoderated"
+          - "approved"
+          - "removed"
+          - "spammed"
         sharedFrom:
           type: string
           description: post id if shared ,undefined if not shared
@@ -8132,6 +8147,9 @@ components:
             description: image url
         video:
           type: string
+        sortOnHot:
+          type: integer
+          description: calculated value to sort on it
 
     userComment:
       type: object
@@ -8200,6 +8218,9 @@ components:
         isSaved:
           type: boolean
           example: false
+        sortOnHot:
+          type: integer
+          description: calculated value to sort on it
 
     comment:
       type: object
@@ -8316,10 +8337,76 @@ components:
               text:
                 type: string
                 description: the text of the post in case the kind is self
+              votes:
+                type: integer
+                description: total number of votes
+              commentCount:
+                type: integer
+                description: total number of comments
+              views:
+                type: integer
+                description: total number of views
+              createdAt:
+                type: string
+                format: date-time
+                example: 2017-07-21T17:32:28Z
+              suggestedSort:
+                type: string
+                enum:
+                  - top
+                  - new
+                  - best
+                  - old
               nsfw:
                 type: boolean
+              spoiler:
+                type: boolean
+              sendReplies:
+                type: boolean
+                description: indicates whether the post accepts replies in private messages or not
+              locked:
+                type: boolean
+                description: whether the post can receive comments or not
               flairId:
                 $ref: "#/components/schemas/flair"
+              flairText:
+                type: string
+              postVoteStatus:
+                type: string
+                enum:
+                  - "1"
+                  - "0"
+                  - "-1"
+              isSaved:
+                type: boolean
+                example: true
+              isHidden:
+                type: boolean
+                example: true
+              modState:
+                type: string
+                enum:
+                - "unmoderated"
+                - "approved"
+                - "removed"
+                - "spammed"
+              sharedFrom:
+                type: string
+                description: post id if shared ,undefined if not shared
+              shareCount:
+                type: integer
+                description: Total numbers of share
+              images:
+                type: array
+                items:
+                  type: string
+                  description: image url
+              video:
+                type: string
+              sortOnHot:
+                type: integer
+                description: calculated value to sort on it    
+                  
               comments:
                 type: array
                 items:
@@ -8370,6 +8457,9 @@ components:
                     isSaved:
                       type: boolean
                       example: false
+                    sortOnHot:
+                      type: integer
+                      description: calculated value to sort on it
 
     saved:
       type: object
@@ -8435,10 +8525,76 @@ components:
                   text:
                     type: string
                     description: the text of the post in case the kind is self
+                  votes:
+                    type: integer
+                    description: total number of votes
+                  commentCount:
+                    type: integer
+                    description: total number of comments
+                  views:
+                    type: integer
+                    description: total number of views
+                  createdAt:
+                    type: string
+                    format: date-time
+                    example: 2017-07-21T17:32:28Z
+                  suggestedSort:
+                    type: string
+                    enum:
+                      - top
+                      - new
+                      - best
+                      - old
                   nsfw:
                     type: boolean
+                  spoiler:
+                    type: boolean
+                  sendReplies:
+                    type: boolean
+                    description: indicates whether the post accepts replies in private messages or not
+                  locked:
+                    type: boolean
+                    description: whether the post can receive comments or not
                   flairId:
                     $ref: "#/components/schemas/flair"
+                  flairText:
+                    type: string
+                  postVoteStatus:
+                    type: string
+                    enum:
+                      - "1"
+                      - "0"
+                      - "-1"
+                  isSaved:
+                    type: boolean
+                    example: true
+                  isHidden:
+                    type: boolean
+                    example: true
+                  modState:
+                    type: string
+                    enum:
+                    - "unmoderated"
+                    - "approved"
+                    - "removed"
+                    - "spammed"
+                  sharedFrom:
+                    type: string
+                    description: post id if shared ,undefined if not shared
+                  shareCount:
+                    type: integer
+                    description: Total numbers of share
+                  images:
+                    type: array
+                    items:
+                      type: string
+                      description: image url
+                  video:
+                    type: string
+                  sortOnHot:
+                    type: integer
+                    description: calculated value to sort on it    
+                  
                   comments:
                     type: array
                     items:
@@ -8489,6 +8645,9 @@ components:
                         isSaved:
                           type: boolean
                           example: false
+                        sortOnHot:
+                          type: integer
+                          description: calculated value to sort on it
 
 
     overview:
@@ -8500,7 +8659,163 @@ components:
         comments:
           type: array
           items:
-            $ref: "#/components/schemas/userComment"
+            type: object
+            properties:
+              _id:
+                type: string
+              author:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+      
+                description: The  user who created the post
+              ownerType:
+                type: string
+                enum:
+                  - Subreddit
+                  - User
+              owner:
+                type: object
+                description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+                properties:
+                  _id:
+                    type: string
+                  name:
+                    type: string
+                  icon:
+                    type: string
+              title:
+                type: string
+              text:
+                type: string
+                description: the text of the post in case the kind is self
+              votes:
+                type: integer
+                description: total number of votes
+              commentCount:
+                type: integer
+                description: total number of comments
+              views:
+                type: integer
+                description: total number of views
+              createdAt:
+                type: string
+                format: date-time
+                example: 2017-07-21T17:32:28Z
+              suggestedSort:
+                type: string
+                enum:
+                  - top
+                  - new
+                  - best
+                  - old
+              nsfw:
+                type: boolean
+              spoiler:
+                type: boolean
+              sendReplies:
+                type: boolean
+                description: indicates whether the post accepts replies in private messages or not
+              locked:
+                type: boolean
+                description: whether the post can receive comments or not
+              flairId:
+                $ref: "#/components/schemas/flair"
+              flairText:
+                type: string
+              postVoteStatus:
+                type: string
+                enum:
+                  - "1"
+                  - "0"
+                  - "-1"
+              isSaved:
+                type: boolean
+                example: true
+              isHidden:
+                type: boolean
+                example: true
+              modState:
+                type: string
+                enum:
+                - "unmoderated"
+                - "approved"
+                - "removed"
+                - "spammed"
+              sharedFrom:
+                type: string
+                description: post id if shared ,undefined if not shared
+              shareCount:
+                type: integer
+                description: Total numbers of share
+              images:
+                type: array
+                items:
+                  type: string
+                  description: image url
+              video:
+                type: string
+              sortOnHot:
+                type: integer
+                description: calculated value to sort on it    
+                  
+              comments:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                      description: id of the comment
+                    parent:
+                      type: string
+                      description: id of post or comment who is parent of comment
+                    parentType:
+                      type: string
+                      description: type of parent who  omments belongs to
+                    author:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                    title:
+                      type: string
+                      description: post title
+                    text:
+                      type: string
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                    votes:
+                      type: integer
+                      description: total number of votes
+                    commentVoteStatus:
+                      type: string
+                      enum:
+                        - "1"
+                        - "0"
+                        - "-1"
+                    isDeleted:
+                      type: boolean
+                      example: false
+                    mentions:
+                      type: array
+                      items:
+                        type: string
+                        example: userName of mentioned users
+                    isSaved:
+                      type: boolean
+                      example: false
+                    sortOnHot:
+                      type: integer
+                      description: calculated value to sort on it
+
         posts:
           type: array
           items:
