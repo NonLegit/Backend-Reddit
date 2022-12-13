@@ -121,7 +121,8 @@ class CommentService {
     let newComments = Array.from(comments);
     let hash = {};
     for (var i = 0; i < user.voteComment.length; i++) {
-      hash[user.voteComment[i].posts] = user.voteComment[i].commentVoteStatus;
+      hash[user.voteComment[i].comments] =
+        user.voteComment[i].commentVoteStatus;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
@@ -146,8 +147,8 @@ class CommentService {
     let newComments = Array.from(comments);
 
     let hash = {};
-    for (var i = 0; i < user.savedComment.length; i++) {
-      hash[user.savedComment[i]] = user.savedComment[i];
+    for (var i = 0; i < user.savedComments.length; i++) {
+      hash[user.savedComments[i].saved] = user.savedComments[i].saved;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
@@ -164,6 +165,104 @@ class CommentService {
       }
     }
     return newComments;
+  }
+  setVoteStatus(user, userComments) {
+    let post = {};
+    let commentTree = [];
+
+    let hash = {};
+    for (var i = 0; i < user.voteComment.length; i++) {
+      hash[user.voteComment[i].comments] =
+        user.voteComment[i].commentVoteStatus;
+    }
+    userComments.forEach((element) => {
+      if (
+        post._id === undefined ||
+        post._id.toString() !== element.savedComment.post._id.toString()
+      ) {
+        if (
+          post._id !== undefined &&
+          post._id.toString() !== element.savedComment.post._id.toString()
+        ) {
+          commentTree.push(post);
+        }
+        post = {};
+        //console.log(element.post);
+        post["_id"] = element.savedComment.post._id;
+        post["title"] = element.savedComment.post.title;
+        // console.log("passed");
+        post["author"] = {
+          _id: element.savedComment.post.author._id,
+          name: element.savedComment.post.author.userName,
+        };
+        post["ownerType"] = element.savedComment.post.ownerType;
+        post["owner"] = {
+          _id: element.savedComment.post.owner._id,
+          name:
+            element.savedComment.post.ownerType === "User"
+              ? element.savedComment.post.owner.userName
+              : element.savedComment.post.owner.fixedName,
+          icon:
+            element.savedComment.post.ownerType === "User"
+              ? `${process.env.BACKDOMAIN}/` +
+                element.savedComment.post.owner.profilePicture
+              : `${process.env.BACKDOMAIN}/` +
+                element.savedComment.post.owner.icon,
+        };
+        post["text"] = element.savedComment.post.text;
+        post["nsfw"] = element.savedComment.post.nsfw;
+        post["comments"] = [
+          {
+            _id: element.savedComment._id,
+            mentions: element.savedComment.mentions,
+            parent: element.savedComment.parent,
+            parentType: element.savedComment.parentType,
+            text: element.savedComment.text,
+            createdAt: element.savedComment.createdAt,
+            votes: element.savedComment.votes,
+            repliesCount: element.savedComment.repliesCount,
+            isDeleted: element.savedComment.isDeleted,
+            author: {
+              _id: element.savedComment.author._id,
+              name: element.savedComment.author.userName,
+              icon:
+                `${process.env.BACKDOMAIN}/` +
+                element.savedComment.author.profilePicture,
+            },
+            commentVoteStatus: !hash[element.savedComment._id]
+              ? "0"
+              : hash[comments[i]._id],
+            isSaved: true,
+          },
+        ];
+      } else {
+        post["comments"].push({
+          _id: element.savedComment._id,
+          mentions: element.savedComment.mentions,
+          parent: element.savedComment.parent,
+          parentType: element.savedComment.parentType,
+          text: element.savedComment.text,
+          createdAt: element.savedComment.createdAt,
+          votes: element.savedComment.votes,
+          repliesCount: element.savedComment.repliesCount,
+          isDeleted: element.savedComment.isDeleted,
+          author: {
+            _id: element.savedComment.author._id,
+            name: element.savedComment.author.userName,
+            icon:
+              `${process.env.BACKDOMAIN}/` +
+              element.savedComment.author.profilePicture,
+          },
+          commentVoteStatus: !hash[element.savedComment._id]
+            ? "0"
+            : hash[comments[i]._id],
+          isSaved: true,
+        });
+      }
+    });
+    if (post._id !== undefined) commentTree.push(post);
+    console.log("Treeeeeeeeeeeeeeee", commentTree);
+    return commentTree.reverse();
   }
   async getUserComments(userId, user, query) {
     let data = await this.commentRepo.getUserComments(userId, query, "post");
@@ -192,6 +291,18 @@ class CommentService {
           _id: element.post.author._id,
           name: element.post.author.userName,
         };
+        post["ownerType"] = element.post.ownerType;
+        post["owner"] = {
+          _id: element.post.owner._id,
+          name:
+            element.post.ownerType === "User"
+              ? element.post.owner.userName
+              : element.post.owner.fixedName,
+          icon:
+            element.post.ownerType === "User"
+              ? `${process.env.BACKDOMAIN}/` + element.post.owner.profilePicture
+              : `${process.env.BACKDOMAIN}/` + element.post.owner.icon,
+        };
         console.log("passed");
         post["text"] = element.post.text;
         post["nsfw"] = element.post.nsfw;
@@ -206,9 +317,12 @@ class CommentService {
             votes: element.votes,
             repliesCount: element.repliesCount,
             isDeleted: element.isDeleted,
-            author: element.author,
+            author: {
+              _id: element.author._id,
+              name: element.author.userName,
+            },
             commentVoteStatus: element.commentVoteStatus,
-            isSaved:element.isSaved,
+            isSaved: element.isSaved,
           },
         ];
       } else {
@@ -222,9 +336,12 @@ class CommentService {
           votes: element.votes,
           repliesCount: element.repliesCount,
           isDeleted: element.isDeleted,
-          author: element.author,
+          author: {
+            _id: element.author._id,
+            name: element.author.userName,
+          },
           commentVoteStatus: element.commentVoteStatus,
-          isSaved:element.isSaved,
+          isSaved: element.isSaved,
         });
       }
     });

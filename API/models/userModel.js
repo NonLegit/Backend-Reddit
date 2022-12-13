@@ -133,19 +133,62 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
-
   saved: [
     {
-      type: mongoose.Schema.ObjectId,
-      ref: "Post",
+      savedPost: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Post",
+      },
+      createdAt: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+      },
     },
   ],
-  savedComment: [
+  // saved: [
+  //   {
+  //     saved: {
+  //       type: mongoose.Schema.ObjectId,
+  //       refPath: "saved.savedType",
+  //     },
+  //     savedType: {
+  //       type: String,
+  //       enum: ["Post", "Comment"],
+  //     },
+  //     createdAt:{
+  //       type: Date,
+  //       required: true,
+  //       default: Date.now(),
+  //     }
+  //   },
+  // ],
+
+  // saved: [
+  //   {
+  //     type: mongoose.Schema.ObjectId,
+  //     ref: "Post",
+  //   },
+  // ],
+  savedComments: [
     {
-      type: mongoose.Schema.ObjectId,
-      ref: "Comment",
+      savedComment: {
+        type: mongoose.Schema.ObjectId,
+        ref: "Comment",
+      },
+      createdAt: {
+        type: Date,
+        required: true,
+        default: Date.now(),
+      },
     },
   ],
+  // savedComment: [
+  //   {
+  //     type: mongoose.Schema.ObjectId,
+  //     ref: "Comment",
+  //   },
+  // ],
   hidden: [
     {
       type: mongoose.Schema.ObjectId,
@@ -173,7 +216,7 @@ const userSchema = new mongoose.Schema({
   ],
   voteComment: [
     {
-      posts: {
+      comments: {
         type: mongoose.Schema.ObjectId,
         ref: "Comment",
       },

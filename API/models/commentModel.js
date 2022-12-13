@@ -11,6 +11,7 @@ const commentSchema = new mongoose.Schema({
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Post",
     required: true,
+    autopopulate: true,
   },
   mentions: [
     {
@@ -74,7 +75,16 @@ commentSchema.pre("updateMany", async function (next) {
   }
   next();
 });
-
+// commentSchema.post("init", function () {
+//   console.log(this);
+//   this.populate("post");
+//   this.populate("author","_id userName profilePicture profileBackground");
+// });
+commentSchema.pre(/^find/,  function () {
+  console.log(this);
+  this.populate("post");
+  this.populate("author","_id userName profilePicture profileBackground");
+});
 // commentSchema.pre(/^find/, function(next) {
 //   this.find({ isDeleted: false });
 //   next();

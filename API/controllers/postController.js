@@ -1,9 +1,10 @@
 const { postErrors, subredditErrors } = require("../error_handling/errors");
 
 class PostController {
-  constructor({ PostService, UserService }) {
+  constructor({ PostService, UserService, CommentService }) {
     this.postServices = PostService;
     this.userServices = UserService;
+    this.CommentService = CommentService;
   }
 
   createPost = async (req, res) => {
@@ -202,16 +203,20 @@ class PostController {
     // check if the owner of post block me or i blocked him in order to show posts , TODO
 
     // get post which he creates
-    await me.populate("saved", "-__v");
+    await me.populate("saved.savedPost", "-__v");
+    await me.populate("savedComments.savedComment", "-__v");
     //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
-    //posts = this.postServices.setVotePostStatus(me, posts);
-    let posts = this.postServices.setVotePostStatus(me, me.saved);
-    posts = this.postServices.removeHiddenPosts(me, posts);
-    posts = this.postServices.setPostOwnerData(posts);
+    let posts = this.postServices.setVoteStatus(me, me.saved);
+    let comments = this.CommentService.setVoteStatus(me, me.savedComments);
+    // let posts = this.postServices.setVotePostStatus(me, posts);
+    // posts = this.postServices.setVotePostStatus(me, me.saved);
+    // posts = this.postServices.removeHiddenPosts(me, posts);
+    // posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
-      posts: posts,
+      savedPosts: posts,
+      savedComments: comments,
     });
   };
   /**
@@ -291,8 +296,8 @@ class PostController {
     try {
       //req.query.sort = "-createdAt,-votes,-commentCount";
       let sortType = "hot";
-      let me =(req.isAuthorized==true)?req.user:undefined;
-    
+      let me = req.isAuthorized == true ? req.user : undefined;
+
       //console.log(req.user);
       //let posts;
       // if (req.user) {
@@ -301,7 +306,12 @@ class PostController {
       //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
       // }
       // else {
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       // }
       if (!posts.success) {
@@ -341,8 +351,13 @@ class PostController {
       //console.log(req.query);
 
       let sortType = "new";
-     let me =(req.isAuthorized==true)?req.user:undefined;
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let me = req.isAuthorized == true ? req.user : undefined;
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -380,12 +395,16 @@ class PostController {
       //req.query.sort = "-votes";
       //console.log(req.query);
 
-
-      let me =(req.isAuthorized==true)?req.user:undefined;
+      let me = req.isAuthorized == true ? req.user : undefined;
 
       let sortType = "top";
       // let filter = (req.toFilter) ? req.toFilter : {};
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;
@@ -434,16 +453,19 @@ class PostController {
     try {
       //req.query.sort = "-createdAt,-votes,-commentCount,-shareCount";
 
-       
-
       let sortType = "best";
-    // check if the owner of post block me or i blocked him in order to show posts , TODO
+      // check if the owner of post block me or i blocked him in order to show posts , TODO
 
-     let me =(req.isAuthorized==true)?req.user:undefined;
-       
-    // get post which he creates
-      
-      let posts = await this.postServices.getPosts(req.query, req.toFilter,me,sortType);
+      let me = req.isAuthorized == true ? req.user : undefined;
+
+      // get post which he creates
+
+      let posts = await this.postServices.getPosts(
+        req.query,
+        req.toFilter,
+        me,
+        sortType
+      );
 
       if (!posts.success) {
         let message, statusCode, status;

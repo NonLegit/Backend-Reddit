@@ -129,14 +129,14 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/` + owner.profilePicture,
         };
         console.log(newPosts[i]);
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon:  `${process.env.BACKDOMAIN}/` +owner.icon
+          icon: `${process.env.BACKDOMAIN}/` + owner.icon,
         };
       }
 
@@ -231,14 +231,12 @@ class PostService {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
         owner["icon"] =
-          `${process.env.BACKDOMAIN}/` +
-          posts[i].owner.profilePicture;
+          `${process.env.BACKDOMAIN}/` + posts[i].owner.profilePicture;
         newPosts[i]["name"] = posts[i].owner.userName;
       } else {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.fixedName;
-        owner["icon"] =
-          `${process.env.BACKDOMAIN}/` + posts[i].owner.icon;
+        owner["icon"] = posts[i].owner.icon;
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
 
@@ -249,8 +247,7 @@ class PostService {
       author["_id"] = posts[i].author._id;
       author["name"] = posts[i].author.userName;
       author["icon"] =
-        `${process.env.BACKDOMAIN}/` +
-        posts[i].author.profilePicture;
+        `${process.env.BACKDOMAIN}/` + posts[i].author.profilePicture;
 
       newPosts[i]["author"] = author;
     }
@@ -292,8 +289,14 @@ class PostService {
 
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
-      hash[user.saved[i]] = user.saved[i];
+      console.log(user.saved[i].savedPost);
+      // if (user.saved[i].savedType === "Post")
+      hash[user.saved[i].savedPost] = user.saved[i].savedPost;
     }
+    // for (var i = 0; i < user.saved.length; i++) {
+    //   hash[user.saved[i]] = user.saved[i];
+    // }
+
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
@@ -420,6 +423,46 @@ class PostService {
     }
 
     return post;
+  }
+  setVoteStatus(user, saved) {
+    let newPosts = Array.from(saved);
+    //let newPosts = [];
+    let hashPosts = {};
+    for (var i = 0; i < user.votePost.length; i++) {
+      hashPosts[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
+    }
+    for (var i = 0; i < newPosts.length; i++) {
+      // let filteredPost = {};
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (!hashPosts[saved[i].savedPost._id]) {
+        newPosts[i].savedPost.postVoteStatus = "0";
+        // filteredPost.postVoteStatus ="0";
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newPosts[i].savedPost.postVoteStatus =
+          hashPosts[saved[i].savedPost._id];
+          // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+      newPosts[i].savedPost.owner = {
+        _id: newPosts[i].savedPost.owner._id,
+        name:
+          newPosts[i].savedPost.ownerType === "User"
+            ?  newPosts[i].savedPost.owner.userName
+            :  newPosts[i].savedPost.owner.fixedName,
+        icon:
+          newPosts[i].savedPost.ownerType === "User"
+            ? `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.profilePicture
+            : `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.icon,
+      };
+      newPosts[i].savedPost.author = {
+        _id: newPosts[i].savedPost.author._id,
+        name: newPosts[i].savedPost.author.userName,
+      };
+    }
+    return newPosts;
   }
 }
 

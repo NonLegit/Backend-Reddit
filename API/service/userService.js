@@ -754,6 +754,7 @@ class UserService {
             process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
           postKarma: element.userId.postKarma,
           commentKarma: element.userId.commentKarma,
+          displayName: element.userId.displayName,
           isFollowed: isFollowed
         });
       }
