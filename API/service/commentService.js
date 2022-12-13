@@ -231,6 +231,7 @@ class CommentService {
                 `${process.env.BACKDOMAIN}/` +
                 element.savedComment.author.profilePicture,
             },
+            sortOnHot:element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
               ? "0"
               : hash[comments[i]._id],
@@ -255,6 +256,7 @@ class CommentService {
               `${process.env.BACKDOMAIN}/` +
               element.savedComment.author.profilePicture,
           },
+          sortOnHot:element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
             ? "0"
             : hash[comments[i]._id],
@@ -328,6 +330,7 @@ class CommentService {
               _id: element.author._id,
               name: element.author.userName,
             },
+            sortOnHot:element.sortOnHot,
             commentVoteStatus: element.commentVoteStatus,
             isSaved: element.isSaved,
           },
@@ -347,6 +350,7 @@ class CommentService {
             _id: element.author._id,
             name: element.author.userName,
           },
+          sortOnHot:element.sortOnHot,
           commentVoteStatus: element.commentVoteStatus,
           isSaved: element.isSaved,
         });

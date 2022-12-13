@@ -60,6 +60,10 @@ const commentSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
+  sortOnHot: {
+    type: Number,
+    required: false,
+  },
 });
 
 //A middleware to cascade soft delete
@@ -84,6 +88,12 @@ commentSchema.pre(/^find/,  function () {
   console.log(this);
   this.populate("post");
   this.populate("author","_id userName profilePicture profileBackground");
+});
+commentSchema.pre("save", function (next) {
+  // this points to the current query
+  this.sortOnHot =
+    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.repliesCount * 0.2;
+  next();
 });
 // commentSchema.pre(/^find/, function(next) {
 //   this.find({ isDeleted: false });

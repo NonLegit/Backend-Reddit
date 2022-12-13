@@ -558,7 +558,7 @@ class PostController {
         } else if (sort === "Hot") {
           sort = "-votes";
         } else {
-          sort = "-createdAt";
+          sort = "-sortOnHot";
         }
       }
       if (limit === undefined || limit > 100 || limit < 0) {
