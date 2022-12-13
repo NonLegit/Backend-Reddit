@@ -90,6 +90,7 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  
   /**
    * this function checks if user is owner or not by passing @subredditName and @iD
    * @param {string} subredditName - name of subreddit i want to check from
@@ -223,6 +224,31 @@ class SubredditRepository extends Repository {
       $inc: { membersCount: -1 },
     });
   }
+
+  /**
+   * this function checks if user is moderator or not by passing @subredditId
+   * @param {string} subredditId - The  subreddit ID
+   * @param {string} userId - The user ID in question
+   * @returns {boolean}
+   */
+    async moderator(subredditId, userId) {
+      //..
+      try {
+        let tempDoc = this.model
+          .findOne({
+            _id: subredditId,
+            "moderators.id": userId,
+          })
+          .select({ "moderators.$": 1 });
+  
+        const doc = await tempDoc;
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+  
+        return { success: true, doc: doc };
+      } catch (err) {
+        return { success: false, ...decorateError(err) };
+      }
+    }
 }
 
 module.exports = SubredditRepository;
