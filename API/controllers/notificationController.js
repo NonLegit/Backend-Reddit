@@ -1,5 +1,7 @@
 const FCM = require("fcm-node");
-const serverKey = require("../nonlegit-df8a9-firebase-adminsdk-t3oo5-df87e5812d.json");
+//const serverKey = require("../nonlegit-df8a9-firebase-adminsdk-t3oo5-df87e5812d.json");
+//const serverKey = "AAAAExvkdPQ:APA91bGYbrdVHWtvumTEOz3YncleOdyHiBjrdGq_BlotyC6WUlydVmhN0FDX4Uepu_YX0edQHgZmvnZuKDdMrRx5wofMLUyBIIcnWUSZinLdzenM-5tku84BfjtpSBuwIXFCbK8mg8HN";
+const serverKey = process.env.FIREBASE_SERVER_KEY;
 const fcm = new FCM(serverKey);
 const { notificationErrors, userErrors } = require("../error_handling/errors");
 
