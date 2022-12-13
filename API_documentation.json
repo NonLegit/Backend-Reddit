@@ -15,7 +15,7 @@
       "description": "Development server"
     },
     {
-      "url": "https://localhost:8000/api/v1",
+      "url": "https://api.nonlegit.click/api/v1",
       "description": "Production server"
     }
   ],
@@ -1028,236 +1028,6 @@
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/users/me/friends/{userName}": {
-      "description": "User Resource",
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "description": "Get all informations about friend",
-        "summary": "Get friend informations",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userName",
-            "description": "friend fullname",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "User": {
-                      "$ref": "#/components/schemas/userPreferences"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "user not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "description": "become friends with userName",
-        "summary": "add friend",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userName",
-            "description": "friend fullname",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
-                    "User": {
-                      "$ref": "#/components/schemas/userPreferences"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "user not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Users"
-        ],
-        "description": "delete friend, end relationship between them",
-        "summary": "Delete friend",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userName",
-            "description": "friend fullname",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Success operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "user is not a friend of you"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "errorMessage": {
-                      "type": "string",
-                      "example": "user not found"
-                    }
-                  }
-                }
-              }
-            }
           }
         }
       }
@@ -2454,7 +2224,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/commentsandoosts"
+                  "$ref": "#/components/schemas/commentsandposts"
                 }
               }
             }
@@ -4884,7 +4654,7 @@
         }
       }
     },
-    "/posts/{postId}/{action}": {
+    "/posts/{postId}/actions/{action}": {
       "patch": {
         "tags": [
           "Posts"
@@ -4926,6 +4696,99 @@
             }
           }
         ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unathorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/posts/{postId}/spam": {
+      "patch": {
+        "tags": [
+          "Posts"
+        ],
+        "summary": "Report a post as spammed",
+        "description": "A moderator can spam a post directly, but a non-mod user can only report it as spammed. A post exceeding a certain threshold of spam reports is marked as spammed",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "description": "id of the post",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "1 for spam and -1 for unspam",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dir": {
+                    "type": "integer",
+                    "enum": [
+                      1,
+                      -1
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "204": {
             "description": "successful operation"
@@ -7191,6 +7054,270 @@
           },
           "409": {
             "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddits/{subredditName}/rules/{title}": {
+      "post": {
+        "tags": [
+          "Subreddit"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "add rule to subreddit",
+        "description": "add rule to subreddit by passing its title",
+        "parameters": [
+          {
+            "name": "subredditName",
+            "in": "path",
+            "description": "id of the subreddit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "description": "id of rule",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Send the new permission",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "defaultName": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "appliesTo": {
+                    "type": "string",
+                    "enum": [
+                      "Posts & comments",
+                      "Posts only",
+                      "Comments only"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Subreddit"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "delete rule from subreddit",
+        "description": "delete rule from subreddit  by passing its title",
+        "parameters": [
+          {
+            "name": "subredditName",
+            "in": "path",
+            "description": "id of the subreddit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "description": "id of rule",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Subreddit"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "update rule of subreddit",
+        "description": "update rule of subreddit by passing its title",
+        "parameters": [
+          {
+            "name": "subredditName",
+            "in": "path",
+            "description": "id of the subreddit",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "description": "id of rule",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Send the new permission",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "defaultName": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "appliesTo": {
+                    "type": "string",
+                    "enum": [
+                      "Posts & comments",
+                      "Posts only",
+                      "Comments only"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authorization Required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -10975,6 +11102,10 @@
             "type": "boolean",
             "example": true
           },
+          "isBlocked": {
+            "type": "boolean",
+            "example": true
+          },
           "createdAt": {
             "type": "string",
             "example": "2022-10-22-06-12",
@@ -11732,7 +11863,7 @@
           }
         }
       },
-      "commentsandoosts": {
+      "commentsandposts": {
         "type": "object",
         "properties": {
           "status": {
@@ -11790,6 +11921,9 @@
                 },
                 "nsfw": {
                   "type": "boolean"
+                },
+                "flairId": {
+                  "$ref": "#/components/schemas/flair"
                 },
                 "comments": {
                   "type": "array",
@@ -11866,6 +12000,169 @@
           }
         }
       },
+      "saved": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "savedPosts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2017-07-21T17:32:28.000Z"
+                },
+                "savedPost": {
+                  "$ref": "#/components/schemas/userPost"
+                }
+              }
+            }
+          },
+          "savedComments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time",
+                  "example": "2017-07-21T17:32:28.000Z"
+                },
+                "savedComment": {
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      },
+                      "description": "The  user who created the post"
+                    },
+                    "ownerType": {
+                      "type": "string",
+                      "enum": [
+                        "Subreddit",
+                        "User"
+                      ]
+                    },
+                    "owner": {
+                      "type": "object",
+                      "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "the text of the post in case the kind is self"
+                    },
+                    "nsfw": {
+                      "type": "boolean"
+                    },
+                    "flairId": {
+                      "$ref": "#/components/schemas/flair"
+                    },
+                    "comments": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "_id": {
+                            "type": "string",
+                            "description": "id of the comment"
+                          },
+                          "parent": {
+                            "type": "string",
+                            "description": "id of post or comment who is parent of comment"
+                          },
+                          "parentType": {
+                            "type": "string",
+                            "description": "type of parent who  omments belongs to"
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "_id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            }
+                          },
+                          "title": {
+                            "type": "string",
+                            "description": "post title"
+                          },
+                          "text": {
+                            "type": "string"
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2017-07-21T17:32:28.000Z"
+                          },
+                          "votes": {
+                            "type": "integer",
+                            "description": "total number of votes"
+                          },
+                          "commentVoteStatus": {
+                            "type": "string",
+                            "enum": [
+                              "1",
+                              "0",
+                              "-1"
+                            ]
+                          },
+                          "isDeleted": {
+                            "type": "boolean",
+                            "example": false
+                          },
+                          "mentions": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "example": "userName of mentioned users"
+                            }
+                          },
+                          "isSaved": {
+                            "type": "boolean",
+                            "example": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
       "overview": {
         "type": "object",
         "properties": {
@@ -11898,27 +12195,6 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/userPost"
-            }
-          }
-        }
-      },
-      "saved": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "posts": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/userPost"
-            }
-          },
-          "comments": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/userComment"
             }
           }
         }
