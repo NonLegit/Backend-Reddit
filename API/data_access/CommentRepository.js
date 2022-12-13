@@ -1,5 +1,6 @@
 const Repository = require("./repository");
 const ObjectId = require("mongodb").ObjectId;
+const APIFeatures = require("./apiFeatures");
 
 class CommentRepository extends Repository {
   constructor({ Comment }) {
@@ -51,6 +52,17 @@ class CommentRepository extends Repository {
       .lean();
 
     return comment;
+  }
+  
+  async getUserComments(userId, query, popOptions) {
+    const features = new APIFeatures(this.model.find({ author: userId }), query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    // const doc = await features.query.explain();
+    let doc = await features.query.populate(popOptions);
+    return { success: true, doc: doc };
   }
 }
 module.exports = CommentRepository;

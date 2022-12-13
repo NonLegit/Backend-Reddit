@@ -188,110 +188,110 @@ describe("Post Controller Test", () => {
   });
   ////////////////////////////////////////////////////
 
-  describe("getSavedPosts Test", () => {
-    it("first test success", async () => {
-      const req = {
-        user: {
-          _id: "1",
-          saved: [
-            {
-              _id: "637e7497b207b89c889ac1d6",
-              owner: "637e7493b207b89c889ac1c4",
-              ownerType: "User",
-              author: "637e7493b207b89c889ac1c4",
-              replies: [],
-              title: "First Post",
-              kind: "self",
-              text: "this is my first post on NONLEGIT",
-              images: [],
-              createdAt: "2022-11-23T19:29:21.916Z",
-              locked: false,
-              isDeleted: false,
-              sendReplies: true,
-              nsfw: false,
-              spoiler: false,
-              votes: 2,
-              views: 0,
-              commentCount: 0,
-              shareCount: 0,
-              suggestedSort: "top",
-              scheduled: false,
-              postVoteStatus: "1",
-              isSaved: false,
-              isHidden: false,
-              name: "Nour",
-            },
-          ],
-          populate: async (saved, dummy) => {
-            return [];
-          },
-        },
-        params: {
-          userName: "Ahmed",
-        },
-        query: {
-          sortType: "New",
-        },
-      };
-      const UserService = {
-        getUserByName: async (userName, dummy) => {
-          return {
-            success: true,
-            data: {
-              _id: "2",
-            },
-          };
-        },
-      };
-      const PostService = {
-        setVotePostStatus: (me, posts) => {
-          return posts;
-        },
-        removeHiddenPosts: (me, posts) => {
-          return posts;
-        },
-        setPostOwnerData: (posts) => {
-          return posts;
-        },
-      };
+  // describe("getSavedPosts Test", () => {
+  //   it("first test success", async () => {
+  //     const req = {
+  //       user: {
+  //         _id: "1",
+  //         saved: [
+  //           {
+  //             _id: "637e7497b207b89c889ac1d6",
+  //             owner: "637e7493b207b89c889ac1c4",
+  //             ownerType: "User",
+  //             author: "637e7493b207b89c889ac1c4",
+  //             replies: [],
+  //             title: "First Post",
+  //             kind: "self",
+  //             text: "this is my first post on NONLEGIT",
+  //             images: [],
+  //             createdAt: "2022-11-23T19:29:21.916Z",
+  //             locked: false,
+  //             isDeleted: false,
+  //             sendReplies: true,
+  //             nsfw: false,
+  //             spoiler: false,
+  //             votes: 2,
+  //             views: 0,
+  //             commentCount: 0,
+  //             shareCount: 0,
+  //             suggestedSort: "top",
+  //             scheduled: false,
+  //             postVoteStatus: "1",
+  //             isSaved: false,
+  //             isHidden: false,
+  //             name: "Nour",
+  //           },
+  //         ],
+  //         populate: async (saved, dummy) => {
+  //           return [];
+  //         },
+  //       },
+  //       params: {
+  //         userName: "Ahmed",
+  //       },
+  //       query: {
+  //         sortType: "New",
+  //       },
+  //     };
+  //     const UserService = {
+  //       getUserByName: async (userName, dummy) => {
+  //         return {
+  //           success: true,
+  //           data: {
+  //             _id: "2",
+  //           },
+  //         };
+  //       },
+  //     };
+  //     const PostService = {
+  //       setVotePostStatus: (me, posts) => {
+  //         return posts;
+  //       },
+  //       removeHiddenPosts: (me, posts) => {
+  //         return posts;
+  //       },
+  //       setPostOwnerData: (posts) => {
+  //         return posts;
+  //       },
+  //     };
 
-      const authObj = new auth({ PostService, UserService });
-      await authObj.getSavedPosts(req, res, "");
-      expect(res.status).to.have.been.calledWith(200);
-      expect(res.status(200).json).to.have.been.calledWith({
-        status: "success",
-        posts: [
-          {
-            _id: "637e7497b207b89c889ac1d6",
-            owner: "637e7493b207b89c889ac1c4",
-            ownerType: "User",
-            author: "637e7493b207b89c889ac1c4",
-            replies: [],
-            title: "First Post",
-            kind: "self",
-            text: "this is my first post on NONLEGIT",
-            images: [],
-            createdAt: "2022-11-23T19:29:21.916Z",
-            locked: false,
-            isDeleted: false,
-            sendReplies: true,
-            nsfw: false,
-            spoiler: false,
-            votes: 2,
-            views: 0,
-            commentCount: 0,
-            shareCount: 0,
-            suggestedSort: "top",
-            scheduled: false,
-            postVoteStatus: "1",
-            isSaved: false,
-            isHidden: false,
-            name: "Nour",
-          },
-        ],
-      });
-    });
-  });
+  //     const authObj = new auth({ PostService, UserService });
+  //     await authObj.getSavedPosts(req, res, "");
+  //     expect(res.status).to.have.been.calledWith(200);
+  //     expect(res.status(200).json).to.have.been.calledWith({
+  //       status: "success",
+  //       posts: [
+  //         {
+  //           _id: "637e7497b207b89c889ac1d6",
+  //           owner: "637e7493b207b89c889ac1c4",
+  //           ownerType: "User",
+  //           author: "637e7493b207b89c889ac1c4",
+  //           replies: [],
+  //           title: "First Post",
+  //           kind: "self",
+  //           text: "this is my first post on NONLEGIT",
+  //           images: [],
+  //           createdAt: "2022-11-23T19:29:21.916Z",
+  //           locked: false,
+  //           isDeleted: false,
+  //           sendReplies: true,
+  //           nsfw: false,
+  //           spoiler: false,
+  //           votes: 2,
+  //           views: 0,
+  //           commentCount: 0,
+  //           shareCount: 0,
+  //           suggestedSort: "top",
+  //           scheduled: false,
+  //           postVoteStatus: "1",
+  //           isSaved: false,
+  //           isHidden: false,
+  //           name: "Nour",
+  //         },
+  //       ],
+  //     });
+  //   });
+  // });
 
   describe("getHiddenPosts Test", () => {
     it("first test success", async () => {

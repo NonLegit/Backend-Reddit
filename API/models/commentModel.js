@@ -12,6 +12,7 @@ const commentSchema = new mongoose.Schema({
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Post",
     required: true,
+    autopopulate: true,
   },
   mentions: [
     {
@@ -59,6 +60,10 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     required: true,
     default: 0,
+  },
+  sortOnHot: {
+    type: Number,
+    required: false,
   },
 });
 
@@ -113,6 +118,22 @@ commentSchema.post("find", function (result) {
   }
 });
 
+// commentSchema.post("init", function () {
+//   console.log(this);
+//   this.populate("post");
+//   this.populate("author","_id userName profilePicture profileBackground");
+// });
+commentSchema.pre(/^find/,  function () {
+  console.log(this);
+  this.populate("post");
+  this.populate("author","_id userName profilePicture profileBackground");
+});
+commentSchema.pre("save", function (next) {
+  // this points to the current query
+  this.sortOnHot =
+    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.repliesCount * 0.2;
+  next();
+});
 // commentSchema.pre(/^find/, function(next) {
 //   this.find({ isDeleted: false });
 //   next();

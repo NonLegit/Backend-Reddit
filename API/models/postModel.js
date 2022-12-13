@@ -170,7 +170,7 @@ postSchema.pre("save", function (next) {
 //Whoever added this middleware should add more restrictions
 postSchema.pre("find", function () {
   this.populate("owner");
-  this.populate("author");
+  this.populate("author","_id userName profilePicture profileBackground");
   this.populate("flairId");
 });
 

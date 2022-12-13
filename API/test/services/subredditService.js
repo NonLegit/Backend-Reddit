@@ -401,7 +401,7 @@ describe("Subreddit Test", () => {
               doc: { _id: "10", fixedName: "subreddit", nsfw: true },
             };
           },
-          isModerator: async (subredditName, userID) => {
+          isModerator_1: async (subredditName, userID) => {
             return { success: true, doc: { moderators: [{ id: "1" }] } };
           },
           update: async (subredditName, data) => {
@@ -439,7 +439,7 @@ describe("Subreddit Test", () => {
               success: false,
             };
           },
-          isModerator: async (subredditName, userID) => {
+          isModerator_1: async (subredditName, userID) => {
             return { success: true, doc: { moderators: [{ id: "1" }] } };
           },
           update: async (subredditName, data) => {
@@ -477,7 +477,7 @@ describe("Subreddit Test", () => {
               doc: { _id: "10", fixedName: "subreddit", nsfw: true },
             };
           },
-          isModerator: async (subredditName, userID) => {
+          isModerator_1: async (subredditName, userID) => {
             return { success: false };
           },
           update: async (subredditName, data) => {
@@ -515,7 +515,7 @@ describe("Subreddit Test", () => {
               doc: { _id: "10", fixedName: "subreddit", nsfw: true },
             };
           },
-          isModerator: async (subredditName, userID) => {
+          isModerator_1: async (subredditName, userID) => {
             return { success: true, doc: { moderators: [{ id: "1" }] } };
           },
           update: async (subredditName, data) => {
@@ -636,7 +636,7 @@ describe("Subreddit Test", () => {
           "1",
           "subscriber"
         );
-        console.log(result);
+
         expect(result.success).to.equal(true);
         expect(result.data[0].fixedName).to.equal("subreddit");
       });
@@ -837,11 +837,20 @@ describe("Subreddit Test", () => {
           getsubreddit: async (name, select, popOptions) => {
             return {
               success: true,
-              data: { _id: "10", fixedName: "subreddit", nsfw: true },
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
             };
           },
-          isModerator: async (subredditName, userID) => {
-            return { success: false, doc: { moderators: [{ id: "1" }] } };
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1" }] },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: false,
+              doc: { _id: "10", moderators: [{ _id: "1" }] },
+            };
           },
         };
         const FlairRepository = {};
@@ -865,8 +874,93 @@ describe("Subreddit Test", () => {
             },
           }
         );
-        console.log(result);
-        expect(result.success).to.equal(false);
+        expect(result.success).to.equal(true);
+      });
+    });
+    // !=======================
+    describe("handleInvitation function ", () => {
+      it("first test", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return {
+              success: true,
+              doc: {
+                pendingInvitations: [
+                  {
+                    subredditId: "10",
+                    permissions: {
+                      all: false,
+                      access: true,
+                      config: true,
+                      flair: false,
+                      posts: false,
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          returnInvitations: async (userId) => {
+            return {
+              success: true,
+              doc: {
+                pendingInvitations: [
+                  {
+                    subredditId: "10",
+                    permissions: {
+                      all: false,
+                      access: true,
+                      config: true,
+                      flair: false,
+                      posts: false,
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          updateInvitations: async (userId, invitations) => {
+            return { success: true, doc: { _id: "1" } };
+          },
+        };
+        const SubredditRepository = {
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: {
+                _id: {
+                  equals: function (val) {
+                    return false;
+                  },
+                },
+                fixedName: "subreddit",
+                nsfw: true,
+              },
+            };
+          },
+          addModerator: async () => {
+            return { success: true, doc: { fixedName: "subreddit" } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.handleInvitation(
+          "1",
+          "khaled",
+          "default.png",
+          "subreddit",
+          "accept"
+        );
+
+        expect(result.success).to.equal(true);
       });
     });
   });
