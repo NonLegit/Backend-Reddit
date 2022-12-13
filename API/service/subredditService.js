@@ -1110,6 +1110,17 @@ class subredditService {
     if (action == "sub") await this.subredditRepository.addUser(id);
     else await this.subredditRepository.removeUser(id);
   }
+  async addUserImageURL(subredditName, type, filename) {
+    let subreddit = await this.subredditRepository.updateSubredditImage(
+      subredditName,
+      type,
+      filename
+    );
+    return {
+      icon: subreddit.doc.icon,
+      backgroundImage: subreddit.doc.backgroundImage,
+    };
+  }
 }
 
 module.exports = subredditService;

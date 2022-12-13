@@ -6,9 +6,10 @@ const {
 } = require("../error_handling/errors");
 
 class PostController {
-  constructor({ PostService, UserService }) {
+  constructor({ PostService, UserService, CommentService }) {
     this.postServices = PostService;
     this.userServices = UserService;
+    this.CommentService = CommentService;
   }
 
   createPost = async (req, res) => {
@@ -207,16 +208,20 @@ class PostController {
     // check if the owner of post block me or i blocked him in order to show posts , TODO
 
     // get post which he creates
-    await me.populate("saved", "-__v");
+    await me.populate("saved.savedPost", "-__v");
+    await me.populate("savedComments.savedComment", "-__v");
     //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
-    //posts = this.postServices.setVotePostStatus(me, posts);
-    let posts = this.postServices.setVotePostStatus(me, me.saved);
-    posts = this.postServices.removeHiddenPosts(me, posts);
-    posts = this.postServices.setPostOwnerData(posts);
+    let posts = this.postServices.setVoteStatus(me, me.saved);
+    let comments = this.CommentService.setVoteStatus(me, me.savedComments);
+    // let posts = this.postServices.setVotePostStatus(me, posts);
+    // posts = this.postServices.setVotePostStatus(me, me.saved);
+    // posts = this.postServices.removeHiddenPosts(me, posts);
+    // posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
-      posts: posts,
+      savedPosts: posts,
+      savedComments: comments,
     });
   };
   /**
@@ -699,6 +704,56 @@ class PostController {
     }
 
     next();
+  };
+  overview = async (req, res, next) => {
+    let userName = req.params.userName;
+    let user = await this.userServices.getUserByName(userName, "");
+    let me = req.user;
+    if (user.success == true) {
+      let userId = user.data._id;
+      let limit = req.query.limit;
+      let page = req.query.page;
+      let sort = req.query.sort;
+      if (sort !== "New" || sort !== "Hot" || sort !== "Top") {
+        sort = "-createdAt";
+      } else {
+        if (sort === "New") {
+          sort = "-createdAt";
+        } else if (sort === "Hot") {
+          sort = "-votes";
+        } else {
+          sort = "-sortOnHot";
+        }
+      }
+      if (limit === undefined || limit > 100 || limit < 0) {
+        limit = 100;
+      }
+      if (page === undefined || page < 0) {
+        page = 1;
+      }
+      let query = {
+        sort: sort,
+        limit: limit,
+        page: page,
+      };
+      let comments = await this.CommentService.getUserComments(userId,user.data,query);
+      let posts = await this.postServices.getUserPosts(userId, sort);
+      posts = this.postServices.setVotePostStatus(me, posts);
+      posts = this.postServices.setSavedPostStatus(me, posts);
+      posts = this.postServices.setHiddenPostStatus(me, posts);
+      posts = this.postServices.setPostOwnerData(posts);
+      posts = this.postServices.filterPosts(posts,comments);
+      res.status(200).json({
+        status: "success",
+        posts: posts,
+        comments: comments
+      });
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    }
   };
 }
 

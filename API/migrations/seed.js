@@ -5,8 +5,9 @@ const Post = require("../models/postModel");
 const Flair = require("../models/flairModel");
 const Subreddit = require("../models/subredditModel");
 const Social = require("../models/socialModel");
-
+const Comment = require("../models/commentModel");
 const dotenv = require("dotenv");
+
 dotenv.config();
 if (process.env.NODE_ENV === "test") {
   const DB = process.env.DATABASE;
@@ -229,7 +230,27 @@ module.exports = async function seeder() {
     commentCount: 0,
     images: [postImg],
   });
-
+  let comment1 = await Comment.create({
+    author: user3._id,
+    parent: post2._id,
+    post: post2._id,
+    parentType: "Post",
+    text: "My Fourth comment",
+  });
+  let comment2 = await Comment.create({
+    author: user3._id,
+    parent: post3._id,
+    post: post3._id,
+    parentType: "Post",
+    text: "My Fourth comment",
+  });
+  let comment3 = await Comment.create({
+    author: user3._id,
+    parent: post2._id,
+    post: post2._id,
+    parentType: "Post",
+    text: "My Fourth comment",
+  });
   let flair1 = await Flair.create({
     text: "first flair",
     backgroundColor: "#111111",
@@ -248,7 +269,7 @@ module.exports = async function seeder() {
     textColor: "#f1f3f3",
     permissions: "modOnly",
   });
-
+  console.log(comment1);
   await User.findOneAndUpdate(
     { userName: "Nour" },
     {
@@ -261,7 +282,23 @@ module.exports = async function seeder() {
             { posts: post4._id, postVoteStatus: "-1" },
           ],
         },
-        saved: { $each: [post2._id, post3._id, post4._id] },
+        saved: {
+          $each: [
+            { savedPost: post2._id, createdAt: Date.now() },
+            { savedPost: post3._id, createdAt: Date.now() },
+            { savedPost: post4._id, createdAt: Date.now() },
+          ],
+        },
+        savedComments: {
+          $each: [
+            { savedComment: comment1._id, createdAt: Date.now() },
+            { savedComment: comment2._id, createdAt: Date.now() },
+            { savedComment: comment3._id, createdAt: Date.now() },
+          ],
+        },
+        // saved: {
+        //   $each: [post2._id, post3._id, post4._id],
+        // },
         socialLinks: {
           $each: [
             { social: facebook._id, userLink: "facebook", displayText: "Nour" },
@@ -289,7 +326,9 @@ module.exports = async function seeder() {
             { posts: post5._id, postVoteStatus: "1" },
           ],
         },
-        saved: { $each: [post2._id, post3._id, post4._id] },
+        // saved: {
+        //   $each: [post2._id, post3._id, post4._id],
+        // },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },
@@ -311,7 +350,9 @@ module.exports = async function seeder() {
             { posts: post5._id, postVoteStatus: "-1" },
           ],
         },
-        saved: { $each: [post2._id, post3._id, post4._id] },
+        // saved: {
+        //   $each: [post2._id, post3._id, post4._id],
+        // },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },
@@ -333,7 +374,9 @@ module.exports = async function seeder() {
             { posts: post5._id, postVoteStatus: "-1" },
           ],
         },
-        saved: { $each: [post2._id, post3._id, post4._id] },
+        // saved: {
+        //   $each: [post2._id, post3._id, post4._id],
+        // },
         // hidden: { $each: [post2._id, post3._id, post4._id] },
       },
     },
@@ -353,14 +396,14 @@ module.exports = async function seeder() {
       { _id: subreddit1 },
       {
         description: "this is a Nonlegit subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `subreddits/default.png`,
         membersCount: 1000,
         rules: [
           {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -368,7 +411,7 @@ module.exports = async function seeder() {
             id: user1._id,
             userName: user1.userName,
             joiningDate: Date.now(),
-            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            profilePicture: `users/default.png`,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -393,14 +436,14 @@ module.exports = async function seeder() {
       { _id: subreddit2 },
       {
         description: "this is a selm alsodan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `subreddits/default.png`,
         membersCount: 1000,
         rules: [
           {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -408,7 +451,7 @@ module.exports = async function seeder() {
             id: user2._id,
             userName: user2.userName,
             joiningDate: Date.now(),
-            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            profilePicture: `users/default.png`,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -432,14 +475,14 @@ module.exports = async function seeder() {
       { _id: subreddit3 },
       {
         description: "this is a yaaah yalmedan subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `subreddits/default.png`,
         membersCount: 1230,
         rules: [
           {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -447,7 +490,7 @@ module.exports = async function seeder() {
             id: user3._id,
             userName: user3.userName,
             joiningDate: Date.now(),
-            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            profilePicture: `users/default.png`,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -471,14 +514,14 @@ module.exports = async function seeder() {
       { _id: subreddit4 },
       {
         description: "this is a yaaah fl share3 subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `subreddits/default.png`,
         membersCount: 1230,
         rules: [
           {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -486,7 +529,7 @@ module.exports = async function seeder() {
             id: user4._id,
             userName: user4.userName,
             joiningDate: Date.now(),
-            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            profilePicture: `users/default.png`,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -510,14 +553,14 @@ module.exports = async function seeder() {
       { _id: subreddit5 },
       {
         description: "this is a al3enb al3enb al3enb subreddit",
-        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+        icon: `subreddits/default.png`,
         membersCount: 123330,
         rules: [
           {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -525,7 +568,7 @@ module.exports = async function seeder() {
             id: user5._id,
             userName: user5.userName,
             joiningDate: Date.now(),
-            profilePicture: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
+            profilePicture: `users/default.png`,
             moderatorPermissions: {
               all: true,
               access: true,

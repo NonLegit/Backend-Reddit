@@ -116,6 +116,252 @@ class CommentService {
 
     return { success: true };
   }
+  setVoteCommentStatus(user, comments) {
+    // create map of posts voted by user
+    let newComments = Array.from(comments);
+    let hash = {};
+    for (var i = 0; i < user.voteComment.length; i++) {
+      hash[user.voteComment[i].comments] =
+        user.voteComment[i].commentVoteStatus;
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newComments.length; i++) {
+      try {
+        newComments[i] = newComments[i].toObject();
+      } catch (err) {}
+      if (!hash[comments[i]._id]) {
+        newComments[i]["commentVoteStatus"] = "0";
+        Object.assign(newComments[i], { commentVoteStatus: "0" });
+      } else {
+        newComments[i]["commentVoteStatus"] = hash[comments[i]._id];
+        Object.assign(newComments[i], {
+          commentVoteStatus: hash[comments[i]._id],
+        });
+      }
+    }
+    console.log("new comments", newComments);
+    return newComments;
+  }
+  setSavedCommentStatus(user, comments) {
+    let newComments = Array.from(comments);
+
+    let hash = {};
+    for (var i = 0; i < user.savedComments.length; i++) {
+      hash[user.savedComments[i].saved] = user.savedComments[i].saved;
+    }
+    // console.log(hash);
+    // check if posts is in map then set in its object vote status with in user
+    for (var i = 0; i < newComments.length; i++) {
+      try {
+        newComments[i] = newComments[i].toObject();
+      } catch (err) {}
+      if (hash[comments[i]._id]) {
+        newComments[i]["isSaved"] = true;
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newComments[i]["isSaved"] = false;
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+    }
+    return newComments;
+  }
+  setVoteStatus(user, userComments) {
+    let post = {};
+    let commentTree = [];
+    let createdAt = "";
+    let hash = {};
+    for (var i = 0; i < user.voteComment.length; i++) {
+      hash[user.voteComment[i].comments] =
+        user.voteComment[i].commentVoteStatus;
+    }
+    userComments.forEach((element) => {
+      if (
+        post._id === undefined ||
+        post._id.toString() !== element.savedComment.post._id.toString()
+      ) {
+        if (
+          post._id !== undefined &&
+          post._id.toString() !== element.savedComment.post._id.toString()
+        ) {
+          commentTree.push({ savedComemnt: post, createdAt: createdAt });
+        }
+        post = {};
+        createdAt = element.createdAt;
+        //console.log(element.post);
+        post["_id"] = element.savedComment.post._id;
+        post["title"] = element.savedComment.post.title;
+        // console.log("passed");
+        post["author"] = {
+          _id: element.savedComment.post.author._id,
+          name: element.savedComment.post.author.userName,
+        };
+        post["ownerType"] = element.savedComment.post.ownerType;
+        post["owner"] = {
+          _id: element.savedComment.post.owner._id,
+          name:
+            element.savedComment.post.ownerType === "User"
+              ? element.savedComment.post.owner.userName
+              : element.savedComment.post.owner.fixedName,
+          icon:
+            element.savedComment.post.ownerType === "User"
+              ? `${process.env.BACKDOMAIN}/` +
+                element.savedComment.post.owner.profilePicture
+              : `${process.env.BACKDOMAIN}/` +
+                element.savedComment.post.owner.icon,
+        };
+        post["text"] = element.savedComment.post.text;
+        post["nsfw"] = element.savedComment.post.nsfw;
+        post["flairId"] = element.savedComment.post.flairId;
+        post["comments"] = [
+          {
+            _id: element.savedComment._id,
+            mentions: element.savedComment.mentions,
+            parent: element.savedComment.parent,
+            parentType: element.savedComment.parentType,
+            text: element.savedComment.text,
+            createdAt: element.savedComment.createdAt,
+            votes: element.savedComment.votes,
+            repliesCount: element.savedComment.repliesCount,
+            isDeleted: element.savedComment.isDeleted,
+            author: {
+              _id: element.savedComment.author._id,
+              name: element.savedComment.author.userName,
+              icon:
+                `${process.env.BACKDOMAIN}/` +
+                element.savedComment.author.profilePicture,
+            },
+            sortOnHot:element.savedComment.sortOnHot,
+            commentVoteStatus: !hash[element.savedComment._id]
+              ? "0"
+              : hash[comments[i]._id],
+            isSaved: true,
+          },
+        ];
+      } else {
+        post["comments"].push({
+          _id: element.savedComment._id,
+          mentions: element.savedComment.mentions,
+          parent: element.savedComment.parent,
+          parentType: element.savedComment.parentType,
+          text: element.savedComment.text,
+          createdAt: element.savedComment.createdAt,
+          votes: element.savedComment.votes,
+          repliesCount: element.savedComment.repliesCount,
+          isDeleted: element.savedComment.isDeleted,
+          author: {
+            _id: element.savedComment.author._id,
+            name: element.savedComment.author.userName,
+            icon:
+              `${process.env.BACKDOMAIN}/` +
+              element.savedComment.author.profilePicture,
+          },
+          sortOnHot:element.savedComment.sortOnHot,
+          commentVoteStatus: !hash[element.savedComment._id]
+            ? "0"
+            : hash[comments[i]._id],
+          isSaved: true,
+        });
+      }
+    });
+    if (post._id !== undefined)
+      commentTree.push({ savedComemnt: post, createdAt: createdAt });
+    console.log("Treeeeeeeeeeeeeeee", commentTree);
+    return commentTree.reverse();
+  }
+
+  async getUserComments(userId, user, query) {
+    let data = await this.commentRepo.getUserComments(userId, query, "post");
+    let post = {};
+    let commentTree = [];
+    let comments = this.setVoteCommentStatus(user, data.doc);
+    comments - this.setSavedCommentStatus(user, comments);
+    comments.forEach((element) => {
+      if (
+        post._id === undefined ||
+        post._id.toString() !== element.post._id.toString()
+      ) {
+        if (
+          post._id !== undefined &&
+          post._id.toString() !== element.post._id.toString()
+        ) {
+          commentTree.push(post);
+        }
+        post = element.post;
+        console.log(element.post)
+
+        //console.log(element.post);
+        // post["_id"] = element.post._id;
+        // post["title"] = element.post.title;
+        // console.log("passed");
+        post["author"] = {
+          _id: element.post.author._id,
+          name: element.post.author.userName,
+        };
+        post["ownerType"] = element.post.ownerType;
+        post["owner"] = {
+          _id: element.post.owner._id,
+          name:
+            element.post.ownerType === "User"
+              ? element.post.owner.userName
+              : element.post.owner.fixedName,
+          icon:
+            element.post.ownerType === "User"
+              ? `${process.env.BACKDOMAIN}/` + element.post.owner.profilePicture
+              : `${process.env.BACKDOMAIN}/` + element.post.owner.icon,
+        };
+        console.log("passed");
+        // post["text"] = element.post.text;
+        // post["nsfw"] = element.post.nsfw;
+        // post["flairId"] = element.post.flairId;
+        post["__v"] = undefined;
+        post["comments"] = [
+          {
+            _id: element._id,
+            mentions: element.mentions,
+            parent: element.parent,
+            parentType: element.parentType,
+            text: element.text,
+            createdAt: element.createdAt,
+            votes: element.votes,
+            repliesCount: element.repliesCount,
+            isDeleted: element.isDeleted,
+            author: {
+              _id: element.author._id,
+              name: element.author.userName,
+            },
+            sortOnHot:element.sortOnHot,
+            commentVoteStatus: element.commentVoteStatus,
+            isSaved: element.isSaved,
+          },
+        ];
+      } else {
+        post["comments"].push({
+          _id: element._id,
+          mentions: element.mentions,
+          parent: element.parent,
+          parentType: element.parentType,
+          text: element.text,
+          createdAt: element.createdAt,
+          votes: element.votes,
+          repliesCount: element.repliesCount,
+          isDeleted: element.isDeleted,
+          author: {
+            _id: element.author._id,
+            name: element.author.userName,
+          },
+          sortOnHot:element.sortOnHot,
+          commentVoteStatus: element.commentVoteStatus,
+          isSaved: element.isSaved,
+        });
+      }
+    });
+    if (post._id !== undefined) commentTree.push(post);
+    //console.log(commentTree);
+    return commentTree;
+    
+  }
+ 
 }
 
 module.exports = CommentService;
