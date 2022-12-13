@@ -156,6 +156,12 @@ class PostRepository extends Repository {
     return false;
   }
 
+  /**
+   * Mark post as spammed/unspammed by a certain user according to dir
+   * @param {String} postId
+   * @param {String} userId
+   * @param {Number} dir
+   */
   async spam(postId, userId, dir) {
     if (dir === 1)
       await this.model.findByIdAndUpdate(postId, {
@@ -168,6 +174,17 @@ class PostRepository extends Repository {
         $inc: { spamCount: -1 },
       });
   }
+
+  async commentTree(postId, limit, depth) {
+    const tree = await this.model.findById(postId, "replies").populate({
+      path: "replies",
+      perDocumentLimit: limit,
+      options: { depth: depth },
+    }).lean();
+
+    return tree;
+  }
+
 }
 
 module.exports = PostRepository;

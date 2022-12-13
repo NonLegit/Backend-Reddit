@@ -35,6 +35,8 @@ exports.commentErrors = Object.freeze({
   NOT_AUTHOR: 1,
   INVALID_PARENT: 2,
   COMMENT_NOT_FOUND: 3,
+  POST_NOT_FOUND: 4,
+  COMMENT_NOT_CHILD: 5
 });
 
 exports.notificationErrors = Object.freeze({

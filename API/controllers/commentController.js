@@ -141,6 +141,60 @@ class CommentController {
       data: null,
     });
   };
+
+  commentTree = async (req, res) => {
+    const LIMIT = 2;
+    const DEPTH = 3;
+    const CONTEXT = 2;
+
+    const postId = req.params?.postId;
+    if (!postId) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    let { limit, depth, context, sort, commentId } = req.query;
+    if (!limit || limit <= 0) limit = LIMIT;
+    if (!depth || depth < 0) depth = DEPTH;
+
+    const commentTree = await this.commentServices.commentTree(
+      postId,
+      limit,
+      depth,
+      commentId
+    );
+
+    if (!commentTree.success) {
+      let msg,
+        stat = 404;
+      switch (commentTree.error) {
+        case commentErrors.COMMENT_NOT_FOUND:
+          msg = "Comment not found";
+          break;
+        case commentErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          break;
+        case commentErrors.COMMENT_NOT_CHILD:
+          msg = "Comment is not a child of post";
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(200).json({
+      status: "success",
+      comments: commentTree.tree,
+    });
+  };
+  
   getUserComments = async (req, res, next) => {
     const me = req.user;
     let userName = req.params.userName;
@@ -182,7 +236,7 @@ class CommentController {
         limit: limit,
         page: page,
       };
-      let posts = await this.commentServices.getUserComments(userId,me, query);
+      let posts = await this.commentServices.getUserComments(userId, me, query);
 
       res.status(200).json({
         status: "success",
