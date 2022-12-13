@@ -194,57 +194,57 @@ describe("User Post Test", () => {
         expect(result2.length).to.equal(4);
       });
     });
-    describe("setSavedPostStatus function ", () => {
-      const postservices = new PostService({});
-      it("first test,", () => {
-        let user = {
-          saved: ["1", "4"],
-        };
-        let user2 = {
-          saved: ["10"],
-        };
-        let posts = [
-          {
-            _id: "1",
-          },
-          {
-            _id: "3",
-          },
-          {
-            _id: "4",
-          },
-          {
-            _id: "6",
-          },
-        ];
-        let posts2 = [
-          {
-            _id: "1",
-          },
-          {
-            _id: "3",
-          },
-          {
-            _id: "4",
-          },
-          {
-            _id: "6",
-          },
-        ];
-        const result = postservices.setSavedPostStatus(user, posts);
-        const result2 = postservices.setSavedPostStatus(user2, posts2);
-        expect(result.length).to.equal(4);
-        expect(result[0]["isSaved"]).to.equal(true);
-        expect(result[1]["isSaved"]).to.equal(false);
-        expect(result[2]["isSaved"]).to.equal(true);
-        expect(result[3]["isSaved"]).to.equal(false);
-        expect(result2.length).to.equal(4);
-        expect(result2[0]["isSaved"]).to.equal(false);
-        expect(result2[1]["isSaved"]).to.equal(false);
-        expect(result2[2]["isSaved"]).to.equal(false);
-        expect(result2[3]["isSaved"]).to.equal(false);
-      });
-    });
+    // describe("setSavedPostStatus function ", () => {
+    //   const postservices = new PostService({});
+    //   it("first test,", () => {
+    //     let user = {
+    //       saved: ["1", "4"],
+    //     };
+    //     let user2 = {
+    //       saved: ["10"],
+    //     };
+    //     let posts = [
+    //       {
+    //         _id: "1",
+    //       },
+    //       {
+    //         _id: "3",
+    //       },
+    //       {
+    //         _id: "4",
+    //       },
+    //       {
+    //         _id: "6",
+    //       },
+    //     ];
+    //     let posts2 = [
+    //       {
+    //         _id: "1",
+    //       },
+    //       {
+    //         _id: "3",
+    //       },
+    //       {
+    //         _id: "4",
+    //       },
+    //       {
+    //         _id: "6",
+    //       },
+    //     ];
+    //     const result = postservices.setSavedPostStatus(user, posts);
+    //     const result2 = postservices.setSavedPostStatus(user2, posts2);
+    //     expect(result.length).to.equal(4);
+    //     expect(result[0]["isSaved"]).to.equal(true);
+    //     expect(result[1]["isSaved"]).to.equal(false);
+    //     expect(result[2]["isSaved"]).to.equal(true);
+    //     expect(result[3]["isSaved"]).to.equal(false);
+    //     expect(result2.length).to.equal(4);
+    //     expect(result2[0]["isSaved"]).to.equal(false);
+    //     expect(result2[1]["isSaved"]).to.equal(false);
+    //     expect(result2[2]["isSaved"]).to.equal(false);
+    //     expect(result2[3]["isSaved"]).to.equal(false);
+    //   });
+    // });
 
     describe("setHiddenPostStatus function ", () => {
       const postservices = new PostService({});
