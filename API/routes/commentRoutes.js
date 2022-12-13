@@ -14,8 +14,9 @@ router
   .patch(CommentController.updateComment)
   .delete(CommentController.deleteComment);
 
-module.exports = router;
+router.route("/comment_tree/:postId").get(CommentController.commentTree);
 
+module.exports = router;
 
 // const CommentController = require("../controllers/commentController");
 // const Repository = require("../data_access/repository");
