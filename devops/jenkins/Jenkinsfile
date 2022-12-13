@@ -106,8 +106,11 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
 					docker volume prune -f
 					docker volume ls
 					docker compose up -d
-					# Create mongodb users => later.
 
+					# Create mongodb users.
+					docker exec -it backend-mongodb-1 mongosh -u $DB_CREDS_USR -p $DB_CREDS_PSW --eval 'db = db.getSiblingDB("redditDB")
+db.createUser( { user: "$NONLEGIT_USR", pwd: "$NONLEGIT_PSW", roles: [ { role: "read", db: "redditDB" } ] })
+db.createUser( { user: "$BACKEND_USR", pwd: "$BACKEND_PSW", roles: [ { role: "readWrite", db: "redditDB" } ] })
 				'''
 			} else {
                 		sh '''
