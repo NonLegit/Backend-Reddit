@@ -59,7 +59,6 @@ class CommentService {
     if (comment.doc.parentType === "Comment")
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
-
     return { success: true, data: comment.doc };
   }
 
@@ -115,6 +114,31 @@ class CommentService {
     await this.commentRepo.deleteComment(id);
 
     return { success: true };
+  }
+
+  async commentTree(postId, limit, depth, commentId) {
+    const post = await this.postRepo.findById(postId, "_id replies");
+    if (!post.success)
+      return { success: false, error: commentErrors.POST_NOT_FOUND };
+
+    if (!commentId) {
+      const tree = await this.postRepo.commentTree(postId, limit, depth);
+      return { success: true, tree: tree.replies };
+    } else {
+      const comment = await this.commentRepo.commentTree(
+        commentId,
+        limit,
+        depth
+      );
+      if (!comment)
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+
+      const replies = post.doc.replies;
+      if (!replies.includes(commentId))
+        return { success: false, error: commentErrors.COMMENT_NOT_CHILD };
+
+      return { success: true, tree: comment };
+    }
   }
 }
 

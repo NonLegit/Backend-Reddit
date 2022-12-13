@@ -509,6 +509,14 @@ class PostService {
     return await this.postRepo.modAction(postId, action);
   }
 
+  /**
+   * Mark a post as spammed by a non-mod user
+   * If spam count exceeded certain threshold the post is marked as spammed
+   * @param {String} postId
+   * @param {String} userId
+   * @param {Number} dir
+   * @returns
+   */
   async spam(postId, userId, dir) {
     const SPAM_THRESHOLD = 5;
 
