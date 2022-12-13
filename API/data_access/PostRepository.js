@@ -92,5 +92,29 @@ class PostRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  // async getPostsWithComments(userId) {
+  //   console.log(userId);
+  //   let doc = await this.model.aggregate([
+  //     {
+  //       $lookup: {
+  //         from: "Comment", // collection name in db
+  //         localField: "author",
+  //         foreignField: "author",
+  //         as: "comments",
+  //       },
+  //     },
+  //     {
+  //       $match: {
+  //         author: userId,
+  //       },
+  //     },
+
+  //   ]);
+  //   // .exec(function (err, posts) {
+  //   //   // students contain WorksnapsTimeEntries
+  //   //   console.log(posts);
+  //   // });
+  //   return doc;
+  // }
 }
 module.exports = PostRepository;

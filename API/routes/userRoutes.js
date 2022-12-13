@@ -118,7 +118,7 @@ router.patch(
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
 router.get("/:userName/comments", CommentController.getUserComments);
-router.get("/:userName/overview", PostController.userPosts);
+router.get("/:userName/overview", PostController.overview);
 
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);

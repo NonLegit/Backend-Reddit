@@ -464,6 +464,13 @@ class PostService {
     }
     return newPosts;
   }
+  filterPosts(posts,comments)
+  {
+    posts = posts.filter(post => comments.findIndex(comment => {
+      return comment._id.toString() === post._id.toString();
+    }) === -1 );
+    return posts;
+  }
 }
 
 module.exports = PostService;

@@ -212,6 +212,7 @@ class CommentService {
         };
         post["text"] = element.savedComment.post.text;
         post["nsfw"] = element.savedComment.post.nsfw;
+        post["flairId"] = element.savedComment.post.flairId;
         post["comments"] = [
           {
             _id: element.savedComment._id,
@@ -266,11 +267,11 @@ class CommentService {
     console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
+
   async getUserComments(userId, user, query) {
     let data = await this.commentRepo.getUserComments(userId, query, "post");
     let post = {};
     let commentTree = [];
-    //console.log(comments);
     let comments = this.setVoteCommentStatus(user, data.doc);
     comments - this.setSavedCommentStatus(user, comments);
     comments.forEach((element) => {
@@ -284,10 +285,12 @@ class CommentService {
         ) {
           commentTree.push(post);
         }
-        post = {};
+        post = element.post;
+        console.log(element.post)
+
         //console.log(element.post);
-        post["_id"] = element.post._id;
-        post["title"] = element.post.title;
+        // post["_id"] = element.post._id;
+        // post["title"] = element.post.title;
         // console.log("passed");
         post["author"] = {
           _id: element.post.author._id,
@@ -306,8 +309,10 @@ class CommentService {
               : `${process.env.BACKDOMAIN}/` + element.post.owner.icon,
         };
         console.log("passed");
-        post["text"] = element.post.text;
-        post["nsfw"] = element.post.nsfw;
+        // post["text"] = element.post.text;
+        // post["nsfw"] = element.post.nsfw;
+        // post["flairId"] = element.post.flairId;
+        post["__v"] = undefined;
         post["comments"] = [
           {
             _id: element._id,
@@ -350,7 +355,9 @@ class CommentService {
     if (post._id !== undefined) commentTree.push(post);
     //console.log(commentTree);
     return commentTree;
+    
   }
+ 
 }
 
 module.exports = CommentService;
