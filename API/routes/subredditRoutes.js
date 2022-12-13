@@ -39,8 +39,6 @@ router.delete("/:subredditName", subredditController.deleteSubreddit);
 
 //router.get("/:subredditName/about/:location",subredditControllerObj.relevantPosts);
 
-//router.get('/:subredditName/trending', postControllerObj.getTrendingPosts);
-
 router.route("/:subredditName/flair").post(subredditController.createFlair);
 
 router
@@ -94,18 +92,11 @@ router.post(
   subredditController.muteSettings
 );
 
-router.post(
-  "/:subredditName/rules/:title",
-  subredditController.addRule
-);
-router.patch(
-  "/:subredditName/rules/:title",
-  subredditController.editRule
-);
-router.delete(
-  "/:subredditName/rules/:title",
-  subredditController.deleteRule
-);
+router.post("/:subredditName/rules/:title", subredditController.addRule);
+router.patch("/:subredditName/rules/:title", subredditController.editRule);
+router.delete("/:subredditName/rules/:title", subredditController.deleteRule);
+
+router.get("leaderboard/:category", subredditController.categoryLeaderBoard);
 
 router
   .route("/:subredditName/flair")

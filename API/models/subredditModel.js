@@ -124,6 +124,10 @@ const subredditSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
+  allowImgs: { type: Boolean, required: false, default: true },
+  allowVideos: { type: Boolean, required: false, default: true },
+  allowLinks: { type: Boolean, required: false, default: true },
+  suggestedSort: { type: String, default: "Top" },
   icon: {
     type: String,
     required: false,

@@ -1,3 +1,4 @@
+const { query } = require("express");
 const { subredditErrors, userErrors } = require("../error_handling/errors");
 const { syncIndexes } = require("../models/userModel");
 
@@ -415,30 +416,6 @@ class subredditController {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let category = req.params.location;
-    try {
-      // * get posts marked with this category
-      let response = await this.subredditServices.getCategoryPosts(
-        subredditName,
-        userId,
-        category
-      );
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.err,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          response: subreddit.doc,
-        });
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
-        status: "fail",
-      });
-    }
   }
   // TODO: service test
   inviteModerator = async (req, res) => {
@@ -1126,6 +1103,41 @@ class subredditController {
       return;
     }
     res.status(204).json({});
+  };
+
+  categoryLeaderBoard = async (req, res) => {
+    //req.query, req.toFilter
+    let category = req.params.category;
+
+    if (!category) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter category",
+      });
+      return;
+    }
+
+    let subreddits = await this.subredditServices.categorizedSubreddits(
+      req.query,
+      req.toFilter,
+      category
+    );
+
+    if (!subreddits.success) {
+      let msg, stat;
+      switch (subreddits.error) {
+        case subredditErrors.MONGO_ERR:
+          msg = subreddits.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: subreddits.data });
   };
 
   // ! Doaa's controllers

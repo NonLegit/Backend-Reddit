@@ -848,7 +848,6 @@ class subredditService {
     if (!check.success)
       return { success: false, error: subredditErrors.RULE_NOT_FOUND };
 
-    // update rule here
     let rules = subredditExisted.doc.rules;
 
     function removeRule(list, value) {
@@ -869,6 +868,11 @@ class subredditService {
     return { success: true };
   }
 
+  async categorizedSubreddits(query, filter, category){
+    let subreddits=await this.subredditRepository.categorizedSubreddits(query, filter, category)
+
+
+  }
   //! Doaa's part
 
   /**
