@@ -244,6 +244,13 @@ const userSchema = new mongoose.Schema({
     },
   ],
 
+  favourites: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: "Subreddit",
+    },
+  ],
+
   socialLinks: [
     {
       social: {

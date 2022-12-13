@@ -353,7 +353,7 @@ module.exports = async function seeder() {
       { _id: subreddit1 },
       {
         description: "this is a Nonlegit subreddit",
-        icon: `default.png`,
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -393,7 +393,7 @@ module.exports = async function seeder() {
       { _id: subreddit2 },
       {
         description: "this is a selm alsodan subreddit",
-        icon: `default.png`,
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1000,
         rules: [
           {
@@ -432,7 +432,7 @@ module.exports = async function seeder() {
       { _id: subreddit3 },
       {
         description: "this is a yaaah yalmedan subreddit",
-        icon: `default.png`,
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -471,7 +471,7 @@ module.exports = async function seeder() {
       { _id: subreddit4 },
       {
         description: "this is a yaaah fl share3 subreddit",
-        icon: `default.png`,
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1230,
         rules: [
           {
@@ -510,7 +510,7 @@ module.exports = async function seeder() {
       { _id: subreddit5 },
       {
         description: "this is a al3enb al3enb al3enb subreddit",
-        icon: `default.png`,
+        icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 123330,
         rules: [
           {

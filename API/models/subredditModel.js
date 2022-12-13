@@ -21,13 +21,16 @@ const subredditSchema = new mongoose.Schema({
       2,
       "A subreddit name must have more or equal then 2 characters",
     ],
-  }, // TODO: this will be unique and replaced with name
+  },
   name: { type: String, default: " " },
   isJoined: { type: Boolean, default: false },
   rules: [
     {
-      type: Object,
-      required: false,
+      createdAt: {
+        type: Date,
+        default: Date.now(),
+        select: false,
+      },
       defaultName: {
         type: String,
         trim: true,
@@ -121,6 +124,10 @@ const subredditSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
+  allowImgs: { type: Boolean, required: false, default: true },
+  allowVideos: { type: Boolean, required: false, default: true },
+  allowLinks: { type: Boolean, required: false, default: true },
+  suggestedSort: { type: String, default: "Top" },
   icon: {
     type: String,
     required: false,
@@ -175,11 +182,11 @@ const subredditSchema = new mongoose.Schema({
       moderatorPermissions: {
         type: Object,
         required: false,
-        all: { type: Boolean },
-        access: { type: Boolean },
-        config: { type: Boolean },
-        flair: { type: Boolean },
-        posts: { type: Boolean },
+        all: { type: Boolean }, // everything
+        access: { type: Boolean }, // can edit users
+        config: { type: Boolean }, // manage settings
+        flair: { type: Boolean }, // manage flairs
+        posts: { type: Boolean }, // manage posts
       },
     },
   ],
@@ -191,18 +198,30 @@ const subredditSchema = new mongoose.Schema({
   ],
   punished: [
     {
-      userId: {
+      id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
+      userName: { type: String },
+      banDate: { type: Date, default: Date.now() },
+      profilePicture: {
+        type: String,
+        required: false,
+        trim: true, // *TODO: it will be unique with time stamp and username
+        default: "users/default.png",
+      },
       type: { type: String, enum: ["banned", "muted"], required: true },
-      punishReason: { type: String, trim: true },
-      punish_type: { type: String },
-      Note: { type: String },
-      duration: {
-        startTime: { type: Date },
-        endTime: { type: Date },
+      banInfo: {
+        punishReason: { type: String, trim: true },
+        punish_type: { type: String },
+        Note: { type: String },
+        duration: {
+          type: Number,
+        },
+      },
+      muteInfo: {
+        muteMessage: { type: String },
       },
     },
   ],
