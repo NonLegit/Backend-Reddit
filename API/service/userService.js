@@ -55,23 +55,22 @@ class UserService {
     return password;
   }
   checkPasswordStrength(password) {
-    console.log(passwordStrength(password));
     return passwordStrength(password).value;
   }
-  async createUser(data) {
-    try {
-      let user = await this.userRepository.createOne(data);
-      return user;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
+  // async createUser(data) {
+  //   try {
+  //     let user = await this.userRepository.createOne(data);
+  //     return user;
+  //   } catch (err) {
+  //     console.log("catch error here" + err);
+  //     const error = {
+  //       status: "fail",
+  //       statusCode: 400,
+  //       err,
+  //     };
+  //     return error;
+  //   }
+  // }
   /**
    * @property {Function} createToken create user token
    * @param {string} id - User Id to be stored in token
@@ -179,7 +178,6 @@ class UserService {
         return response;
       }
     } catch (err) {
-      console.log(err);
       const response = {
         success: false,
         error: userErrors.EMAIL_ERROR,
@@ -221,7 +219,6 @@ class UserService {
         return response;
       }
     } catch (err) {
-      console.log(err);
       const response = {
         success: false,
         error: userErrors.EMAIL_ERROR,
@@ -367,7 +364,6 @@ class UserService {
       socialLinks: user.socialLinks,
       country: user.country,
     };
-    console.log(prefs);
     return prefs;
   }
   /**
@@ -432,7 +428,7 @@ class UserService {
     );
     //In order to subscribe, user should not be already subscribed
     if (action === "sub" && !alreadySubscribed) {
-      const temp = await this.userRepository.push(userId, {
+      await this.userRepository.push(userId, {
         subscribed: subredditId,
       });
       return true;
@@ -512,7 +508,7 @@ class UserService {
   }
   async createSocialLinks(me, displayText, userLink, socialId) {
     // check if social id is valid
-    console.log(me.socialLinks.length);
+    //console.log(me.socialLinks.length);
     if (me.socialLinks.length === 5) {
       return {
         success: false,
@@ -581,8 +577,10 @@ class UserService {
   async deleteSocialLinks(me, id) {
     let index = me.socialLinks.findIndex((item) => item._id == id);
     if (index != -1) {
-      console.log("should delete");
-      me.socialLinks.pull({ _id: id });
+      try {
+        me.socialLinks.pull({ _id: id });
+      } catch (err) {}
+
       let profileBackground = me.profileBackground;
       let profilePicture = me.profilePicture;
       me.profilePicture = profilePicture.replace(
@@ -611,6 +609,7 @@ class UserService {
       `${process.env.BACKDOMAIN}/`,
       ""
     );
+    return doc
   }
   async checkBlockStatus(me, otherUser) {
     console.log(otherUser.meUserRelationship);
@@ -636,7 +635,7 @@ class UserService {
     let index2 = otherUser.userMeRelationship.findIndex(
       (item) => item.userId.toString() == me._id.toString()
     );
-    console.log(index)
+    console.log(index);
     console.log(index2);
     if (index != -1) {
       me.meUserRelationship[index].status = "blocked";
@@ -668,7 +667,7 @@ class UserService {
     if (index != -1) {
       me.meUserRelationship[index].status = "none";
       otherUser.userMeRelationship[index2].status = "none";
-    } 
+    }
     await otherUser.save();
     await me.save();
     return true;

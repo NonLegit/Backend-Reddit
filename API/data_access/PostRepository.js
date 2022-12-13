@@ -1,6 +1,6 @@
 //const Post = require("../models/postModel");
 const Repository = require("./repository");
-const { mongoErrors ,decorateError} = require("../error_handling/errors");
+const { mongoErrors, decorateError } = require("../error_handling/errors");
 const APIFeatures = require("./apiFeatures");
 
 class PostRepository extends Repository {
@@ -8,7 +8,7 @@ class PostRepository extends Repository {
     super(Post);
   }
 
-  async updatetext(id, text) {
+  async updateText(id, text) {
     const post = await this.model.findByIdAndUpdate(
       id,
       { text: text },
@@ -49,7 +49,7 @@ class PostRepository extends Repository {
     let doc = await features.query.populate(popOptions);
     return { success: true, doc: doc };
   }
-  async getPosts(filter, query,sortType) {
+  async getPosts(filter, query, sortType) {
     try {
       // if (user) {
       //   //console.log("oooooooooooooooooooo");
@@ -60,54 +60,114 @@ class PostRepository extends Repository {
       // console.log(user);
       // let getSubredditPosts = filter ? { owner: filter, _id:{"$nin":user.hidden._id} } : { _id:{"$nin":user.hidden}};
 
-      let getSubredditPosts = filter ? { owner: filter} : {};
+      let getSubredditPosts = filter ? { owner: filter } : {};
 
       if (sortType == "hot") {
-        query.sort= "-sortOnHot";
-      }else if (sortType == "new") {
+        query.sort = "-sortOnHot";
+      } else if (sortType == "new") {
         query.sort = "-createdAt";
-      }else if (sortType == "top") {
+      } else if (sortType == "top") {
         query.sort = "-votes";
-      }else  {//best
+      } else {
+        //best
         query.sort = "-sortOnBest";
       }
-      
+
       console.log(query.sort);
-      const features = new APIFeatures(this.model.find(getSubredditPosts), query)
+      const features = new APIFeatures(
+        this.model.find(getSubredditPosts),
+        query
+      )
         .filter()
         .limitFields()
         .paginate()
         .sort();
       //console.log(doc);
       let doc = await features.query;
-       //console.log(doc);
-    if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      //console.log(doc);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
-      
     } catch (err) {
-        return { success: false, ...decorateError(err) };
+      return { success: false, ...decorateError(err) };
     }
   }
 
   async getPost(postId) {
     try {
      
-    // const doc = await features.query.explain();
+      // const doc = await features.query.explain();
       // const features = new APIFeatures(this.model.find({ _id: postId }), "");
       // let doc = await features.query;
-      let doc = await this.model.find({ _id : postId });
+      let doc = await this.model.find({ _id: postId });
       // console.log(doc[0].owner);
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-    return { success: true, doc: doc };
+      return { success: true, doc: doc };
       
   
 
       
       
     } catch (err) {
-        return { success: false, ...decorateError(err) };
+      return { success: false, ...decorateError(err) };
     }
   }
+  /**
+   * Performs an action on post
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @param {bool} dir True for the action, False for its opposite
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async postAction(postId, action, dir) {
+    const doc = await this.model.findOneAndUpdate(
+      { _id: postId, [action]: !dir },
+      { [action]: dir },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (doc) return true;
+    return false;
+  }
+
+  /**
+   * Changes the modState of a post according to action only by the moderators of the subreddit
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async modAction(postId, action) {
+    //Just to be consistent with the language rules
+    const state = action === "spam" ? "spammed" : action + "d";
+
+    const doc = await this.model.findOneAndUpdate(
+      { _id: postId, modState: { $ne: state } },
+      { modState: state },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (doc) return true;
+    return false;
+  }
+
+  async spam(postId, userId, dir) {
+    if (dir === 1)
+      await this.model.findByIdAndUpdate(postId, {
+        $push: { spammedBy: userId },
+        $inc: { spamCount: 1 },
+      });
+    else
+      await this.model.findByIdAndUpdate(postId, {
+        $pull: { spammedBy: userId },
+        $inc: { spamCount: -1 },
+      });
+  }
 }
+
 module.exports = PostRepository;

@@ -1,4 +1,6 @@
+const { query } = require("express");
 const { subredditErrors, userErrors } = require("../error_handling/errors");
+const { syncIndexes } = require("../models/userModel");
 
 class subredditController {
   constructor({ subredditService, UserService }) {
@@ -114,7 +116,6 @@ class subredditController {
     });
   };
 
-  // TODO: fix return object
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -205,37 +206,135 @@ class subredditController {
     });
   };
 
-  // TODO: Not Finalized (needs a small fix)
-  async deletemoderator(req, res, next) {
+  deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    let newModName = req.params.moderatorName;
-    console.log(newModName);
-    try {
-      let response = await this.subredditServices.deleteMod(
-        subredditName,
-        userId,
-        newModName
-      );
-      console.log(response);
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.message,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.message,
-        });
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+    let moderatorName = req.params.moderatorName;
+
+    if (!subredditName) {
+      res.status(400).json({
         status: "fail",
+        errorMessage: "Missing required parameter subredditName",
       });
+      return;
     }
-  }
+    if (!moderatorName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter moderatorName",
+      });
+      return;
+    }
+
+    let deleted = await this.subredditServices.deleteMod(
+      subredditName,
+      userId,
+      moderatorName
+    );
+
+    if (!deleted.success) {
+      let msg, stat;
+      switch (deleted.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.Not_MODERATOR:
+          msg = "user is not a moderator";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = deleted.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({ status: "success" });
+  };
+
+  // TODO: unit tests (controller,service)
+  ModeratorInvitation = async (req, res) => {
+    let userId = req.user._id;
+    let userName = req.user.userName;
+    let PP = req.user.profilePicture;
+    let subredditName = req.params.subredditName;
+    let action = req.params.action;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    if (!action) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter action",
+      });
+      return;
+    }
+    if (action != "accept" && action != "reject") {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Invalid Enum value",
+      });
+      return;
+    }
+
+    let accepted = await this.subredditServices.handleInvitation(
+      userId,
+      userName,
+      PP,
+      subredditName,
+      action
+    );
+
+    if (!accepted.success) {
+      let msg, stat;
+      switch (accepted.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case userErrors.ALREADY_MODERATOR:
+          msg = "user already moderator";
+          stat = 400;
+          break;
+        case subredditErrors.NO_INVITATION:
+          msg = "there is no moderation invitation to this subreddit";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = accepted.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({
+      status: "success",
+    });
+  };
 
   subredditsJoined = async (req, res) => {
     let userId = req.user._id;
@@ -317,38 +416,13 @@ class subredditController {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let category = req.params.location;
-    try {
-      // * get posts marked with this category
-      let response = await this.subredditServices.getCategoryPosts(
-        subredditName,
-        userId,
-        category
-      );
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.err,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.status,
-          response: subreddit.doc,
-        });
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
-        status: "fail",
-      });
-    }
   }
-  // TODO: need refactoring
+  // TODO: service test
   inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let moderatorName = req.params.moderatorName;
     let data = req.body;
-
 
     if (!subredditName) {
       res.status(400).json({
@@ -411,38 +485,660 @@ class subredditController {
     }
     res.status(204).json({ status: "success" });
   };
-  // TODO: need refactoring
-  async updatePermissions(req, res) {
+  // TODO: unit testing
+  updatePermissions = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
-    let newModName = req.params.moderatorName;
+    let moderatorName = req.params.moderatorName;
+    let data = req.body; //new permissions
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (!moderatorName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter moderatorName",
+      });
+      return;
+    }
+
+    let update = await this.subredditServices.updateModeratorSettings(
+      subredditName,
+      userId,
+      moderatorName,
+      data
+    );
+
+    if (!update.success) {
+      let msg, stat;
+      switch (update.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.Not_MODERATOR:
+          msg = "user is not a moderator";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = update.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({ status: "success" });
+  };
+
+  getModerators = async (req, res) => {
+    let subredditName = req.params.subredditName;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let mods = await this.subredditServices.mods(subredditName);
+
+    if (!mods.success) {
+      let msg, stat;
+      switch (mods.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = mods.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: mods.data });
+  };
+
+  // TODO: unit test
+  leaveModerator = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let leave = await this.subredditServices.leaveMod(userId, subredditName);
+
+    if (!leave.success) {
+      let msg, stat;
+      switch (leave.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.NOT_MODERATOR:
+          msg = "user is not a moderator";
+          stat = 400;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = leave.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+  // TODO: unit testing
+  Favourite = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    let mark = await this.subredditServices.handleFavourite(
+      userId,
+      subredditName
+    );
+
+    if (!mark.success) {
+      let msg, stat;
+      switch (mark.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = mark.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  favouriteSubreddits = async (req, res) => {
+    let userId = req.user._id;
+
+    let favourites = await this.subredditServices.getFavourites(userId);
+
+    if (!favourites.success) {
+      let msg, stat;
+      switch (favourites.error) {
+        case subredditErrors.MONGO_ERR:
+          msg = favourites.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: favourites.data });
+  };
+
+  // TODO: unit test
+  banSettings = async (req, res) => {
+    let userId = req.user._id; //me
+    let subredditName = req.params.subredditName;
+    let banedUser = req.params.userName;
+    let action = req.params.action;
     let data = req.body;
 
-    try {
-      let response = await this.subredditServices.updateModeratorSettings(
-        subredditName,
-        userId,
-        newModName,
-        data
-      );
-      if (response.status === "fail") {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          message: response.message,
-        });
-      } else {
-        res.status(response.statusCode).json({
-          status: response.statusCode,
-          doc: response.doc.moderators,
-        });
-      }
-    } catch (err) {
-      console.log("error in subredditservices " + err);
-      res.status(500).json({
+    if (!subredditName) {
+      res.status(400).json({
         status: "fail",
+        errorMessage: "Missing required parameter subredditName",
       });
+      return;
     }
-  }
+    if (!banedUser) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter banedUser",
+      });
+      return;
+    }
+
+    if (!action) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter action",
+      });
+      return;
+    }
+
+    if (action !== "ban" && action !== "unban") {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Invalid Enum value [ban,unban]",
+      });
+      return;
+    }
+
+    let result = await this.subredditServices.banUnban(
+      userId,
+      subredditName,
+      banedUser,
+      action,
+      data
+    );
+
+    if (!result.success) {
+      let msg, stat;
+      switch (result.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.MODERATOR:
+          msg = "user is a moderator cant make this action";
+          stat = 400;
+          break;
+        case userErrors.ALREADY_BANED:
+          msg = "user is already banned";
+          stat = 400;
+          break;
+        case userErrors.Not_BANED:
+          msg = "user is not baned to unban";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = result.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  // TODO: unit testing
+  muteSettings = async (req, res) => {
+    let userId = req.user._id; //me
+    let subredditName = req.params.subredditName;
+    let mutedUser = req.params.userName;
+    let action = req.params.action;
+    let data = req.body;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (!mutedUser) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter banedUser",
+      });
+      return;
+    }
+
+    if (!action) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter action",
+      });
+      return;
+    }
+
+    if (action !== "mute" && action !== "unmute") {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Invalid Enum value [mute,unmute]",
+      });
+      return;
+    }
+
+    let result = await this.subredditServices.muteUnmute(
+      userId,
+      subredditName,
+      mutedUser,
+      action,
+      data
+    );
+
+    if (!result.success) {
+      let msg, stat;
+      switch (result.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.MODERATOR:
+          msg = "user is a moderator cant make this action";
+          stat = 400;
+          break;
+        case userErrors.ALREADY_MUTED:
+          msg = "user is already muted";
+          stat = 400;
+          break;
+        case userErrors.Not_MUTED:
+          msg = "user is not muted to unmute";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = result.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  // TODO: add some modedration checks if there is time
+  // TODO: unit tests
+  // TODO: to be tested again after adding mute/unmute endpoints
+  bannedUsers = async (req, res) => {
+    let subredditName = req.params.subredditName;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let banned = await this.subredditServices.banned(subredditName);
+
+    if (!banned.success) {
+      let msg, stat;
+      switch (banned.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = banned.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: banned.data });
+  };
+
+  // TODO: unit tests
+  mutedUsers = async (req, res) => {
+    let subredditName = req.params.subredditName;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let muted = await this.subredditServices.muted(subredditName);
+
+    if (!muted.success) {
+      let msg, stat;
+      switch (muted.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = muted.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: muted.data });
+  };
+
+  // TODO: unit tests
+  addRule = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let data = req.body;
+    let title = req.params.title;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (!title) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter rule title",
+      });
+      return;
+    }
+
+    let add = await this.subredditServices.addRule(
+      subredditName,
+      userId,
+      title,
+      data
+    );
+
+    if (!add.success) {
+      let msg, stat;
+      switch (add.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case subredditErrors.RULE_TAKEN:
+          msg = "this title is already taken";
+          stat = 400;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = add.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  // TODO: unit tests
+  editRule = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let data = req.body;
+    let title = req.params.title;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (!title) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter rule title",
+      });
+      return;
+    }
+
+    let edit = await this.subredditServices.editRule(
+      subredditName,
+      userId,
+      title,
+      data
+    );
+
+    if (!edit.success) {
+      let msg, stat;
+      switch (edit.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case subredditErrors.RULE_NOT_FOUND:
+          msg = "this rule doesn't exist";
+          stat = 404;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = edit.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  deleteRule = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+    let title = req.params.title;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+    if (!title) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter rule title",
+      });
+      return;
+    }
+
+    let deleteR = await this.subredditServices.deleteRule(
+      subredditName,
+      userId,
+      title
+    );
+
+    if (!deleteR.success) {
+      let msg, stat;
+      switch (deleteR.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case subredditErrors.RULE_NOT_FOUND:
+          msg = "this rule doesn't exist";
+          stat = 404;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = deleteR.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  categoryLeaderBoard = async (req, res) => {
+    //req.query, req.toFilter
+    let category = req.params.category;
+
+    if (!category) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter category",
+      });
+      return;
+    }
+
+    let subreddits = await this.subredditServices.categorizedSubreddits(
+      req.query,
+      req.toFilter,
+      category
+    );
+
+    if (!subreddits.success) {
+      let msg, stat;
+      switch (subreddits.error) {
+        case subredditErrors.MONGO_ERR:
+          msg = subreddits.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: subreddits.data });
+  };
 
   // ! Doaa's controllers
   createFlair = async (req, res) => {
@@ -889,12 +1585,12 @@ class subredditController {
 
   subscribe = async (req, res) => {
     //setting sub default behavior
-    const subredditName = req.params.subredditName;
-    const action = req.query.action || "sub";
-    if (action !== "sub" && action !== "unsub") {
+    const subredditName = req.params?.subredditName;
+    const action = req.query?.action || "sub";
+    if ((action !== "sub" && action !== "unsub") || !subredditName) {
       res.status(400).json({
         status: "fail",
-        message: "Invalid action",
+        message: "Invalid request",
       });
       return;
     }

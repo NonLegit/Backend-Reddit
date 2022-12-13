@@ -902,6 +902,279 @@ describe("get best posts", () => {
 
 
 });
+
+describe("Post Controller CRUD operations", () => {
+  describe("Create post test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      body: {
+        title: "kiro post",
+        kind: "self",
+        text: "this is a post",
+        owner: "637e4aab2a94c22ae492983a",
+        ownerType: "Subreddit",
+        nsfw: false,
+        spoiler: true,
+        sendReplies: true,
+        suggestedSort: "top",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      createPost: async (data) => {
+        return { success: true, data };
+      },
+    };
+    const postController = new auth({ PostService, UserService });
+
+    it("successful creation", async () => {
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(201);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: {
+          author: "123e4aab2a94c22ae492983a",
+          title: "kiro post",
+          kind: "self",
+          text: "this is a post",
+          owner: "637e4aab2a94c22ae492983a",
+          ownerType: "Subreddit",
+          nsfw: false,
+          spoiler: true,
+          sendReplies: true,
+          suggestedSort: "top",
+        },
+      });
+    });
+
+    it("Invalid post kind", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.INVALID_POST_KIND };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid post kind",
+      });
+    });
+
+    it("Invalid owner type", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.INVALID_OWNER };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid owner type",
+      });
+    });
+
+    it("Subreddit not found", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Subreddit not found",
+      });
+    });
+
+    it("Flair not found", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.FLAIR_NOT_FOUND };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Flair not found",
+      });
+    });
+
+    it("mongo error", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "message",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.body.kind;
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Update post test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "456p4aab2a94c22ae492983a",
+      },
+      body: {
+        text: "this is a post",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      updatePost: async (id, data, userId) => {
+        return { success: true, data };
+      },
+    };
+    const postController = new auth({ PostService, UserService });
+
+    it("successful update", async () => {
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(201);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: {
+          text: "this is a post",
+        },
+      });
+    });
+
+    it("Post isn't editable", async () => {
+      PostService.updatePost = async (data) => {
+        return { success: false, error: postErrors.NOT_EDITABLE };
+      };
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post isn't editable",
+      });
+    });
+
+    it("User must be author", async () => {
+      PostService.updatePost = async (data) => {
+        return { success: false, error: postErrors.NOT_AUTHOR };
+      };
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be author",
+      });
+    });
+
+    it("Post not found", async () => {
+      PostService.updatePost = async (data) => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("mongo error", async () => {
+      PostService.updatePost = async (data) => {
+        return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
+      };
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "message",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.body.text;
+      await postController.updatePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Delete post test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "456p4aab2a94c22ae492983a",
+      },
+      body: {
+        text: "this is a post",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      deletePost: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new auth({ PostService, UserService });
+
+    it("successful delete", async () => {
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: null
+      });
+    });
+
+    it("User must be author", async () => {
+      PostService.deletePost = async () => {
+        return { success: false, error: postErrors.NOT_AUTHOR };
+      };
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be author",
+      });
+    });
+
+    it("Post not found", async () => {
+      PostService.deletePost = async () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params.postId
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter postId",
+      });
+    });
+  });
+});
+
 /*
 describe("Post controller test", () => {
   describe("Create post Test", () => {
@@ -1051,7 +1324,7 @@ describe("Post controller test", () => {
   });
 
   describe("Update post Test", () => {
-    it("successful update", async () => {
+    it("successful delete", async () => {
       res = await request(app).post("/api/v1/users/login").send({
         userName: "kirollos",
         email: "kirollos@gmail.com",

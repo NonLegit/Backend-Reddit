@@ -15,7 +15,6 @@ class Repository {
   async createOne(data) {
     try {
       const doc = await this.model.create(data);
-      //console.log(doc);
       return { success: true, doc: doc };
     } catch (err) {
       return { success: false, ...decorateError(err) };
@@ -51,7 +50,7 @@ class Repository {
 
   async findByName(name, select, pop) {
     try {
-      let query = this.model.findOne({ name: name });
+      let query = this.model.findOne({ fixedName: name });
       if (select) query = query.select(select);
       if (pop) query = query.populate(pop);
       const doc = await query;

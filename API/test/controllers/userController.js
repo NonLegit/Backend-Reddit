@@ -372,6 +372,46 @@ describe("User Controller Test", () => {
     });
   });
 
+  describe("UsernameAvailable Test", () => {
+    const req = {
+      query: {
+        userName: "kiro",
+      },
+    };
+    const UserService = {};
+    const userController = new UserController({ UserService });
+
+    it("available", async () => {
+      UserService.isAvailable = async (userName) => true
+      await userController.usernameAvailable(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        available: true,
+      });
+    });
+
+    it("unavailable", async () => {
+      UserService.isAvailable = async (userName) => false
+      await userController.usernameAvailable(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        available: false,
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.query;
+      await userController.usernameAvailable(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "userName query paramater is required",
+      });
+    });
+  });
+
   describe("getSocialLinks Test", () => {
     it("first test success", async () => {
       const req = {};
