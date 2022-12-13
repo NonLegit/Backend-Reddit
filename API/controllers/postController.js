@@ -1,4 +1,9 @@
-const { postErrors, subredditErrors } = require("../error_handling/errors");
+const { Dir } = require("fs");
+const {
+  postErrors,
+  subredditErrors,
+  postActions,
+} = require("../error_handling/errors");
 
 class PostController {
   constructor({ PostService, UserService, CommentService }) {
@@ -540,6 +545,165 @@ class PostController {
         status: "fail",
       });
     }
+  };
+
+  postActions = async (req, res) => {
+    const postId = req.params.postId;
+    const action = req.params.action;
+
+    const validActions = [
+      "lock_comments",
+      "unlock_comments",
+      "mark_nsfw",
+      "unmark_nsfw",
+      "spoiler",
+      "unspoiler",
+    ];
+    if (!validActions.includes(action)) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid post action",
+      });
+      return;
+    }
+
+    const success = await this.postServices.postAction(postId, action);
+    if (success) res.status(204).json({});
+    else
+      res.status(409).json({
+        status: "fail",
+        message: "Action already performed",
+      });
+  };
+
+  moderatePost = async (req, res) => {
+    const postId = req.params.postId;
+    const action = req.params?.action;
+
+    const validActions = ["approve", "remove", "spam"];
+    if (!validActions.includes(action)) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid post moderation action",
+      });
+      return;
+    }
+
+    const success = await this.postServices.modAction(postId, action);
+    if (success) res.status(204).json({});
+    else
+      res.status(409).json({
+        status: "fail",
+        message: "Action is already performed",
+      });
+  };
+
+  followPost = async (req, res) => {};
+  suggestedSort = async (req, res) => {};
+
+  spam = async (req, res) => {
+    const postId = req.params?.postId;
+    const dir = req.body.dir || 1;
+
+    if (!postId || !dir) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    const { success, error } = await this.postServices.spam(
+      postId,
+      req.user._id, dir
+    );
+    if (!success) {
+      let msg, stat;
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
+        case postErrors.ACTION_ALREADY_DONE:
+          msg = "Action already performed";
+          stat = 409;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    res.status(204).json({});
+  };
+
+  mustBeMod = async (req, res, next) => {
+    const postId = req.params?.postId;
+    const userId = req.user._id;
+
+    if (!postId) {
+      res.status(400).send({ status: "fail", message: "Invalid request" });
+      return;
+    }
+
+    const { success, error } = await this.postServices.isMod(postId, userId);
+
+    if (!success) {
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          res.status(404).send({ status: "fail", message: "Post not found" });
+          break;
+        case postErrors.NOT_MOD:
+          res.status(401).send({
+            status: "fail",
+            message: "User must be moderator",
+          });
+          break;
+        case postErrors.OWNER_NOT_SUBREDDIT:
+          res.status(400).send({
+            status: "fail",
+            message: "The post must belong to a subreddit",
+          });
+          break;
+      }
+      return;
+    }
+
+    next();
+  };
+
+  mustBeAuthOrMod = async (req, res, next) => {
+    const postId = req.params?.postId;
+
+    if (!postId) {
+      res.status(400).send({ status: "fail", message: "Invalid request" });
+      return;
+    }
+    const userId = req.user._id;
+
+    const { success, error } = await this.postServices.isAuthOrMod(
+      postId,
+      userId
+    );
+
+    if (!success) {
+      switch (error) {
+        case postErrors.POST_NOT_FOUND:
+          res.status(404).send({ status: "fail", message: "Post not found" });
+          break;
+        case postErrors.NOT_AUTHOR_OR_MOD:
+          res.status(401).send({
+            status: "fail",
+            message: "User must be author or moderator",
+          });
+          break;
+      }
+      return;
+    }
+
+    next();
   };
   overview = async (req, res, next) => {
     let userName = req.params.userName;

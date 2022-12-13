@@ -92,29 +92,63 @@ class PostRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-  // async getPostsWithComments(userId) {
-  //   console.log(userId);
-  //   let doc = await this.model.aggregate([
-  //     {
-  //       $lookup: {
-  //         from: "Comment", // collection name in db
-  //         localField: "author",
-  //         foreignField: "author",
-  //         as: "comments",
-  //       },
-  //     },
-  //     {
-  //       $match: {
-  //         author: userId,
-  //       },
-  //     },
 
-  //   ]);
-  //   // .exec(function (err, posts) {
-  //   //   // students contain WorksnapsTimeEntries
-  //   //   console.log(posts);
-  //   // });
-  //   return doc;
-  // }
+  /**
+   * Performs an action on post
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @param {bool} dir True for the action, False for its opposite
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async postAction(postId, action, dir) {
+    const doc = await this.model.findOneAndUpdate(
+      { _id: postId, [action]: !dir },
+      { [action]: dir },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (doc) return true;
+    return false;
+  }
+
+  /**
+   * Changes the modState of a post according to action only by the moderators of the subreddit
+   * @param {string} postId The ID of the post
+   * @param {string} action The action to be performed
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async modAction(postId, action) {
+    //Just to be consistent with the language rules
+    const state = action === "spam" ? "spammed" : action + "d";
+
+    const doc = await this.model.findOneAndUpdate(
+      { _id: postId, modState: { $ne: state } },
+      { modState: state },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (doc) return true;
+    return false;
+  }
+
+  async spam(postId, userId, dir) {
+    if (dir === 1)
+      await this.model.findByIdAndUpdate(postId, {
+        $push: { spammedBy: userId },
+        $inc: { spamCount: 1 },
+      });
+    else
+      await this.model.findByIdAndUpdate(postId, {
+        $pull: { spammedBy: userId },
+        $inc: { spamCount: -1 },
+      });
+  }
 }
+
 module.exports = PostRepository;

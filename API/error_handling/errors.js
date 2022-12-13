@@ -15,6 +15,19 @@ exports.postErrors = Object.freeze({
   POST_NOT_FOUND: 5,
   NOT_EDITABLE: 7,
   FLAIR_NOT_FOUND: 8,
+  NOT_AUTHOR_OR_MOD: 9,
+  NOT_MOD: 10,
+  OWNER_NOT_SUBREDDIT: 11,
+  ACTION_ALREADY_DONE: 12
+});
+
+exports.postActions = Object.freeze({
+  LOCK: 0,
+  UNLCOK: 1,
+  MARK_NSFW: 2,
+  UNMARK_NSFW: 3,
+  SPOILER: 4,
+  UNSPOILER: 5,
 });
 
 exports.commentErrors = Object.freeze({
@@ -34,6 +47,9 @@ exports.subredditErrors = Object.freeze({
   ALREADY_EXISTS: 6,
   INVALID_ENUM: 7,
   FLAIR_NOT_FOUND: 8,
+  NO_INVITATION: 9,
+  RULE_TAKEN: 15,
+  RULE_NOT_FOUND: 17,
 });
 
 exports.userErrors = Object.freeze({
@@ -45,8 +61,14 @@ exports.userErrors = Object.freeze({
   INVALID_TOKEN: 6,
   INVALID_RESET_TOKEN: 7,
   ALREADY_MODERATOR: 10,
-  MAXSOCIALLINKS:8,
-  INVALID_SOCIALID:9,
+  MAXSOCIALLINKS: 8,
+  INVALID_SOCIALID: 9,
+  Not_MODERATOR: 20,
+  MODERATOR: 21,
+  ALREADY_BANED: 30,
+  Not_BANED: 22,
+  ALREADY_MUTED: 31,
+  Not_MUTED: 32,
 });
 
 exports.mongoErrors = Object.freeze({

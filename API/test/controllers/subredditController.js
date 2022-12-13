@@ -1040,7 +1040,7 @@ describe("Subreddit Controller Test", () => {
       });
     });
     // ==============================================
-    it("8th test success", async () => {
+    it("8th test fail", async () => {
       const req = {
         params: {
           subredditName: "subreddit",
@@ -1121,85 +1121,421 @@ describe("Subreddit Controller Test", () => {
         errorMessage: undefined,
       });
     });
-  });
+    // !===============================================================
+    describe("ModeratorInvitation invite Test", () => {
+      it("1st test success", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "accept",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: true };
+          },
+        };
 
-  describe("Subscribe Test", () => {
-    const req = {
-      params: {
-        subredditName: "Subreddit name",
-      },
-      query: {
-        action: "sub",
-      },
-      user: {
-        _id: "10",
-      },
-    };
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(204);
+      });
+      it("2nd test success", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "reject",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: true };
+          },
+        };
 
-    const UserService = {
-      subscribe: async () => true,
-    };
-    const subredditService = {
-      subscriable: async () => {
-        return { success: true };
-      },
-      updateUserCount: async () => {},
-    };
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(204);
+      });
+      //============================
+      it("3rd test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "acceptt",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: false };
+          },
+        };
 
-    const subredditController = new SubredditController({
-      subredditService,
-      UserService,
-    });
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "Invalid Enum value",
+        });
+      });
+      // =======================================
+      it("4th test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: false };
+          },
+        };
 
-    it("successful subscribe", async () => {
-      await subredditController.subscribe(req, res);
-      expect(res.status).to.have.been.calledWith(200);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "success",
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "Missing required parameter action",
+        });
+      });
+      // ***********************************************************************
+      it("5th test success", async () => {
+        const req = {
+          params: {
+            action: "accept",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: true };
+          },
+        };
+
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "Missing required parameter subredditName",
+        });
+      });
+      //********************************************** */
+      it("6th test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "accept",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return {
+              success: false,
+              error: subredditErrors.SUBREDDIT_NOT_FOUND,
+            };
+          },
+        };
+
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "Subreddit not found",
+        });
+      });
+      // ===============================
+      it("7th test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "accept",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: false, error: userErrors.ALREADY_MODERATOR };
+          },
+        };
+
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "user already moderator",
+        });
+      });
+      //========================================
+      it("8th test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "accept",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: false, error: subredditErrors.NO_INVITATION };
+          },
+        };
+
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(404).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: "there is no moderation invitation to this subreddit",
+        });
+      });
+      //======================================================
+      it("9th test fail", async () => {
+        const req = {
+          params: {
+            subredditName: "subreddit",
+            action: "reject",
+          },
+          user: {
+            _id: "1",
+            userName: "khaled",
+            profilePicture: "defult.png",
+          },
+        };
+        const UserService = {};
+        const subredditService = {
+          handleInvitation: async (
+            userId,
+            userName,
+            profilePicture,
+            subredditName,
+            action
+          ) => {
+            return { success: false, error: subredditErrors.MONGO_ERR };
+          },
+        };
+
+        const subredditController = new SubredditController({
+          subredditService,
+          UserService,
+        });
+        // console.log(subredditController);
+        await subredditController.ModeratorInvitation(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status(400).json).to.have.been.calledWith({
+          status: "fail",
+          errorMessage: undefined,
+        });
       });
     });
 
-    it("invalid action", async () => {
-      UserService.subscribe = async () => false;
-      await subredditController.subscribe(req, res);
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid subscribtion action",
-      });
-    });
-
-    it("user banned", async () => {
-      subredditService.subscriable = async () => {
-        return { success: false, error: subredditErrors.BANNED };
+    describe("Subscribe Test", () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        query: {
+          action: "sub",
+        },
+        user: {
+          _id: "10",
+        },
       };
-      await subredditController.subscribe(req, res);
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "user is banned from subreddit",
-      });
-    });
 
-    it("subreddit not found", async () => {
-      subredditService.subscriable = async () => {
-        return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+      const UserService = {
+        subscribe: async () => true,
       };
-      await subredditController.subscribe(req, res);
-      expect(res.status).to.have.been.calledWith(404);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Subreddit not found",
-      });
-    });
+      const subredditService = {
+        subscriable: async () => {
+          return { success: true };
+        },
+        updateUserCount: async () => {},
+      };
 
-    it("invalid request", async () => {
-      delete req.params.subredditName;
-      await subredditController.subscribe(req, res);
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid request",
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      it("successful subscribe", async () => {
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "success",
+        });
+      });
+
+      it("invalid action", async () => {
+        UserService.subscribe = async () => false;
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid subscribtion action",
+        });
+      });
+
+      it("user banned", async () => {
+        subredditService.subscriable = async () => {
+          return { success: false, error: subredditErrors.BANNED };
+        };
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "user is banned from subreddit",
+        });
+      });
+
+      it("subreddit not found", async () => {
+        subredditService.subscriable = async () => {
+          return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+        };
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Subreddit not found",
+        });
+      });
+
+      it("invalid request", async () => {
+        delete req.params.subredditName;
+        await subredditController.subscribe(req, res);
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid request",
+        });
       });
     });
   });
