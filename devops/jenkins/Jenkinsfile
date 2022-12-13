@@ -95,17 +95,19 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
         stage('Deploying backend') {
     	    when { branch "development" }
             steps {
-		commit = sh(returnStdout: true, script: 'git log -1 --online').trim()
-		commitMsg = commit.substring( commit.indexOf(' ')).trim()
-		println commitMsg
-		if (commitMsg.contains('dropdb')) {
-			echo 'hehe'
-		} else {
-                	sh '''
-                    	cd /var/jenkins_home/docker-compose/backend
-                    	docker compose down || true
-                    	docker compose up -d
-                	'''
+		script {
+			commit = sh(returnStdout: true, script: 'git log -1 --online').trim()
+			commitMsg = commit.substring( commit.indexOf(' ')).trim()
+			println commitMsg
+			if (commitMsg.contains('dropdb')) {
+				echo 'hehe'
+			} else {
+                		sh '''
+                	    	cd /var/jenkins_home/docker-compose/backend
+                	    	docker compose down || true
+                	    	docker compose up -d
+                		'''
+			}
 		}
             }
         }
