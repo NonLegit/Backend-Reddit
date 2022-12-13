@@ -280,5 +280,21 @@ class UserRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  async followUser(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async unfollowUser(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async getFollowers(user) {
+    await user.populate("userMeRelationship.userId");
+    return user.userMeRelationship;
+  }
+  async getBlocked(user) {
+    await user.populate("meUserRelationship.userId");
+    return user.meUserRelationship;
+  }
 }
 module.exports = UserRepository;

@@ -609,7 +609,7 @@ class UserService {
       `${process.env.BACKDOMAIN}/`,
       ""
     );
-    return doc
+    return doc;
   }
   async checkBlockStatus(me, otherUser) {
     console.log(otherUser.meUserRelationship);
@@ -691,6 +691,106 @@ class UserService {
   }
   
 
+  async followUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let isAlreadyFollowed = true;
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+    if (index != -1) {
+      if (me.meUserRelationship[index].status !== "followed") {
+        isAlreadyFollowed = false;
+      }
+      me.meUserRelationship[index].status = "followed";
+      otherUser.userMeRelationship[index2].status = "followed";
+    } else {
+      me.meUserRelationship.push({
+        userId: otherUser._id,
+        status: "followed",
+      });
+      otherUser.userMeRelationship.push({
+        userId: me._id,
+        status: "followed",
+      });
+      isAlreadyFollowed = false;
+    }
+    await otherUser.save();
+    await me.save();
+    return isAlreadyFollowed;
+  }
+  async unfollowUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let isAlreadyUnfollowed = true;
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      if (me.meUserRelationship[index].status === "followed") {
+        isAlreadyUnfollowed = false;
+      }
+      me.meUserRelationship[index].status = "none";
+      otherUser.userMeRelationship[index2].status = "none";
+    }
+    await otherUser.save();
+    await me.save();
+    return isAlreadyUnfollowed;
+  }
+  async getBlockedUsers(user) {
+    let users = await this.userRepository.getBlocked(user);
+    let blocked = [];
+    users.forEach((element) => {
+      if (element.status === "blocked") {
+        blocked.push({
+          _id: element.userId._id,
+          userName: element.userId.userName,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
+          postKarma: element.userId.postKarma,
+          commentKarma: element.userId.commentKarma,
+        });
+      }
+    });
+    return blocked;
+  }
+  async getFollowers(me) {
+    let users = await this.userRepository.getFollowers(me);
+    let followers = [];
+    users.forEach((element) => {
+      if (element.status === "followed") {
+        let isFollowed = this.isFollowed(me, element.userId._id);
+        followers.push({
+          _id: element.userId._id,
+          userName: element.userId.userName,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
+          postKarma: element.userId.postKarma,
+          commentKarma: element.userId.commentKarma,
+          displayName: element.userId.displayName,
+          isFollowed: isFollowed
+        });
+      }
+    });
+    return followers;
+  }
+  isFollowed(me, userId) {
+    const relation = me.meUserRelationship.find(
+      (element) => element.userId.toString() === userId.toString()
+    );
+    let isFollowed = false;
+    if (relation) {
+      if (relation.status === "followed") isFollowed = true;
+    }
+    return isFollowed;
+  }
 }
 
 module.exports = UserService;

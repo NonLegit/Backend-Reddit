@@ -548,6 +548,24 @@ class SubredditRepository extends Repository {
         return { success: false, ...decorateError(err) };
       }
     }
+  async updateSubredditImage(subredditName, type, filename) {
+    let doc;
+    if (type === "icon") {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { icon: "subreddits/" + filename },
+        { new: true }
+      );
+    } else {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { backgroundImage: "subreddits/" + filename },
+        { new: true }
+      );
+    }
+    console.log(doc);
+    return { success: true, doc: doc };
+  }
 }
 
 module.exports = SubredditRepository;

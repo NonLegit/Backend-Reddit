@@ -4,6 +4,7 @@ const { container } = require("./../di-setup");
 const AuthenticationController = container.resolve("AuthenticationController");
 const subredditController = container.resolve("subredditController");
 const PostController = container.resolve("PostController");
+const FileController = container.resolve("FileController");
 //const userControllerObj = require("./test");
 //
 const router = express.Router();
@@ -109,6 +110,9 @@ router
   .delete(subredditController.deleteFlair);
 
 router.route("/:subredditName/subscribe").post(subredditController.subscribe);
+router
+  .route("/:subredditName/images")
+  .post(FileController.checkUploadedFile, FileController.uploadSubredditImage)
 
 module.exports = router;
 
