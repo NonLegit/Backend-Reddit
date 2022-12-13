@@ -100,7 +100,13 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
 			commitMsg = commit.substring( commit.indexOf(' ')).trim()
 			println commitMsg
 			if (commitMsg.contains('dropdb')) {
-				echo 'hehe'
+				sh '''
+					cd /var/jenkins_home/docker-compose/backend
+					docker compose down || true
+					docker volume prune -f
+					docker volume ls
+					docker compose up -d
+				'''
 			} else {
                 		sh '''
                 	    	cd /var/jenkins_home/docker-compose/backend
