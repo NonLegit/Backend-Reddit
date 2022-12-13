@@ -169,7 +169,7 @@ class CommentService {
   setVoteStatus(user, userComments) {
     let post = {};
     let commentTree = [];
-
+    let createdAt = "";
     let hash = {};
     for (var i = 0; i < user.voteComment.length; i++) {
       hash[user.voteComment[i].comments] =
@@ -184,9 +184,10 @@ class CommentService {
           post._id !== undefined &&
           post._id.toString() !== element.savedComment.post._id.toString()
         ) {
-          commentTree.push(post);
+          commentTree.push({ savedComemnt: post, createdAt: createdAt });
         }
         post = {};
+        createdAt = element.createdAt;
         //console.log(element.post);
         post["_id"] = element.savedComment.post._id;
         post["title"] = element.savedComment.post.title;
@@ -260,7 +261,8 @@ class CommentService {
         });
       }
     });
-    if (post._id !== undefined) commentTree.push(post);
+    if (post._id !== undefined)
+      commentTree.push({ savedComemnt: post, createdAt: createdAt });
     console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
