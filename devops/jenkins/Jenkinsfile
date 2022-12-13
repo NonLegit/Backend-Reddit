@@ -94,6 +94,11 @@ GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
         }
         stage('Deploying backend') {
     	    when { branch "development" }
+            environment {
+                DB_CREDS = credentials('db-creds')
+                NONLEGIT = credentials('nonlegit-db-user')
+                BACKEND = credentials('backend-db-user')
+            }
             steps {
 		script {
 			commit = sh(returnStdout: true, script: 'git log -1 --oneline').trim()
