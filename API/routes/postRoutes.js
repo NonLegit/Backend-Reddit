@@ -7,14 +7,22 @@ const FileController = container.resolve("FileController");
 
 const router = express.Router();
 
-router.get("/images/:fileName", FileController.getPostImage);
+router.get(
+  "/:postId",
+  AuthenticationController.checkAuthorize,
+  PostController.getPost
+);
+router.post(
+  "/:postId/images",
+  FileController.checkUploadedFile,
+  FileController.uploadPostFiles
+);
 router.use(AuthenticationController.authorize);
 
 router.route("/").post(PostController.createPost);
 router
   .route("/:postId")
   .patch(PostController.updatePost)
-  .get(PostController.getPost)
   .delete(PostController.deletePost);
 
 router.route("/:postId/follow_post").patch(PostController.followPost);

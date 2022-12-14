@@ -14,92 +14,50 @@ pipeline {
                 JWT_SECRET = credentials('jwt-secret')
                 EMAIL_HOST = credentials('email-host')
                 EMAIL_PORT = credentials('email-port')
+		        FIREBASE_SERVER_KEY = credentials('firebase-server-key')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
             }
             steps {
-                sh '''
-                    # Set up git credentials.
-                    if [ ! -f "/var/jenkins_home/git-askpass-helper.sh" ]; then
-                        echo "#!/bin/bash" >> /var/jenkins_home/git-askpass-helper.sh
-                        echo 'exec echo $GIT_PASSWORD' >> /var/jenkins_home/git-askpass-helper.sh
-                        chmod +x /var/jenkins_home/git-askpass-helper.sh
-                    fi
-                    export GIT_ASKPASS=/var/jenkins_home/git-askpass-helper.sh
-
-                    # Getting the backend docker files
-                    mkdir tmp && cd tmp
-                    git clone https://cynico@github.com/NonLegit/devops.git
-                    cp devops/dockerfiles/backend/Dockerfile devops/dockerfiles/backend/docker-compose.yaml ..
-                    cd .. && rm -rf tmp
-                    mv Dockerfile API/
-                    cd API
-
-                    # Cleaning unnecessary files.
-                    rm -f README* .gitignore
-                    rm -rf config
-
-                    # Creating the necessary files.
-                    echo '
-NODE_ENV=production
-PORT=8000
-DATABASE=mongodb://\'$DB_CREDS_USR\':\'$DB_CREDS_PSW\'@mongodb/\'$DB_NAME\'?authSource=admin
-
-FRONTDOMAIN="https://web.nonlegit.click"
-CROSSDOMAIN="https://app.nonlegit.click"
-JWT_SECRET=\'$JWT_SECRET\'
-JWT_EXPIRES_IN=3d
-JWT_COOKIE_EXPIRES_IN=3
-
-EMAIL_FROM=\'$EMAIL_CREDS_USR\'
-NONLEGITEMAIL=\'$EMAIL_CREDS_USR\'
-NONLEGITPASSWORD=\'$EMAIL_CREDS_PSW\'
-EMAIL_PORT=\'$EMAIL_PORT\'
-EMAIL_HOST=\'$EMAIL_HOST\'
-BACKDOMAIN="https://api.nonlegit.click"
-
-FACEBOOK_APP_ID=\'$FACEBOOK_APP_USR\'
-FACEBOOK_APP_SECRET=\'$FACEBOOK_APP_PSW\'
-
-GOOGLE_APP_ID=\'$GOOGLE_APP_USR\'
-GOOGLE_APP_SECRET=\'$GOOGLE_APP_PSW\'' > .env
-
-                    # Creating the script-up.sh for the backend container (migrate db files first, then start the server)
-                    echo '
-                    #!/bin/sh
-                    npm run up
-                    node server.js
-                    ' > script-up.sh
-
-                    sed -i 's/<USER>/\'$DB_CREDS_USR\'/g;s/<PASSWORD>/\'$DB_CREDS_PSW\'/g' package.json
-
-                    # Build the docker image
-                    docker build -t cynic0/reddit-backend:latest . 
-
-                    # Push the docker image.
-                    # docker login --username $DOCKER_CREDS_USR --password $DOCKER_CREDS_PSW
-                    # docker push cynic0/reddit-backend:latest
-
-                    # Deleting credentials file from filesystem.
-                    rm -f /var/jenkins_home/.docker/config.json
-
-                    # Modify the docker compose file.
-                    cd ..
-                    sed -i 's/DB_USER/\'$DB_CREDS_USR\'/g;s/DB_PASSWORD/\'$DB_CREDS_PSW\'/g' docker-compose.yaml
-                    if [ ! -d /var/jenkins_home/docker-compose ]; then
-                        mkdir -p /var/jenkins_home/docker-compose/backend
-                        mkdir /var/jenkins_home/docker-compose/frontend
-                    fi
-                    mv docker-compose.yaml /var/jenkins_home/docker-compose/backend                    
-                '''
+                sh(returnStdout: true, script: "bash -e /var/jenkins_home/docker-compose/build/build.sh")
             }
         }
         stage('Deploying backend') {
     	    when { branch "development" }
+            environment {
+                DB_CREDS = credentials('db-creds')
+                NONLEGIT = credentials('nonlegit-db-user')
+                BACKEND = credentials('backend-db-user')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
+            }
             steps {
-                sh '''
-                    cd /var/jenkins_home/docker-compose/backend
-                    docker compose down || true
-                    docker compose up -d
-                '''
+                script {
+                    commit = sh(returnStdout: true, script: 'git log -1 --oneline').trim()
+                    commitMsg = commit.substring( commit.indexOf(' ')).trim()
+                    println commitMsg
+                    if (commitMsg.contains('dropdb')) {
+                        sh '''
+                            cd /var/jenkins_home/docker-compose/backend
+                            docker compose down || true
+                            docker volume prune -f
+                            docker volume ls
+                            docker compose up -d
+                        '''
+                        
+                        /* Create mongodb users. */
+                        sh(returnStdout: true, script: "#!/bin/bash\n" + "docker exec backend-mongodb-1 mongosh -u $DB_CREDS_USR -p $DB_CREDS_PSW --eval 'db = db.getSiblingDB(\"redditDB\"); db.createUser( { user: \"$NONLEGIT_USR\", pwd: \"$NONLEGIT_PSW\", roles: [ { role: \"read\", db: \"redditDB\" } ] }); db.createUser( { user: \"$BACKEND_USR\", pwd: \"$BACKEND_PSW\", roles: [ { role: \"readWrite\", db: \"redditDB\" } ] })'")
+                    } else {
+                                sh '''
+                                    cd /var/jenkins_home/docker-compose/backend
+                                    docker compose down || true
+                                    docker compose up -d
+                                    aws ses send-email --from $SOURCE_EMAIL --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ysi.rabie@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
+                                '''
+                    }
+                }
             }
         }
     }

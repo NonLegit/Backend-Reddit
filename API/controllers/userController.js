@@ -378,6 +378,138 @@ class UserController {
       });
     }
   };
+  followUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+
+      if (user.success !== false) {
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+        if (!isBlockedMe) {
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+          if (!meBlockedHim) {
+            let isAlreadyFollowed = await this.userServices.followUser(
+              me,
+              user.data
+            );
+            if (!isAlreadyFollowed) {
+              res.status(200).json({
+                status: "success",
+              });
+            } else {
+              res.status(304).json({
+                status: "success",
+              });
+            }
+          } else {
+            res.status(405).json({
+              status: "fail",
+              errorMessage: "Method Not Allowed",
+            });
+          }
+        } else {
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "User Not Found",
+        });
+      }
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Try Unfollowing yourself",
+      });
+    }
+  };
+  unfollowUser = async (req, res, next) => {
+    let userName = req.params.userName;
+    let me = req.user;
+
+    if (me.userName !== userName) {
+      let user = await this.userServices.getUserByName(userName, "");
+
+      if (user.success !== false) {
+        let isBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+        if (!isBlockedMe) {
+          // Block the user ,check if i block him
+          let meBlockedHim = await this.userServices.checkBlockStatus(
+            user.data,
+            me
+          );
+          if (!meBlockedHim) {
+            // test if he followed him
+            let isAlreadyUnfollowed = await this.userServices.unfollowUser(
+              me,
+              user.data
+            );
+            if (!isAlreadyUnfollowed) {
+              res.status(200).json({
+                status: "success",
+              });
+            } else {
+              res.status(304).json({
+                status: "success",
+              });
+            }
+          } else {
+            res.status(405).json({
+              status: "fail",
+              errorMessage: "Method Not Allowed",
+            });
+          }
+        } else {
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
+          });
+        }
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "User Not Found",
+        });
+      }
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Try Unfollowing yourself",
+      });
+    }
+  };
+  blockedUsers = async (req, res, next) => {
+    const me = req.user;
+    const blockedUsers = await this.userServices.getBlockedUsers(me);
+
+    res.status(200).json({
+      status: "success",
+      blocked: blockedUsers,
+    });
+  };
+  myFollowers = async (req, res, next) => {
+    const me = req.user;
+    const followers = await this.userServices.getFollowers(me);
+
+    res.status(200).json({
+      status: "success",
+      followers: followers,
+    });
+  };
 }
 //export default userController;
 module.exports = UserController;

@@ -36,6 +36,20 @@ class SubredditRepository extends Repository {
     }
   }
 
+//     async getSubredditWithFlairs(name, select) {
+//     try {
+    
+//       const doc = await this.getSubreddit(name,select,"flairIds");
+//       console.log("hhhhhhhhhhhhhhh");
+//       console.log(doc);
+// console.log("hhhhhhhhhhhhhhh");
+//       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+//       return { success: true, doc: doc.doc };
+//     } catch (err) {
+//       return { success: false, ...decorateError(err) };
+//     }
+//   }
   async getsubreddit(name, select, popOptions) {
     try {
       let tempDoc = this.model
@@ -568,6 +582,24 @@ class SubredditRepository extends Repository {
     } catch (err) {
       return { success: false, ...decorateError(err) };
     }
+  }
+  async updateSubredditImage(subredditName, type, filename) {
+    let doc;
+    if (type === "icon") {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { icon: "subreddits/" + filename },
+        { new: true }
+      );
+    } else {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { backgroundImage: "subreddits/" + filename },
+        { new: true }
+      );
+    }
+    console.log(doc);
+    return { success: true, doc: doc };
   }
 }
 

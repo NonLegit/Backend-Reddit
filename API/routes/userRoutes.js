@@ -9,6 +9,8 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
+const NotificationController = container.resolve("NotificationController");
+const CommentController = container.resolve("CommentController");
 //const upload = FileController.checkUploadedFile();
 const router = express.Router();
 // Non authorized Endpoints
@@ -22,6 +24,7 @@ router.post("/logout", AuthenticationController.logOut);
 router.post("/forgot_username", AuthenticationController.forgotUserName);
 router.post("/forgot_password", AuthenticationController.forgotPassword);
 router.post("/reset_password/:token", AuthenticationController.resetPassword);
+router.post("/verify_email/:token", AuthenticationController.verifyEmail);
 router.get(
   "/check_reset_token/:token",
   AuthenticationController.checkResetTokentime
@@ -86,10 +89,21 @@ router.get(
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
-
+router.get("/notifications", NotificationController.getAllNotifications);
+router.patch(
+  "/notifications/mark_as_read",
+  NotificationController.markAllNotificationsAsRead
+);
+router.patch(
+  "/notifications/:notificationId/mark_as_read",
+  NotificationController.markNotificationAsRead
+);
+router.patch(
+  "/notifications/:notificationId/hide",
+  NotificationController.hideNotification
+);
 router
   .route("/images")
-  .get(FileController.getUserProfileImage)
   .post(FileController.checkUploadedFile, FileController.uploadUserImage)
   .delete(FileController.deleteUserImage);
 
@@ -116,7 +130,8 @@ router.patch(
 );
 router.get("/:userName/about", UserController.about);
 router.get("/:userName/posts", PostController.userPosts);
-router.get("/:userName/overview", PostController.userPosts);
+router.get("/:userName/comments", CommentController.getUserComments);
+router.get("/:userName/overview", PostController.overview);
 
 router.get("/saved", PostController.getSavedPosts);
 router.get("/hidden", PostController.getHiddenPosts);
@@ -133,8 +148,13 @@ router
   .patch(UserController.updateSocialLink)
   .delete(UserController.deleteSocialLink);
 
-router.post("/:userName/block_user", UserController.blockUser); 
-router.post("/:userName/unblock_user", UserController.unBlockUser); 
+router.post("/:userName/block_user", UserController.blockUser);
+router.post("/:userName/unblock_user", UserController.unBlockUser);
+router.post("/:userName/follow", UserController.followUser);
+router.post("/:userName/unfollow", UserController.unfollowUser);
+
+router.get("/blocked", UserController.blockedUsers);
+router.get("/followers", UserController.myFollowers);
 module.exports = router;
 
 //const GooglePlusTokenStrategy = require("passport-google-plus-token");

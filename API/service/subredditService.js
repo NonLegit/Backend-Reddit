@@ -989,7 +989,7 @@ class subredditService {
     }
 
     console.log(flair);
-    return { success: true, data: flair };
+    return { success: true, data: flair.doc };
   }
 
   /**
@@ -1021,7 +1021,7 @@ class subredditService {
     if (!subreddit.doc.flairIds.includes(flairId)) {
       return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
-    return { success: true, data: subreddit };
+    return { success: true, data: subreddit.doc };
   }
 
   // /**
@@ -1065,7 +1065,7 @@ class subredditService {
     if (!flair.success) {
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    return { success: true, data: flair };
+    return { success: true, data: flair.doc };
   }
 
   /**
@@ -1110,20 +1110,18 @@ class subredditService {
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
-    let subreddit = await this.checkSubreddit(subredditName);
+    let subreddit = await this.subredditRepository.getSubredditFlairs(subredditName)
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-    let checkFlair = this.checkFlair(subreddit, flairId);
-    if (!checkFlair.success) {
+   
+    let flairIndex = subreddit.doc.find((el) => el._id.equals(flairId))
+    if (!flairIndex) {
       return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
 
-    let response = await this.flairRepository.findById(flairId);
-    if (!response.success) {
-      return { success: false, error: subredditErrors.MONGO_ERR };
-    }
-    return { success: true, data: response };
+    
+    return { success: true, data: flairIndex };
   }
 
   /**
@@ -1141,8 +1139,8 @@ class subredditService {
     }
     console.log("ffffffffffffffffff");
     // console.log(flairs);
-    console.log("jjjjjjjjjjjjjjjjjj");
-    return { success: true, data: flairs };
+    console.log(flairs);
+    return { success: true, data: flairs.doc};
   }
 
   /**
@@ -1176,6 +1174,17 @@ class subredditService {
   async updateUserCount(id, action) {
     if (action == "sub") await this.subredditRepository.addUser(id);
     else await this.subredditRepository.removeUser(id);
+  }
+  async addUserImageURL(subredditName, type, filename) {
+    let subreddit = await this.subredditRepository.updateSubredditImage(
+      subredditName,
+      type,
+      filename
+    );
+    return {
+      icon: subreddit.doc.icon,
+      backgroundImage: subreddit.doc.backgroundImage,
+    };
   }
 }
 

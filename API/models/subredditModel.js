@@ -131,11 +131,13 @@ const subredditSchema = new mongoose.Schema({
   icon: {
     type: String,
     required: false,
+    default: "subreddits/default.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
   backgroundImage: {
     type: String,
     required: false,
+    default: "subreddits/default.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
   membersCount: {  
@@ -230,7 +232,10 @@ const subredditSchema = new mongoose.Schema({
 function topicsLimit(val) {
   return val.length <= 25;
 }
-
+subredditSchema.post("init", function (doc) {
+  doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
+  doc.backgroundImage = `${process.env.BACKDOMAIN}/` + doc.backgroundImage;
+});
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 
 // singleton User model

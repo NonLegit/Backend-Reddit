@@ -117,10 +117,12 @@ class PostService {
     // let newPosts = (!me)?Array.from(posts):posts;
     let newPosts = !me ? [] : posts;
     for (var i = 0; i < posts.length; i++) {
+     
       if (!me) newPosts.push(posts[i].toObject());
-
+      
       let owner = { ...posts[i].owner };
       let author = { ...posts[i].author };
+      
       if (!me) {
         owner = owner._doc;
         author = author._doc;
@@ -133,14 +135,14 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/` + owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
         };
-        console.log(newPosts[i]);
+        
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon: `${process.env.BACKDOMAIN}/` + owner.icon,
+          icon: owner.icon,
         };
       }
 
@@ -149,7 +151,7 @@ class PostService {
         name: author.userName,
       };
     }
-
+    // console.log(newPosts);
     return newPosts;
   }
   /**
@@ -194,16 +196,16 @@ class PostService {
   async getUserPosts(author, sortType) {
     if (sortType === "Hot") {
       // algorithm
-      console.log("Hot");
+      //console.log("Hot");
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-votes" },
+        { sort: "-sortOnHot" },
         "owner"
       );
       return posts.doc;
     } else if (sortType === "Top") {
       // sort by votes
-      console.log("Top");
+      //console.log("Top");
       const posts = await this.postRepo.getUserPosts(
         author,
         { sort: "-votes" },
@@ -223,14 +225,14 @@ class PostService {
    */
   setPostOwnerData(posts) {
     //let newPosts = Array.from(posts);
-    console.log(posts);
+    //console.log(posts);
     let newPosts = posts;
     let owner = {};
     for (var i = 0; i < posts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-        console.log(newPosts[i]);
-      } catch (err) {}
+        //console.log(newPosts[i]);
+      } catch (err) { }
       if (posts[i].ownerType === "User") {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
@@ -240,7 +242,7 @@ class PostService {
       } else {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.fixedName;
-        owner["icon"] = `${process.env.BACKDOMAIN}/` + posts[i].owner.icon;
+        owner["icon"] = posts[i].owner.icon;
         newPosts[i]["name"] = posts[i].owner.fixedName;
       }
 
@@ -272,7 +274,7 @@ class PostService {
     for (var i = 0; i < posts.length; i++) {
       try {
         posts[i] = posts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         posts[i] = undefined;
       } else {
@@ -293,14 +295,20 @@ class PostService {
 
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
-      hash[user.saved[i]] = user.saved[i];
+      console.log(user.saved[i].savedPost);
+      // if (user.saved[i].savedType === "Post")
+      hash[user.saved[i].savedPost] = user.saved[i].savedPost;
     }
+    // for (var i = 0; i < user.saved.length; i++) {
+    //   hash[user.saved[i]] = user.saved[i];
+    // }
+
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isSaved"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -323,7 +331,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isSpam"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -351,7 +359,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isHidden"] = true;
         newPosts[i]["isSaved"] = false;
@@ -381,7 +389,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (!hash[posts[i]._id]) {
         newPosts[i]["postVoteStatus"] = "0";
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -406,21 +414,46 @@ class PostService {
         let newElement = {};
         try {
           newElement = element.posts.toObject();
-        } catch (err) {}
+        } catch (err) { }
         newElement["postVoteStatus"] = votetype;
         newPost.push(newElement);
       }
     });
     return newPost;
   }
-  async getPost(postId) {
-    let post = await this.postRepo.findById(postId);
-    console.log(post);
-    if (!post.success) {
-      return { sucess: false, error: postErrors.POST_NOT_FOUND };
+  async getPost(postId, me) {
+    //console.log("inhere");
+    let post = await this.postRepo.getPost(postId);
+    //   console.log(post);
+    //   if (!post.success) {
+    //     return { sucess: false, error: postErrors.POST_NOT_FOUND };
+    //   }
+    //   console.log(post);
+    //   return post;
+    // }
+    
+    // let postInList = [];
+    // postInList.push(post.doc);
+    
+    if (post.success) {
+      
+     if (me == undefined) {
+       let postList = this.getPostOwnerAndAuthor(post.doc, me);
+     
+        return { success: true, doc: postList[0] };
+      } else {
+       let postAsArray = [];
+       postAsArray.push(post.doc[0].toObject());
+        let postList = this.getPostOwnerAndAuthor(postAsArray, me);
+         
+        postList = this.setSavedPostStatus(me, postList);
+        postList = this.setVotePostStatus(me, postList);
+       postList = this.setSpamPostStatus(me, postList);
+      
+       
+        return { success: true, doc: postList[0] };
+      }
     }
-
-    return post;
   }
 
   /**
@@ -509,6 +542,14 @@ class PostService {
     return await this.postRepo.modAction(postId, action);
   }
 
+  /**
+   * Mark a post as spammed by a non-mod user
+   * If spam count exceeded certain threshold the post is marked as spammed
+   * @param {String} postId
+   * @param {String} userId
+   * @param {Number} dir
+   * @returns
+   */
   async spam(postId, userId, dir) {
     const SPAM_THRESHOLD = 5;
 
@@ -529,6 +570,53 @@ class PostService {
       await this.postRepo.modAction(postId, "spam");
 
     return { success: true };
+  }
+  setVoteStatus(user, saved) {
+    let newPosts = Array.from(saved);
+    //let newPosts = [];
+    let hashPosts = {};
+    for (var i = 0; i < user.votePost.length; i++) {
+      hashPosts[user.votePost[i].posts] = user.votePost[i].postVoteStatus;
+    }
+    for (var i = 0; i < newPosts.length; i++) {
+      // let filteredPost = {};
+      try {
+        newPosts[i] = newPosts[i].toObject();
+      } catch (err) {}
+      if (!hashPosts[saved[i].savedPost._id]) {
+        newPosts[i].savedPost.postVoteStatus = "0";
+        // filteredPost.postVoteStatus ="0";
+        //Object.assign(newPosts[i], {postVoteStatus: "0"});
+      } else {
+        newPosts[i].savedPost.postVoteStatus =
+          hashPosts[saved[i].savedPost._id];
+          // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
+        //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
+      }
+      newPosts[i].savedPost.owner = {
+        _id: newPosts[i].savedPost.owner._id,
+        name:
+          newPosts[i].savedPost.ownerType === "User"
+            ?  newPosts[i].savedPost.owner.userName
+            :  newPosts[i].savedPost.owner.fixedName,
+        icon:
+          newPosts[i].savedPost.ownerType === "User"
+            ? `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.profilePicture
+            : newPosts[i].savedPost.owner.icon,
+      };
+      newPosts[i].savedPost.author = {
+        _id: newPosts[i].savedPost.author._id,
+        name: newPosts[i].savedPost.author.userName,
+      };
+    }
+    return newPosts;
+  }
+  filterPosts(posts,comments)
+  {
+    posts = posts.filter(post => comments.findIndex(comment => {
+      return comment._id.toString() === post._id.toString();
+    }) === -1 );
+    return posts;
   }
 }
 
