@@ -28,29 +28,30 @@ pipeline {
                 BACKEND = credentials('backend-db-user')
             }
             steps {
-		script {
-			commit = sh(returnStdout: true, script: 'git log -1 --oneline').trim()
-			commitMsg = commit.substring( commit.indexOf(' ')).trim()
-			println commitMsg
-			if (commitMsg.contains('dropdb')) {
-				sh '''
-					cd /var/jenkins_home/docker-compose/backend
-					docker compose down || true
-					docker volume prune -f
-					docker volume ls
-					docker compose up -d
-                '''
-				
-                /* Create mongodb users. */
-                sh(returnStdout: true, script: "#!/bin/bash\n" + "docker exec backend-mongodb-1 mongosh -u $DB_CREDS_USR -p $DB_CREDS_PSW --eval 'db = db.getSiblingDB(\"redditDB\"); db.createUser( { user: \"$NONLEGIT_USR\", pwd: \"$NONLEGIT_PSW\", roles: [ { role: \"read\", db: \"redditDB\" } ] }); db.createUser( { user: \"$BACKEND_USR\", pwd: \"$BACKEND_PSW\", roles: [ { role: \"readWrite\", db: \"redditDB\" } ] })'")
-			} else {
-                		sh '''
-                	    	cd /var/jenkins_home/docker-compose/backend
-                	    	docker compose down || true
-                	    	docker compose up -d
-                		'''
-			}
-		}
+                script {
+                    commit = sh(returnStdout: true, script: 'git log -1 --oneline').trim()
+                    commitMsg = commit.substring( commit.indexOf(' ')).trim()
+                    println commitMsg
+                    if (commitMsg.contains('dropdb')) {
+                        sh '''
+                            cd /var/jenkins_home/docker-compose/backend
+                            docker compose down || true
+                            docker volume prune -f
+                            docker volume ls
+                            docker compose up -d
+                        '''
+                        
+                        /* Create mongodb users. */
+                        sh(returnStdout: true, script: "#!/bin/bash\n" + "docker exec backend-mongodb-1 mongosh -u $DB_CREDS_USR -p $DB_CREDS_PSW --eval 'db = db.getSiblingDB(\"redditDB\"); db.createUser( { user: \"$NONLEGIT_USR\", pwd: \"$NONLEGIT_PSW\", roles: [ { role: \"read\", db: \"redditDB\" } ] }); db.createUser( { user: \"$BACKEND_USR\", pwd: \"$BACKEND_PSW\", roles: [ { role: \"readWrite\", db: \"redditDB\" } ] })'")
+                    } else {
+                                sh '''
+                                    cd /var/jenkins_home/docker-compose/backend
+                                    docker compose down || true
+                                    docker compose up -d
+                                    aws ses send-email --from "ysi.rabie@gmail.com" --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ahmedsabry232345@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
+                                '''
+                    }
+                }
             }
         }
     }
