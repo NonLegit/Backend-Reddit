@@ -14,10 +14,10 @@ pipeline {
                 JWT_SECRET = credentials('jwt-secret')
                 EMAIL_HOST = credentials('email-host')
                 EMAIL_PORT = credentials('email-port')
-		FIREBASE_SERVER_KEY = credentials('firebase-server-key')
+		        FIREBASE_SERVER_KEY = credentials('firebase-server-key')
             }
             steps {
-                bash '/var/jenkins_home/docker-compose/build/build.sh'
+                sh(returnStdout: true, script: "bash -e /var/jenkins_home/docker-compose/build/build.sh")
             }
         }
         stage('Deploying backend') {
