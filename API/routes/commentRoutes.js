@@ -15,6 +15,8 @@ router
   .delete(CommentController.deleteComment);
 
 router.route("/comment_tree/:postId").get(CommentController.commentTree);
+router.route("/more_children").get(CommentController.moreChildren);
+
 
 module.exports = router;
 

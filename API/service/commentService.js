@@ -1,4 +1,5 @@
 const { commentErrors } = require("../error_handling/errors");
+const ObjectId = require("mongodb").ObjectId;
 
 /**
  * Comment Service class for handling Comment model and services
@@ -167,9 +168,9 @@ class CommentService {
       return { success: true, tree: tree.replies };
     } else {
       const comment = await this.commentRepo.commentTree(
-        commentId,
+        [commentId],
         limit,
-        depth
+        depth-1
       );
       if (!comment)
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
@@ -181,6 +182,15 @@ class CommentService {
       return { success: true, tree: comment };
     }
   }
+
+  async moreChildren(children, limit, depth) {
+    //parse children and remove invalid ids
+    children = children.split(",");
+    children = children.filter((el) => ObjectId.isValid(el));
+
+    return await this.commentRepo.commentTree(children, limit, depth-1);
+  }
+
   setVoteCommentStatus(user, comments) {
     // create map of posts voted by user
     let newComments = Array.from(comments);
@@ -296,7 +306,7 @@ class CommentService {
                 `${process.env.BACKDOMAIN}/` +
                 element.savedComment.author.profilePicture,
             },
-            sortOnHot:element.savedComment.sortOnHot,
+            sortOnHot: element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
               ? "0"
               : hash[comments[i]._id],
@@ -321,7 +331,7 @@ class CommentService {
               `${process.env.BACKDOMAIN}/` +
               element.savedComment.author.profilePicture,
           },
-          sortOnHot:element.savedComment.sortOnHot,
+          sortOnHot: element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
             ? "0"
             : hash[comments[i]._id],
@@ -353,7 +363,7 @@ class CommentService {
           commentTree.push(post);
         }
         post = element.post;
-        console.log(element.post)
+        console.log(element.post);
 
         //console.log(element.post);
         // post["_id"] = element.post._id;
@@ -395,7 +405,7 @@ class CommentService {
               _id: element.author._id,
               name: element.author.userName,
             },
-            sortOnHot:element.sortOnHot,
+            sortOnHot: element.sortOnHot,
             commentVoteStatus: element.commentVoteStatus,
             isSaved: element.isSaved,
           },
@@ -415,7 +425,7 @@ class CommentService {
             _id: element.author._id,
             name: element.author.userName,
           },
-          sortOnHot:element.sortOnHot,
+          sortOnHot: element.sortOnHot,
           commentVoteStatus: element.commentVoteStatus,
           isSaved: element.isSaved,
         });
@@ -424,9 +434,7 @@ class CommentService {
     if (post._id !== undefined) commentTree.push(post);
     //console.log(commentTree);
     return commentTree;
-    
   }
- 
 }
 
 module.exports = CommentService;

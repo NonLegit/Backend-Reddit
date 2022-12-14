@@ -194,6 +194,40 @@ class CommentController {
       comments: commentTree.tree,
     });
   };
+
+  moreChildren = async (req, res) => {
+    const LIMIT = 2;
+    const DEPTH = 3;
+
+    let { children, limit, depth, sort } = req.query;
+    if (!limit || limit <= 0) limit = LIMIT;
+    if (!depth || depth < 0) depth = DEPTH;
+
+    if(!children || children.length === 0){
+      res.status(400).json({
+        status: "fail",
+        message: "Children query parameter is required"
+      })
+      return true;
+    }
+
+    const comments = await this.commentServices.moreChildren(
+      children,
+      limit,
+      depth,
+    );
+
+    if(comments.length === 0){
+      res.status(404).json({
+        status: "fail",
+        message: "Comments not found"
+      })
+    }
+    res.status(200).json({
+      status: "success",
+      comments: comments,
+    });
+  };
   
   getUserComments = async (req, res, next) => {
     const me = req.user;

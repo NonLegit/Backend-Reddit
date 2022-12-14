@@ -106,7 +106,7 @@ commentSchema.post("find", function (result) {
   const { limit, depth } = this.options;
 
   if (limit && depth) {
-    const ids = this.getFilter()._id.$in.slice(this.options.limit);
+    const ids = this.getFilter()._id.$in.slice(limit);
     const more = {
       _id: new ObjectId(ids[0]),
       Type: "moreReplies",
@@ -123,10 +123,9 @@ commentSchema.post("find", function (result) {
 //   this.populate("post");
 //   this.populate("author","_id userName profilePicture profileBackground");
 // });
-commentSchema.pre(/^find/,  function () {
-  console.log(this);
+commentSchema.pre(/^find/, function () {
   this.populate("post");
-  this.populate("author","_id userName profilePicture profileBackground");
+  this.populate("author", "_id userName profilePicture profileBackground");
 });
 commentSchema.pre("save", function (next) {
   // this points to the current query
