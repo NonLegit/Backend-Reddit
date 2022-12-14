@@ -58,11 +58,30 @@ const postSchema = new mongoose.Schema({
     type: Url,
     required: false,
   },
-  images: [String],
-  video: {
-    type: String,
-    required: false,
-  },
+  images: [
+    {
+      path: {
+        type: String,
+        required: true,
+      },
+      caption: {
+        type: String,
+        required: false,
+      },
+      link: {
+        type: String,
+        required: false,
+      },
+    },
+  ],
+  videos: [
+    {
+      path: {
+        type: String,
+        required: true,
+      },
+    },
+  ],
   createdAt: {
     type: Date,
     required: true,
@@ -169,7 +188,6 @@ postSchema.pre("save", function (next) {
 
 //Whoever added this middleware should add more restrictions
 postSchema.pre("find", function () {
-
   this.populate("owner", "_id fixedName userName icon profilePicture ");
   this.populate("author", "_id userName profilePicture profileBackground");
   this.populate("flairId");

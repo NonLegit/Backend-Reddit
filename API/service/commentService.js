@@ -21,28 +21,30 @@ class CommentService {
     if (comment.parentType === "Comment") {
       const validParent = await this.commentRepo.findById(
         comment.parent,
-        "post",
+        "post locked",
         "post"
       );
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
-        return { success: true, post: validParent.doc.post };
+        return {
+          success: true,
+          post: validParent.doc.post,
+          locked: validParent.doc.locked,
+        };
       }
     } else if (comment.parentType === "Post") {
       const validParent = await this.postRepo.findById(
         comment.parent,
-        "",
+        "locked",
         "author owner"
       );
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc._id;
-        return { success: true, post: validParent.doc };
+        return {
+          success: true,
+          post: validParent.doc,
+          locked: validParent.doc.locked,
+        };
       }
     }
     return { success: false };
@@ -58,6 +60,9 @@ class CommentService {
     const validParent = await this.hasValidParent(data);
     if (!validParent.success)
       return { success: false, error: commentErrors.INVALID_PARENT };
+
+    if (validParent.locked)
+      return { success: false, error: commentErrors.PARANT_LOCKED };
 
     //create the comment
     const comment = await this.commentRepo.createOne(data);
@@ -91,11 +96,6 @@ class CommentService {
         },
       };
     } else if (validParent.post.ownerType == "User") {
-      console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
-
-      console.log(validParent.post.author);
-
-      console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
       postToNotify = {
         _id: validParent.post._id,
         author: {
@@ -196,7 +196,7 @@ class CommentService {
     children = children.split(",");
     children = children.filter((el) => ObjectId.isValid(el));
 
-    return await this.commentRepo.commentTree(children, limit, depth-1, sort);
+    return await this.commentRepo.commentTree(children, limit, depth - 1, sort);
   }
 
   setVoteCommentStatus(user, comments) {

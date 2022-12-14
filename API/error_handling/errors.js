@@ -19,6 +19,7 @@ exports.postErrors = Object.freeze({
   NOT_MOD: 10,
   OWNER_NOT_SUBREDDIT: 11,
   ACTION_ALREADY_DONE: 12,
+  INVALID_PARENT_POST: 13,
 });
 
 exports.postActions = Object.freeze({
@@ -36,13 +37,13 @@ exports.commentErrors = Object.freeze({
   INVALID_PARENT: 2,
   COMMENT_NOT_FOUND: 3,
   POST_NOT_FOUND: 4,
-  COMMENT_NOT_CHILD: 5
+  COMMENT_NOT_CHILD: 5,
+  PARANT_LOCKED: 6,
 });
 
 exports.notificationErrors = Object.freeze({
   MONGO_ERR: 0,
   NOTIFICATION_NOT_FOUND: 1,
-
 });
 
 exports.subredditErrors = Object.freeze({
