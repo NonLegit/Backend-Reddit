@@ -65,6 +65,27 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  locked: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  nsfw: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  spoiler: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  modState: {
+    type: String,
+    required: true,
+    enum: ["unmoderated", "approved", "removed", "spammed"],
+    default: "unmoderated",
+  },
 });
 
 //A middleware to cascade soft delete
