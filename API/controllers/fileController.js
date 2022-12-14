@@ -1,6 +1,8 @@
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
+const { postErrors } = require("../error_handling/errors");
+
 /**
  * FileController Class which handles authentication and authorization of user in backend
  */
@@ -185,45 +187,83 @@ class FileController {
       });
     }
   };
-  uploadPostFiles = async (req, res, next) => {
-    // check post is found in database then return it to use it later
 
-    const type = req.body.type; // type of post file (image or video)
-    req.file.filename = `${req.params.postId}/post-${
-      req.params.postId
-    }-${Date.now()}.jpeg`;
-    console.log(req.file.filename);
-    var x = 1200;
-    var y = 630;
-    try {
+  uploadPostFiles = async (req, res) => {
+    const postId = req.params?.postId;
+    const { kind, caption, link } = req.body;
+    const file = req.file;
+
+    if (!postId || !kind || (kind !== "image" && kind !== "video")) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    const post = await this.PostService.isAuth(postId, req.user._id, "kind");
+    if (!post.success) {
+      let msg, stat;
+      switch (post.error) {
+        case postErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    if (post.data.kind !== kind) {
+      res.status(400).json({
+        status: "fail",
+        message: "Conflict in post kind",
+      });
+      return;
+    }
+
+    let fileObj;
+
+    if (kind === "image") {
+      file.filename = `${req.params.postId}/post-${
+        req.params.postId
+      }-${Date.now()}.jpeg`;
+
+      var x = 1200;
+      var y = 630;
+
       let dir = "public/posts/" + req.params.postId;
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir);
       }
-      await sharp(req.file.buffer)
+      await sharp(file.buffer)
         .resize(x, y)
         .toFormat("jpeg")
         .jpeg({ quality: 90 })
-        .toFile(`public/posts/${req.file.filename}`);
+        .toFile(`public/posts/${file.filename}`);
 
-      // let post = await this.PostService.addUserImageURL(  // should be function to store image or video  path in array of images
-      //   req.params.subredditName,
-      //   type,
-      //   "posts/"+req.file.filename
-      // );
-
-      // i do no what to return
-      res.status(201).json({
-        status: "success",
-        // post: post,
-      });
-    } catch (err) {
-      console.log(err);
+      fileObj = { path: "posts/" + file.filename, caption, link };
+    } else {
       res.status(400).json({
         status: "fail",
-        errorMessage: "Bad Request",
+        message: "Video posts are not implemented yet",
       });
+      return;
     }
+
+    const updatedPost = await this.PostService.addFile(postId, kind, fileObj);
+
+    res.status(201).json({
+      status: "success",
+      post: updatedPost,
+    });
   };
 }
 

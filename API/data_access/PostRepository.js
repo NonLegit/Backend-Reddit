@@ -95,7 +95,6 @@ class PostRepository extends Repository {
 
   async getPost(postId) {
     try {
-     
       // const doc = await features.query.explain();
       // const features = new APIFeatures(this.model.find({ _id: postId }), "");
       // let doc = await features.query;
@@ -103,11 +102,6 @@ class PostRepository extends Repository {
       // console.log(doc[0].owner);
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };
-      
-  
-
-      
-      
     } catch (err) {
       return { success: false, ...decorateError(err) };
     }
@@ -176,15 +170,30 @@ class PostRepository extends Repository {
   }
 
   async commentTree(postId, limit, depth, sort) {
-    const tree = await this.model.findById(postId, "replies").populate({
-      path: "replies",
-      perDocumentLimit: limit,
-      options: { depth, sort:{[sort]: -1} },
-    }).lean();
+    const tree = await this.model
+      .findById(postId, "replies")
+      .populate({
+        path: "replies",
+        perDocumentLimit: limit,
+        options: { depth, sort: { [sort]: -1 } },
+      })
+      .lean();
 
     return tree;
   }
 
+  async addFile(postId, kind, file) {
+    return await this.model.findByIdAndUpdate(
+      postId,
+      {
+        $push: { [kind + "s"]: file },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
 }
 
 module.exports = PostRepository;

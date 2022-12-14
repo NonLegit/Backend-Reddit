@@ -16,7 +16,8 @@ class PostController {
     const data = req.body;
     data.author = req.user._id;
 
-    const validReq = data.ownerType && data.kind && data.title;
+    const validReq =
+      data.ownerType && (data.kind || data.sharedFrom) && data.title;
     if (!validReq) {
       res.status(400).json({
         status: "fail",
@@ -49,6 +50,10 @@ class PostController {
         case postErrors.MONGO_ERR:
           msg = post.msg;
           stat = 400;
+        case postErrors.INVALID_PARENT_POST:
+          msg = "Invalid parent post";
+          stat = 400;
+          break;
       }
       res.status(stat).json({
         status: "fail",
@@ -602,9 +607,6 @@ class PostController {
         message: "Action is already performed",
       });
   };
-
-  followPost = async (req, res) => {};
-  suggestedSort = async (req, res) => {};
 
   spam = async (req, res) => {
     const postId = req.params?.postId;
