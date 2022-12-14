@@ -26,6 +26,9 @@ pipeline {
                 DB_CREDS = credentials('db-creds')
                 NONLEGIT = credentials('nonlegit-db-user')
                 BACKEND = credentials('backend-db-user')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
             }
             steps {
                 script {
@@ -48,7 +51,7 @@ pipeline {
                                     cd /var/jenkins_home/docker-compose/backend
                                     docker compose down || true
                                     docker compose up -d
-                                    aws ses send-email --from "ysi.rabie@gmail.com" --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ahmedsabry232345@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
+                                    aws ses send-email --from $SOURCE_EMAIL --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ahmedsabry232345@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
                                 '''
                     }
                 }
