@@ -26,19 +26,25 @@ describe("Comment Controller CRUD operations", () => {
       body: {
         parent: "637769a739070007b3bf4de1",
         parentType: "Comment",
-        text: "comment text"
+        text: "comment text",
       },
     };
+
     const UserService = {};
     const CommentService = {
       createComment: async (data) => {
         return { success: true, data };
       },
     };
-    const commentController = new CommentController({ CommentService, UserService });
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
+    });
 
     it("successful creation", async () => {
-      await commentController.createComment(req, res, "");
+      await commentController.createComment(req, res, () => {
+        return true;
+      });
       expect(res.status).to.have.been.calledWith(201);
       expect(res.status().json).to.have.been.calledWith({
         status: "success",
@@ -46,7 +52,7 @@ describe("Comment Controller CRUD operations", () => {
           author: "123e4aab2a94c22ae492983a",
           parent: "637769a739070007b3bf4de1",
           parentType: "Comment",
-          text: "comment text"
+          text: "comment text",
         },
       });
     });
@@ -65,7 +71,11 @@ describe("Comment Controller CRUD operations", () => {
 
     it("mongo error", async () => {
       CommentService.createComment = async (data) => {
-        return { success: false, error: commentErrors.MONGO_ERR, msg: "message" };
+        return {
+          success: false,
+          error: commentErrors.MONGO_ERR,
+          msg: "message",
+        };
       };
       await commentController.createComment(req, res, "");
       expect(res.status).to.have.been.calledWith(400);
@@ -104,7 +114,10 @@ describe("Comment Controller CRUD operations", () => {
         return { success: true, data };
       },
     };
-    const commentController = new CommentController({ CommentService, UserService });
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
+    });
 
     it("successful update", async () => {
       await commentController.updateComment(req, res, "");
@@ -143,7 +156,11 @@ describe("Comment Controller CRUD operations", () => {
 
     it("mongo error", async () => {
       CommentService.updateComment = async (data) => {
-        return { success: false, error: commentErrors.MONGO_ERR, msg: "message" };
+        return {
+          success: false,
+          error: commentErrors.MONGO_ERR,
+          msg: "message",
+        };
       };
       await commentController.updateComment(req, res, "");
       expect(res.status).to.have.been.calledWith(400);
@@ -182,7 +199,10 @@ describe("Comment Controller CRUD operations", () => {
         return { success: true };
       },
     };
-    const commentController = new CommentController({ CommentService, UserService });
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
+    });
 
     it("successful delete", async () => {
       await commentController.deleteComment(req, res, "");
@@ -227,5 +247,4 @@ describe("Comment Controller CRUD operations", () => {
       });
     });
   });
-
 });

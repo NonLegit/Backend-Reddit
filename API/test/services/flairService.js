@@ -5,7 +5,7 @@ const { default: mongoose } = require("mongoose");
 const { subredditErrors,mongoErrors } = require("./../../error_handling/errors");
 dotenv.config({ path: "config/config.env" });
 
-// const SubredditService = require("./../../service/subredditService");
+const SubredditService = require("./../../service/subredditService");
 
 // const emailServiceObj = {
 //   sendPasswordReset: (user, resetURL) => {

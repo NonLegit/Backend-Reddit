@@ -26,16 +26,20 @@ class CommentService {
       );
       console.log("lllllllllllllllllllllllllllll");
       console.log(validParent);
-       console.log("lllllllllllllllllllllllllllll");
+      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return { success: true, post: validParent.doc.post };
       }
     } else if (comment.parentType === "Post") {
-      const validParent = await this.postRepo.findById(comment.parent,"","author owner");
+      const validParent = await this.postRepo.findById(
+        comment.parent,
+        "",
+        "author owner"
+      );
       console.log("lllllllllllllllllllllllllllll");
       console.log(validParent);
-       console.log("lllllllllllllllllllllllllllll");
+      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc._id;
         return { success: true, post: validParent.doc };
@@ -72,7 +76,7 @@ class CommentService {
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
-      type: comment.doc.parentType
+      type: comment.doc.parentType,
     };
     let postToNotify;
     if (validParent.post.ownerType == "Subreddit") {
@@ -84,24 +88,28 @@ class CommentService {
         },
         author: {
           _id: validParent.post.author._id,
-        }
-      }
+        },
+      };
     } else if (validParent.post.ownerType == "User") {
       console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
 
       console.log(validParent.post.author);
 
-
-       console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+      console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
       postToNotify = {
         _id: validParent.post._id,
         author: {
           _id: validParent.post.author._id,
           userName: validParent.post.author.userName,
-        }
-      }
+        },
+      };
     }
-    return { success: true, data: comment.doc ,postToNotify: postToNotify,commentToNotify:commentToNotify};
+    return {
+      success: true,
+      data: comment.doc,
+      postToNotify: postToNotify,
+      commentToNotify: commentToNotify,
+    };
   }
 
   /**
@@ -170,7 +178,7 @@ class CommentService {
       const comment = await this.commentRepo.commentTree(
         [commentId],
         limit,
-        depth-1
+        depth - 1
       );
       if (!comment)
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
@@ -188,7 +196,7 @@ class CommentService {
     children = children.split(",");
     children = children.filter((el) => ObjectId.isValid(el));
 
-    return await this.commentRepo.commentTree(children, limit, depth-1);
+    return await this.commentRepo.commentTree(children, limit, depth - 1);
   }
 
   setVoteCommentStatus(user, comments) {
@@ -215,7 +223,7 @@ class CommentService {
         });
       }
     }
-    console.log("new comments", newComments);
+    //console.log("new comments", newComments);
     return newComments;
   }
   setSavedCommentStatus(user, comments) {
@@ -223,7 +231,8 @@ class CommentService {
 
     let hash = {};
     for (var i = 0; i < user.savedComments.length; i++) {
-      hash[user.savedComments[i].saved] = user.savedComments[i].saved;
+      hash[user.savedComments[i].savedComment] =
+        user.savedComments[i].savedComment;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
@@ -282,8 +291,7 @@ class CommentService {
             element.savedComment.post.ownerType === "User"
               ? `${process.env.BACKDOMAIN}/` +
                 element.savedComment.post.owner.profilePicture
-              : `${process.env.BACKDOMAIN}/` +
-                element.savedComment.post.owner.icon,
+              : element.savedComment.post.owner.icon,
         };
         post["text"] = element.savedComment.post.text;
         post["nsfw"] = element.savedComment.post.nsfw;
@@ -383,7 +391,7 @@ class CommentService {
           icon:
             element.post.ownerType === "User"
               ? `${process.env.BACKDOMAIN}/` + element.post.owner.profilePicture
-              : `${process.env.BACKDOMAIN}/` + element.post.owner.icon,
+              : element.post.owner.icon,
         };
         console.log("passed");
         // post["text"] = element.post.text;
