@@ -39,21 +39,22 @@ class CommentRepository extends Repository {
     await this.model.findByIdAndDelete(id);
   }
 
-  async commentTree(commentId, limit, depth) {
-    if (!ObjectId.isValid(commentId)) return false;
+  async commentTree(children, limit, depth) {
+    const comments = this.model.find({
+      _id: { $in: children },
+    });
+    if (depth >= 0)
+      comments
+        .populate({
+          path: "replies",
+          perDocumentLimit: limit,
+          options: { depth: depth },
+        })
+        .lean();
 
-    const comment = await this.model
-      .findById(commentId)
-      .populate({
-        path: "replies",
-        perDocumentLimit: limit,
-        options: { depth: depth },
-      })
-      .lean();
-
-    return comment;
+    return await comments;
   }
-  
+
   async getUserComments(userId, query, popOptions) {
     const features = new APIFeatures(this.model.find({ author: userId }), query)
       .filter()
