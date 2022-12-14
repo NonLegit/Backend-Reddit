@@ -11,6 +11,7 @@ const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
 const NotificationController = container.resolve("NotificationController");
 const CommentController = container.resolve("CommentController");
+
 //const upload = FileController.checkUploadedFile();
 const router = express.Router();
 // Non authorized Endpoints
@@ -141,7 +142,9 @@ router
 
 router.post("/:userName/block_user", UserController.blockUser);
 router.post("/:userName/unblock_user", UserController.unBlockUser);
-router.post("/:userName/follow", UserController.followUser);
+router.route("/:userName/follow")
+  .post(UserController.followUser, NotificationController.addFollowNotification);
+  
 router.post("/:userName/unfollow", UserController.unfollowUser);
 
 router.get("/blocked", UserController.blockedUsers);

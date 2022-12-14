@@ -80,6 +80,38 @@ class NotificationController {
       return ;
     }
     
+   addFollowNotification = async (req, res) => {
+    
+    if (!req.follower || !req.followed) {
+      return;
+    }
+    console.log("iiiiiiiiiiiiii");
+    let notification = await this.notificationServices.addFollowNotification(req.follower, req.followed);
+    //  console.log(notification);
+    if (notification.success) {
+      
+      let tokens = await this.notificationServices.getFirebaseToken(req.followed._id);
+      // console.log(tokens.data.firebaseToken[0]);
+      // console.log(notification.data);
+      let message;
+      if (tokens.success) {
+         message = {
+          registration_ids:tokens.data.firebaseToken,
+           data: { val: JSON.stringify(notification.data) }
+          }
+        };
+        fcm.send(message, (err, response) => {
+          if (err) {
+            console.log("Something has gone wrong!" + err);
+          } else {
+            console.log("Successfully sent with response: ");
+          }
+        });
+
+    }
+      return ;
+    }
+    
   
     
 

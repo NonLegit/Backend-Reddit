@@ -73,9 +73,40 @@ class NotificationRepository extends Repository {
        
     }
 
+
+
+
+    async addFollowNotification(follower,followed) {
+        try {
+           
+            let data = {
+                type: "follow",
+                followerUser: {
+                    _id: follower._id,
+                    userName: follower.userName,
+                    profilePicture: follower.profilePicture
+                },
+                followedUser: {
+                    _id: followed._id,
+                    userName: followed.userName
+                        
+                }
+            };
+            let notification = await this.model.create(data);
+            console.log(notification);
+            if (!notification)
+                return { success: false, error: mongoErrors.UNKOWN };     
+            //notify ba2a
+            return { success: true, doc: notification };
+            
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }     
+    }
+
     async getAllNotifications(userId) {
         try {
-            let notifications = await this.model.find({ "followedUser._id": userId }).sort("-createdAt").limit(10);
+            let notifications = await this.model.find({ "followedUser._id": userId ,hidden:false}).sort("-createdAt").limit(10);
             // console.log(notifications);
             if (!notifications) {
                 return { success: false, error: mongoErrors.UNKOWN };

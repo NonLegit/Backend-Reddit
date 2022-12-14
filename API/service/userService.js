@@ -694,6 +694,8 @@ class UserService {
   async followUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
+    
+    //console.log(otherUser);
     let isAlreadyFollowed = true;
     let index = me.meUserRelationship.findIndex(
       (item) => item.userId.toString() == otherUser._id.toString()
