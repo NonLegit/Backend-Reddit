@@ -8158,7 +8158,20 @@ components:
           description: total number of votes
         repliesCount:
           type: integer
-
+        nsfw:
+          type: boolean
+        spoiler:
+          type: boolean
+        locked:
+          type: boolean
+          description: whether the post can receive comments or not               
+        modState:
+          type: string
+          enum:
+          - approved
+          - removed
+          - spammed        
+        
     moreReplies:
       type: object
       description: Contains the IDs of comments to be used in more_children endpoint. 
