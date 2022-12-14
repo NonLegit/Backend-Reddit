@@ -146,6 +146,12 @@ class CommentController {
     const LIMIT = 2;
     const DEPTH = 3;
     const CONTEXT = 2;
+    const SORT = "createdAt";
+    const sortTypes = new Map([
+      ["new", "createdAt"],
+      ["top", "votes"],
+      ["hot", "sortOnHot"],
+    ]);
 
     const postId = req.params?.postId;
     if (!postId) {
@@ -159,11 +165,13 @@ class CommentController {
     let { limit, depth, context, sort, commentId } = req.query;
     if (!limit || limit <= 0) limit = LIMIT;
     if (!depth || depth < 0) depth = DEPTH;
+    sort = sortTypes.get(sort) || SORT;
 
     const commentTree = await this.commentServices.commentTree(
       postId,
       limit,
       depth,
+      sort,
       commentId
     );
 
@@ -198,16 +206,23 @@ class CommentController {
   moreChildren = async (req, res) => {
     const LIMIT = 2;
     const DEPTH = 3;
+    const SORT = "createdAt";
+    const sortTypes = new Map([
+      ["new", "createdAt"],
+      ["top", "votes"],
+      ["hot", "sortOnHot"],
+    ]);
 
     let { children, limit, depth, sort } = req.query;
     if (!limit || limit <= 0) limit = LIMIT;
     if (!depth || depth < 0) depth = DEPTH;
+    sort = sortTypes.get(sort) || SORT;
 
-    if(!children || children.length === 0){
+    if (!children || children.length === 0) {
       res.status(400).json({
         status: "fail",
-        message: "Children query parameter is required"
-      })
+        message: "Children query parameter is required",
+      });
       return true;
     }
 
@@ -215,20 +230,21 @@ class CommentController {
       children,
       limit,
       depth,
+      sort
     );
 
-    if(comments.length === 0){
+    if (comments.length === 0) {
       res.status(404).json({
         status: "fail",
-        message: "Comments not found"
-      })
+        message: "Comments not found",
+      });
     }
     res.status(200).json({
       status: "success",
       comments: comments,
     });
   };
-  
+
   getUserComments = async (req, res, next) => {
     const me = req.user;
     let userName = req.params.userName;

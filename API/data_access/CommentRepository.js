@@ -46,16 +46,16 @@ class CommentRepository extends Repository {
     await this.model.findByIdAndDelete(id);
   }
 
-  async commentTree(children, limit, depth) {
+  async commentTree(children, limit, depth, sort) {
     const comments = this.model.find({
       _id: { $in: children },
-    });
+    }).sort({[sort]: -1});
     if (depth >= 0)
       comments
         .populate({
           path: "replies",
           perDocumentLimit: limit,
-          options: { depth: depth },
+          options: { depth, sort:{[sort]: -1} },
         })
         .lean();
 

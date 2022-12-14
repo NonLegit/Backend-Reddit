@@ -175,11 +175,11 @@ class PostRepository extends Repository {
       });
   }
 
-  async commentTree(postId, limit, depth) {
+  async commentTree(postId, limit, depth, sort) {
     const tree = await this.model.findById(postId, "replies").populate({
       path: "replies",
       perDocumentLimit: limit,
-      options: { depth: depth },
+      options: { depth, sort:{[sort]: -1} },
     }).lean();
 
     return tree;
