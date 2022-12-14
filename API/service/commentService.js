@@ -140,7 +140,7 @@ class CommentService {
         });
       }
     }
-    console.log("new comments", newComments);
+    //console.log("new comments", newComments);
     return newComments;
   }
   setSavedCommentStatus(user, comments) {
@@ -148,7 +148,7 @@ class CommentService {
 
     let hash = {};
     for (var i = 0; i < user.savedComments.length; i++) {
-      hash[user.savedComments[i].saved] = user.savedComments[i].saved;
+      hash[user.savedComments[i].savedComment] = user.savedComments[i].savedComment;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user

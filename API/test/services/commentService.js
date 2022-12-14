@@ -252,4 +252,127 @@ describe("Comment service test", () => {
       expect(valid).to.equal(false);
     });
   });
+
+  describe("get users comments", async () => {
+    it("first test ", async () => {
+      const CommentRepository = {
+        getUserComments: async () => {
+          return {
+            doc: [
+              {
+                _id: "1",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "2",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "3",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+            ],
+          };
+        },
+      };
+      const user = {
+        voteComment: [
+          { comments: "1", commentVoteStatus: "1" },
+          { comments: "2", commentVoteStatus: "-1" },
+        ],
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "3",
+          },
+        ],
+      };
+      const PostRepository= {
+
+      }
+      const commentServices = new CommentService({
+        CommentRepository,
+        PostRepository,
+      });
+      const comments = await commentServices.getUserComments("1", user, "");
+      expect(comments.length).to.equal(1);
+    });
+  });
 });

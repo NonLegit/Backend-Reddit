@@ -268,12 +268,6 @@ const userSchema = new mongoose.Schema({
       ref: "Subreddit",
     },
   ],
-  savedComment: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Comment",
-    },
-  ],
   pendingInvitations: [
     {
       type: Object,
