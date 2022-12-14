@@ -84,7 +84,11 @@ class PostService {
     const validType =
       data.sharedFrom ||
       (data.kind === "link" && data.url) ||
-      (data.kind === "self" && data.text);
+      (data.kind === "self" && data.text) ||
+      ((data.kind === "image" || data.kind === "video") &&
+        !data.url &&
+        !data.text);
+
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
@@ -110,7 +114,8 @@ class PostService {
       const parentPost = await this.postRepo.findById(data.sharedFrom);
       if (!parentPost.success)
         return { success: false, error: postErrors.INVALID_PARENT_POST };
-      data.kind = parentPost.doc.kind;``
+      data.kind = parentPost.doc.kind;
+      ``;
     }
 
     const post = await this.postRepo.createOne(data);
@@ -482,6 +487,28 @@ class PostService {
     }
 
     return { success: false, error: postErrors.NOT_AUTHOR_OR_MOD };
+  }
+
+  /**
+   * Checks if the user is the post author
+   * @param {string} postId The post ID
+   * @param {string} userId The ID of the user in question
+   * @returns {object}
+   */
+  async isAuth(postId, userId, select) {
+    const post = await this.postRepo.findById(postId, "author " + select);
+    if (!post.success)
+      return { success: false, error: postErrors.POST_NOT_FOUND };
+
+    const { author } = post.doc;
+    if (!author.equals(userId))
+      return { success: false, error: postErrors.NOT_AUTHOR };
+
+    return { success: true, data: post.doc };
+  }
+
+  async addFile(postId, kind, file) {
+    return await this.postRepo.addFile(postId, kind, file);
   }
 
   /**

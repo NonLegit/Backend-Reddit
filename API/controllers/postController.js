@@ -608,9 +608,6 @@ class PostController {
       });
   };
 
-  followPost = async (req, res) => {};
-  suggestedSort = async (req, res) => {};
-
   spam = async (req, res) => {
     const postId = req.params?.postId;
     const dir = req.body.dir || 1;
