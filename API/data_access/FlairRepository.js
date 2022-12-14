@@ -21,6 +21,7 @@ class FlairRepository extends Repository {
     }
   }
 
+
    
 }
 module.exports = FlairRepository;

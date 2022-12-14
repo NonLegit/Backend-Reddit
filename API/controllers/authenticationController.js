@@ -72,7 +72,9 @@ class AuthenticationController {
       status: "success",
       token,
       // expiresIn: process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000,
-      expiresIn: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000)
+      expiresIn: new Date(
+        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+      ),
     });
   };
   /**
@@ -487,14 +489,28 @@ class AuthenticationController {
                 errorMessage: "Email is already taken by another user",
               });
             } else {
-              //change email using update email
-              const email = await this.UserServices.updateUserEmail(
-                req.user._id,
-                newEmail
+              // create verified token
+              req.user.email = newEmail;
+              let response = await this.UserServices.sendVerificationToken(
+                req.user
               );
-              res.status(204).json({
-                status: "success",
-              });
+              //change email using update email
+
+              if (response.success === true) {
+                const changedUser = await this.UserServices.updateUserEmail(
+                  req.user._id,
+                  newEmail
+                );
+                res.status(204).json({
+                  status: "success",
+                });
+              } else {
+                response = this.errorResponse(response.error, response.msg);
+                res.status(response.stat).json({
+                  status: "fail",
+                  errorMessage: response.msg,
+                });
+              }
             }
           } else {
             res.status(400).json({
@@ -511,6 +527,20 @@ class AuthenticationController {
       }
     }
   };
+  verifyEmail = async (req, res, next) => {
+    const verificationToken = req.params.token;
+    let result = await this.UserServices.verifyEmailToken(verificationToken);
+    if (result.success === true) {
+      res.status(204).json({
+        status: "success",
+      });
+    } else {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Token Invalid or Has Expired",
+      });
+    }
+  };
   checkResetTokentime = async (req, res, next) => {
     const resetToken = req.params.token;
     let result = await this.UserServices.checkResetTokenTime(resetToken);
@@ -525,7 +555,6 @@ class AuthenticationController {
       });
     }
   };
-
 
   checkAuthorize = async (req, res, next) => {
     let token;
@@ -548,15 +577,15 @@ class AuthenticationController {
       const time = decoded.iat;
       const user = await this.UserServices.getUser(userId);
       if (user.success === false) {
-       req.isAuthorized = false;
-      next();
+        req.isAuthorized = false;
+        next();
       } else {
         if (user.data.changedPasswordAfter(time)) {
           req.isAuthorized = false;
-      next();
+          next();
         } else {
           req.user = user.data;
-           req.isAuthorized = true;
+          req.isAuthorized = true;
           next();
         }
       }

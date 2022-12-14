@@ -37,6 +37,16 @@ class UserRepository extends Repository {
     return { success: true, doc: user };
   }
 
+  async findByVerificationToken(verificationToken) {
+    let query = this.model.findOne({
+      verificationToken: verificationToken,
+      verificationTokenExpires: { $gt: Date.now() },
+    });
+    const user = await query;
+    if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
+    return { success: true, doc: user };
+  }
+
   async isSubscribed(user, subreddit) {
     const query = await this.model.findOne({ _id: user }, "subscribed");
     let subscribed = false;
@@ -153,6 +163,26 @@ class UserRepository extends Repository {
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };
+  }
+  async addTokenToUser(userId, token) {
+    const user = await this.model.findByIdAndUpdate(userId, {
+      $push: { firebaseToken: token },
+    });
+    if (!user) {
+      return { success: false, error: mongoErrors.INVALID_ID };
+    }
+    return { success: true };
+  }
+  async getFirebaseToken(userId) {
+    try {
+      const user = await this.model.findById(userId, "firebaseToken");
+      if (!user) {
+        return { success: false, error: mongoErrors.INVALID_ID };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      return { success: false, error: mongoErrors.UNKOWN };
+    }
   }
   async checkInvetation(userId, subredditId) {
     try {

@@ -14,6 +14,7 @@ pipeline {
                 JWT_SECRET = credentials('jwt-secret')
                 EMAIL_HOST = credentials('email-host')
                 EMAIL_PORT = credentials('email-port')
+		FIREBASE_SERVER_KEY = credentials('firebase-server-key')
             }
             steps {
                 sh '''
@@ -48,6 +49,8 @@ CROSSDOMAIN="https://app.nonlegit.click"
 JWT_SECRET=\'$JWT_SECRET\'
 JWT_EXPIRES_IN=3d
 JWT_COOKIE_EXPIRES_IN=3
+FIREBASE_SERVER_KEY=\'$FIREBASE_SERVER_KEY\'
+
 
 EMAIL_FROM=\'$EMAIL_CREDS_USR\'
 NONLEGITEMAIL=\'$EMAIL_CREDS_USR\'

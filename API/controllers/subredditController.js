@@ -1251,7 +1251,7 @@ class subredditController {
 
       res.status(200).json({
         status: "OK",
-        data: flair.data.doc,
+        data: flair.data,
       });
     } catch (err) {
       console.log("error in subredditservices " + err);
@@ -1355,7 +1355,7 @@ class subredditController {
 
       res.status(200).json({
         status: "OK",
-        data: flair.data.doc,
+        data: flair.data,
       });
     } catch (err) {
       console.log("error in subredditservices " + err);
@@ -1398,10 +1398,10 @@ class subredditController {
       }
       res.status(200).json({
         status: "OK",
-        data: flairs.data.doc,
+        data: flairs.data,
       });
     } catch (err) {
-      console.log("error in subredditservices " + err);
+      console.log("error in subredditController " + err);
       res.status(500).json({
         status: "fail",
       });

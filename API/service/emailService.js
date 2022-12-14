@@ -16,7 +16,6 @@ module.exports = class Email {
     if (process.env.NODE_ENV === "production") {
       // Sendgrid
       return nodemailer.createTransport({
-
         host: process.env.EMAIL_HOST,
         port: process.env.EMAIL_PORT,
         auth: {
@@ -74,12 +73,34 @@ module.exports = class Email {
       "utf-8"
     );
     html = html.replaceAll("u/username_replace", "u/" + user.userName);
+    html = html.replaceAll("user_email_replace", "u/" + user.email);
     // replace button link to frontdomain
     html = html.replaceAll("FrontDomain", url);
     const mailOptions = {
       from: this.from,
       to: user.email,
       subject: "So you wanna know your Reddit username, huh?",
+      html: html,
+      text: `Hi there,
+            You forgot it didn't you? Hey, it happens. Here you go:
+            Your username is ${user.userName}
+            (Username checks out, nicely done.) `,
+    };
+
+    const transporter = this.newTransport();
+    await transporter.sendMail(mailOptions);
+  }
+  async sendVerificationMail(user, url) {
+    console.log("read html");
+    let html = await readFileAsync("./public/html/verification.html", "utf-8");
+    html = html.replaceAll("u/username_replace", "u/" + user.userName);
+    html = html.replaceAll("user_email_replace",  user.email);
+    // replace button link to frontdomain
+    html = html.replaceAll("FrontDomain", url);
+    const mailOptions = {
+      from: this.from,
+      to: user.email,
+      subject: "Verify your Reddit email address",
       html: html,
       text: `Hi there,
             You forgot it didn't you? Hey, it happens. Here you go:

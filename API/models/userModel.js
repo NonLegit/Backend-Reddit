@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, " Provide valid email"],
   },
+  firebaseToken: {
+    type: [String],
+    required: false,
+    select: false,
+  },
   password: {
     type: String,
     required: [true, "Provide password"],
@@ -39,6 +44,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     required: false,
   },
+  verificationToken: {
+    type: String,
+    required: false,
+  },
+  verificationTokenExpires: {
+    type: Date,
+    required: false,
+  },
   joinDate: {
     type: Date,
     required: true,
@@ -53,6 +66,7 @@ const userSchema = new mongoose.Schema({
   emailVerified: {
     type: Boolean,
     required: false,
+    default: false,
   },
   accountActivated: {
     type: Boolean,
@@ -268,12 +282,6 @@ const userSchema = new mongoose.Schema({
       ref: "Subreddit",
     },
   ],
-  savedComment: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Comment",
-    },
-  ],
   pendingInvitations: [
     {
       type: Object,
@@ -358,9 +366,10 @@ userSchema.pre("save", async function (next) {
 
   // Hash the password with cost of 12
   this.password = await bcrypt.hash(this.password, 12);
-  this.displayName = this.userName;
+
   this.lastUpdatedPassword = Date.now() - 1000;
   if (this.userName === "user") this.userName = "user" + this._id;
+  if (this.displayName === undefined) this.displayName = this.userName; // add display name in case of google and facbook name
   console.log("user to save", this);
   next();
 });
@@ -399,6 +408,18 @@ userSchema.methods.createPasswordResetToken = function () {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // valid for 10 minutes only
 
   return resetToken;
+};
+userSchema.methods.createVerificationToken = function () {
+  const verificationToken = crypto.randomBytes(32).toString("hex");
+
+  this.verificationToken = crypto
+    .createHash("sha256")
+    .update(verificationToken)
+    .digest("hex");
+
+  this.verificationTokenExpires = Date.now() + 259200000; // valid for 3 days  only
+
+  return verificationToken;
 };
 userSchema.methods.checkPassword = async function (
   enteredPassword,

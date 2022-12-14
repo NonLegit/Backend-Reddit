@@ -36,6 +36,20 @@ class SubredditRepository extends Repository {
     }
   }
 
+//     async getSubredditWithFlairs(name, select) {
+//     try {
+    
+//       const doc = await this.getSubreddit(name,select,"flairIds");
+//       console.log("hhhhhhhhhhhhhhh");
+//       console.log(doc);
+// console.log("hhhhhhhhhhhhhhh");
+//       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+//       return { success: true, doc: doc.doc };
+//     } catch (err) {
+//       return { success: false, ...decorateError(err) };
+//     }
+//   }
   async getsubreddit(name, select, popOptions) {
     try {
       let tempDoc = this.model

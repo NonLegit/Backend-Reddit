@@ -4,7 +4,7 @@ const chai = require("chai");
 const sinon = require("sinon");
 const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
-const UserController = require("./../../controllers/UserController");
+const UserController = require("./../../controllers/userController");
 const { userErrors } = require("./../../error_handling/errors");
 dotenv.config();
 chai.use(sinonChai);
@@ -382,7 +382,7 @@ describe("User Controller Test", () => {
     const userController = new UserController({ UserService });
 
     it("available", async () => {
-      UserService.isAvailable = async (userName) => true
+      UserService.isAvailable = async (userName) => true;
       await userController.usernameAvailable(req, res, "");
       expect(res.status).to.have.been.calledWith(200);
       expect(res.status().json).to.have.been.calledWith({
@@ -392,7 +392,7 @@ describe("User Controller Test", () => {
     });
 
     it("unavailable", async () => {
-      UserService.isAvailable = async (userName) => false
+      UserService.isAvailable = async (userName) => false;
       await userController.usernameAvailable(req, res, "");
       expect(res.status).to.have.been.calledWith(200);
       expect(res.status().json).to.have.been.calledWith({
@@ -595,8 +595,7 @@ describe("User Controller Test", () => {
     });
     it("second test fail", async () => {
       const req = {
-        body: {
-        },
+        body: {},
         user: {},
         params: {
           id: "1",
@@ -666,7 +665,7 @@ describe("User Controller Test", () => {
         },
       };
       const UserService = {
-        deleteSocialLinks: (me,id) => {
+        deleteSocialLinks: (me, id) => {
           let response = {
             success: true,
           };
@@ -709,8 +708,8 @@ describe("User Controller Test", () => {
     it("first test success", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -720,24 +719,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(!me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        blockUser: async (me,data) => {
-          return true
+        blockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -750,8 +746,8 @@ describe("User Controller Test", () => {
     it("second test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -761,24 +757,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        blockUser: async (me,data) => {
-          return true
+        blockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -792,8 +785,8 @@ describe("User Controller Test", () => {
     it("thrid test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:false
+          userName: "2",
+          test: false,
         },
         params: {
           userName: "1",
@@ -803,21 +796,20 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
           }
           return false;
         },
-        blockUser: async (me,data) => {
-          return true
+        blockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -830,8 +822,8 @@ describe("User Controller Test", () => {
     it("fourth test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -841,24 +833,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: false,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        blockUser: async (me,data) => {
-          return true
+        blockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -872,8 +861,8 @@ describe("User Controller Test", () => {
     it("fifth test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "2",
@@ -883,24 +872,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: false,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        blockUser: async (me,data) => {
-          return true
+        blockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -912,13 +898,13 @@ describe("User Controller Test", () => {
       });
     });
   });
-  
+
   describe("unBlockUser Test", () => {
     it("first test success", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -928,24 +914,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(!me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        unBlockUser: async (me,data) => {
-          return true
+        unBlockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -958,8 +941,8 @@ describe("User Controller Test", () => {
     it("second test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -969,24 +952,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        unBlockUser: async (me,data) => {
-          return true
+        unBlockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -1000,8 +980,8 @@ describe("User Controller Test", () => {
     it("thrid test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:false
+          userName: "2",
+          test: false,
         },
         params: {
           userName: "1",
@@ -1011,21 +991,20 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: true,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
           }
           return false;
         },
-        unBlockUser: async (me,data) => {
-          return true
+        unBlockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -1038,8 +1017,8 @@ describe("User Controller Test", () => {
     it("fourth test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "1",
@@ -1049,24 +1028,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: false,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        unBlockUser: async (me,data) => {
-          return true
+        unBlockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
@@ -1080,8 +1056,8 @@ describe("User Controller Test", () => {
     it("fifth test fail", async () => {
       const req = {
         user: {
-          userName:"2",
-          test:true
+          userName: "2",
+          test: true,
         },
         params: {
           userName: "2",
@@ -1091,24 +1067,21 @@ describe("User Controller Test", () => {
         getUserByName: async (data) => {
           let response = {
             success: false,
-            data:{
-              test: true
-            }
-          }
-          return response
+            data: {
+              test: true,
+            },
+          };
+          return response;
         },
-        checkBlockStatus: async (me,data) => {
-          if(me.test)
-          {
-            return true
-          }
-          else
-          {
-            return false
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
           }
         },
-        unBlockUser: async (me,data) => {
-          return true
+        unBlockUser: async (me, data) => {
+          return true;
         },
       };
       const userController = new UserController({ UserService });
