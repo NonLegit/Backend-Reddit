@@ -228,7 +228,6 @@ module.exports = async function seeder() {
     views: 8,
     shareCount: 0,
     commentCount: 0,
-    images: [postImg],
   });
   let comment1 = await Comment.create({
     author: user3._id,
