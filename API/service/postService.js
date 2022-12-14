@@ -80,17 +80,18 @@ class PostService {
    * @returns {object}
    */
   async createPost(data) {
+    //If the post is shared kind doesn't have to be specified
     const validType =
-      (data.kind === "link" && data.url) || (data.kind === "self" && data.text);
+      data.sharedFrom ||
+      (data.kind === "link" && data.url) ||
+      (data.kind === "self" && data.text);
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
     if (data.ownerType === "User") {
       data.owner = data.author;
       if (data.flairId) delete data.flairId;
-    }
-    //validate subreddit if the post is created in one
-    else if (data.ownerType === "Subreddit") {
+    } else if (data.ownerType === "Subreddit") {
       if (!data.owner)
         return { success: false, error: postErrors.INVALID_OWNER };
       const subreddit = await this.subredditRepo.findById(
@@ -105,6 +106,13 @@ class PostService {
       }
     } else return { success: false, error: postErrors.INVALID_OWNER };
 
+    if (data.sharedFrom) {
+      const parentPost = await this.postRepo.findById(data.sharedFrom);
+      if (!parentPost.success)
+        return { success: false, error: postErrors.INVALID_PARENT_POST };
+      data.kind = parentPost.doc.kind;``
+    }
+
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
@@ -117,12 +125,11 @@ class PostService {
     // let newPosts = (!me)?Array.from(posts):posts;
     let newPosts = !me ? [] : posts;
     for (var i = 0; i < posts.length; i++) {
-     
       if (!me) newPosts.push(posts[i].toObject());
-      
+
       let owner = { ...posts[i].owner };
       let author = { ...posts[i].author };
-      
+
       if (!me) {
         owner = owner._doc;
         author = author._doc;
@@ -135,9 +142,8 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.userName,
-          icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
+          icon: `${process.env.BACKDOMAIN}/` + owner.profilePicture,
         };
-        
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
@@ -232,7 +238,7 @@ class PostService {
       try {
         newPosts[i] = newPosts[i].toObject();
         //console.log(newPosts[i]);
-      } catch (err) { }
+      } catch (err) {}
       if (posts[i].ownerType === "User") {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
@@ -274,7 +280,7 @@ class PostService {
     for (var i = 0; i < posts.length; i++) {
       try {
         posts[i] = posts[i].toObject();
-      } catch (err) { }
+      } catch (err) {}
       if (hash[posts[i]._id]) {
         posts[i] = undefined;
       } else {
@@ -308,7 +314,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) { }
+      } catch (err) {}
       if (hash[posts[i]._id]) {
         newPosts[i]["isSaved"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -331,7 +337,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) { }
+      } catch (err) {}
       if (hash[posts[i]._id]) {
         newPosts[i]["isSpam"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -359,7 +365,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) { }
+      } catch (err) {}
       if (hash[posts[i]._id]) {
         newPosts[i]["isHidden"] = true;
         newPosts[i]["isSaved"] = false;
@@ -389,7 +395,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) { }
+      } catch (err) {}
       if (!hash[posts[i]._id]) {
         newPosts[i]["postVoteStatus"] = "0";
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -414,7 +420,7 @@ class PostService {
         let newElement = {};
         try {
           newElement = element.posts.toObject();
-        } catch (err) { }
+        } catch (err) {}
         newElement["postVoteStatus"] = votetype;
         newPost.push(newElement);
       }
@@ -431,26 +437,24 @@ class PostService {
     //   console.log(post);
     //   return post;
     // }
-    
+
     // let postInList = [];
     // postInList.push(post.doc);
-    
+
     if (post.success) {
-      
-     if (me == undefined) {
-       let postList = this.getPostOwnerAndAuthor(post.doc, me);
-     
+      if (me == undefined) {
+        let postList = this.getPostOwnerAndAuthor(post.doc, me);
+
         return { success: true, doc: postList[0] };
       } else {
-       let postAsArray = [];
-       postAsArray.push(post.doc[0].toObject());
+        let postAsArray = [];
+        postAsArray.push(post.doc[0].toObject());
         let postList = this.getPostOwnerAndAuthor(postAsArray, me);
-         
+
         postList = this.setSavedPostStatus(me, postList);
         postList = this.setVotePostStatus(me, postList);
-       postList = this.setSpamPostStatus(me, postList);
-      
-       
+        postList = this.setSpamPostStatus(me, postList);
+
         return { success: true, doc: postList[0] };
       }
     }
@@ -590,18 +594,19 @@ class PostService {
       } else {
         newPosts[i].savedPost.postVoteStatus =
           hashPosts[saved[i].savedPost._id];
-          // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
+        // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
         //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
       newPosts[i].savedPost.owner = {
         _id: newPosts[i].savedPost.owner._id,
         name:
           newPosts[i].savedPost.ownerType === "User"
-            ?  newPosts[i].savedPost.owner.userName
-            :  newPosts[i].savedPost.owner.fixedName,
+            ? newPosts[i].savedPost.owner.userName
+            : newPosts[i].savedPost.owner.fixedName,
         icon:
           newPosts[i].savedPost.ownerType === "User"
-            ? `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.profilePicture
+            ? `${process.env.BACKDOMAIN}/` +
+              newPosts[i].savedPost.owner.profilePicture
             : newPosts[i].savedPost.owner.icon,
       };
       newPosts[i].savedPost.author = {
@@ -611,11 +616,13 @@ class PostService {
     }
     return newPosts;
   }
-  filterPosts(posts,comments)
-  {
-    posts = posts.filter(post => comments.findIndex(comment => {
-      return comment._id.toString() === post._id.toString();
-    }) === -1 );
+  filterPosts(posts, comments) {
+    posts = posts.filter(
+      (post) =>
+        comments.findIndex((comment) => {
+          return comment._id.toString() === post._id.toString();
+        }) === -1
+    );
     return posts;
   }
 }

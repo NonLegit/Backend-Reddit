@@ -18,7 +18,8 @@ exports.postErrors = Object.freeze({
   NOT_AUTHOR_OR_MOD: 9,
   NOT_MOD: 10,
   OWNER_NOT_SUBREDDIT: 11,
-  ACTION_ALREADY_DONE: 12
+  ACTION_ALREADY_DONE: 12,
+  INVALID_PARENT_POST: 13
 });
 
 exports.postActions = Object.freeze({

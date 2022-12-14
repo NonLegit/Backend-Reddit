@@ -24,9 +24,6 @@ class CommentService {
         "post",
         "post"
       );
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return { success: true, post: validParent.doc.post };
@@ -37,9 +34,6 @@ class CommentService {
         "",
         "author owner"
       );
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-      console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc._id;
         return { success: true, post: validParent.doc };
