@@ -17,7 +17,7 @@ pipeline {
 		FIREBASE_SERVER_KEY = credentials('firebase-server-key')
             }
             steps {
-                sh '/var/jenkins_home/docker-compose/build/build.sh'
+                bash -e /var/jenkins_home/docker-compose/build/build.sh
             }
         }
         stage('Deploying backend') {
