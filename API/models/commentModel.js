@@ -145,7 +145,11 @@ commentSchema.post("find", function (result) {
 //   this.populate("author","_id userName profilePicture profileBackground");
 // });
 commentSchema.pre(/^find/, function () {
-  this.populate("post");
+  const { userComments } = this.options;
+  if(userComments )
+  {
+    this.populate("post");
+  }
   this.populate("author", "_id userName profilePicture profileBackground");
 });
 commentSchema.pre("save", function (next) {

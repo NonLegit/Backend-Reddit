@@ -214,7 +214,12 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved.savedPost", "-__v");
-    await me.populate("savedComments.savedComment", "-__v");
+
+    await me.populate({
+      path: "savedComments.savedComment",
+      select: "-__v",
+      options: { userComments: true },
+    });
     //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
     let posts = this.postServices.setVoteStatus(me, me.saved);

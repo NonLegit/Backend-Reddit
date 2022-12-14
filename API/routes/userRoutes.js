@@ -104,7 +104,6 @@ router.patch(
 );
 router
   .route("/images")
-  .get(FileController.getUserProfileImage)
   .post(FileController.checkUploadedFile, FileController.uploadUserImage)
   .delete(FileController.deleteUserImage);
 
