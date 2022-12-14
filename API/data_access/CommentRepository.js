@@ -14,11 +14,11 @@ class CommentRepository extends Repository {
     });
   }
   // async createComment(data) {
-    
+
   //     const doc = await this.model.create(data).populate("author");
   //     console.log(doc);
   //     return { success: true, doc: doc };
-    
+
   // }
 
   async removeReply(parent, child) {
@@ -69,7 +69,8 @@ class CommentRepository extends Repository {
       .limitFields()
       .paginate();
     // const doc = await features.query.explain();
-    let doc = await features.query.populate(popOptions);
+
+    let doc = await features.query.populate({ path: popOptions, options: {userComments: true} });
     return { success: true, doc: doc };
   }
 }
