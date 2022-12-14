@@ -125,7 +125,7 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-  
+
   /**
    * this function checks if user is owner or not by passing @subredditName and @iD
    * @param {string} subredditName - name of subreddit i want to check from
@@ -430,6 +430,43 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async categorySubreddits(query, category) {
+    const page = query.page * 1 || 1;
+    const limit = query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    try {
+      let doc = await this.model
+        .find({
+          primaryTopic: category,
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort("-createdAt");
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async randomSubreddits(query) {
+    const page = query.page * 1 || 1;
+    const limit = query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    try {
+      let doc = await this.model
+        .find({})
+        .skip(skip)
+        .limit(limit)
+        .sort("-createdAt");
+        
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async getPunished(subredditName) {
     try {
       let tempDoc = this.model
@@ -463,8 +500,7 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-  async checkRule(title,subredditName)
-  {
+  async checkRule(title, subredditName) {
     try {
       let tempDoc = this.model.findOne({
         fixedName: subredditName,
@@ -478,7 +514,6 @@ class SubredditRepository extends Repository {
     } catch (err) {
       return { success: false, ...decorateError(err) };
     }
-
   }
 
   async addFlairToSubreddit(subredditName, flairId) {
@@ -530,24 +565,24 @@ class SubredditRepository extends Repository {
    * @param {string} userId - The user ID in question
    * @returns {boolean}
    */
-    async moderator(subredditId, userId) {
-      //..
-      try {
-        let tempDoc = this.model
-          .findOne({
-            _id: subredditId,
-            "moderators.id": userId,
-          })
-          .select({ "moderators.$": 1 });
-  
-        const doc = await tempDoc;
-        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-  
-        return { success: true, doc: doc };
-      } catch (err) {
-        return { success: false, ...decorateError(err) };
-      }
+  async moderator(subredditId, userId) {
+    //..
+    try {
+      let tempDoc = this.model
+        .findOne({
+          _id: subredditId,
+          "moderators.id": userId,
+        })
+        .select({ "moderators.$": 1 });
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
     }
+  }
   async updateSubredditImage(subredditName, type, filename) {
     let doc;
     if (type === "icon") {

@@ -32,7 +32,7 @@ exports.postActions = Object.freeze({
 });
 
 exports.commentErrors = Object.freeze({
-  MONGO_ERR: 0,
+  MONGO_ERR: 5,
   NOT_AUTHOR: 1,
   INVALID_PARENT: 2,
   COMMENT_NOT_FOUND: 3,
@@ -81,7 +81,7 @@ exports.userErrors = Object.freeze({
 });
 
 exports.mongoErrors = Object.freeze({
-  NOT_FOUND: 0,
+  NOT_FOUND: 90,
   VALIDATION: 1,
   INVALID_ID: 2,
   DUPLICATRE_KEY: 3,
