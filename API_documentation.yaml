@@ -6172,7 +6172,7 @@ paths:
                     type: string
                     example: category not found
 
-  /subreddits/leaderboard/random:
+  /subreddits/random/leaderboard:
     get:
       tags:
         - Subreddits
