@@ -10,10 +10,11 @@ class FileController {
    * Depends on user services object
    * @param {object} FileService - user service object
    */
-  constructor({ UserService, subredditService }) {
+  constructor({ UserService, subredditService, PostService }) {
     // this.FileService = FileService; // can be mocked in unit testing
     this.UserServices = UserService; // can be mocked in unit testing
     this.subredditService = subredditService; // can be mocked in unit testing
+    this.PostService = PostService;
     this.multerStorage = multer.memoryStorage();
     this.upload = multer({
       storage: this.multerStorage,
@@ -184,54 +185,46 @@ class FileController {
       });
     }
   };
-  getUserProfileImage(req, res, next) {
-    const fileName = req.params.fileName;
-    const filePath = `./public/users/${fileName}`;
+  uploadPostFiles = async (req, res, next) => {
+    // check post is found in database then return it to use it later
 
-    // Check if file specified by the filePath exists
-    fs.exists(filePath, function (exists) {
-      if (exists) {
-        // Content-type is very interesting part that guarantee that
-        // Web browser will handle response in an appropriate manner.
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + fileName,
-        });
-        fs.createReadStream(filePath).pipe(res);
-        return;
-      } else {
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + "default.png",
-        });
-        fs.createReadStream("./public/users/default.png").pipe(res);
+    const type = req.body.type; // type of post file (image or video)
+    req.file.filename = `${req.params.postId}/post-${
+      req.params.postId
+    }-${Date.now()}.jpeg`;
+    console.log(req.file.filename);
+    var x = 1200;
+    var y = 630;
+    try {
+      let dir = "public/posts/" + req.params.postId;
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
       }
-    });
-  }
-  getPostImage(req, res, next) {
-    const fileName = req.params.fileName;
-    const filePath = `./public/posts/${fileName}`;
+      await sharp(req.file.buffer)
+        .resize(x, y)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/posts/${req.file.filename}`);
 
-    // Check if file specified by the filePath exists
-    fs.exists(filePath, function (exists) {
-      if (exists) {
-        // Content-type is very interesting part that guarantee that
-        // Web browser will handle response in an appropriate manner.
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + fileName,
-        });
-        fs.createReadStream(filePath).pipe(res);
-        return;
-      } else {
-        res.writeHead(200, {
-          "Content-Type": "img/jpg",
-          "Content-Disposition": "attachment; filename=" + "default.jpg",
-        });
-        fs.createReadStream("./public/posts/default.jpg").pipe(res);
-      }
-    });
-  }
+      // let post = await this.PostService.addUserImageURL(  // should be function to store image or video  path in array of images
+      //   req.params.subredditName,
+      //   type,
+      //   "posts/"+req.file.filename
+      // );
+
+      // i do no what to return
+      res.status(201).json({
+        status: "success",
+        // post: post,
+      });
+    } catch (err) {
+      console.log(err);
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Bad Request",
+      });
+    }
+  };
 }
 
 module.exports = FileController;
