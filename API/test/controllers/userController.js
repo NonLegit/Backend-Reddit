@@ -4,7 +4,7 @@ const chai = require("chai");
 const sinon = require("sinon");
 const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
-const UserController = require("./../../controllers/userController");
+const UserController = require("./../../controllers/UserController");
 const { userErrors } = require("./../../error_handling/errors");
 dotenv.config();
 chai.use(sinonChai);
