@@ -43,7 +43,6 @@ class UserService {
     // this.subscribe = this.subscribe.bind(this);
   }
 
-
   generateRandomPassword() {
     var password = generator.generate({
       length: 10,
@@ -227,6 +226,29 @@ class UserService {
       return response;
     }
   }
+  async sendVerificationToken(user) {
+    const verificationToken = user.createVerificationToken();
+    user.emailVerified = false;
+    this.replaceProfile(user);
+    await user.save({ validateBeforeSave: false });
+
+    // front Domain verification page
+    const verifyURL = `${process.env.FRONTDOMAIN}/verification/${verificationToken}`;
+    try {
+      await this.emailServices.sendVerificationMail(user, verifyURL);
+      const response = {
+        success: true,
+      };
+      return response;
+    } catch (error) {
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
+      };
+      return response;
+    }
+  }
   /**
    * @property {Function} resetPassword reset user password
    * check if token expired or not then insert new password in database in case of not expired
@@ -258,6 +280,32 @@ class UserService {
       const response = {
         success: true,
         token: token,
+      };
+      return response;
+    }
+  }
+  async verifyEmailToken(verificationToken) {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
+    let user = await this.userRepository.findByVerificationToken(hashedToken);
+    if (user.success === false) {
+      // invalid token or time passed
+      const response = {
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
+      };
+      return response;
+    } else {
+      user.doc.verificationToken = undefined;
+      user.doc.verificationTokenExpires = undefined;
+      user.doc.emailVerified = true;
+      this.replaceProfile(user.doc);
+      await user.doc.save();
+      const response = {
+        success: true,
       };
       return response;
     }
@@ -680,16 +728,15 @@ class UserService {
       return { success: false, error: userErrors.MONGO_ERR };
     }
     return { success: true };
-  } 
+  }
 
   async getFirebaseToken(userId) {
     let token = await this.userRepository.getFirebaseToken(userId);
     if (!token.success) {
       return { success: false, error: userErrors.MONGO_ERR };
     }
-    return { success: true ,data : token.doc};
+    return { success: true, data: token.doc };
   }
-  
 
   async followUser(me, otherUser) {
     this.replaceProfile(me);
@@ -775,7 +822,7 @@ class UserService {
           postKarma: element.userId.postKarma,
           commentKarma: element.userId.commentKarma,
           displayName: element.userId.displayName,
-          isFollowed: isFollowed
+          isFollowed: isFollowed,
         });
       }
     });
