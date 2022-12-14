@@ -50,6 +50,7 @@ class PostController {
         case postErrors.MONGO_ERR:
           msg = post.msg;
           stat = 400;
+          break;
         case postErrors.INVALID_PARENT_POST:
           msg = "Invalid parent post";
           stat = 400;
