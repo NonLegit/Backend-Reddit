@@ -15,6 +15,9 @@ pipeline {
                 EMAIL_HOST = credentials('email-host')
                 EMAIL_PORT = credentials('email-port')
 		        FIREBASE_SERVER_KEY = credentials('firebase-server-key')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
             }
             steps {
                 sh(returnStdout: true, script: "bash -e /var/jenkins_home/docker-compose/build/build.sh")
@@ -51,7 +54,7 @@ pipeline {
                                     cd /var/jenkins_home/docker-compose/backend
                                     docker compose down || true
                                     docker compose up -d
-                                    aws ses send-email --from $SOURCE_EMAIL --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ahmedsabry232345@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
+                                    aws ses send-email --from $SOURCE_EMAIL --source-arn "arn:aws:ses:us-east-1:965189571202:identity/ysi.rabie@gmail.com" --destination "ToAddresses=ysi.rabie@gmail.com" --region us-east-1 --message "Subject={Data=Deployment Successful},Body={Text={Data=success}}"
                                 '''
                     }
                 }
