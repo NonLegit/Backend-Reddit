@@ -211,8 +211,8 @@ describe("Comment service test", () => {
         text: "comment text",
       };
       const valid = await commentServices.hasValidParent(comment);
-      expect(valid).to.equal(true);
-      expect(comment.post).to.equal("456c5fccf267fc3a463b35e4");
+      expect(valid.success).to.equal(true);
+      //expect(comment.post).to.equal("456c5fccf267fc3a463b35e4");
     });
 
     it("valid parent(post)", async () => {
@@ -222,8 +222,8 @@ describe("Comment service test", () => {
         text: "comment text",
       };
       const valid = await commentServices.hasValidParent(comment);
-      expect(valid).to.equal(true);
-      expect(comment.post).to.equal("123p5fccf267fc3a463b35e4");
+      expect(valid.success).to.equal(true);
+      //expect(comment.post).to.equal("123p5fccf267fc3a463b35e4");
     });
 
     it("invalid parent(Comment)", async () => {
@@ -236,7 +236,7 @@ describe("Comment service test", () => {
         return { success: false };
       };
       const valid = await commentServices.hasValidParent(comment);
-      expect(valid).to.equal(false);
+      expect(valid.success).to.equal(false);
     });
 
     it("invalid parent(Post)", async () => {
@@ -249,7 +249,7 @@ describe("Comment service test", () => {
         return { success: false };
       };
       const valid = await commentServices.hasValidParent(comment);
-      expect(valid).to.equal(false);
+      expect(valid.success).to.equal(false);
     });
   });
 
