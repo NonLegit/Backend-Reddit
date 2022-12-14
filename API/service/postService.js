@@ -117,10 +117,12 @@ class PostService {
     // let newPosts = (!me)?Array.from(posts):posts;
     let newPosts = !me ? [] : posts;
     for (var i = 0; i < posts.length; i++) {
+     
       if (!me) newPosts.push(posts[i].toObject());
-
+      
       let owner = { ...posts[i].owner };
       let author = { ...posts[i].author };
+      
       if (!me) {
         owner = owner._doc;
         author = author._doc;
@@ -135,7 +137,7 @@ class PostService {
           name: owner.userName,
           icon: `${process.env.BACKDOMAIN}/`+owner.profilePicture,
         };
-        console.log(newPosts[i]);
+        
       } else {
         newPosts[i]["owner"] = {
           _id: owner._id,
@@ -150,7 +152,7 @@ class PostService {
         name: author.userName,
       };
     }
-
+    // console.log(newPosts);
     return newPosts;
   }
   /**
@@ -195,7 +197,7 @@ class PostService {
   async getUserPosts(author, sortType) {
     if (sortType === "Hot") {
       // algorithm
-      console.log("Hot");
+      //console.log("Hot");
       const posts = await this.postRepo.getUserPosts(
         author,
         { sort: "-sortOnHot" },
@@ -204,7 +206,7 @@ class PostService {
       return posts.doc;
     } else if (sortType === "Top") {
       // sort by votes
-      console.log("Top");
+      //console.log("Top");
       const posts = await this.postRepo.getUserPosts(
         author,
         { sort: "-votes" },
@@ -224,14 +226,14 @@ class PostService {
    */
   setPostOwnerData(posts) {
     //let newPosts = Array.from(posts);
-    console.log(posts);
+    //console.log(posts);
     let newPosts = posts;
     let owner = {};
     for (var i = 0; i < posts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-        console.log(newPosts[i]);
-      } catch (err) {}
+        //console.log(newPosts[i]);
+      } catch (err) { }
       if (posts[i].ownerType === "User") {
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
@@ -273,7 +275,7 @@ class PostService {
     for (var i = 0; i < posts.length; i++) {
       try {
         posts[i] = posts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         posts[i] = undefined;
       } else {
@@ -307,7 +309,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isSaved"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -330,7 +332,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isSpam"] = true;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -358,7 +360,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (hash[posts[i]._id]) {
         newPosts[i]["isHidden"] = true;
         newPosts[i]["isSaved"] = false;
@@ -388,7 +390,7 @@ class PostService {
     for (var i = 0; i < newPosts.length; i++) {
       try {
         newPosts[i] = newPosts[i].toObject();
-      } catch (err) {}
+      } catch (err) { }
       if (!hash[posts[i]._id]) {
         newPosts[i]["postVoteStatus"] = "0";
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
@@ -413,21 +415,46 @@ class PostService {
         let newElement = {};
         try {
           newElement = element.posts.toObject();
-        } catch (err) {}
+        } catch (err) { }
         newElement["postVoteStatus"] = votetype;
         newPost.push(newElement);
       }
     });
     return newPost;
   }
-  async getPost(postId) {
-    let post = await this.postRepo.findById(postId);
-    console.log(post);
-    if (!post.success) {
-      return { sucess: false, error: postErrors.POST_NOT_FOUND };
+  async getPost(postId, me) {
+    //console.log("inhere");
+    let post = await this.postRepo.getPost(postId);
+    //   console.log(post);
+    //   if (!post.success) {
+    //     return { sucess: false, error: postErrors.POST_NOT_FOUND };
+    //   }
+    //   console.log(post);
+    //   return post;
+    // }
+    
+    // let postInList = [];
+    // postInList.push(post.doc);
+    
+    if (post.success) {
+      
+     if (me == undefined) {
+       let postList = this.getPostOwnerAndAuthor(post.doc, me);
+     
+        return { success: true, doc: postList[0] };
+      } else {
+       let postAsArray = [];
+       postAsArray.push(post.doc[0].toObject());
+        let postList = this.getPostOwnerAndAuthor(postAsArray, me);
+         
+        postList = this.setSavedPostStatus(me, postList);
+        postList = this.setVotePostStatus(me, postList);
+       postList = this.setSpamPostStatus(me, postList);
+      
+       
+        return { success: true, doc: postList[0] };
+      }
     }
-
-    return post;
   }
 
   /**

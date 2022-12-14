@@ -13,6 +13,13 @@ class CommentRepository extends Repository {
       $inc: { repliesCount: 1 },
     });
   }
+  // async createComment(data) {
+    
+  //     const doc = await this.model.create(data).populate("author");
+  //     console.log(doc);
+  //     return { success: true, doc: doc };
+    
+  // }
 
   async removeReply(parent, child) {
     await this.model.findByIdAndUpdate(parent, {

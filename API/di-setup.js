@@ -7,12 +7,14 @@ const PostController = require("./controllers/postController");
 const CommentController = require("./controllers/commentController");
 const subredditController = require("./controllers/subredditController");
 const FileController = require("./controllers/fileController");
+const NotificationController = require("./controllers/notificationController");/////
 // Require Services
 const UserService = require("./service/userService");
 const Email = require("./service/emailService");
 const PostService = require("./service/postService");
 const subredditService = require("./service/subredditService");
 const CommentService = require("./service/commentService");
+const NotificationService = require("./service/notificationService");
 // Require Data access
 //const Repository = require("./data_access/repository");
 const UserRepository = require("./data_access/UserRepository");
@@ -22,6 +24,7 @@ const FlairRepository = require("./data_access/FlairRepository");
 const MessageRepository = require("./data_access/MessageRepository");
 const SubredditRepository = require("./data_access/SubredditRepository");
 const SocialRepository = require("./data_access/SocialRepository");
+const NotificationRepository = require("./data_access/NotificationRepository");
 //Require Models
 const User = require("./models/userModel");
 const Post = require("./models/postModel");
@@ -30,7 +33,7 @@ const subreddit = require("./models/subredditModel");
 const Message = require("./models/messageModel");
 const Flair = require("./models/flairModel");
 const Social = require("./models/socialModel");
-
+const Notification = require("./models/notificationModel");
 const container = awilix.createContainer({
   injectionMode: awilix.InjectionMode.PROXY,
 });
@@ -44,12 +47,14 @@ function setup() {
     CommentController: awilix.asClass(CommentController),
     subredditController: awilix.asClass(subredditController),
     FileController: awilix.asClass(FileController),
+    NotificationController: awilix.asClass(NotificationController),
     // services
     Email: awilix.asClass(Email),
     UserService: awilix.asClass(UserService),
     PostService: awilix.asClass(PostService),
     subredditService: awilix.asClass(subredditService),
     CommentService: awilix.asClass(CommentService),
+    NotificationService: awilix.asClass(NotificationService),
     // DAOs
     //Repository: awilix.asClass(Repository),
     UserRepository: awilix.asClass(UserRepository),
@@ -59,6 +64,9 @@ function setup() {
     MessageRepository: awilix.asClass(MessageRepository),
     SubredditRepository: awilix.asClass(SubredditRepository),
     SocialRepository: awilix.asClass(SocialRepository),
+    NotificationRepository: awilix.asClass(NotificationRepository),
+
+
     // inject knexjs object with database connection pooling
     // support
     User: awilix.asValue(User),
@@ -68,6 +76,7 @@ function setup() {
     Message: awilix.asValue(Message),
     Flair: awilix.asValue(Flair),
     Social: awilix.asValue(Social),
+    Notification: awilix.asValue(Notification)
   });
 }
 

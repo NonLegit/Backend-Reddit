@@ -9,6 +9,7 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const UserController = container.resolve("UserController");
 const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
+const NotificationController = container.resolve("NotificationController");
 const CommentController = container.resolve("CommentController");
 //const upload = FileController.checkUploadedFile();
 const router = express.Router();
@@ -87,7 +88,10 @@ router.get(
 router.use(AuthenticationController.authorize);
 
 // authorized endpoints
-
+router.get("/notifications",NotificationController.getAllNotifications);
+router.patch("/notifications/mark_as_read", NotificationController.markAllNotificationsAsRead);
+router.patch("/notifications/:notificationId/mark_as_read", NotificationController.markNotificationAsRead);
+router.patch("/notifications/:notificationId/hide",NotificationController.hideNotification);
 router
   .route("/images")
   .get(FileController.getUserProfileImage)
