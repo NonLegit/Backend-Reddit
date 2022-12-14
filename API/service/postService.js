@@ -142,8 +142,7 @@ class PostService {
         newPosts[i]["owner"] = {
           _id: owner._id,
           name: owner.fixedName,
-          icon: `${process.env.BACKDOMAIN}/` + owner.icon,
-          icon: `${process.env.BACKDOMAIN}/` + owner.icon,
+          icon: owner.icon,
         };
       }
 
@@ -603,7 +602,7 @@ class PostService {
         icon:
           newPosts[i].savedPost.ownerType === "User"
             ? `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.profilePicture
-            : `${process.env.BACKDOMAIN}/`+ newPosts[i].savedPost.owner.icon,
+            : newPosts[i].savedPost.owner.icon,
       };
       newPosts[i].savedPost.author = {
         _id: newPosts[i].savedPost.author._id,

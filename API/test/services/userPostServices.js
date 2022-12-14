@@ -459,14 +459,14 @@ describe("User Post Test", () => {
         expect(result[1].savedPost.owner.name).to.equal("ahmed");
         expect(result[1].savedPost.owner._id).to.equal("1");
         expect(result[1].savedPost.owner.icon).to.equal(
-          "http://localhost:8000/subreddits/default.png"
+          "subreddits/default.png"
         );
         expect(result[1].savedPost.ownerType).to.equal("Subreddit");
         expect(result[1].savedPost.postVoteStatus).to.equal("-1");
         expect(result[2].savedPost.owner.name).to.equal("ahmed");
         expect(result[2].savedPost.owner._id).to.equal("1");
         expect(result[2].savedPost.owner.icon).to.equal(
-          "http://localhost:8000/subreddits/default.png"
+          "subreddits/default.png"
         );
         expect(result[2].savedPost.ownerType).to.equal("Subreddit");
         expect(result[2].savedPost.postVoteStatus).to.equal("0");
