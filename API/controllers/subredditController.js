@@ -269,7 +269,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
-  // TODO: unit tests (controller,service)
+  // TODO: unit tests (service)
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -489,7 +489,7 @@ class subredditController {
     }
     res.status(204).json({ status: "success" });
   };
-  // TODO: unit testing
+
   updatePermissions = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -586,7 +586,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: mods.data });
   };
 
-  // TODO: unit test
+  // TODO: service test
   leaveModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -627,7 +627,7 @@ class subredditController {
     }
     res.status(204).json({});
   };
-  // TODO: unit testing
+  // TODO: service test
   Favourite = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -665,7 +665,7 @@ class subredditController {
     }
     res.status(204).json({});
   };
-
+  // TODO: service tests
   favouriteSubreddits = async (req, res) => {
     let userId = req.user._id;
 
@@ -688,7 +688,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: favourites.data });
   };
 
-  // TODO: unit test
+  // TODO: service test
   banSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -776,7 +776,7 @@ class subredditController {
     res.status(204).json({});
   };
 
-  // TODO: unit testing
+  // TODO: service testing
   muteSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -794,7 +794,7 @@ class subredditController {
     if (!mutedUser) {
       res.status(400).json({
         status: "fail",
-        errorMessage: "Missing required parameter banedUser",
+        errorMessage: "Missing required parameter mutedUser",
       });
       return;
     }
@@ -864,11 +864,11 @@ class subredditController {
     res.status(204).json({});
   };
 
-  // TODO: add some modedration checks if there is time
-  // TODO: unit tests
-  // TODO: to be tested again after adding mute/unmute endpoints
+
+  // TODO: service tests
   bannedUsers = async (req, res) => {
     let subredditName = req.params.subredditName;
+    let userId = req.user._id;
 
     if (!subredditName) {
       res.status(400).json({
@@ -878,7 +878,7 @@ class subredditController {
       return;
     }
 
-    let banned = await this.subredditServices.banned(subredditName);
+    let banned = await this.subredditServices.banned(subredditName, userId);
 
     if (!banned.success) {
       let msg, stat;
@@ -887,7 +887,10 @@ class subredditController {
           msg = "Subreddit not found";
           stat = 404;
           break;
-
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
         case subredditErrors.MONGO_ERR:
           msg = banned.msg;
           stat = 400;
@@ -902,9 +905,10 @@ class subredditController {
     res.status(200).json({ status: "success", data: banned.data });
   };
 
-  // TODO: unit tests
+  // TODO: service tests
   mutedUsers = async (req, res) => {
     let subredditName = req.params.subredditName;
+    let userId = req.user._id;
 
     if (!subredditName) {
       res.status(400).json({
@@ -914,7 +918,7 @@ class subredditController {
       return;
     }
 
-    let muted = await this.subredditServices.muted(subredditName);
+    let muted = await this.subredditServices.muted(subredditName, userId);
 
     if (!muted.success) {
       let msg, stat;
@@ -922,6 +926,10 @@ class subredditController {
         case subredditErrors.SUBREDDIT_NOT_FOUND:
           msg = "Subreddit not found";
           stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
           break;
 
         case subredditErrors.MONGO_ERR:
@@ -1109,17 +1117,15 @@ class subredditController {
     res.status(204).json({});
   };
 
-  categoryLeaderBoard = async (req, res) => {
-    let category = req.params.category;
+  modPosts = async (req, res) => {
+    let location = req.params.location;
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
 
-    console.log("ksdfslfdskldfksmdfksmkdfmskldmf");
-
-    if (!category) {
+    if (!location) {
       res.status(400).json({
         status: "fail",
-        message: "Missing required parameter category",
+        message: "Missing required parameter location",
       });
       return;
     }
@@ -1135,20 +1141,18 @@ class subredditController {
       req.query,
       subredditName,
       userId,
-      category
+      location
     );
 
     if (!posts.success) {
       let msg, stat;
-      console.log(posts);
-
       switch (posts.error) {
         case subredditErrors.SUBREDDIT_NOT_FOUND:
           msg = "Subreddit not found";
           stat = 404;
           break;
         case mongoErrors.NOT_FOUND:
-          res.status(stat).json({
+          res.status(200).json({
             status: "success",
             data: [],
           });
@@ -1170,6 +1174,70 @@ class subredditController {
       return;
     }
     res.status(200).json({ status: "success", data: posts.data });
+  };
+
+  leaderboardCategory = async (req, res) => {
+    let category = req.params.category;
+    if (!category) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter location",
+      });
+      return;
+    }
+
+    let subreddits = await this.subredditServices.categorizedSubreddits(
+      category,
+      req.query
+    );
+
+    if (!subreddits.success) {
+      let msg, stat;
+      switch (subreddits.error) {
+        case mongoErrors.NOT_FOUND:
+          res.status(200).json({
+            status: "success",
+            data: [],
+          });
+          return;
+        case subredditErrors.MONGO_ERR:
+          msg = subreddits.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: subreddits.data });
+  };
+
+  leaderboardRandom = async (req, res) => {
+    let subreddits = await this.subredditServices.randomSubreddits(req.query);
+
+    if (!subreddits.success) {
+      let msg, stat;
+      switch (subreddits.error) {
+        case mongoErrors.NOT_FOUND:
+          res.status(200).json({
+            status: "success",
+            data: [],
+          });
+          return;
+        case subredditErrors.MONGO_ERR:
+          msg = subreddits.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: subreddits.data });
   };
 
   // ! Doaa's controllers

@@ -150,23 +150,24 @@ class PostRepository extends Repository {
       });
   }
 
-  async getPostsByModStats(subredditId, query) {
+  async getPostsByModStats(subredditId, query, location) {
     const page = query.page * 1 || 1;
     const limit = query.limit * 1 || 100;
     const skip = (page - 1) * limit;
-    console.log("hellooo");
     try {
       let doc = await this.model
-        .findOne({
+        .find({
           owner: subredditId,
+          modState: location,
         })
         .skip(skip)
-        .limit(limit);
+        .limit(limit)
+        .sort("-createdAt");
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-      console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-      return { success: true, doc: [doc] };
+      return { success: true, doc: doc };
     } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }

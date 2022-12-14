@@ -360,7 +360,7 @@ module.exports = async function seeder() {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -392,6 +392,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit2 },
       {
+        primaryTopic: "study",
         description: "this is a selm alsodan subreddit",
         icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1000,
@@ -400,7 +401,7 @@ module.exports = async function seeder() {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -431,6 +432,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit3 },
       {
+        primaryTopic: "study",
         description: "this is a yaaah yalmedan subreddit",
         icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1230,
@@ -439,7 +441,7 @@ module.exports = async function seeder() {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -470,6 +472,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit4 },
       {
+        primaryTopic: "movies",
         description: "this is a yaaah fl share3 subreddit",
         icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 1230,
@@ -478,7 +481,7 @@ module.exports = async function seeder() {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -509,6 +512,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit5 },
       {
+        primaryTopic: "sports",
         description: "this is a al3enb al3enb al3enb subreddit",
         icon: `${process.env.BACKDOMAIN}/api/v1/users/images/default.png`,
         membersCount: 123330,
@@ -517,7 +521,7 @@ module.exports = async function seeder() {
             defaultName: "rule 1",
             title: "this is a title",
             description: "this is a description",
-            appliesTo:" "
+            appliesTo: " ",
           },
         ],
         $push: {
@@ -595,6 +599,7 @@ module.exports = async function seeder() {
       commentCount: 9,
       images: [postImg],
       flairId: flair1._id,
+      modState: "spammed",
     });
 
     let post7 = await Post.create({
@@ -615,6 +620,7 @@ module.exports = async function seeder() {
       commentCount: 8,
       images: [postImg],
       flairId: flair2._id,
+      modState: "removed",
     });
     let post8 = await Post.create({
       title: "subreddit Post 3",

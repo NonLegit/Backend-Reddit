@@ -648,7 +648,7 @@ class subredditService {
     });
   }
 
-  async banned(subredditName) {
+  async banned(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
       "",
@@ -657,12 +657,20 @@ class subredditService {
 
     if (!subredditExisted.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let canDelete = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    // console.log(canDelete);
+    if (!canDelete.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
 
     let banned = await this.subredditRepository.punishedUsers(subredditName);
     return { success: true, data: this.filter(banned.doc.punished, "banned") };
   }
 
-  async muted(subredditName) {
+  async muted(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
       "",
@@ -671,6 +679,14 @@ class subredditService {
 
     if (!subredditExisted.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let canDelete = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    // console.log(canDelete);
+    if (!canDelete.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
 
     let muted = await this.subredditRepository.punishedUsers(subredditName);
     return { success: true, data: this.filter(muted.doc.punished, "muted") };
@@ -875,7 +891,7 @@ class subredditService {
     return { success: true };
   }
 
-  async categorizedPosts(query, subredditName, userId, category) {
+  async categorizedPosts(query, subredditName, userId, location) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
       "",
@@ -893,24 +909,36 @@ class subredditService {
 
     let posts = await this.postRepository.getPostsByModStats(
       subredditExisted.doc._id,
-      query
+      query,
+      location
     );
     if (!posts.success) {
       if (posts.error === mongoErrors.NOT_FOUND) return posts;
       else return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-    let allPosts = posts.doc;
+    return { success: true, data: posts.doc };
+  }
 
-    function filterPosts(list, value) {
-      return list.filter(function (ele) {
-        return value === ele.modState;
-      });
+  async categorizedSubreddits(category, query) {
+    let subs = await this.subredditRepository.categorySubreddits(
+      query,
+      category
+    );
+    if (!subs.success) {
+      if (subs.error === mongoErrors.NOT_FOUND) return subs;
+      else return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    let afterFilter = filterPosts(allPosts, category);
-    posts = console.log(posts);
+    return { success: true, data: subs.doc };
+  }
 
-    return { success: true, data: afterFilter };
+  async randomSubreddits(query) {
+    let subs = await this.subredditRepository.randomSubreddits(query);
+    if (!subs.success) {
+      if (subs.error === mongoErrors.NOT_FOUND) return subs;
+      else return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+    return { success: true, data: subs.doc };
   }
   //! Doaa's part
 

@@ -144,12 +144,14 @@ const postSchema = new mongoose.Schema({
   spamCount: {
     type: Number,
     required: true,
-    default: 0
+    default: 0,
   },
-  spammedBy: [{
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: "User",
-  }]
+  spammedBy: [
+    {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "User",
+    },
+  ],
 });
 postSchema.pre("save", function (next) {
   // this points to the current query
