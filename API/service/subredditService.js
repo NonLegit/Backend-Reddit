@@ -3,6 +3,7 @@ const {
   mongoErrors,
   userErrors,
 } = require("../error_handling/errors");
+const subreddit = require("../models/subredditModel");
 
 /**
  * this class is used for implementing Subreddit Service functions
@@ -11,10 +12,16 @@ const {
  * @param {Repository} userRepository - user repository object to access repository functions using user model
  */
 class subredditService {
-  constructor({ SubredditRepository, FlairRepository, UserRepository }) {
+  constructor({
+    SubredditRepository,
+    FlairRepository,
+    UserRepository,
+    PostRepository,
+  }) {
     this.flairRepository = FlairRepository; // can be mocked in unit testing
     this.userRepository = UserRepository;
     this.subredditRepository = SubredditRepository; // can be mocked in unit testing
+    this.postRepository = PostRepository;
   }
   /**
    * create subreddit service function
@@ -868,10 +875,42 @@ class subredditService {
     return { success: true };
   }
 
-  async categorizedSubreddits(query, filter, category){
-    let subreddits=await this.subredditRepository.categorizedSubreddits(query, filter, category)
+  async categorizedPosts(query, subredditName, userId, category) {
+    let subredditExisted = await this.subredditRepository.getsubreddit(
+      subredditName,
+      "",
+      ""
+    );
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
 
+    let iamMod = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    if (!iamMod.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
 
+    let posts = await this.postRepository.getPostsByModStats(
+      subredditExisted.doc._id,
+      query
+    );
+    if (!posts.success) {
+      if (posts.error === mongoErrors.NOT_FOUND) return posts;
+      else return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+
+    let allPosts = posts.doc;
+
+    function filterPosts(list, value) {
+      return list.filter(function (ele) {
+        return value === ele.modState;
+      });
+    }
+    let afterFilter = filterPosts(allPosts, category);
+    posts = console.log(posts);
+
+    return { success: true, data: afterFilter };
   }
   //! Doaa's part
 

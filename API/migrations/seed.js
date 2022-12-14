@@ -557,6 +557,45 @@ module.exports = async function seeder() {
       images: [postImg],
       flairId: flair1._id,
     });
+    let post66 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
+      views: 300,
+      shareCount: 30,
+      commentCount: 9,
+      images: [postImg],
+      flairId: flair1._id,
+    });
+
+    let post69 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
+      views: 300,
+      shareCount: 30,
+      commentCount: 9,
+      images: [postImg],
+      flairId: flair1._id,
+    });
 
     let post7 = await Post.create({
       title: "subreddit Post 2",

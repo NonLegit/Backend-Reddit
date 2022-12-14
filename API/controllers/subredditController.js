@@ -1,5 +1,9 @@
 const { query } = require("express");
-const { subredditErrors, userErrors } = require("../error_handling/errors");
+const {
+  subredditErrors,
+  userErrors,
+  mongoErrors,
+} = require("../error_handling/errors");
 const { syncIndexes } = require("../models/userModel");
 
 class subredditController {
@@ -1106,8 +1110,11 @@ class subredditController {
   };
 
   categoryLeaderBoard = async (req, res) => {
-    //req.query, req.toFilter
     let category = req.params.category;
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    console.log("ksdfslfdskldfksmdfksmkdfmskldmf");
 
     if (!category) {
       res.status(400).json({
@@ -1116,18 +1123,43 @@ class subredditController {
       });
       return;
     }
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter subredditName",
+      });
+      return;
+    }
 
-    let subreddits = await this.subredditServices.categorizedSubreddits(
+    let posts = await this.subredditServices.categorizedPosts(
       req.query,
-      req.toFilter,
+      subredditName,
+      userId,
       category
     );
 
-    if (!subreddits.success) {
+    if (!posts.success) {
       let msg, stat;
-      switch (subreddits.error) {
+      console.log(posts);
+
+      switch (posts.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case mongoErrors.NOT_FOUND:
+          res.status(stat).json({
+            status: "success",
+            data: [],
+          });
+          return;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+
         case subredditErrors.MONGO_ERR:
-          msg = subreddits.msg;
+          msg = posts.msg;
           stat = 400;
           break;
       }
@@ -1137,7 +1169,7 @@ class subredditController {
       });
       return;
     }
-    res.status(200).json({ status: "success", data: subreddits.data });
+    res.status(200).json({ status: "success", data: posts.data });
   };
 
   // ! Doaa's controllers

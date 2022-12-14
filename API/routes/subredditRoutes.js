@@ -96,7 +96,7 @@ router.post("/:subredditName/rules/:title", subredditController.addRule);
 router.patch("/:subredditName/rules/:title", subredditController.editRule);
 router.delete("/:subredditName/rules/:title", subredditController.deleteRule);
 
-router.get("leaderboard/:category", subredditController.categoryLeaderBoard);
+router.get("/:subredditName/leaderboard/:category", subredditController.categoryLeaderBoard);
 
 router
   .route("/:subredditName/flair")
