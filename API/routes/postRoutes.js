@@ -7,8 +7,16 @@ const FileController = container.resolve("FileController");
 
 const router = express.Router();
 
-router.get("/:postId", AuthenticationController.checkAuthorize, PostController.getPost);
-router.get("/images/:fileName", FileController.getPostImage);
+router.get(
+  "/:postId",
+  AuthenticationController.checkAuthorize,
+  PostController.getPost
+);
+router.post(
+  "/:postId/images",
+  FileController.checkUploadedFile,
+  FileController.uploadPostFiles
+);
 router.use(AuthenticationController.authorize);
 
 router.route("/").post(PostController.createPost);
