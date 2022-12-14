@@ -600,7 +600,6 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 30,
       commentCount: 9,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post66 = await Post.create({
@@ -619,7 +618,6 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 30,
       commentCount: 9,
-      images: [postImg],
       flairId: flair1._id,
     });
 
@@ -639,7 +637,6 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 30,
       commentCount: 9,
-      images: [postImg],
       flairId: flair1._id,
       modState: "spammed",
     });
@@ -660,7 +657,6 @@ module.exports = async function seeder() {
       views: 30,
       shareCount: 100,
       commentCount: 8,
-      images: [postImg],
       flairId: flair2._id,
       modState: "removed",
     });
@@ -680,7 +676,6 @@ module.exports = async function seeder() {
       views: 100,
       shareCount: 4,
       commentCount: 0,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post9 = await Post.create({
@@ -699,7 +694,6 @@ module.exports = async function seeder() {
       views: 0,
       shareCount: 0,
       commentCount: 800,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post10 = await Post.create({
@@ -718,7 +712,6 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 0,
       commentCount: 90,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post11 = await Post.create({
@@ -737,7 +730,6 @@ module.exports = async function seeder() {
       views: 3000,
       shareCount: 200,
       commentCount: 300,
-      images: [postImg],
       flairId: flair3._id,
     });
   } catch (error) {
