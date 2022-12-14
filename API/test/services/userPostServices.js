@@ -452,7 +452,7 @@ describe("User Post Test", () => {
         expect(result[0].savedPost.owner.name).to.equal("ahmed");
         expect(result[0].savedPost.owner._id).to.equal("1");
         expect(result[0].savedPost.owner.icon).to.equal(
-          "http://localhost:8000/users/default.png"
+          `${process.env.BACKDOMAIN}/users/default.png`
         );
         expect(result[0].savedPost.ownerType).to.equal("User");
         expect(result[0].savedPost.postVoteStatus).to.equal("1");

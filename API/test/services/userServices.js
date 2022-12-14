@@ -746,7 +746,7 @@ describe("User Services Test", () => {
       let me = {
         _id: "3",
         profileBackground: "",
-        profilePicture: "http://localhost:8000/icon.png",
+        profilePicture: `${process.env.BACKDOMAIN}/icon.png`,
         save: async () => {
           return true;
         },
