@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, " Provide valid email"],
   },
+  firebaseToken: {
+    type:[ String],
+    required: false,
+    select: false,
+  },
   password: {
     type: String,
     required: [true, "Provide password"],

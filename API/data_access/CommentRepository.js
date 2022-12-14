@@ -1,4 +1,5 @@
 const Repository = require("./repository");
+const ObjectId = require("mongodb").ObjectId;
 const APIFeatures = require("./apiFeatures");
 
 class CommentRepository extends Repository {
@@ -12,6 +13,13 @@ class CommentRepository extends Repository {
       $inc: { repliesCount: 1 },
     });
   }
+  // async createComment(data) {
+    
+  //     const doc = await this.model.create(data).populate("author");
+  //     console.log(doc);
+  //     return { success: true, doc: doc };
+    
+  // }
 
   async removeReply(parent, child) {
     await this.model.findByIdAndUpdate(parent, {
@@ -37,6 +45,23 @@ class CommentRepository extends Repository {
     //await Post.findByIdAndUpdate(id, {isDeleted: true})
     await this.model.findByIdAndDelete(id);
   }
+
+  async commentTree(children, limit, depth) {
+    const comments = this.model.find({
+      _id: { $in: children },
+    });
+    if (depth >= 0)
+      comments
+        .populate({
+          path: "replies",
+          perDocumentLimit: limit,
+          options: { depth: depth },
+        })
+        .lean();
+
+    return await comments;
+  }
+
   async getUserComments(userId, query, popOptions) {
     const features = new APIFeatures(this.model.find({ author: userId }), query)
       .filter()

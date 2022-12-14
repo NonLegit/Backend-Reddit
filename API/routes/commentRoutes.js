@@ -3,19 +3,22 @@ const { container } = require("./../di-setup");
 
 const AuthenticationController = container.resolve("AuthenticationController");
 const CommentController = container.resolve("CommentController");
-
+const NotificationController = container.resolve("NotificationController");
 const router = express.Router();
 
 router.use(AuthenticationController.authorize);
 
-router.route("/").post(CommentController.createComment);
+router.route("/").post(CommentController.createComment,NotificationController.addReplyNotification);
 router
   .route("/:commentId")
   .patch(CommentController.updateComment)
   .delete(CommentController.deleteComment);
 
-module.exports = router;
+router.route("/comment_tree/:postId").get(CommentController.commentTree);
+router.route("/more_children").get(CommentController.moreChildren);
 
+
+module.exports = router;
 
 // const CommentController = require("../controllers/commentController");
 // const Repository = require("../data_access/repository");

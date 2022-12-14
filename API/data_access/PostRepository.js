@@ -93,6 +93,25 @@ class PostRepository extends Repository {
     }
   }
 
+  async getPost(postId) {
+    try {
+     
+      // const doc = await features.query.explain();
+      // const features = new APIFeatures(this.model.find({ _id: postId }), "");
+      // let doc = await features.query;
+      let doc = await this.model.find({ _id: postId });
+      // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+      
+  
+
+      
+      
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
   /**
    * Performs an action on post
    * @param {string} postId The ID of the post
@@ -137,6 +156,12 @@ class PostRepository extends Repository {
     return false;
   }
 
+  /**
+   * Mark post as spammed/unspammed by a certain user according to dir
+   * @param {String} postId
+   * @param {String} userId
+   * @param {Number} dir
+   */
   async spam(postId, userId, dir) {
     if (dir === 1)
       await this.model.findByIdAndUpdate(postId, {
@@ -149,6 +174,17 @@ class PostRepository extends Repository {
         $inc: { spamCount: -1 },
       });
   }
+
+  async commentTree(postId, limit, depth) {
+    const tree = await this.model.findById(postId, "replies").populate({
+      path: "replies",
+      perDocumentLimit: limit,
+      options: { depth: depth },
+    }).lean();
+
+    return tree;
+  }
+
 }
 
 module.exports = PostRepository;
