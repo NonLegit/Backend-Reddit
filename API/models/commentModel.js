@@ -88,14 +88,14 @@ commentSchema.pre("updateMany", async function (next) {
 });
 
 commentSchema.pre("find", function (next) {
-  const { limit, depth } = this.options;
+  const { limit, depth, sort } = this.options;
 
   if (limit && depth) {
     if (depth <= 0) return next();
     this.populate({
       path: "replies",
       perDocumentLimit: limit,
-      options: { depth: depth - 1 },
+      options: { depth: depth - 1, sort },
     });
   }
 

@@ -117,13 +117,13 @@ class CommentService {
     return { success: true };
   }
 
-  async commentTree(postId, limit, depth, commentId) {
+  async commentTree(postId, limit, depth, sort, commentId) {
     const post = await this.postRepo.findById(postId, "_id replies");
     if (!post.success)
       return { success: false, error: commentErrors.POST_NOT_FOUND };
 
     if (!commentId) {
-      const tree = await this.postRepo.commentTree(postId, limit, depth);
+      const tree = await this.postRepo.commentTree(postId, limit, depth, sort);
       return { success: true, tree: tree.replies };
     } else {
       const comment = await this.commentRepo.commentTree(
@@ -142,12 +142,12 @@ class CommentService {
     }
   }
 
-  async moreChildren(children, limit, depth) {
+  async moreChildren(children, limit, depth, sort) {
     //parse children and remove invalid ids
     children = children.split(",");
     children = children.filter((el) => ObjectId.isValid(el));
 
-    return await this.commentRepo.commentTree(children, limit, depth-1);
+    return await this.commentRepo.commentTree(children, limit, depth-1, sort);
   }
 
   setVoteCommentStatus(user, comments) {
