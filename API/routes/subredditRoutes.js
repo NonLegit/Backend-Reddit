@@ -47,10 +47,7 @@ router
   .get(subredditController.getFlair)
   .patch(subredditController.updateFlair)
   .delete(subredditController.deleteFlair);
-router.get(
-  "/:subredditName/about/:location",
-  subredditController.relevantPosts
-);
+
 router.get("/mine/:where", subredditController.subredditsJoined);
 router.get("/moderator/:username", subredditController.subredditsModerated);
 

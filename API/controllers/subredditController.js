@@ -11,7 +11,7 @@ class subredditController {
     this.subredditServices = subredditService; // can be mocked in unit testing
     this.userServices = UserService;
   }
-
+  // TODO: service tests 
   createSubreddit = async (req, res) => {
     let data = req.body;
     let userId = req.user._id;
@@ -65,7 +65,7 @@ class subredditController {
       id: subreddit.data._id,
     });
   };
-
+  // TODO: service tests 
   updateSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let data = req.body;
@@ -119,7 +119,7 @@ class subredditController {
       data: subreddit.data,
     });
   };
-
+  // TODO: service tests 
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -161,7 +161,7 @@ class subredditController {
       data: subreddit.data,
     });
   };
-
+  // TODO: service tests 
   deleteSubreddit = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -209,7 +209,7 @@ class subredditController {
       status: "success",
     });
   };
-
+  // TODO: service tests 
   deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -269,7 +269,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
-  // TODO: unit tests (service)
+  // TODO: service tests 
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -339,7 +339,7 @@ class subredditController {
       status: "success",
     });
   };
-
+  // TODO: service tests 
   subredditsJoined = async (req, res) => {
     let userId = req.user._id;
     let location = req.params.where;
@@ -381,7 +381,7 @@ class subredditController {
       data: subreddits.data,
     });
   };
-
+  // TODO: service tests 
   subredditsModerated = async (req, res) => {
     let userName = req.params.username;
 
@@ -416,11 +416,6 @@ class subredditController {
     });
   };
 
-  async relevantPosts(req, res, next) {
-    let subredditName = req.params.subredditName;
-    let userId = req.user._id;
-    let category = req.params.location;
-  }
   // TODO: service test
   inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
@@ -490,6 +485,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
+   // TODO: service tests 
   updatePermissions = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -551,6 +547,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
+   // TODO: service tests 
   getModerators = async (req, res) => {
     let subredditName = req.params.subredditName;
 
@@ -946,7 +943,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: muted.data });
   };
 
-  // TODO: unit tests
+  // TODO: service tests
   addRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1004,7 +1001,7 @@ class subredditController {
     res.status(204).json({});
   };
 
-  // TODO: unit tests
+  // TODO: service tests
   editRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1062,6 +1059,7 @@ class subredditController {
     res.status(204).json({});
   };
 
+   // TODO: service tests 
   deleteRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1117,6 +1115,7 @@ class subredditController {
     res.status(204).json({});
   };
 
+   // TODO: service tests 
   modPosts = async (req, res) => {
     let location = req.params.location;
     let subredditName = req.params.subredditName;
@@ -1176,6 +1175,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: posts.data });
   };
 
+   // TODO: service tests 
   leaderboardCategory = async (req, res) => {
     let category = req.params.category;
     if (!category) {
@@ -1214,6 +1214,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: subreddits.data });
   };
 
+   // TODO: service tests 
   leaderboardRandom = async (req, res) => {
     let subreddits = await this.subredditServices.randomSubreddits(req.query);
 
