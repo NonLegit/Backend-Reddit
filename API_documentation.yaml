@@ -7009,11 +7009,11 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
 
   /posts/{postId}/images:
-    description: deal with files (images)
+    description: Upload image (or video) to a post
     post:
       tags:
         - Images
-      description: upload post file in its folder
+      description: Attach a file to a post after it has been created. The post kind must be image or video and it must match the kind parameter
       summary: Upload post (image)
       security:
         - BearerAuth: []
@@ -7031,12 +7031,19 @@ paths:
             schema:
               type: object
               properties:
-                filename:
-                  type: string
-                  example: post.png
                 file:
                   type: string
                   format: binary
+                kind:
+                  type: string
+                  enum:
+                  - image
+                  - video
+                caption:
+                  type: string
+                link:
+                  type: string
+
       responses:
         201:
           description: Success operation
@@ -7048,6 +7055,8 @@ paths:
                   status:
                     type: string
                     example: success
+                  post:
+                    $ref: "#/components/schemas/Post"
         400:
           description: Bad Request
           content:
@@ -7058,9 +7067,9 @@ paths:
                   status:
                     type: string
                     example: fail
-                  errorMessage:
+                  Message:
                     type: string
-                    example: you are not owner of this post
+                    example: Invalid post kind
         404:
           description: Not Found
           content:
