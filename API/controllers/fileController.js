@@ -1,6 +1,8 @@
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
+const { postErrors } = require("../error_handling/errors");
+
 /**
  * FileController Class which handles authentication and authorization of user in backend
  */
@@ -10,10 +12,11 @@ class FileController {
    * Depends on user services object
    * @param {object} FileService - user service object
    */
-  constructor({ UserService, subredditService }) {
+  constructor({ UserService, subredditService, PostService }) {
     // this.FileService = FileService; // can be mocked in unit testing
     this.UserServices = UserService; // can be mocked in unit testing
     this.subredditService = subredditService; // can be mocked in unit testing
+    this.PostService = PostService;
     this.multerStorage = multer.memoryStorage();
     this.upload = multer({
       storage: this.multerStorage,
@@ -184,54 +187,84 @@ class FileController {
       });
     }
   };
-  getUserProfileImage(req, res, next) {
-    const fileName = req.params.fileName;
-    const filePath = `./public/users/${fileName}`;
 
-    // Check if file specified by the filePath exists
-    fs.exists(filePath, function (exists) {
-      if (exists) {
-        // Content-type is very interesting part that guarantee that
-        // Web browser will handle response in an appropriate manner.
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + fileName,
-        });
-        fs.createReadStream(filePath).pipe(res);
-        return;
-      } else {
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + "default.png",
-        });
-        fs.createReadStream("./public/users/default.png").pipe(res);
-      }
-    });
-  }
-  getPostImage(req, res, next) {
-    const fileName = req.params.fileName;
-    const filePath = `./public/posts/${fileName}`;
+  uploadPostFiles = async (req, res) => {
+    const postId = req.params?.postId;
+    const { kind, caption, link } = req.body;
+    const file = req.file;
 
-    // Check if file specified by the filePath exists
-    fs.exists(filePath, function (exists) {
-      if (exists) {
-        // Content-type is very interesting part that guarantee that
-        // Web browser will handle response in an appropriate manner.
-        res.writeHead(200, {
-          "Content-Type": "img/png",
-          "Content-Disposition": "attachment; filename=" + fileName,
-        });
-        fs.createReadStream(filePath).pipe(res);
-        return;
-      } else {
-        res.writeHead(200, {
-          "Content-Type": "img/jpg",
-          "Content-Disposition": "attachment; filename=" + "default.jpg",
-        });
-        fs.createReadStream("./public/posts/default.jpg").pipe(res);
+    if (!postId || !kind || (kind !== "image" && kind !== "video")) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid request",
+      });
+      return;
+    }
+
+    const post = await this.PostService.isAuth(postId, req.user._id, "kind");
+    if (!post.success) {
+      let msg, stat;
+      switch (post.error) {
+        case postErrors.NOT_AUTHOR:
+          msg = "User must be author";
+          stat = 401;
+          break;
+        case postErrors.POST_NOT_FOUND:
+          msg = "Post not found";
+          stat = 404;
+          break;
       }
+      res.status(stat).json({
+        status: "fail",
+        message: msg,
+      });
+      return;
+    }
+
+    if (post.data.kind !== kind) {
+      res.status(400).json({
+        status: "fail",
+        message: "Conflict in post kind",
+      });
+      return;
+    }
+
+    let fileObj;
+
+    if (kind === "image") {
+      file.filename = `${req.params.postId}/post-${
+        req.params.postId
+      }-${Date.now()}.jpeg`;
+
+      var x = 1200;
+      var y = 630;
+
+      let dir = "public/posts/" + req.params.postId;
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+      await sharp(file.buffer)
+        .resize(x, y)
+        .toFormat("jpeg")
+        .jpeg({ quality: 90 })
+        .toFile(`public/posts/${file.filename}`);
+
+      fileObj = { path: "posts/" + file.filename, caption, link };
+    } else {
+      res.status(400).json({
+        status: "fail",
+        message: "Video posts are not implemented yet",
+      });
+      return;
+    }
+
+    const updatedPost = await this.PostService.addFile(postId, kind, fileObj);
+
+    res.status(201).json({
+      status: "success",
+      post: updatedPost,
     });
-  }
+  };
 }
 
 module.exports = FileController;

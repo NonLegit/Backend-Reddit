@@ -140,7 +140,7 @@ const subredditSchema = new mongoose.Schema({
     default: "subreddits/default.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
-  membersCount: {
+  membersCount: {  
     type: Number,
     required: false,
     default: 1,

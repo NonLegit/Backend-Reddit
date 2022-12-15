@@ -228,7 +228,6 @@ module.exports = async function seeder() {
     views: 8,
     shareCount: 0,
     commentCount: 0,
-    images: [postImg],
   });
   let comment1 = await Comment.create({
     author: user3._id,
@@ -435,6 +434,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit2 },
       {
+        primaryTopic: "study",
         description: "this is a selm alsodan subreddit",
         icon: `subreddits/default.png`,
         membersCount: 1000,
@@ -474,6 +474,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit3 },
       {
+        primaryTopic: "study",
         description: "this is a yaaah yalmedan subreddit",
         icon: `subreddits/default.png`,
         membersCount: 1230,
@@ -513,6 +514,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit4 },
       {
+        primaryTopic: "movies",
         description: "this is a yaaah fl share3 subreddit",
         icon: `subreddits/default.png`,
         membersCount: 1230,
@@ -552,6 +554,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit5 },
       {
+        primaryTopic: "sports",
         description: "this is a al3enb al3enb al3enb subreddit",
         icon: `subreddits/default.png`,
         membersCount: 123330,
@@ -597,8 +600,45 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 30,
       commentCount: 9,
-      images: [postImg],
       flairId: flair1._id,
+    });
+    let post66 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
+      views: 300,
+      shareCount: 30,
+      commentCount: 9,
+      flairId: flair1._id,
+    });
+
+    let post69 = await Post.create({
+      title: "subreddit Post",
+      kind: "self",
+      text: "this subreddit post on NONLEGIT",
+      author: user3._id,
+      owner: subreddit1._id,
+      ownerType: "Subreddit",
+      nsfw: true,
+      spoiler: false,
+      sendReplies: true,
+      suggestedSort: "top",
+      scheduled: false,
+      votes: 50,
+      views: 300,
+      shareCount: 30,
+      commentCount: 9,
+      flairId: flair1._id,
+      modState: "spammed",
     });
 
     let post7 = await Post.create({
@@ -617,8 +657,8 @@ module.exports = async function seeder() {
       views: 30,
       shareCount: 100,
       commentCount: 8,
-      images: [postImg],
       flairId: flair2._id,
+      modState: "removed",
     });
     let post8 = await Post.create({
       title: "subreddit Post 3",
@@ -636,7 +676,6 @@ module.exports = async function seeder() {
       views: 100,
       shareCount: 4,
       commentCount: 0,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post9 = await Post.create({
@@ -655,7 +694,6 @@ module.exports = async function seeder() {
       views: 0,
       shareCount: 0,
       commentCount: 800,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post10 = await Post.create({
@@ -674,7 +712,6 @@ module.exports = async function seeder() {
       views: 300,
       shareCount: 0,
       commentCount: 90,
-      images: [postImg],
       flairId: flair1._id,
     });
     let post11 = await Post.create({
@@ -693,7 +730,6 @@ module.exports = async function seeder() {
       views: 3000,
       shareCount: 200,
       commentCount: 300,
-      images: [postImg],
       flairId: flair3._id,
     });
   } catch (error) {

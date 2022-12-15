@@ -7,9 +7,19 @@ const FileController = container.resolve("FileController");
 
 const router = express.Router();
 
-router.get("/:postId", AuthenticationController.checkAuthorize, PostController.getPost);
-router.get("/images/:fileName", FileController.getPostImage);
+router.get(
+  "/:postId",
+  AuthenticationController.checkAuthorize,
+  PostController.getPost
+);
+
 router.use(AuthenticationController.authorize);
+
+router.post(
+  "/:postId/images",
+  FileController.checkUploadedFile,
+  FileController.uploadPostFiles
+);
 
 router.route("/").post(PostController.createPost);
 router
@@ -17,17 +27,19 @@ router
   .patch(PostController.updatePost)
   .delete(PostController.deletePost);
 
-router.route("/:postId/follow_post").patch(PostController.followPost);
 router.route("/:postId/spam").patch(PostController.spam);
 
-router.param("postId", PostController.mustBeAuthOrMod);
+// router.param("postId", PostController.mustBeAuthOrMod);
 
-router.route("/:postId/actions/:action").patch(PostController.postActions);
+router
+  .route("/:postId/actions/:action")
+  .patch(PostController.mustBeAuthOrMod, PostController.postActions);
 
-router.param("postId", PostController.mustBeMod);
+//router.param("postId", PostController.mustBeMod);
 
-router.route("/:postId/moderate/:action").patch(PostController.moderatePost);
-router.route("/:postId/:suggested_sort").patch(PostController.suggestedSort);
+router
+  .route("/:postId/moderate/:action")
+  .patch(PostController.mustBeMod, PostController.moderatePost);
 
 module.exports = router;
 

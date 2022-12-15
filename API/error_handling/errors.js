@@ -18,7 +18,8 @@ exports.postErrors = Object.freeze({
   NOT_AUTHOR_OR_MOD: 9,
   NOT_MOD: 10,
   OWNER_NOT_SUBREDDIT: 11,
-  ACTION_ALREADY_DONE: 12
+  ACTION_ALREADY_DONE: 12,
+  INVALID_PARENT_POST: 13,
 });
 
 exports.postActions = Object.freeze({
@@ -31,18 +32,18 @@ exports.postActions = Object.freeze({
 });
 
 exports.commentErrors = Object.freeze({
-  MONGO_ERR: 0,
+  MONGO_ERR: 5,
   NOT_AUTHOR: 1,
   INVALID_PARENT: 2,
   COMMENT_NOT_FOUND: 3,
   POST_NOT_FOUND: 4,
-  COMMENT_NOT_CHILD: 5
+  COMMENT_NOT_CHILD: 5,
+  PARANT_LOCKED: 6,
 });
 
 exports.notificationErrors = Object.freeze({
   MONGO_ERR: 0,
   NOTIFICATION_NOT_FOUND: 1,
-
 });
 
 exports.subredditErrors = Object.freeze({
@@ -80,7 +81,7 @@ exports.userErrors = Object.freeze({
 });
 
 exports.mongoErrors = Object.freeze({
-  NOT_FOUND: 0,
+  NOT_FOUND: 90,
   VALIDATION: 1,
   INVALID_ID: 2,
   DUPLICATRE_KEY: 3,

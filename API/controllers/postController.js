@@ -16,7 +16,8 @@ class PostController {
     const data = req.body;
     data.author = req.user._id;
 
-    const validReq = data.ownerType && data.kind && data.title;
+    const validReq =
+      data.ownerType && (data.kind || data.sharedFrom) && data.title;
     if (!validReq) {
       res.status(400).json({
         status: "fail",
@@ -49,6 +50,11 @@ class PostController {
         case postErrors.MONGO_ERR:
           msg = post.msg;
           stat = 400;
+          break;
+        case postErrors.INVALID_PARENT_POST:
+          msg = "Invalid parent post";
+          stat = 400;
+          break;
       }
       res.status(stat).json({
         status: "fail",
@@ -209,7 +215,12 @@ class PostController {
 
     // get post which he creates
     await me.populate("saved.savedPost", "-__v");
-    await me.populate("savedComments.savedComment", "-__v");
+
+    await me.populate({
+      path: "savedComments.savedComment",
+      select: "-__v",
+      options: { userComments: true },
+    });
     //await me.saved.populate("owner");
     // get vote of me if these post i vote on it
     let posts = this.postServices.setVoteStatus(me, me.saved);
@@ -505,7 +516,7 @@ class PostController {
   };
   getPost = async (req, res) => {
     let postId = req.params.postId;
-let me =(req.isAuthorized==true)?req.user:undefined;
+    let me = req.isAuthorized == true ? req.user : undefined;
     if (!postId) {
       res.status(400).json({
         status: "fail",
@@ -514,7 +525,7 @@ let me =(req.isAuthorized==true)?req.user:undefined;
       return;
     }
     try {
-      let post = await this.postServices.getPost(postId,me);
+      let post = await this.postServices.getPost(postId, me);
       if (!post.success) {
         let message, statusCode, status;
         switch (post.error) {
@@ -598,9 +609,6 @@ let me =(req.isAuthorized==true)?req.user:undefined;
       });
   };
 
-  followPost = async (req, res) => {};
-  suggestedSort = async (req, res) => {};
-
   spam = async (req, res) => {
     const postId = req.params?.postId;
     const dir = req.body.dir || 1;
@@ -615,7 +623,8 @@ let me =(req.isAuthorized==true)?req.user:undefined;
 
     const { success, error } = await this.postServices.spam(
       postId,
-      req.user._id, dir
+      req.user._id,
+      dir
     );
     if (!success) {
       let msg, stat;
@@ -736,17 +745,21 @@ let me =(req.isAuthorized==true)?req.user:undefined;
         limit: limit,
         page: page,
       };
-      let comments = await this.CommentService.getUserComments(userId,user.data,query);
+      let comments = await this.CommentService.getUserComments(
+        userId,
+        user.data,
+        query
+      );
       let posts = await this.postServices.getUserPosts(userId, sort);
       posts = this.postServices.setVotePostStatus(me, posts);
       posts = this.postServices.setSavedPostStatus(me, posts);
       posts = this.postServices.setHiddenPostStatus(me, posts);
       posts = this.postServices.setPostOwnerData(posts);
-      posts = this.postServices.filterPosts(posts,comments);
+      posts = this.postServices.filterPosts(posts, comments);
       res.status(200).json({
         status: "success",
         posts: posts,
-        comments: comments
+        comments: comments,
       });
     } else {
       res.status(404).json({

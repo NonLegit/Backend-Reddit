@@ -65,6 +65,27 @@ const commentSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  locked: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  nsfw: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  spoiler: {
+    type: Boolean,
+    required: true,
+    default: false,
+  },
+  modState: {
+    type: String,
+    required: true,
+    enum: ["unmoderated", "approved", "removed", "spammed"],
+    default: "unmoderated",
+  },
 });
 
 //A middleware to cascade soft delete
@@ -88,14 +109,14 @@ commentSchema.pre("updateMany", async function (next) {
 });
 
 commentSchema.pre("find", function (next) {
-  const { limit, depth } = this.options;
+  const { limit, depth, sort } = this.options;
 
   if (limit && depth) {
     if (depth <= 0) return next();
     this.populate({
       path: "replies",
       perDocumentLimit: limit,
-      options: { depth: depth - 1 },
+      options: { depth: depth - 1, sort },
     });
   }
 
@@ -106,7 +127,7 @@ commentSchema.post("find", function (result) {
   const { limit, depth } = this.options;
 
   if (limit && depth) {
-    const ids = this.getFilter()._id.$in.slice(this.options.limit);
+    const ids = this.getFilter()._id.$in.slice(limit);
     const more = {
       _id: new ObjectId(ids[0]),
       Type: "moreReplies",
@@ -123,10 +144,13 @@ commentSchema.post("find", function (result) {
 //   this.populate("post");
 //   this.populate("author","_id userName profilePicture profileBackground");
 // });
-commentSchema.pre(/^find/,  function () {
-  console.log(this);
-  this.populate("post");
-  this.populate("author","_id userName profilePicture profileBackground");
+commentSchema.pre(/^find/, function () {
+  const { userComments } = this.options;
+  if(userComments )
+  {
+    this.populate("post");
+  }
+  this.populate("author", "_id userName profilePicture profileBackground");
 });
 commentSchema.pre("save", function (next) {
   // this points to the current query
