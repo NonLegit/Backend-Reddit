@@ -31,6 +31,10 @@ class CommentController {
           msg = "Invalid parent, couldn't create comment";
           stat = 404;
           break;
+        case commentErrors.PARANT_LOCKED:
+          msg = "Parent is locked, comments are not allowed";
+          stat = 409;
+          break;
         case commentErrors.MONGO_ERR:
           msg = comment.msg;
           stat = 400;
