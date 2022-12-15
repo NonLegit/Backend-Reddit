@@ -3,7 +3,7 @@ const FCM = require("fcm-node");
 //const serverKey = "AAAAExvkdPQ:APA91bGYbrdVHWtvumTEOz3YncleOdyHiBjrdGq_BlotyC6WUlydVmhN0FDX4Uepu_YX0edQHgZmvnZuKDdMrRx5wofMLUyBIIcnWUSZinLdzenM-5tku84BfjtpSBuwIXFCbK8mg8HN";
 const serverKey = process.env.FIREBASE_SERVER_KEY;
 const fcm = new FCM(serverKey);
-const { notificationErrors, userErrors } = require("../error_handling/errors");
+const { messageErrors, userErrors } = require("../error_handling/errors");
 
 // var admin = require("firebase-admin");
 
@@ -152,8 +152,108 @@ class MessageController {
     }
       
   }
-
-
+ getUnreadMessage = async (req, res) => {
+          try {
+      let userId = req.user._id;
+      let unreadMessages = await this.messageServices.getUnreadMessage(userId,req.query);
+      //console.log(notifications);
+      if (!unreadMessages.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:unreadMessages.data
+      });
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+      
+  }
+  
+markAllAsRead=async (req, res) => {
+    try {
+      let userId = req.user._id;
+      let messages = await this.messageServices.markAllAsRead(userId);
+      //console.log(notifications);
+      if (!messages.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(201).json({});
+    } catch (err) {
+        console.log("error in subredditservices " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+    }
+    deleteMessage=async (req, res) => {
+    try {
+        let userId = req.user._id;
+        //if(!req.params.messageId!!!req.params.messageId.)
+      //console.log(req.params.notificationId);
+      let messageToDelete = await this.messageServices.deleteMessage(userId,req.params.messageId);
+      //console.log(notifications);
+      if (!messageToDelete.success) {
+          console.log(messageToDelete);
+        let message, statusCode, status;
+        switch (messageToDelete.error) {
+          case messageErrors.MESSAGE_NOT_FOUND:
+            message = "Message not found";
+            statusCode = 404;
+            status = "Not Found";
+            break;
+          case messageErrors.MONGO_ERR:
+            message = "Internal server error";
+            statusCode = 500;
+            status = "Internal Server Error";
+            break;
+        }
+         return res.status(statusCode).json({
+          status: status,
+          message: message,
+        });
+      }
+      return res.status(201).send();
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+    }
+    
+     getPostReplies = async (req, res) => {
+          try {
+      let userId = req.user._id;
+      let postReplies = await this.messageServices.getPostReplies(userId,req.query);
+      //console.log(notifications);
+      if (!postReplies.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:postReplies.data
+      });
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+      
+  }
  
   }
 module.exports = MessageController;

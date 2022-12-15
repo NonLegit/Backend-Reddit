@@ -46,6 +46,11 @@ exports.notificationErrors = Object.freeze({
   NOTIFICATION_NOT_FOUND: 1,
 });
 
+exports.messageErrors = Object.freeze({
+  MONGO_ERR: 0,
+  MESSAGE_NOT_FOUND: 1,
+});
+
 exports.subredditErrors = Object.freeze({
   MONGO_ERR: 0,
   SUBREDDIT_NOT_FOUND: 1,

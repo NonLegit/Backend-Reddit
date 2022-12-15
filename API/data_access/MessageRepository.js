@@ -126,9 +126,103 @@ class MessageRepository extends Repository {
         } catch (err) {
             return { success: false, ...decorateError(err) };
         }
+  }
+    async getUnreadMessage(userId,query) {
+      try {
+          const features = new APIFeatures(
+        this.model.find({ "to": userId,"isRead":false }),
+            query
+          )
+            .filter()
+            .limitFields()
+            .paginate()
+            .sort();
+        let unreadMessages = await features.query;
+        
+        console.log(unreadMessages);
+            if (!unreadMessages) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true, doc: unreadMessages };
+      } catch (err) {
+        console.log(err);
+            return { success: false, ...decorateError(err) };
+        }
+  }
+  
+   async getPostReplies(userId,query) {
+      try {
+          const features = new APIFeatures(
+        this.model.find({ "to": userId,"type":"postReply"}),
+            query
+          )
+            .filter()
+            .limitFields()
+            .paginate()
+            .sort();
+        let postReplies = await features.query;
+        
+        console.log(postReplies);
+            if (!postReplies) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true, doc: postReplies };
+      } catch (err) {
+        console.log(err);
+            return { success: false, ...decorateError(err) };
+        }
     }
 
 
 
+
+async markAllAsRead(userId) {
+        try {
+            let messages = await this.model.updateMany({ "to": userId }, { isRead: true });
+            //  console.log(notifications);
+            if (!messages) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true };
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+    }
+
+ async deleteMessage(userId,messageId) {
+        try {
+          let message = await this.model.findById( messageId );
+         
+             console.log(message);
+          if (!message ) {
+            console.log("dddddddddddddddddddddd");
+                // console.log("hhh");
+                return { success: false, error: mongoErrors.NOT_FOUND};
+          }
+          let modified;
+          if (message.to.equals(userId)) {
+             modified=await this.model.findByIdAndUpdate(
+                message._id,
+                { isDeletedInDestination: true },
+                {
+                  new: true,
+                  runValidators: true,
+                });
+          } else if (message.from.equals(userId)) {
+             modified=await this.model.findByIdAndUpdate(
+              message._id,
+              { isDeletedInSource: true },
+              {
+                new: true,
+                runValidators: true,
+              });
+          }
+          if(modified)
+            return { success: true };
+          else return { success: false, error: mongoErrors.NOT_FOUND};
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+    }
 }
 module.exports = MessageRepository;

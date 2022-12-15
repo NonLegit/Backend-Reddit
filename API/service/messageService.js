@@ -1,4 +1,4 @@
-const { userErrors, mongoErrors, notificationErrors } = require("../error_handling/errors");
+const { userErrors, mongoErrors, messageErrors } = require("../error_handling/errors");
 
 
 class MessageService {
@@ -46,9 +46,54 @@ class MessageService {
       return { success: false, error: sentMessages.error };
     }
     return { success: true, data: sentMessages.doc };
-  }
-  
+    }
+    
+     async getUnreadMessage(userId,query) {
+    const unreadMessages = await this.messageRepo.getUnreadMessage(userId,query);
+     //console.log(notifications);
+    if (!unreadMessages.success) {
+      return { success: false, error: unreadMessages.error };
+    }
+    return { success: true, data: unreadMessages.doc };
+    }
+    
+    async getPostReplies(userId,query) {
+    const postReplies = await this.messageRepo.getPostReplies(userId,query);
+     //console.log(notifications);
+    if (!postReplies.success) {
+      return { success: false, error: postReplies.error };
+    }
+    return { success: true, data: postReplies.doc };
+    }
+    
+     async getUnreadMessage(userId,query) {
+    const unreadMessages = await this.messageRepo.getUnreadMessage(userId,query);
+     //console.log(notifications);
+    if (!unreadMessages.success) {
+      return { success: false, error: unreadMessages.error };
+    }
+    return { success: true, data: unreadMessages.doc };
+    }
 
+  async markAllAsRead(userId,messageId) {
+ const messages = await this.messageRepo.markAllAsRead(userId,messageId);
+
+     //console.log(notifications);
+    if (!messages.success) {
+      return { success: false, error: messageErrors.MONGO_ERR };
+    }
+    return { success: true }; 
+  }
+
+    async deleteMessage(userId,messageId) {
+ const message = await this.messageRepo.deleteMessage(userId,messageId);
+
+     //console.log(notifications);
+    if (!message.success) {
+      return { success: false, error: messageErrors.MESSAGE_NOT_FOUND };
+    }
+    return { success: true }; 
+  }
 }
 
 module.exports = MessageService;

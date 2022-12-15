@@ -57,7 +57,11 @@ const messageSchema = new mongoose.Schema({
       type: Boolean,
       default: false
     },
-    isDeleted: {
+    isDeletedInSource: {
+      type: Boolean,
+      default: false
+  },
+      isDeletedInDestination: {
       type: Boolean,
       default: false
   },
@@ -72,8 +76,9 @@ messageSchema.pre(/^find/,  function () {
   console.log(this);
   this.populate("from","_id userName");
   this.populate("to", "_id userName");
+  this.populate("comment","_id text parent -post -author");
   this.populate("subreddit", "_id fixedName name");
-   this.populate("comment", "_id text");
+  
 });
 const Message = mongoose.model('Message', messageSchema);
 module.exports = Message;
