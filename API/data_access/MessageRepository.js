@@ -43,14 +43,21 @@ class MessageRepository extends Repository {
 
    async createReplyMessage(user, comment, post) {
      try {
-       
-            let data;
-            if (!post.subreddit) {
+       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+       let data;
+       console.log(user);
+        console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+       console.log(post);
+       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+       console.log(comment);
+        console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+       if (!post.subreddit) {
+           
                data = {
                     type: 'postReply',
                     from:  user._id,
             
-                    subreddit:  post.subreddit._id,
+                   
                     
                     comment: comment._id,
                        
@@ -58,13 +65,15 @@ class MessageRepository extends Repository {
                         
                     
                     post: post._id
-                };
-            } else {
+         };
+           console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+       } else {
+          
                 data = {
                     type: 'postReply',
                     from:  user._id,
             
-                    
+                   subreddit:  post.subreddit._id,
                     comment: comment._id,
                        
                     to:  post.author._id,
@@ -72,9 +81,13 @@ class MessageRepository extends Repository {
                     
                     post: post._id
                 };
-            }
-        
-            let message = await this.model.create(data);
+       }
+       
+       console.log(data);
+       let message = await this.model.create(data);
+       console.log("comme un enfannt");
+       console.log(message);
+       console.log("comme un enfannt");
             if (!message)
                 return { success: false, error: mongoErrors.UNKOWN };
             
@@ -83,7 +96,8 @@ class MessageRepository extends Repository {
             //notify ba2a
             return { success: true, doc: message };
             
-        } catch (err) {
+     } catch (err) {
+       console.log(err);
             return { success: false, ...decorateError(err) };
         }
             
@@ -91,6 +105,28 @@ class MessageRepository extends Repository {
     }
 
 
+    async getSentMessage(userId,query) {
+      try {
+          const features = new APIFeatures(
+        this.model.find({ "from": userId }),
+            query
+          )
+            .filter()
+            .limitFields()
+            .paginate()
+            .sort();
+        let sentMessages = await features.query;
+        
+          // await this.model.find({ "from": userId }).sort("-createdAt");
+            // console.log(notifications);
+            if (!sentMessages) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true, doc: sentMessages };
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+    }
 
 
 

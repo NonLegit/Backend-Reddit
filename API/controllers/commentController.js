@@ -49,16 +49,16 @@ class CommentController {
     }
     req.comment = comment.commentToNotify;
     req.post = comment.postToNotify;
+    //console.log(comment.postToNotify);
     //console.log(req);
     res.status(201).json({
       status: "success",
       data: comment.data,
     });
     //console.log(req.comment.type);
-    if (req.comment.type == "Post")
+    
       return next();
-    else
-      return;
+   
     //mentions
   };
 

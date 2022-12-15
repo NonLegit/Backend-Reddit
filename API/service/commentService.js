@@ -1,3 +1,4 @@
+const { ConsoleReporter } = require("jasmine");
 const { commentErrors } = require("../error_handling/errors");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -17,34 +18,62 @@ class CommentService {
    * @param {object} comment
    * @returns {boolean}
    */
-  async hasValidParent(comment) {
+  // async hasValidParent(comment) {
+  //   if (comment.parentType === "Comment") {
+  //     const validParent = await this.commentRepo.findById(
+  //       comment.parent,
+  //       "post locked",
+  //       "post"
+  //     );
+  //     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
+  //     Console.log(validParent.doc);
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc.post._id;
+  //       return {
+  //         success: true,
+  //         post: validParent.doc.post,
+  //         locked: validParent.doc.locked,
+  //       };
+  //     }
+  //   } else if (comment.parentType === "Post") {
+  //     const validParent = await this.postRepo.findById(
+  //       comment.parent,
+  //       "locked",
+  //       "author owner"
+  //     );
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc._id;
+  //       return {
+  //         success: true,
+  //         post: validParent.doc,
+  //         locked: validParent.doc.locked,
+  //       };
+  //     }
+  //   }
+  //   return { success: false };
+  // }
+   async hasValidParent(comment) {
     if (comment.parentType === "Comment") {
       const validParent = await this.commentRepo.findById(
         comment.parent,
-        "post locked",
+        "post",
         "post"
       );
+      console.log("lllllllllllllllllllllllllllll");
+      console.log(validParent);
+       console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
-        return {
-          success: true,
-          post: validParent.doc.post,
-          locked: validParent.doc.locked,
-        };
+        return { success: true, post: validParent.doc.post };
       }
     } else if (comment.parentType === "Post") {
-      const validParent = await this.postRepo.findById(
-        comment.parent,
-        "locked",
-        "author owner"
-      );
+      const validParent = await this.postRepo.findById(comment.parent,"","author owner");
+      console.log("lllllllllllllllllllllllllllll");
+      console.log(validParent);
+       console.log("lllllllllllllllllllllllllllll");
       if (validParent.success) {
         comment.post = validParent.doc._id;
-        return {
-          success: true,
-          post: validParent.doc,
-          locked: validParent.doc.locked,
-        };
+        return { success: true, post: validParent.doc };
       }
     }
     return { success: false };
@@ -84,6 +113,8 @@ class CommentService {
       type: comment.doc.parentType,
     };
     let postToNotify;
+    console.log("heeeeeeeeeeeeeeeeeee");
+    console.log(validParent.post);
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
         _id: validParent.post._id,

@@ -129,29 +129,29 @@ class MessageController {
 
 
     
-//     getSentMessage = async (req, res) => {
-//           try {
-//       let userId = req.user._id;
-//       let sentMessages = await this.messageServices.getSentMessage(userId);
-//       //console.log(notifications);
-//       if (!sentMessages.success) {
-//         return res.status(500).json({
-//           status: "Internal server error",
-//           message: "Internal server error",
-//         });
-//       }
-//       return res.status(200).json({
-//         status: "OK",
-//         data:sentMessages.data
-//       });
-//     } catch (err) {
-//         console.log("error in message controller " + err);
-//       res.status(500).json({
-//         status: "fail",
-//       });
-//     }
+    getSentMessage = async (req, res) => {
+          try {
+      let userId = req.user._id;
+      let sentMessages = await this.messageServices.getSentMessage(userId,req.query);
+      //console.log(notifications);
+      if (!sentMessages.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:sentMessages.data
+      });
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
       
-//   }
+  }
 
 
  

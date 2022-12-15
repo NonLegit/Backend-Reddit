@@ -44,7 +44,7 @@ class NotificationController {
  
  
   addReplyNotification = async (req, res,next) => {
-    
+    console.log(req.post);
     if (!req.user || !req.comment || !req.post) {
       return;
     }
@@ -75,6 +75,9 @@ class NotificationController {
             console.log("Successfully sent with response: ");
           }
         });
+        console.log("noooo body is in here");
+        console.log(notification.data);
+        if(notification.data.type=="postReply")
         return next();
       }
     }

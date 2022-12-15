@@ -11,6 +11,7 @@ const router = express.Router();
 router.use(AuthenticationController.authorize);
 
 router.route("/").post(MessageController.sendMessage);
+router.route("/sent").get(MessageController.getSentMessage);
 // router.route("/").get(NotificationController.getAllNotifications);
 
 module.exports = router;

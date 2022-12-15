@@ -39,14 +39,14 @@ class MessageService {
         return { success: true, data: message.doc };
     }   
 
-//     async getSentMessage(userId) {
-//     const sentMessages = await this.messageRepo.getSentMessage(userId);
-//      //console.log(notifications);
-//     if (!sentMessages.success) {
-//       return { success: false, error: sentMessages.error };
-//     }
-//     return { success: true, data: sentMessages.doc };
-//   }
+    async getSentMessage(userId,query) {
+    const sentMessages = await this.messageRepo.getSentMessage(userId,query);
+     //console.log(notifications);
+    if (!sentMessages.success) {
+      return { success: false, error: sentMessages.error };
+    }
+    return { success: true, data: sentMessages.doc };
+  }
   
 
 }
