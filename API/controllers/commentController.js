@@ -50,7 +50,11 @@ class CommentController {
       status: "success",
       data: comment.data,
     });
-    return next();
+    //console.log(req.comment.type);
+    if (req.comment.type == "Post")
+      return next();
+    else
+      return;
     //mentions
   };
 

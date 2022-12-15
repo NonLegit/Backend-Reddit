@@ -80,6 +80,7 @@ class CommentService {
         subreddit: {
           _id: validParent.post.owner._id,
           fixedName: validParent.post.owner.fixedName,
+          name:validParent.post.owner.name
         },
         author: {
           _id: validParent.post.author._id,

@@ -886,12 +886,12 @@ class subredditService {
     //check if existing subreddit to create flair in
 
     let subreddit = await this.checkSubreddit(subredditName);
-    console.log("oooooooooooooooooooooooooooooooo");
-    console.log(subreddit);
+    //console.log("oooooooooooooooooooooooooooooooo");
+   // console.log(subreddit);
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-    console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+   // console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     //check if user is moderator of subreddit to create flair in
     let isModerator = this.checkModerator(subreddit, userId);
 
@@ -903,12 +903,13 @@ class subredditService {
 
     //create the flair
     let flair = await this.flairRepository.createOne(data);
-
+ 
     if (!flair.success) {
+      console.log(flair);
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-    console.log("hellllllllllllllllllllll");
+   
     console.log(flair);
     //add flair to list of refrences flairs in the subreddit
     let addedTorefrencedFlairs =
@@ -936,8 +937,9 @@ class subredditService {
     //let subreddit = await this.subredditRepository.findByName(subredditName);
 
     let subreddit = await this.subredditRepository.getSubreddit(subredditName);
-    console.log(subreddit);
+    //console.log(subreddit);
     if (!subreddit.success) {
+      console.log("nnnnnnjnjnkjnkjnkjnkjddddddddddddddddddddd");
       return { sucess: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
 
