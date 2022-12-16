@@ -73,7 +73,7 @@ const messageSchema = new mongoose.Schema({
 
 });
 messageSchema.pre(/^find/,  function () {
-  console.log(this);
+ // console.log(this);
   this.populate("from","_id userName");
   this.populate("to", "_id userName");
   this.populate("comment","_id text parent -post -author");

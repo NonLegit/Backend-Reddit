@@ -87,7 +87,7 @@ class PostRepository extends Repository {
         query.sort = "-sortOnBest";
       }
 
-      console.log(query.sort);
+    //  console.log(query.sort);
       const features = new APIFeatures(
         this.model.find(getSubredditPosts),
         query

@@ -159,7 +159,7 @@ class UserRepository extends Repository {
       }
     );
     if (!user) {
-      console.log(user);
+     // console.log(user);
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };

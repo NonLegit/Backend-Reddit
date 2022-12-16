@@ -47,6 +47,7 @@ class MessageController {
   sendMessage = async (req, res) => {
       try {
          
+        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
           if (!req.user || !req.body.text || !req.body.subject || !req.body.to) {
                  res.status(400).json({
                 status: "fail",
@@ -56,17 +57,19 @@ class MessageController {
           }
           
           let messageToSend = await this.messageServices.createMessage(req.user._id, req.body);
-            console.log(messageToSend);
+           // console.log(messageToSend);
           if (messageToSend.success) {
-              console.log(messageToSend.data.to);
+             // console.log(messageToSend.data.to);
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
-              let message;
+            let message;
+            console.log(tokens);
               if (tokens.success&&tokens.data.firebaseToken.length!=0) {
                   message = {
                       registration_ids: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
                   }
-              };
+            };
+           // console.log(tokens);
               fcm.send(message, (err, response) => {
                   if (err) {
                       console.log("Something has gone wrong!" + err);
@@ -258,7 +261,7 @@ markAllAsRead=async (req, res) => {
       let messageToDelete = await this.messageServices.deleteMessage(userId,req.params.messageId);
       //console.log(notifications);
       if (!messageToDelete.success) {
-          console.log(messageToDelete);
+          //console.log(messageToDelete);
         let message, statusCode, status;
         switch (messageToDelete.error) {
           case messageErrors.MESSAGE_NOT_FOUND:

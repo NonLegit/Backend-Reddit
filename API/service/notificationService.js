@@ -20,7 +20,7 @@ class NotificationService {
    async addFollowNotification(follower,followed) {
     //validate post ID
      const notification = await this.notificationRepo.addFollowNotification(follower, followed);
-     console.log(notification);
+    // console.log(notification);
     if (!notification)
       return { success: false, error: notification.error };
 

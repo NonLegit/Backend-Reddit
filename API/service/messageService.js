@@ -20,7 +20,7 @@ class MessageService {
             return { success: false, error: userErrors.USER_NOT_FOUND };
         const messageToSend = await this.messageRepo.createMessage(userId,message,userExisted.doc._id);
         if (!messageToSend.success) {
-            console.log(messageToSend.error);
+          //  console.log(messageToSend.error);
             return { success: false, error: messageToSend.error };
 
         }

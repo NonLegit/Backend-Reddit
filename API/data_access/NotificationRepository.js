@@ -13,7 +13,7 @@ class NotificationRepository extends Repository {
         try {
             let data;
             let typeOfReply = (comment.type == "Post") ? "postReply" : 'commentReply';
-            console.log(post);
+       //     console.log(post);
             if (!post.subreddit) {
                 data = {
                     type: typeOfReply,
@@ -93,7 +93,7 @@ class NotificationRepository extends Repository {
                 }
             };
             let notification = await this.model.create(data);
-            console.log(notification);
+           // console.log(notification);
             if (!notification)
                 return { success: false, error: mongoErrors.UNKOWN };     
             //notify ba2a
@@ -132,7 +132,7 @@ class NotificationRepository extends Repository {
      async markNotificationAsRead(userId,notificationId) {
         try {
             let notification = await this.model.updateOne({ "followedUser._id": userId ,"_id":notificationId}, { seen: true });
-             console.log(notification);
+             //console.log(notification);
             if (!notification||notification.matchedCount==0) {
                 // console.log("hhh");
                 return { success: false, error: mongoErrors.NOT_FOUND};

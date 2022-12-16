@@ -52,7 +52,7 @@ class CommentController {
     req.comment = comment.commentToNotify;
     req.post = comment.postToNotify;
     console.log("to print comment");
-    console.log(comment);
+   // console.log(comment);
     console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
     // console.log(req.comment);
     // console.log(req.post);

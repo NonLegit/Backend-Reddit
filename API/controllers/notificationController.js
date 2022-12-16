@@ -44,7 +44,7 @@ class NotificationController {
  
  
   addReplyNotification = async (req, res, next) => {
-    console.log(req.post);
+   // console.log(req.post);
     if (!req.user || !req.comment || !req.post) {
       return;
     }
@@ -54,9 +54,9 @@ class NotificationController {
     if (notification.success) {
       
       let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
-      console.log(tokens.data.firebaseToken[0]);
+     // console.log(tokens.data.firebaseToken[0]);
       console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-      console.log(notification.data);
+      //console.log(notification.data);
       let message;
       if (tokens.success && tokens.data.firebaseToken.length != 0) {
         message = {
@@ -72,7 +72,7 @@ class NotificationController {
           }
         });
         console.log("noooo body is in here");
-        console.log(notification.data);
+      //  console.log(notification.data);
       }
         if(notification.data.type=="postReply")
         return next();
@@ -163,7 +163,7 @@ markAllNotificationsAsRead=async (req, res) => {
   markNotificationAsRead=async (req, res) => {
     try {
       let userId = req.user._id;
-      console.log(req.params.notificationId);
+     // console.log(req.params.notificationId);
       let notification = await this.notificationServices.markNotificationAsRead(userId,req.params.notificationId);
       //console.log(notifications);
       if (!notification.success) {
@@ -200,7 +200,7 @@ markAllNotificationsAsRead=async (req, res) => {
    hideNotification=async (req, res) => {
     try {
       let userId = req.user._id;
-      console.log(req.params.notificationId);
+   //   console.log(req.params.notificationId);
       let notification = await this.notificationServices.hideNotification(userId,req.params.notificationId);
       //console.log(notifications);
       if (!notification.success) {

@@ -1245,7 +1245,10 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: subreddits.data });
   };
-
+//approve a user
+  
+  
+  //TODO:approve a user message
   approveUser = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -1631,7 +1634,7 @@ class subredditController {
     let subredditName = req.params.subredditName;
     try {
       let response = await this.subredditServices.checkSubreddit(subredditName);
-      console.log(response);
+     // console.log(response);
       if (response.success) {
         req.toFilter = response.doc._id;
         next();

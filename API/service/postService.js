@@ -306,7 +306,7 @@ class PostService {
 
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
-      console.log(user.saved[i].savedPost);
+      //console.log(user.saved[i].savedPost);
       // if (user.saved[i].savedType === "Post")
       hash[user.saved[i].savedPost] = user.saved[i].savedPost;
     }

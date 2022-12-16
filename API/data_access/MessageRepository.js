@@ -43,14 +43,14 @@ class MessageRepository extends Repository {
 
    async createReplyMessage(user, comment, post) {
      try {
-       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      
        let data;
-       console.log(user);
-        console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
-       console.log(post);
-       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
-       console.log(comment);
-        console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      //  console.log(user);
+      //   console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      //  console.log(post);
+      //  console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+      //  console.log(comment);
+      //   console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm");
        if (!post.subreddit) {
            
                data = {
@@ -83,10 +83,10 @@ class MessageRepository extends Repository {
                 };
        }
        
-       console.log(data);
+      // console.log(data);
        let message = await this.model.create(data);
        console.log("comme un enfannt");
-       console.log(message);
+     //  console.log(message);
        console.log("comme un enfannt");
             if (!message)
                 return { success: false, error: mongoErrors.UNKOWN };
@@ -189,7 +189,7 @@ class MessageRepository extends Repository {
             .sort();
         let unreadMessages = await features.query;
         
-        console.log(unreadMessages);
+        //console.log(unreadMessages);
             if (!unreadMessages) {
                 return { success: false, error: mongoErrors.UNKOWN };
             }
@@ -212,7 +212,7 @@ class MessageRepository extends Repository {
             .sort();
         let postReplies = await features.query;
         
-        console.log(postReplies);
+     //   console.log(postReplies);
             if (!postReplies) {
                 return { success: false, error: mongoErrors.UNKOWN };
             }
@@ -243,7 +243,7 @@ async markAllAsRead(userId) {
         try {
           let message = await this.model.findById( messageId );
          
-             console.log(message);
+          //   console.log(message);
           if (!message ) {
             console.log("dddddddddddddddddddddd");
                 // console.log("hhh");

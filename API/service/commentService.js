@@ -27,7 +27,7 @@ class CommentService {
         "post"
       );
       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
-      console.log(validParent.doc);
+     // console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return {
@@ -113,7 +113,7 @@ class CommentService {
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    console.log(validParent.post);
+   // console.log(validParent.post);
      console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     let commentToNotify = {
       _id: comment.doc._id,
@@ -137,7 +137,7 @@ class CommentService {
       };
     } else if (validParent.post.ownerType == "User") {
       console.log("in type post");
-      console.log(validParent);
+     // console.log(validParent);
       postToNotify = {
         _id: validParent.post._id,
         author: {
@@ -413,7 +413,7 @@ class CommentService {
           commentTree.push(post);
         }
         post = element.post;
-        console.log(element.post);
+       // console.log(element.post);
 
         //console.log(element.post);
         // post["_id"] = element.post._id;
