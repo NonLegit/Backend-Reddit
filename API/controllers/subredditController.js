@@ -209,7 +209,7 @@ class subredditController {
       status: "success",
     });
   };
-
+//delete a mod
   deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -270,6 +270,7 @@ class subredditController {
   };
 
   // TODO: unit tests (service)
+  //accept or reject 
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -422,6 +423,7 @@ class subredditController {
     let category = req.params.location;
   }
   // TODO: service test
+  //invite the mod
   inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -689,6 +691,7 @@ class subredditController {
   };
 
   // TODO: service test
+  //ban a user
   banSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -777,6 +780,7 @@ class subredditController {
   };
 
   // TODO: service testing
+  //mute a user
   muteSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -862,6 +866,7 @@ class subredditController {
       return;
     }
     res.status(204).json({});
+    //from action
   };
 
 
