@@ -85,9 +85,8 @@ class PostService {
       data.sharedFrom ||
       (data.kind === "link" && data.url) ||
       (data.kind === "self" && data.text) ||
-      ((data.kind === "image" || data.kind === "video") &&
-        !data.url &&
-        !data.text);
+      data.kind === "image" ||
+      data.kind === "video";
 
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
