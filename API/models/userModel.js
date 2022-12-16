@@ -362,6 +362,16 @@ const userSchema = new mongoose.Schema({
 
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified
+  let profileBackground = this.profileBackground;
+  let profilePicture = this.profilePicture;
+  this.profilePicture = profilePicture.replace(
+    `${process.env.BACKDOMAIN}/`,
+    ""
+  );
+  this.profileBackground = profileBackground.replace(
+    `${process.env.BACKDOMAIN}/`,
+    ""
+  );
   if (!this.isModified("password")) return next();
 
   // Hash the password with cost of 12
@@ -437,6 +447,18 @@ userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     return JWTTimestamp < changedTimestamp;
   }
   return false;
+};
+userSchema.methods.replaceProfileDomain = function () {
+  let profileBackground = this.profileBackground;
+  let profilePicture = this.profilePicture;
+  this.profilePicture = profilePicture.replace(
+    `${process.env.BACKDOMAIN}/`,
+    ""
+  );
+  this.profileBackground = profileBackground.replace(
+    `${process.env.BACKDOMAIN}/`,
+    ""
+  );
 };
 const User = mongoose.model("User", userSchema);
 
