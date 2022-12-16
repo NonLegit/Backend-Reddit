@@ -20,6 +20,8 @@ router.route("/unread").get(MessageController.getUnreadMessage);//
 router.route("/").post(MessageController.sendMessage);
 router.route("/:messageId").delete(MessageController.deleteMessage);
 router.route("/post_replies").get(MessageController.getPostReplies);//not show delete
+router.route("/").get(MessageController.getMessages);
+router.route("/all").get(MessageController.getAllMessages);
 //mentions
 
 //inbocx al except post replies and mentions

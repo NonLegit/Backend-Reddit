@@ -15,7 +15,7 @@ class MessageService {
             "",
             ""
         );//user id to send
-        
+     // console.log(userExisted);
             if (!userExisted.success)
             return { success: false, error: userErrors.USER_NOT_FOUND };
         const messageToSend = await this.messageRepo.createMessage(userId,message,userExisted.doc._id);
@@ -46,6 +46,22 @@ class MessageService {
       return { success: false, error: sentMessages.error };
     }
     return { success: true, data: sentMessages.doc };
+  }
+  async getMessages(userId,query) {
+    const sentMessages = await this.messageRepo.getMessages(userId,query);
+     //console.log(notifications);
+    if (!sentMessages.success) {
+      return { success: false, error: sentMessages.error };
+    }
+    return { success: true, data: sentMessages.doc };
+  }
+   async getAllMessages(userId,query) {
+    const allMessages = await this.messageRepo.getAllMessages(userId,query);
+     //console.log(notifications);
+    if (!allMessages.success) {
+      return { success: false, error: allMessages.error };
+    }
+    return { success: true, data: allMessages.doc };
     }
     
      async getUnreadMessage(userId,query) {

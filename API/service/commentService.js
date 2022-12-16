@@ -27,7 +27,7 @@ class CommentService {
         "post"
       );
       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
-      Console.log(validParent.doc);
+      console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return {

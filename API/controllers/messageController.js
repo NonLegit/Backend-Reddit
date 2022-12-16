@@ -76,7 +76,13 @@ class MessageController {
               });
 
           }
-          if (!messageToSend.success) {
+        if (!messageToSend.success) {
+          if (messageToSend.error == userErrors.USER_NOT_FOUND) {
+            return res.status(404).json({
+            status: "Not Found",
+            message: "User Not Found",
+        });
+        }
         return res.status(500).json({
           status: "Internal server error",
           message: "Internal server error",
@@ -127,7 +133,56 @@ class MessageController {
       return ;
     }
 
-
+  getMessages = async (req, res) => {
+  {
+    try {
+      let userId = req.user._id;
+      let sentMessages = await this.messageServices.getMessages(userId,req.query);
+      //console.log(notifications);
+      if (!sentMessages.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:sentMessages.data
+      });
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+      
+  }
+  }
+   getAllMessages = async (req, res) => {
+  {
+    try {
+      let userId = req.user._id;
+      let allMessages = await this.messageServices.getAllMessages(userId,req.query);
+      //console.log(notifications);
+      if (!allMessages.success) {
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:allMessages.data
+      });
+    } catch (err) {
+        console.log("error in message controller " + err);
+      res.status(500).json({
+        status: "fail",
+      });
+    }
+      
+  }
+}
     
     getSentMessage = async (req, res) => {
           try {

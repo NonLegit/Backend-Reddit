@@ -58,13 +58,8 @@ class NotificationController {
       console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
       console.log(notification.data);
       let message;
-      if (tokens.success&&tokens.data.firebaseToken.length!=0 ) {
+      if (tokens.success && tokens.data.firebaseToken.length != 0) {
         message = {
-          //to:"eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
-          // to: "e9fZCcAVgdjfaQyMkAq5VO:APA91bEYMvvwaBLo8Ec2OhFgnngTO1gXFgveBwyqSaniasvuMg9gXdG00cpJylY4vdk-RN0W6H2rpyBvE3POgZ3oPDNuDB9yn8FLsNo28R2JjcxwPowY9SyjNvxDolZVGEbu2VVmHFVY",
-          //  registration_ids: ["eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
-          //  "cfMDd2dNTfIMxRBSfjtskS:APA91bGobI2lbIUVrbnfjVORHm_3r4ewihiaQteGzgTHx855_5xxHFRgrkn7vM90cAeFqVrROQkahqpkurzyaVXM6yCe_7mjh7Mrb4RlRqza6Y05W61DKfE9y_DpdxnShYlFEkisNLKD"],
-          //to:"cfMDd2dNTfIMxRBSfjtskS:APA91bGobI2lbIUVrbnfjVORHm_3r4ewihiaQteGzgTHx855_5xxHFRgrkn7vM90cAeFqVrROQkahqpkurzyaVXM6yCe_7mjh7Mrb4RlRqza6Y05W61DKfE9y_DpdxnShYlFEkisNLKD",
           registration_ids: tokens.data.firebaseToken,
           data: { val: JSON.stringify(notification.data) }
         }
@@ -78,9 +73,10 @@ class NotificationController {
         });
         console.log("noooo body is in here");
         console.log(notification.data);
+      }
         if(notification.data.type=="postReply")
         return next();
-      }
+      
     }
       return ;
     }

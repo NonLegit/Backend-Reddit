@@ -108,7 +108,7 @@ class MessageRepository extends Repository {
     async getSentMessage(userId,query) {
       try {
           const features = new APIFeatures(
-        this.model.find({ "from": userId }),
+        this.model.find({ "from": userId,"isDeletedInSource":false }),
             query
           )
             .filter()
@@ -127,6 +127,56 @@ class MessageRepository extends Repository {
             return { success: false, ...decorateError(err) };
         }
   }
+
+
+   async getMessages(userId,query) {
+     try {
+       const features = new APIFeatures(
+         this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false, type: { $nin:["postReply","userMention"] } },{ "to": userId, "isDeletedInDestination": false, type: { $nin:["postReply","userMention"] } }] }),
+            query
+          )
+            .filter()
+            .limitFields()
+            .paginate()
+            .sort();
+        let sentMessages = await features.query;
+        
+          // await this.model.find({ "from": userId }).sort("-createdAt");
+            // console.log(notifications);
+            if (!sentMessages) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true, doc: sentMessages };
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+  }
+
+ async getAllMessages(userId,query) {
+     try {
+       const features = new APIFeatures(
+         this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false},{ "to": userId, "isDeletedInDestination": false }] }),
+            query
+          )
+            .filter()
+            .limitFields()
+            .paginate()
+            .sort();
+        let sentMessages = await features.query;
+        
+          // await this.model.find({ "from": userId }).sort("-createdAt");
+            // console.log(notifications);
+            if (!sentMessages) {
+                return { success: false, error: mongoErrors.UNKOWN };
+            }
+            return { success: true, doc: sentMessages };
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+  }
+
+
+
     async getUnreadMessage(userId,query) {
       try {
           const features = new APIFeatures(
@@ -153,7 +203,7 @@ class MessageRepository extends Repository {
    async getPostReplies(userId,query) {
       try {
           const features = new APIFeatures(
-        this.model.find({ "to": userId,"type":"postReply"}),
+        this.model.find({ "to": userId,"isDeletedInDestination":false,type:"postReply"}),
             query
           )
             .filter()
