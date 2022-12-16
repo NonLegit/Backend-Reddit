@@ -178,20 +178,34 @@ class PostController {
         let userId = user.data._id;
 
         // check if this user block me or i blocked him in order to show posts , TODO
-
+        let isUserBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+        let isMeBlockedUser = await this.userServices.checkBlockStatus(
+          user.data,
+          me
+        );
         // get post which he creates
-        let posts = await this.postServices.getUserPosts(userId, sortType);
-        // get vote of me if these post i vote on it
-        posts = this.postServices.setVotePostStatus(me, posts);
-        posts = this.postServices.setSavedPostStatus(me, posts);
-        posts = this.postServices.setHiddenPostStatus(me, posts);
-        posts = this.postServices.setPostOwnerData(posts);
-        //console.log(posts[0]);
+        if (isUserBlockedMe === true || isMeBlockedUser === true) {
+          res.status(200).json({
+            status: "success",
+            posts: [],
+          });
+        } else {
+          let posts = await this.postServices.getUserPosts(userId, sortType);
+          // get vote of me if these post i vote on it
+          posts = this.postServices.setVotePostStatus(me, posts);
+          posts = this.postServices.setSavedPostStatus(me, posts);
+          posts = this.postServices.setHiddenPostStatus(me, posts);
+          posts = this.postServices.setPostOwnerData(posts);
+          //console.log(posts[0]);
 
-        res.status(200).json({
-          status: "success",
-          posts: posts,
-        });
+          res.status(200).json({
+            status: "success",
+            posts: posts,
+          });
+        }
       } else {
         res.status(404).json({
           status: "fail",
@@ -745,26 +759,267 @@ class PostController {
         limit: limit,
         page: page,
       };
-      let comments = await this.CommentService.getUserComments(
-        userId,
-        user.data,
-        query
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        user.data
       );
-      let posts = await this.postServices.getUserPosts(userId, sort);
-      posts = this.postServices.setVotePostStatus(me, posts);
-      posts = this.postServices.setSavedPostStatus(me, posts);
-      posts = this.postServices.setHiddenPostStatus(me, posts);
-      posts = this.postServices.setPostOwnerData(posts);
-      posts = this.postServices.filterPosts(posts, comments);
-      res.status(200).json({
-        status: "success",
-        posts: posts,
-        comments: comments,
-      });
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        user.data,
+        me
+      );
+      // get post which he creates
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(200).json({
+          status: "success",
+          posts: [],
+          comments: [],
+        });
+      } else {
+        let comments = await this.CommentService.getUserComments(
+          userId,
+          user.data,
+          query
+        );
+        let posts = await this.postServices.getUserPosts(userId, sort);
+        posts = this.postServices.setVotePostStatus(me, posts);
+        posts = this.postServices.setSavedPostStatus(me, posts);
+        posts = this.postServices.setHiddenPostStatus(me, posts);
+        posts = this.postServices.setPostOwnerData(posts);
+        posts = this.postServices.filterPosts(posts, comments);
+        res.status(200).json({
+          status: "success",
+          posts: posts,
+          comments: comments,
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
         errorMessage: "User Not Found",
+      });
+    }
+  };
+  postVote = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+    let dir = req.body.dir;
+    if (dir !== "1" && dir !== "0" && dir !== "-1") {
+      console.log(dir);
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    } else {
+      // check post is found
+      let post = await this.postServices.findPostById(postId);
+      if (post.success === true) {
+        // check that author of block is not blocking me or i blocked him
+        console.log(post.data);
+        let isUserBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          post.data.author
+        );
+        let isMeBlockedUser = await this.userServices.checkBlockStatus(
+          post.data.author,
+          me
+        );
+        // get post which he creates
+        if (isUserBlockedMe === true || isMeBlockedUser === true) {
+          res.status(405).json({
+            status: "fail",
+            errorMessage: "Method Not Allowed",
+          });
+        } else {
+          // add vote status of user
+          let isUpdated = await this.postServices.addVote(
+            me,
+            postId,
+            dir,
+            post.data.votes
+          );
+          if (isUpdated === true) {
+            res.status(200).json({
+              status: "success",
+            });
+          } else {
+            res.status(304).json({
+              status: "success",
+            });
+          }
+        }
+      } else {
+        res.status(404).json({
+          status: "fail",
+          errorMessage: "Post Not Found",
+        });
+      }
+    }
+  };
+  savePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.savePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    }
+  };
+  unSavePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.unSavePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    }
+  };
+  hidePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.hidePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    }
+  };
+  unHidePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.unHidePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
       });
     }
   };

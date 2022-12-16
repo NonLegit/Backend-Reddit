@@ -205,6 +205,11 @@ describe("User Controller Test", () => {
             { userId: "2", status: "followed" },
             { userId: "3", status: "followed" },
           ],
+          userMeRelationship: [
+            { userId: "1", status: "none" },
+            { userId: "2", status: "none" },
+            { userId: "3", status: "none" },
+          ],
         },
         params: {
           userName: "name",
@@ -238,6 +243,32 @@ describe("User Controller Test", () => {
           };
           return response;
         },
+        about: (me, user) => {
+          let searchUser = {
+            _id: "2",
+            userName: "mohamed",
+            profilePicture: "",
+            profileBackground: "",
+            canbeFollowed: true,
+            followersCount: 0,
+            friendsCount: 0,
+            gender: "male",
+            displayName: "mohamed",
+            postKarma: 1,
+            commentKarma: 2,
+            description: "",
+            createdAt: "",
+            nsfw: false,
+            autoplayMedia: false,
+            adultContent: false,
+            adultContent: false,
+            country: "egypt",
+            socialLinks: [],
+            isFollowed: true,
+            isBlocked: false,
+          };
+          return searchUser;
+        },
       };
       const userController = new UserController({ UserService });
       await userController.about(req, res, "");
@@ -245,7 +276,7 @@ describe("User Controller Test", () => {
       expect(res.status(200).json).to.have.been.calledWith({
         status: "success",
         user: {
-          id: "2",
+          _id: "2",
           userName: "mohamed",
           profilePicture: "",
           profileBackground: "",
@@ -263,6 +294,7 @@ describe("User Controller Test", () => {
           adultContent: false,
           country: "egypt",
           isFollowed: true,
+          isBlocked: false,
           socialLinks: [],
         },
       });
@@ -275,6 +307,11 @@ describe("User Controller Test", () => {
             { userId: "1", status: "followed" },
             { userId: "2", status: "followed" },
             { userId: "3", status: "followed" },
+          ],
+          userMeRelationship: [
+            { userId: "1", status: "none" },
+            { userId: "2", status: "none" },
+            { userId: "3", status: "none" },
           ],
         },
         params: {
@@ -289,6 +326,32 @@ describe("User Controller Test", () => {
             msg: "User Not Found",
           };
           return response;
+        },
+        about: (me, user) => {
+          let searchUser = {
+            _id: "2",
+            userName: "mohamed",
+            profilePicture: "",
+            profileBackground: "",
+            canbeFollowed: true,
+            followersCount: 0,
+            friendsCount: 0,
+            gender: "male",
+            displayName: "mohamed",
+            postKarma: 1,
+            commentKarma: 2,
+            description: "",
+            createdAt: "",
+            nsfw: false,
+            autoplayMedia: false,
+            adultContent: false,
+            adultContent: false,
+            country: "egypt",
+            socialLinks: [],
+            isFollowed: true,
+            isBlocked: false,
+          };
+          return searchUser;
         },
       };
       const userController = new UserController({ UserService });
@@ -308,6 +371,11 @@ describe("User Controller Test", () => {
             { userId: "1", status: "followed" },
             { userId: "2", status: "followed" },
             { userId: "3", status: "followed" },
+          ],
+          userMeRelationship: [
+            { userId: "1", status: "none" },
+            { userId: "2", status: "none" },
+            { userId: "3", status: "none" },
           ],
         },
         params: {
@@ -341,6 +409,32 @@ describe("User Controller Test", () => {
           };
           return response;
         },
+        about: (me, user) => {
+          let searchUser = {
+            _id: "6",
+            userName: "mohamed",
+            profilePicture: "",
+            profileBackground: "",
+            canbeFollowed: true,
+            followersCount: 0,
+            friendsCount: 0,
+            gender: "male",
+            displayName: "mohamed",
+            postKarma: 1,
+            commentKarma: 2,
+            description: "",
+            createdAt: "",
+            nsfw: false,
+            autoplayMedia: false,
+            adultContent: false,
+            adultContent: false,
+            country: "egypt",
+            socialLinks: [],
+            isFollowed: false,
+            isBlocked: false,
+          };
+          return searchUser;
+        },
       };
       const userController = new UserController({ UserService });
       await userController.about(req, res, "");
@@ -348,7 +442,7 @@ describe("User Controller Test", () => {
       expect(res.status(200).json).to.have.been.calledWith({
         status: "success",
         user: {
-          id: "6",
+          _id: "6",
           userName: "mohamed",
           profilePicture: "",
           profileBackground: "",
@@ -366,6 +460,7 @@ describe("User Controller Test", () => {
           adultContent: false,
           country: "egypt",
           isFollowed: false,
+          isBlocked: false,
           socialLinks: [],
         },
       });
