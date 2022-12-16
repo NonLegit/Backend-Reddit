@@ -143,7 +143,6 @@ const subredditSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
-    select: false,
   },
   topics: {
     type: [{ type: String }],
@@ -169,7 +168,7 @@ const subredditSchema = new mongoose.Schema({
         required: false,
       },
       userName: { type: String },
-      joiningDate: { type: Date, default: Date.now() },
+      joiningDate: { type: Date, required: true, default: Date.now() },
       profilePicture: {
         type: String,
         required: false,

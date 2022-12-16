@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate: Date.now(),
+              joiningDate: new Date(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,
@@ -241,7 +241,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             rules: {
-              createdAt: Date.now(),
+              createdAt: new Date(),
               defaultName: data.defaultName,
               description: data.description,
               appliesTo: data.appliesTo,
@@ -269,7 +269,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(),
               profilePicture: user.profilePicture,
               type: "banned",
               banInfo: {
@@ -301,7 +301,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(),
               profilePicture: user.profilePicture,
               type: "muted",
               muteInfo: {
@@ -328,7 +328,7 @@ class SubredditRepository extends Repository {
           $push: {
             approved: {
               user: userId,
-              approvedDate: Date.now(),
+              approvedDate: new Date(),
             },
           },
         }
@@ -480,7 +480,6 @@ class SubredditRepository extends Repository {
         })
         .select("approved")
         .populate("approved.user", "_id userName joinDate profilePicture");
-      
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -535,7 +534,6 @@ class SubredditRepository extends Repository {
           fixedName: subredditName,
         })
         .select("punished");
-
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
