@@ -860,6 +860,16 @@ describe("User Services Test", () => {
             status: "blocked",
           },
         ],
+        userMeRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
         _id: "1",
         profileBackground: "",
         profilePicture: "",
@@ -869,6 +879,20 @@ describe("User Services Test", () => {
       };
       let other = {
         userMeRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        meUserRelationship: [
           {
             userId: "1",
             status: "followed",
@@ -903,6 +927,12 @@ describe("User Services Test", () => {
             status: "blocked",
           },
         ],
+        userMeRelationship: [
+          {
+            userId: "3",
+            status: "none",
+          },
+        ],
         _id: "1",
         profileBackground: "",
         profilePicture: "",
@@ -919,6 +949,12 @@ describe("User Services Test", () => {
           {
             userId: "5",
             status: "blocked",
+          },
+        ],
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "none",
           },
         ],
         _id: "2",

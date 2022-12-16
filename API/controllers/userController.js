@@ -143,35 +143,8 @@ class UserController {
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
       if (user.success !== false) {
-        // check if i followed him
-        const relation = me.meUserRelationship.find(
-          (element) => element.userId === user.data._id
-        );
-        let isFollowed = false;
-        if (relation) {
-          if (relation.status === "followed") isFollowed = true;
-        }
-        const searchUser = {
-          id: user.data._id,
-          userName: user.data.userName,
-          profilePicture: user.data.profilePicture,
-          profileBackground: user.data.profileBackground,
-          canbeFollowed: user.data.canbeFollowed,
-          followersCount: user.data.followersCount,
-          friendsCount: user.data.friendsCount,
-          gender: user.data.gender,
-          displayName: user.data.displayName,
-          postKarma: user.data.postKarma,
-          commentKarma: user.data.commentKarma,
-          description: user.data.description,
-          createdAt: user.data.joinDate,
-          nsfw: user.data.nsfw,
-          autoplayMedia: user.data.autoplayMedia,
-          adultContent: user.data.adultContent,
-          isFollowed: isFollowed,
-          country: user.data.country,
-          socialLinks: user.data.socialLinks,
-        };
+        let searchUser = this.userServices.about(me,user.data);
+        console.log(searchUser);
         res.status(200).json({
           status: "success",
           user: searchUser,
