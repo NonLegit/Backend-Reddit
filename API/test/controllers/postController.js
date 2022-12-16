@@ -72,6 +72,10 @@ describe("Post Controller Test", () => {
             },
           };
         },
+        checkBlockStatus: async (me,user) =>
+        {
+          return false;
+        }
       };
       const PostService = {
         getUserPosts: async (userid, sorttype) => {
