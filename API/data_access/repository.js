@@ -112,6 +112,32 @@ class Repository {
     return true;
   }
 
+  /**
+   * Finds a doc based on its ID
+   * Makes sure post is not soft deleted
+   * @param {string} id - The doc ID
+   * @param {string} [select] - A comma separated list of fields to be selected
+   * @param {string} [pop] - The field to be populated
+   * @returns {object}
+   */
+  async exists(id) {
+    try {
+      if (!ObjectId.isValid(id))
+        return { success: false, error: mongoErrors.NOT_FOUND };
+
+      const doc = await this.model.findOne({ _id: id, isDeleted: false });
+      await doc.depopulate("author");
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+
+      //most probably you won't need error handling in this function but just to be on the safe side
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   //==========================================================================================================
   //==========================="DEPRECATED"(DO NOT USE THESE FUNCTIONS, CREATE YOUR OWN IN YOUR REPO)==========
   //==========================================================================================================

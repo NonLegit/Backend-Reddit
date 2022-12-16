@@ -5,10 +5,16 @@ const ObjectId = require("mongodb").ObjectId;
  * Comment Service class for handling Comment model and services
  */
 class CommentService {
-  constructor({ CommentRepository, PostRepository, NotificationRepository }) {
+  constructor({
+    CommentRepository,
+    PostRepository,
+    NotificationRepository,
+    UserRepository,
+  }) {
     this.commentRepo = CommentRepository;
     this.postRepo = PostRepository;
     this.notificationRepo = NotificationRepository;
+    this.userRepo = UserRepository;
   }
 
   /**
@@ -63,6 +69,18 @@ class CommentService {
 
     if (validParent.locked)
       return { success: false, error: commentErrors.PARANT_LOCKED };
+
+    const text = data.text.split(" ");
+    const mentions = [];
+    for (const word of text) {
+      if (word.startsWith("u/")) {
+        const userName = word.slice(2);
+        const validUser = await this.userRepo.findByUserName(userName);
+
+        if (validUser.success) mentions.push(userName);
+      }
+    }
+    data.mentions = mentions;
 
     //create the comment
     const comment = await this.commentRepo.createOne(data);
@@ -143,10 +161,7 @@ class CommentService {
    */
   async deleteComment(id, userId) {
     //validate comment ID
-    const comment = await this.commentRepo.findById(
-      id,
-      "author parent parentType"
-    );
+    const comment = await this.commentRepo.exists(id);
     if (!comment.success)
       return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
@@ -157,9 +172,9 @@ class CommentService {
       return { success: false, error: commentErrors.NOT_AUTHOR };
 
     //removes comment from its parent replies and decrement replies count
-    if (comment.doc.parentType === "Comment")
-      await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // if (comment.doc.parentType === "Comment")
+    //   await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
 
     await this.commentRepo.deleteComment(id);
 

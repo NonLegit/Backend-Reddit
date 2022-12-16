@@ -2,6 +2,7 @@
 const Repository = require("./repository");
 const { mongoErrors, decorateError } = require("../error_handling/errors");
 const APIFeatures = require("./apiFeatures");
+const ObjectId = require("mongodb").ObjectId;
 
 class PostRepository extends Repository {
   constructor({ Post }) {
@@ -22,8 +23,8 @@ class PostRepository extends Repository {
   }
 
   async deletePost(id) {
-    //await Post.findByIdAndUpdate(id, {isDeleted: true})
-    await this.model.findByIdAndDelete(id);
+    await this.model.findByIdAndUpdate(id, {isDeleted: true})
+    //await this.model.findByIdAndDelete(id);
   }
 
   async addReply(parent, child) {
@@ -243,11 +244,24 @@ class PostRepository extends Repository {
     return tree;
   }
 
-  async addFile(postId, kind, file) {
+  async addImage(postId, image) {
     return await this.model.findByIdAndUpdate(
       postId,
       {
-        $push: { [kind + "s"]: file },
+        $push: { images: image },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
+
+  async addVideo(postId, video) {
+    return await this.model.findByIdAndUpdate(
+      postId,
+      {
+        video: video
       },
       {
         new: true,
