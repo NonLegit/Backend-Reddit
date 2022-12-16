@@ -7861,11 +7861,21 @@ components:
         images:
           type: array
           items:
-            type: string
-          description: The images path(the kind must be image)
-        video:
-          type: string
-          description: The video path(the kind must be video)
+            type: object
+            properties:
+              path:
+                type: string
+              caption:
+                type: string
+              link: 
+                type: string
+        videos:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
         votes:
           type: integer
           description: total number of votes
@@ -7966,10 +7976,21 @@ components:
         images:
           type: array
           items:
-            type: string
-        video:
-          type: string
-          description: The video path(the kind must be video)
+            type: object
+            properties:
+              path:
+                type: string
+              caption:
+                type: string
+              link: 
+                type: string
+        videos:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
         createdAt:
           type: string
           format: date-time
@@ -8135,10 +8156,21 @@ components:
         images:
           type: array
           items:
-            type: string
-            description: image url
-        video:
-          type: string
+            type: object
+            properties:
+              path:
+                type: string
+              caption:
+                type: string
+              link: 
+                type: string
+        videos:
+          type: array
+          items:
+            type: object
+            properties:
+              path:
+                type: string
         sortOnHot:
           type: integer
           description: calculated value to sort on it
@@ -8248,6 +8280,25 @@ components:
           description: total number of votes
         repliesCount:
           type: integer
+        isDeleted:
+          type: boolean
+          example: false
+        nsfw:
+          type: boolean
+        spoiler:
+          type: boolean
+        locked:
+          type: boolean
+          description: whether the post can receive comments or not               
+        modState:
+          type: string
+          enum:
+          - approved
+          - removed
+          - spammed            
+        sortOnHot:
+          type: integer
+          description: calculated value to sort on it
 
     moreReplies:
       type: object
