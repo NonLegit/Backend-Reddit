@@ -222,9 +222,9 @@ const userSchema = new mongoose.Schema({
         ref: "Post",
       },
       postVoteStatus: {
-        type: String,
-        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-        default: "0",
+        type: Number,
+        enum: [1, 0, -1], // 1 upvote o no vote -1 downvote
+        default: 0,
       },
     },
   ],
@@ -235,9 +235,9 @@ const userSchema = new mongoose.Schema({
         ref: "Comment",
       },
       commentVoteStatus: {
-        type: String,
-        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-        default: "0",
+        type: Number,
+        enum: [1, 0, -1], // 1 upvote o no vote -1 downvote
+        default: 0,
       },
     },
   ],

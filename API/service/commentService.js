@@ -214,8 +214,8 @@ class CommentService {
         newComments[i] = newComments[i].toObject();
       } catch (err) {}
       if (!hash[comments[i]._id]) {
-        newComments[i]["commentVoteStatus"] = "0";
-        Object.assign(newComments[i], { commentVoteStatus: "0" });
+        newComments[i]["commentVoteStatus"] = 0;
+        Object.assign(newComments[i], { commentVoteStatus: 0 });
       } else {
         newComments[i]["commentVoteStatus"] = hash[comments[i]._id];
         Object.assign(newComments[i], {
@@ -316,7 +316,7 @@ class CommentService {
             },
             sortOnHot: element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
-              ? "0"
+              ? 0
               : hash[comments[i]._id],
             isSaved: true,
           },
@@ -341,7 +341,7 @@ class CommentService {
           },
           sortOnHot: element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
-            ? "0"
+            ? 0
             : hash[comments[i]._id],
           isSaved: true,
         });

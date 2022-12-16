@@ -277,10 +277,10 @@ module.exports = async function seeder() {
       $push: {
         votePost: {
           $each: [
-            { posts: post1._id, postVoteStatus: "1" },
-            { posts: post2._id, postVoteStatus: "-1" },
-            { posts: post3._id, postVoteStatus: "1" },
-            { posts: post4._id, postVoteStatus: "-1" },
+            { posts: post1._id, postVoteStatus: 1 },
+            { posts: post2._id, postVoteStatus: -1 },
+            { posts: post3._id, postVoteStatus: 1 },
+            { posts: post4._id, postVoteStatus: -1 },
           ],
         },
         saved: {
@@ -320,11 +320,11 @@ module.exports = async function seeder() {
       $push: {
         votePost: {
           $each: [
-            { posts: post1._id, postVoteStatus: "-1" },
-            { posts: post2._id, postVoteStatus: "-1" },
-            { posts: post3._id, postVoteStatus: "-1" },
-            { posts: post4._id, postVoteStatus: "-1" },
-            { posts: post5._id, postVoteStatus: "1" },
+            { posts: post1._id, postVoteStatus: -1 },
+            { posts: post2._id, postVoteStatus: -1 },
+            { posts: post3._id, postVoteStatus: -1 },
+            { posts: post4._id, postVoteStatus: -1 },
+            { posts: post5._id, postVoteStatus: 1 },
           ],
         },
         // saved: {
@@ -344,11 +344,11 @@ module.exports = async function seeder() {
       $push: {
         votePost: {
           $each: [
-            { posts: post1._id, postVoteStatus: "1" },
-            { posts: post2._id, postVoteStatus: "1" },
-            { posts: post3._id, postVoteStatus: "1" },
-            { posts: post4._id, postVoteStatus: "1" },
-            { posts: post5._id, postVoteStatus: "-1" },
+            { posts: post1._id, postVoteStatus: 1 },
+            { posts: post2._id, postVoteStatus: 1 },
+            { posts: post3._id, postVoteStatus: 1 },
+            { posts: post4._id, postVoteStatus: 1 },
+            { posts: post5._id, postVoteStatus: -1 },
           ],
         },
         // saved: {
@@ -368,11 +368,11 @@ module.exports = async function seeder() {
       $push: {
         votePost: {
           $each: [
-            { posts: post1._id, postVoteStatus: "1" },
-            { posts: post2._id, postVoteStatus: "1" },
-            { posts: post3._id, postVoteStatus: "1" },
-            { posts: post4._id, postVoteStatus: "1" },
-            { posts: post5._id, postVoteStatus: "-1" },
+            { posts: post1._id, postVoteStatus: 1 },
+            { posts: post2._id, postVoteStatus: 1 },
+            { posts: post3._id, postVoteStatus: 1 },
+            { posts: post4._id, postVoteStatus: 1 },
+            { posts: post5._id, postVoteStatus: -1 },
           ],
         },
         // saved: {
