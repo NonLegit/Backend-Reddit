@@ -15,11 +15,16 @@ router.use(AuthenticationController.authorize);
 
 
 router.route("/mark_as_read").post(MessageController.markAllAsRead);
-router.route("/sent").get(MessageController.getSentMessage);
-router.route("/unread").get(MessageController.getUnreadMessage);
+router.route("/sent").get(MessageController.getSentMessage);//not show delete
+router.route("/unread").get(MessageController.getUnreadMessage);//
 router.route("/").post(MessageController.sendMessage);
 router.route("/:messageId").delete(MessageController.deleteMessage);
-router.route("/post_replies").get(MessageController.getPostReplies);
+router.route("/post_replies").get(MessageController.getPostReplies);//not show delete
+//mentions
+
+//inbocx al except post replies and mentions
+//reply on a message
+
 // router.route("/").get(NotificationController.getAllNotifications);
 
 module.exports = router;

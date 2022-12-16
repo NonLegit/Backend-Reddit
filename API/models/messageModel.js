@@ -9,11 +9,11 @@ const subjectSchema = new mongoose.Schema({text: {
 const messageSchema = new mongoose.Schema({
 
     subject: subjectSchema,
-  parentMessage:{//id
-    type: mongoose.Schema.ObjectId,
-      ref: 'Message',
-      required: false
-  },
+    parentMessage:{//id
+      type: mongoose.Schema.ObjectId,
+        ref: 'Message',
+        required: false
+    },
     text: {
       type: String,
       required: false

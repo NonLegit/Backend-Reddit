@@ -43,7 +43,7 @@ class NotificationController {
     }
  
  
-  addReplyNotification = async (req, res,next) => {
+  addReplyNotification = async (req, res, next) => {
     console.log(req.post);
     if (!req.user || !req.comment || !req.post) {
       return;
@@ -55,6 +55,7 @@ class NotificationController {
       
       let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
       console.log(tokens.data.firebaseToken[0]);
+      console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
       console.log(notification.data);
       let message;
       if (tokens.success&&tokens.data.firebaseToken.length!=0 ) {

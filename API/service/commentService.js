@@ -18,66 +18,71 @@ class CommentService {
    * @param {object} comment
    * @returns {boolean}
    */
-  // async hasValidParent(comment) {
-  //   if (comment.parentType === "Comment") {
-  //     const validParent = await this.commentRepo.findById(
-  //       comment.parent,
-  //       "post locked",
-  //       "post"
-  //     );
-  //     console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
-  //     Console.log(validParent.doc);
-  //     if (validParent.success) {
-  //       comment.post = validParent.doc.post._id;
-  //       return {
-  //         success: true,
-  //         post: validParent.doc.post,
-  //         locked: validParent.doc.locked,
-  //       };
-  //     }
-  //   } else if (comment.parentType === "Post") {
-  //     const validParent = await this.postRepo.findById(
-  //       comment.parent,
-  //       "locked",
-  //       "author owner"
-  //     );
-  //     if (validParent.success) {
-  //       comment.post = validParent.doc._id;
-  //       return {
-  //         success: true,
-  //         post: validParent.doc,
-  //         locked: validParent.doc.locked,
-  //       };
-  //     }
-  //   }
-  //   return { success: false };
-  // }
-   async hasValidParent(comment) {
+  async hasValidParent(comment) {
+    console.log("hellllllllllllllllllllllllllllll");
     if (comment.parentType === "Comment") {
       const validParent = await this.commentRepo.findById(
         comment.parent,
-        "post",
+        "post locked",
         "post"
       );
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-       console.log("lllllllllllllllllllllllllllll");
+      console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
+      Console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
-        return { success: true, post: validParent.doc.post };
+        return {
+          success: true,
+          post: validParent.doc.post,
+          locked: validParent.doc.locked,
+        };
       }
     } else if (comment.parentType === "Post") {
-      const validParent = await this.postRepo.findById(comment.parent,"","author owner");
-      console.log("lllllllllllllllllllllllllllll");
-      console.log(validParent);
-       console.log("lllllllllllllllllllllllllllll");
+      const validParent = await this.postRepo.findById(
+        comment.parent,
+        "",
+        "author owner"
+      );
+      console.log("oooooooooooooooooooooooooooo");
+     // console.log(validParent);
       if (validParent.success) {
         comment.post = validParent.doc._id;
-        return { success: true, post: validParent.doc };
+        return {
+          success: true,
+          post: validParent.doc,
+          locked: validParent.doc.locked,
+        };
       }
     }
     return { success: false };
   }
+
+
+  //  async hasValidParent(comment) {
+  //   if (comment.parentType === "Comment") {
+  //     const validParent = await this.commentRepo.findById(
+  //       comment.parent,
+  //       "post",
+  //       "post"
+  //     );
+  //     console.log("lllllllllllllllllllllllllllll");
+  //     console.log(validParent);
+  //      console.log("lllllllllllllllllllllllllllll");
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc.post._id;
+  //       return { success: true, post: validParent.doc.post };
+  //     }
+  //   } else if (comment.parentType === "Post") {
+  //     const validParent = await this.postRepo.findById(comment.parent,"","author owner");
+  //     console.log("lllllllllllllllllllllllllllll");
+  //     console.log(validParent);
+  //      console.log("lllllllllllllllllllllllllllll");
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc._id;
+  //       return { success: true, post: validParent.doc };
+  //     }
+  //   }
+  //   return { success: false };
+  // }
 
   /**
    * Creates a comment
@@ -107,6 +112,9 @@ class CommentService {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
+    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    console.log(validParent.post);
+     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
@@ -114,7 +122,7 @@ class CommentService {
     };
     let postToNotify;
     console.log("heeeeeeeeeeeeeeeeeee");
-    console.log(validParent.post);
+    //console.log(validParent.post);
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
         _id: validParent.post._id,
@@ -128,6 +136,8 @@ class CommentService {
         },
       };
     } else if (validParent.post.ownerType == "User") {
+      console.log("in type post");
+      console.log(validParent);
       postToNotify = {
         _id: validParent.post._id,
         author: {
