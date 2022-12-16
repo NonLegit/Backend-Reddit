@@ -178,20 +178,34 @@ class PostController {
         let userId = user.data._id;
 
         // check if this user block me or i blocked him in order to show posts , TODO
-
+        let isUserBlockedMe = await this.userServices.checkBlockStatus(
+          me,
+          user.data
+        );
+        let isMeBlockedUser = await this.userServices.checkBlockStatus(
+          user.data,
+          me
+        );
         // get post which he creates
-        let posts = await this.postServices.getUserPosts(userId, sortType);
-        // get vote of me if these post i vote on it
-        posts = this.postServices.setVotePostStatus(me, posts);
-        posts = this.postServices.setSavedPostStatus(me, posts);
-        posts = this.postServices.setHiddenPostStatus(me, posts);
-        posts = this.postServices.setPostOwnerData(posts);
-        //console.log(posts[0]);
+        if (isUserBlockedMe === true || isMeBlockedUser === true) {
+          res.status(200).json({
+            status: "success",
+            posts: [],
+          });
+        } else {
+          let posts = await this.postServices.getUserPosts(userId, sortType);
+          // get vote of me if these post i vote on it
+          posts = this.postServices.setVotePostStatus(me, posts);
+          posts = this.postServices.setSavedPostStatus(me, posts);
+          posts = this.postServices.setHiddenPostStatus(me, posts);
+          posts = this.postServices.setPostOwnerData(posts);
+          //console.log(posts[0]);
 
-        res.status(200).json({
-          status: "success",
-          posts: posts,
-        });
+          res.status(200).json({
+            status: "success",
+            posts: posts,
+          });
+        }
       } else {
         res.status(404).json({
           status: "fail",
@@ -745,22 +759,39 @@ class PostController {
         limit: limit,
         page: page,
       };
-      let comments = await this.CommentService.getUserComments(
-        userId,
-        user.data,
-        query
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        user.data
       );
-      let posts = await this.postServices.getUserPosts(userId, sort);
-      posts = this.postServices.setVotePostStatus(me, posts);
-      posts = this.postServices.setSavedPostStatus(me, posts);
-      posts = this.postServices.setHiddenPostStatus(me, posts);
-      posts = this.postServices.setPostOwnerData(posts);
-      posts = this.postServices.filterPosts(posts, comments);
-      res.status(200).json({
-        status: "success",
-        posts: posts,
-        comments: comments,
-      });
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        user.data,
+        me
+      );
+      // get post which he creates
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(200).json({
+          status: "success",
+          posts: [],
+          comments: [],
+        });
+      } else {
+        let comments = await this.CommentService.getUserComments(
+          userId,
+          user.data,
+          query
+        );
+        let posts = await this.postServices.getUserPosts(userId, sort);
+        posts = this.postServices.setVotePostStatus(me, posts);
+        posts = this.postServices.setSavedPostStatus(me, posts);
+        posts = this.postServices.setHiddenPostStatus(me, posts);
+        posts = this.postServices.setPostOwnerData(posts);
+        posts = this.postServices.filterPosts(posts, comments);
+        res.status(200).json({
+          status: "success",
+          posts: posts,
+          comments: comments,
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",

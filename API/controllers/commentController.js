@@ -5,11 +5,11 @@ class CommentController {
     this.commentServices = CommentService;
     this.UserService = UserService;
   }
-  bls =(req, res) => {
+  bls = (req, res) => {
     console.log(req);
     return;
-}
-  createComment = async (req, res,next) => {
+  };
+  createComment = async (req, res, next) => {
     const data = req.body;
     data.author = req.user._id;
 
@@ -19,7 +19,7 @@ class CommentController {
         status: "fail",
         message: "Missing required parameter",
       });
-      return ;
+      return;
     }
 
     const comment = await this.commentServices.createComment(data);
@@ -44,8 +44,8 @@ class CommentController {
         status: "fail",
         message: msg,
       });
-     
-      return ;
+
+      return;
     }
     req.comment = comment.commentToNotify;
     req.post = comment.postToNotify;
@@ -103,11 +103,11 @@ class CommentController {
       data: comment.data,
     });
   };
-//   bla =(req,res)=> {
-//     console.log("nnnnnnnnnnnnnnnnnn");
-//     console.log(response);
-//     return;
-// }
+  //   bla =(req,res)=> {
+  //     console.log("nnnnnnnnnnnnnnnnnn");
+  //     console.log(response);
+  //     return;
+  // }
   deleteComment = async (req, res) => {
     //validate request params
     const id = req.params?.commentId;
@@ -254,9 +254,10 @@ class CommentController {
     let userName = req.params.userName;
     let valid = true;
     let userId = me._id;
+    let user ;
     if (userName !== me.userName) {
       // find user if not found return not found
-      let user = await this.UserService.getUserByName(userName, "");
+      user = await this.UserService.getUserByName(userName, "");
       if (user.success === true) {
         valid = true;
         userId = user.data._id;
@@ -290,12 +291,32 @@ class CommentController {
         limit: limit,
         page: page,
       };
-      let posts = await this.commentServices.getUserComments(userId, me, query);
+      let isUserBlockedMe = await this.UserService.checkBlockStatus(
+        me,
+        user.data
+      );
+      let isMeBlockedUser = await this.UserService.checkBlockStatus(
+        user.data,
+        me
+      );
+      // get post which he creates
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(200).json({
+          status: "success",
+          posts: [],
+        });
+      } else {
+        let posts = await this.commentServices.getUserComments(
+          userId,
+          me,
+          query
+        );
 
-      res.status(200).json({
-        status: "success",
-        posts: posts,
-      });
+        res.status(200).json({
+          status: "success",
+          posts: posts,
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
