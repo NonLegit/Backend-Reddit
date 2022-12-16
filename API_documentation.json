@@ -878,6 +878,172 @@
         }
       }
     },
+    "/users/verify_email/{token}": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Change Password",
+        "summary": "Change Password",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "description": "verify token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/change_password": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Change Password",
+        "summary": "Change Password",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "new Password and confirmPassword",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "oldPassword": {
+                    "type": "string",
+                    "example": "Aa12346*"
+                  },
+                  "newPassword": {
+                    "type": "string",
+                    "example": "Aa1234**"
+                  },
+                  "confirmNewPassword": {
+                    "type": "string",
+                    "example": "Aa1234**"
+                  },
+                  "keepLoggedIn": {
+                    "type": "boolean",
+                    "description": "0 -> loggout from other devices, 1-> keep logged in"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "headers": {
+              "Set-Cookie": {
+                "schema": {
+                  "type": "string",
+                  "example": "jwt=abcde12345; expires = time ; Path=/; HttpOnly"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "token": {
+                      "type": "string"
+                    },
+                    "expiresIn": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request (0 -> not provide body, 1 -> provide equal, 2 -> weak password , 3 ->Token is invalid or has expired )",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string"
+                    },
+                    "errorType": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        1,
+                        2
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      }
+    },
     "/users/me/": {
       "description": "User Resource",
       "get": {
@@ -6026,7 +6192,7 @@
         }
       }
     },
-    "/comments/{postId}": {
+    "/comments/comment_tree/{postId}": {
       "get": {
         "tags": [
           "Comments"
@@ -6052,7 +6218,7 @@
           {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of comments to return",
+            "description": "The maximum number of comments to return in each level",
             "required": true,
             "schema": {
               "type": "integer"
@@ -6111,11 +6277,15 @@
                     "comments": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/comment"
+                        "anyOf": [
+                          {
+                            "$ref": "#/components/schemas/comment"
+                          },
+                          {
+                            "$ref": "#/components/schemas/moreReplies"
+                          }
+                        ]
                       }
-                    },
-                    "moreComments": {
-                      "$ref": "#/components/schemas/moreComments"
                     }
                   }
                 }
@@ -6164,13 +6334,13 @@
         }
       }
     },
-    "/comments/more_children/{postId}": {
+    "/comments/more_children": {
       "get": {
         "tags": [
           "Comments"
         ],
         "summary": "Retrieve additional comments omitted from a base comment tree.",
-        "description": "When a comment tree is rendered, the most relevant comments are selected for display first. Remaining comments are fetched with \"MoreComments\" links. This API call is used to retrieve the additional comments",
+        "description": "When a comment tree is rendered, the most relevant comments are selected for display first. Additional comments are fetched with this API call. Only the comment IDs in children are fetched(with their subtrees)",
         "security": [
           {
             "BearerAuth": []
@@ -6181,18 +6351,9 @@
         ],
         "parameters": [
           {
-            "name": "postId",
-            "in": "path",
-            "description": "The ID of the post whose comments are being fetched",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "children",
             "in": "query",
-            "description": "A comma separated list of comment IDs that need to be fetched",
+            "description": "An array of comment IDs that need to be fetched",
             "required": true,
             "schema": {
               "type": "array",
@@ -6210,140 +6371,9 @@
             }
           },
           {
-            "name": "sort",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "enum": [
-                "top",
-                "new",
-                "best",
-                "old"
-              ]
-            }
-          },
-          {
-            "name": "limitChildren",
-            "in": "query",
-            "description": "If True, only return the children requested.",
-            "schema": {
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "comments": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/components/schemas/comment"
-                      }
-                    },
-                    "moreComments": {
-                      "$ref": "#/components/schemas/moreComments"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "failed operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "failed operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "fail"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "post not found"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/subreddits/{subredditName}/comments/{postId}": {
-      "get": {
-        "tags": [
-          "Comments",
-          "Subreddit"
-        ],
-        "summary": "Get the comment tree for a given post within a subreddit",
-        "security": [
-          {
-            "BearerAuth": []
-          },
-          {
-            "cookieAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "subredditName",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "postId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
             "name": "limit",
             "in": "query",
-            "description": "The maximum number of comments to return",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "depth",
-            "in": "query",
-            "description": "the maximum depth of the comment subtrees",
-            "required": true,
+            "description": "The maximum number of replies in each level",
             "schema": {
               "type": "integer"
             }
@@ -6359,22 +6389,6 @@
                 "best",
                 "old"
               ]
-            }
-          },
-          {
-            "name": "commentId",
-            "in": "query",
-            "description": "If supplied, this comment will be the (highlighted) focal point of the returned view",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "context",
-            "in": "query",
-            "description": "The number of parents shown(an integer between 0 and 8)",
-            "schema": {
-              "type": "integer"
             }
           }
         ],
@@ -6392,11 +6406,15 @@
                     "comments": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/comment"
+                        "anyOf": [
+                          {
+                            "$ref": "#/components/schemas/comment"
+                          },
+                          {
+                            "$ref": "#/components/schemas/moreReplies"
+                          }
+                        ]
                       }
-                    },
-                    "moreComments": {
-                      "$ref": "#/components/schemas/moreComments"
                     }
                   }
                 }
@@ -7723,7 +7741,7 @@
         }
       }
     },
-    "/subreddits/{subredditName}/about/{location}": {
+    "/subreddits/{subredditName}/about/posts/{location}": {
       "get": {
         "tags": [
           "Subreddit"
@@ -8633,6 +8651,69 @@
         }
       }
     },
+    "/subreddits/{subredditName}/approved_users": {
+      "get": {
+        "tags": [
+          "Subreddit"
+        ],
+        "summary": "",
+        "description": "Get list of approved users in this subreddit",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subredditName",
+            "description": "The subreddit name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/approvedUser"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/subreddits/{subredditName}/{action}/invitation": {
       "post": {
         "tags": [
@@ -8804,6 +8885,81 @@
         }
       }
     },
+    "/subreddits/{subredditName}/{userName}/{action}/approve_user": {
+      "post": {
+        "tags": [
+          "Subreddit"
+        ],
+        "summary": "mark or unmark user as approved/disapproved",
+        "description": "mark or unmark user as approved/disapproved",
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "subredditName",
+            "description": "The subreddit name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "userName",
+            "description": "the user i want to approve/disapprove",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "action",
+            "description": "approve/disapprove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "approve",
+                "disapprove"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/subreddits/leaderboard/{category}": {
       "get": {
         "tags": [
@@ -8905,7 +9061,7 @@
         }
       }
     },
-    "/subreddits/leaderboard/random": {
+    "/subreddits/random/leaderboard": {
       "get": {
         "tags": [
           "Subreddits"
@@ -10601,7 +10757,7 @@
       "reducedModeratorInfo": {
         "type": "object",
         "properties": {
-          "_id": {
+          "id": {
             "type": "string"
           },
           "userName": {
@@ -11307,12 +11463,10 @@
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "description": "The images path(the kind must be image)"
+            }
           },
           "video": {
-            "type": "string",
-            "description": "The video path(the kind must be video)"
+            "type": "string"
           },
           "votes": {
             "type": "integer",
@@ -11454,8 +11608,7 @@
             }
           },
           "video": {
-            "type": "string",
-            "description": "The video path(the kind must be video)"
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
@@ -11681,8 +11834,7 @@
           "images": {
             "type": "array",
             "items": {
-              "type": "string",
-              "description": "image url"
+              "type": "string"
             }
           },
           "video": {
@@ -11813,11 +11965,15 @@
           "replies": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/comment"
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/comment"
+                },
+                {
+                  "$ref": "#/components/schemas/moreReplies"
+                }
+              ]
             }
-          },
-          "moreReplies": {
-            "$ref": "#/components/schemas/moreComments"
           },
           "parent": {
             "type": "string"
@@ -11839,13 +11995,43 @@
           },
           "repliesCount": {
             "type": "integer"
+          },
+          "isDeleted": {
+            "type": "boolean",
+            "example": false
+          },
+          "nsfw": {
+            "type": "boolean"
+          },
+          "spoiler": {
+            "type": "boolean"
+          },
+          "locked": {
+            "type": "boolean",
+            "description": "whether the post can receive comments or not"
+          },
+          "modState": {
+            "type": "string",
+            "enum": [
+              "approved",
+              "removed",
+              "spammed"
+            ]
+          },
+          "sortOnHot": {
+            "type": "integer",
+            "description": "calculated value to sort on it"
           }
         }
       },
-      "moreComments": {
+      "moreReplies": {
         "type": "object",
-        "description": "This objects encapsulates the number and IDs of additional replies to be used by the more children endpoint",
+        "description": "Contains the IDs of comments to be used in more_children endpoint.",
         "properties": {
+          "Type": {
+            "type": "string",
+            "example": "moreReplies"
+          },
           "count": {
             "type": "integer",
             "description": "The number of replies"
@@ -11856,14 +12042,6 @@
             "items": {
               "type": "string"
             }
-          },
-          "parentID": {
-            "type": "string",
-            "description": "The ID of the parent comment or post(in case of post replies)"
-          },
-          "depth": {
-            "type": "integer",
-            "description": "The depth of the children to be fetched(starts at 0)"
           }
         }
       },
@@ -12808,7 +12986,7 @@
       "mutedUser": {
         "type": "object",
         "properties": {
-          "_id": {
+          "id": {
             "type": "string"
           },
           "userName": {
@@ -12859,7 +13037,7 @@
       "bannedUser": {
         "type": "object",
         "properties": {
-          "_id": {
+          "id": {
             "type": "string"
           },
           "userName": {
@@ -12874,6 +13052,36 @@
           },
           "baninfo": {
             "$ref": "#/components/schemas/banInfo"
+          }
+        }
+      },
+      "approvedInfo": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "userName": {
+            "type": "string"
+          },
+          "profilePicture": {
+            "type": "string"
+          },
+          "joinDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "approvedUser": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/approvedInfo"
+          },
+          "approvedDate": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
