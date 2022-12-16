@@ -14,12 +14,13 @@ const commentSchema = new mongoose.Schema({
     required: true,
     autopopulate: true,
   },
-  mentions: [
-    {
-      type: mongoose.SchemaTypes.ObjectId,
-      ref: "User",
-    },
-  ],
+  // mentions: [
+  //   {
+  //     type: mongoose.SchemaTypes.ObjectId,
+  //     ref: "User",
+  //   },
+  // ],
+  mentions: [String],
   replies: [
     {
       type: mongoose.SchemaTypes.ObjectId,

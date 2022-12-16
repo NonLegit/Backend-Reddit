@@ -5,10 +5,16 @@ const ObjectId = require("mongodb").ObjectId;
  * Comment Service class for handling Comment model and services
  */
 class CommentService {
-  constructor({ CommentRepository, PostRepository, NotificationRepository }) {
+  constructor({
+    CommentRepository,
+    PostRepository,
+    NotificationRepository,
+    UserRepository,
+  }) {
     this.commentRepo = CommentRepository;
     this.postRepo = PostRepository;
     this.notificationRepo = NotificationRepository;
+    this.userRepo = UserRepository;
   }
 
   /**
@@ -63,6 +69,18 @@ class CommentService {
 
     if (validParent.locked)
       return { success: false, error: commentErrors.PARANT_LOCKED };
+
+    const text = data.text.split(" ");
+    const mentions = [];
+    for (const word of text) {
+      if (word.startsWith("u/")) {
+        const userName = word.slice(2);
+        const validUser = await this.userRepo.findByUserName(userName);
+
+        if (validUser.success) mentions.push(userName);
+      }
+    }
+    data.mentions = mentions;
 
     //create the comment
     const comment = await this.commentRepo.createOne(data);
