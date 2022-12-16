@@ -49,6 +49,7 @@ describe("Subreddit Controller Test", () => {
         },
       };
 
+
       const subredditController = new SubredditController({
         subredditService,
         UserService,

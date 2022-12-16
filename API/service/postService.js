@@ -540,6 +540,7 @@ class PostService {
    * @param {bool} dir True for the action, False for its opposite
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async postAction(postId, action) {
     //If action is positive, dir is true, otherwise dir is false
     const prefix = action.slice(0, 2);
@@ -569,6 +570,7 @@ class PostService {
    * @param {string} action The action to be performed
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async modAction(postId, action) {
     return await this.postRepo.modAction(postId, action);
   }

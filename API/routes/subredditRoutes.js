@@ -47,10 +47,7 @@ router
   .get(subredditController.getFlair)
   .patch(subredditController.updateFlair)
   .delete(subredditController.deleteFlair);
-router.get(
-  "/:subredditName/about/:location",
-  subredditController.relevantPosts
-);
+
 router.get("/mine/:where", subredditController.subredditsJoined);
 router.get("/moderator/:username", subredditController.subredditsModerated);
 
@@ -105,6 +102,15 @@ router.get(
 router.get("/leaderboard/:category", subredditController.leaderboardCategory);
 router.get("/random/leaderboard", subredditController.leaderboardRandom);
 
+router.post(
+  "/:subredditName/:userName/:action/approve_user",
+  subredditController.approveUser
+);
+router.get(
+  "/:subredditName/approved_users",
+  subredditController.approvedUsers
+);
+
 router
   .route("/:subredditName/flair")
   .post(subredditController.createFlair)
@@ -118,52 +124,6 @@ router
 router.route("/:subredditName/subscribe").post(subredditController.subscribe);
 router
   .route("/:subredditName/images")
-  .post(FileController.checkUploadedFile, FileController.uploadSubredditImage)
+  .post(FileController.checkUploadedFile, FileController.uploadSubredditImage);
 
 module.exports = router;
-
-//const subredditController = require("./../controllers/subredditController");
-// const postController = require("./../controllers/postController");
-
-// const Subreddit = require("./../models/subredditModel");
-// const Repository = require("./../data_access/repository");
-// const subredditService = require("../service/subredditService");
-// // !=================================
-// const postService = require("../service/postService");
-// const Post = require('./../models/postModel');//model
-// const PostRepositoryObj = new Repository(Post);//dataaccedss send model
-// const postServiceObj = new postService(Post, PostRepositoryObj);
-
-// // !================================
-// const SubredditRepositoryObj = new Repository(Subreddit);
-// //const subredditController = require("./../controllers/subredditController");
-// // !=================================
-// const AuthenticationController = require("./../controllers/AuthenticationController");
-// const User = require("./../models/userModel");
-// const UserService = require("./../service/userService");
-// const UserRepositoryObj = new Repository(User);
-// // !=================================
-// const Flair = require("./../models/flairModel"); //model
-// const FlairRepositoryObj = new Repository(Flair); //dataaccedss send model
-// const subredditServiceObj = new subredditService(
-//   Subreddit,
-//   SubredditRepositoryObj,
-//   Flair,
-//   FlairRepositoryObj,
-//   User,
-//   UserRepositoryObj
-// );
-
-// /////////////////////////////////////////////
-
-// const userServiceObj = new UserService(User, UserRepositoryObj, null);
-
-// const postControllerObj = new postController(postServiceObj,userServiceObj);
-// const authenticationControllerObj = new AuthenticationController(
-//   userServiceObj
-// );
-
-// const subredditControllerObj = new subredditController(
-//   subredditServiceObj,
-//   userServiceObj
-// );

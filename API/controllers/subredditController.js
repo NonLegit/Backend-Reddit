@@ -11,7 +11,7 @@ class subredditController {
     this.subredditServices = subredditService; // can be mocked in unit testing
     this.userServices = UserService;
   }
-
+  // TODO: service tests
   createSubreddit = async (req, res) => {
     let data = req.body;
     let userId = req.user._id;
@@ -65,7 +65,7 @@ class subredditController {
       id: subreddit.data._id,
     });
   };
-
+  // TODO: service tests
   updateSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let data = req.body;
@@ -119,7 +119,7 @@ class subredditController {
       data: subreddit.data,
     });
   };
-
+  // TODO: service tests
   getSubredditSettings = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -161,7 +161,7 @@ class subredditController {
       data: subreddit.data,
     });
   };
-
+  // TODO: service tests
   deleteSubreddit = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -209,7 +209,7 @@ class subredditController {
       status: "success",
     });
   };
-
+  // TODO: service tests
   deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -269,7 +269,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
-  // TODO: unit tests (service)
+  // TODO: service tests
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -339,7 +339,7 @@ class subredditController {
       status: "success",
     });
   };
-
+  // TODO: service tests
   subredditsJoined = async (req, res) => {
     let userId = req.user._id;
     let location = req.params.where;
@@ -381,7 +381,7 @@ class subredditController {
       data: subreddits.data,
     });
   };
-
+  // TODO: service tests
   subredditsModerated = async (req, res) => {
     let userName = req.params.username;
 
@@ -416,11 +416,6 @@ class subredditController {
     });
   };
 
-  async relevantPosts(req, res, next) {
-    let subredditName = req.params.subredditName;
-    let userId = req.user._id;
-    let category = req.params.location;
-  }
   // TODO: service test
   inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
@@ -490,6 +485,7 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
+  // TODO: service tests
   updatePermissions = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -551,6 +547,8 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
+  // TODO: service tests
+  // TODO: check if user is mod or not (add security level)
   getModerators = async (req, res) => {
     let subredditName = req.params.subredditName;
 
@@ -864,7 +862,6 @@ class subredditController {
     res.status(204).json({});
   };
 
-
   // TODO: service tests
   bannedUsers = async (req, res) => {
     let subredditName = req.params.subredditName;
@@ -946,7 +943,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: muted.data });
   };
 
-  // TODO: unit tests
+  // TODO: service tests
   addRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1004,7 +1001,7 @@ class subredditController {
     res.status(204).json({});
   };
 
-  // TODO: unit tests
+  // TODO: service tests
   editRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1062,6 +1059,7 @@ class subredditController {
     res.status(204).json({});
   };
 
+  // TODO: service tests
   deleteRule = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -1117,6 +1115,7 @@ class subredditController {
     res.status(204).json({});
   };
 
+  // TODO: service tests
   modPosts = async (req, res) => {
     let location = req.params.location;
     let subredditName = req.params.subredditName;
@@ -1176,6 +1175,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: posts.data });
   };
 
+  // TODO: service tests
   leaderboardCategory = async (req, res) => {
     let category = req.params.category;
     if (!category) {
@@ -1214,6 +1214,7 @@ class subredditController {
     res.status(200).json({ status: "success", data: subreddits.data });
   };
 
+  // TODO: service tests
   leaderboardRandom = async (req, res) => {
     let subreddits = await this.subredditServices.randomSubreddits(req.query);
 
@@ -1240,7 +1241,120 @@ class subredditController {
     res.status(200).json({ status: "success", data: subreddits.data });
   };
 
-  // ! Doaa's controllers
+  approveUser = async (req, res) => {
+    let userId = req.user._id; //me
+    let subredditName = req.params.subredditName;
+    let approvedUser = req.params.userName;
+    let action = req.params.action;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    if (!approvedUser) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter approvedUser",
+      });
+      return;
+    }
+
+    if (!action) {
+      res.status(400).json({
+        status: "fail",
+        message: "Missing required parameter approvedUser",
+      });
+      return;
+    }
+
+    let approve = await this.subredditServices.approveUser(
+      userId,
+      subredditName,
+      approvedUser,
+      action
+    );
+
+    if (!approve.success) {
+      let msg, stat;
+      switch (approve.error) {
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+        case userErrors.USER_NOT_FOUND:
+          msg = "user not found";
+          stat = 404;
+          break;
+        case userErrors.MODERATOR:
+          msg =
+            "user is a moderator cant make this action (he is already approved by default)";
+          stat = 400;
+          break;
+        case userErrors.ALREADY_APPROVED:
+          msg = "user is already approved before";
+          stat = 400;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = approve.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(204).json({});
+  };
+
+  approvedUsers = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let approved = await this.subredditServices.approved(subredditName,userId);
+
+    if (!approved.success) {
+      let msg, stat;
+      switch (approved.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = approved.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: approved.data });
+  };
+
+  //!===================================================================================
   createFlair = async (req, res) => {
     let data = req.body;
     let subredditName = req.params.subredditName;
@@ -1530,159 +1644,6 @@ class subredditController {
     }
   };
 
-  // async getTopPosts(req, res) {
-  //   console.log("hereeeeeeeeeeeeeeeeeeeeeeeeeeee");
-  //   let subredditName = req.params.subredditName;
-
-  //   try {
-  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
-
-  //     // console.log(res.status);
-  //     // console.log(subreddit);
-  //     if (subreddit.status !== "success") {
-  //      return res.status(subreddit.statusCode).json({
-  //         status: subreddit.status,
-  //         errorMessage: subreddit.err,
-  //       });
-  //     }
-
-  //     req.query.sort = '-votes';
-  //     // console.log(req.query);
-  //      console.log(req.query);
-
-  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
-  //     console.log( response);
-  //     if (response.status === "success") {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         data: response.doc,
-  //       });
-  //     } else {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         errorMessage: response.err,
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log("error in subredditservices " + err);
-  //     res.status(500).json({
-  //       status: "fail",
-  //     });
-  //   }
-  // }
-  // async getNewPosts(req, res) {
-  //   let subredditName = req.params.subredditName;
-  //   console.log("//////////////////////");
-  //   console.log(subredditName);
-
-  //   try {
-  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
-  //     console.log(subreddit);
-  //     console.log("///////////////////////////////");
-  //     console.log(subreddit.status !== "success");
-  //     if (subreddit.status !== "success") {
-  //      return res.status(subreddit.statusCode).json({
-  //         status: subreddit.status,
-  //         errorMessage: subreddit.err,
-  //       });
-  //       console.log(res);
-  //     }
-  //     req.query.sort = '-createdAt';
-  //     console.log("befor");
-  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
-  //     console.log("after");
-  //     // console.log( response);
-  //     if (response.status === "success") {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         data: response.doc,
-  //       });
-  //     } else {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         errorMessage: response.err,
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log("error in subredditservices " + err);
-  //     res.status(500).json({
-  //       status: "fail",
-  //     });
-  //   }
-  // }
-
-  //  async getTrendingPosts(req, res) {
-  //   let subredditName = req.params.subredditName;
-  //   console.log("here");
-  //   try {
-  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
-  //     if (subreddit.status !== "success") {
-  //       return res.status(subreddit.statusCode).json({
-  //         status: subreddit.status,
-  //         errorMessage: subreddit.err,
-  //       });
-  //     }
-  //     req.query.sort = '-views';
-  //     console.log(req.query);
-  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
-  //     // console.log( response);
-  //     if (response.status === "success") {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         data: response.doc,
-  //       });
-  //     } else {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         errorMessage: response.err,
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log("error in subredditservices " + err);
-  //     res.status(500).json({
-  //       status: "fail",
-  //     });
-  //   }
-  // }
-  //  async getHotPosts(req, res) {
-  //   let subredditName = req.params.subredditName;
-  //   console.log("here");
-  //   try {
-  //     let subreddit = await this.subredditServices.getSubreddit({ name: subredditName });
-  //     console.log("not in here");
-  //     if (subreddit.status !== "success") {
-
-  //       return res.status(subreddit.statusCode).json({
-  //         status: subreddit.status,
-  //         errorMessage: subreddit.err,
-  //       });
-  //     }
-  //     req.query.sort = '-createdAt,-votes,-commentCount';
-  //     console.log(req.query);
-  //     console.log(subreddit);
-  //     let response = await this.postServices.getPosts(req.query, { owner: subreddit.doc._id });
-  //     // console.log( response);
-  //     if (response.status === "success") {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         data: response.doc,
-  //       });
-  //     } else {
-  //       res.status(response.statusCode).json({
-  //         status: response.status,
-  //         errorMessage: response.err,
-  //       });
-  //     }
-  //   } catch (err) {
-  //     console.log("error in subredditservices " + err);
-  //     res.status(500).json({
-  //       status: "fail",
-  //     });
-  //   }
-  // }
-  // //   async getFlairs(req, res) {
-  //   async getFlairs(req, res) {
-
   subscribe = async (req, res) => {
     //setting sub default behavior
     const subredditName = req.params?.subredditName;
@@ -1747,5 +1708,5 @@ function isEmpty(obj) {
   }
   return JSON.stringify(obj) === JSON.stringify({});
 }
-//export default userController;
+
 module.exports = subredditController;

@@ -31,6 +31,7 @@ class subredditService {
    * @returns {Object} - a response containing the created subreddit.
    *
    */
+  // TODO: service tests
   async createSubreddit(data, userName, profilePicture) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -60,6 +61,7 @@ class subredditService {
    * @param {String} userId - query options
    * @returns {Object} - a response
    */
+  // TODO: service tests
   async deleteSubreddit(subredditName, userId) {
     // ..
     let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
@@ -81,6 +83,7 @@ class subredditService {
    * @param {object} data - the new data passed from request body
    * @returns {Object} - a response containing the updated subreddit.
    */
+  // TODO: service tests
   async updateSubreddit(subredditName, userId, data) {
     // ..
     let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
@@ -104,6 +107,7 @@ class subredditService {
    * @param {object} name - a query to select a certain subreddit from database
    * @returns {Object} - a response containing the retrieved subreddit
    */
+  // TODO: service tests
   async retrieveSubreddit(userId, name, checkOnly) {
     let subreddit = await this.subredditRepository.getsubreddit(name, "", "");
     if (subreddit.success) {
@@ -127,6 +131,7 @@ class subredditService {
    * @param {object} data - moderator permissions bassed from request body
    * @returns {Object} a response.
    */
+  // TODO: service tests
   async inviteMod(subredditName, userId, modName, data) {
     // ..
     //  check subreddit existed or not
@@ -179,7 +184,7 @@ class subredditService {
     }
   }
 
-  // TODO: unit testing
+  // TODO: service testing
   async handleInvitation(
     userId,
     userName,
@@ -233,11 +238,13 @@ class subredditService {
 
     return { success: true };
   }
+  // TODO: service tests
   removeSubredditId(list, value) {
     return list.filter(function (ele) {
       return !value.equals(ele.subredditId);
     });
   }
+  // TODO: service tests
   removeId(list, value, type) {
     return list.filter(function (ele) {
       return !(value.equals(ele.id) && ele.type === type);
@@ -251,6 +258,7 @@ class subredditService {
    * @param {string} modName - moderator name i want to remove from moderation
    * @returns a response.
    */
+  // TODO: service tests
   async deleteMod(subredditName, userId, modName) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -320,6 +328,7 @@ class subredditService {
    * @param {string} category - category i want to retrieve
    * @returns {Object} - a response contains categorized posts.
    */
+  // TODO: service tests
   async getCategoryPosts(subredditName, userId, category) {
     try {
       // ! check if user is mod first
@@ -358,6 +367,7 @@ class subredditService {
    * @param {string} location - an enum value either [subscriber, moderator]
    * @returns {Object} - a response containing an array of subreddits
    */
+  // TODO: service tests
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
@@ -375,6 +385,7 @@ class subredditService {
       else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
   }
+  // TODO: service tests
   async subredditsModeratedBy(userName) {
     let subreddits = await this.subredditRepository.getSubreddits(
       userName,
@@ -384,6 +395,7 @@ class subredditService {
     else return { success: true, data: subreddits.doc };
   }
 
+  // TODO: service tests
   async getFavourites(userId) {
     let subreddits = await this.userRepository.getFavouriteSubreddits(userId);
     if (!subreddits.success) return subreddits;
@@ -397,6 +409,7 @@ class subredditService {
    * @param {Object} data - new permissions passed in request body
    * @returns {Object} a moderator information after updating his permissions
    */
+  // TODO: service tests
   async updateModeratorSettings(subredditName, userId, modName, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -466,6 +479,7 @@ class subredditService {
     }
   }
 
+  // TODO: service tests
   async banUnban(userId, subredditName, banedUser, action, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -554,6 +568,7 @@ class subredditService {
     }
   }
 
+  // TODO: service tests
   async muteUnmute(userId, subredditName, banedUser, action, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -642,12 +657,14 @@ class subredditService {
     }
   }
 
+  // TODO: service tests
   filter(list, value) {
     return list.filter(function (ele) {
       return value === ele.type;
     });
   }
 
+  // TODO: service tests
   async banned(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -670,6 +687,7 @@ class subredditService {
     return { success: true, data: this.filter(banned.doc.punished, "banned") };
   }
 
+  // TODO: service tests
   async muted(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -692,6 +710,7 @@ class subredditService {
     return { success: true, data: this.filter(muted.doc.punished, "muted") };
   }
 
+  // TODO: service tests
   async mods(subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -706,6 +725,7 @@ class subredditService {
     }
   }
 
+  // TODO: service tests
   async leaveMod(userId, subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -739,6 +759,7 @@ class subredditService {
     return { success: true };
   }
 
+  // TODO: service tests
   async handleFavourite(userId, subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -775,6 +796,7 @@ class subredditService {
     }
   }
 
+  // TODO: service tests
   async addRule(subredditName, userId, title, data) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -806,6 +828,7 @@ class subredditService {
     return { success: true };
   }
 
+  // TODO: service tests
   async editRule(subredditName, userId, title, data) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -851,6 +874,7 @@ class subredditService {
 
     return { success: true };
   }
+  // TODO: service tests
   async deleteRule(subredditName, userId, title) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -873,6 +897,7 @@ class subredditService {
 
     let rules = subredditExisted.doc.rules;
 
+    // TODO: service tests
     function removeRule(list, value) {
       return list.filter(function (ele) {
         return !(value === ele.title);
@@ -891,6 +916,7 @@ class subredditService {
     return { success: true };
   }
 
+  // TODO: service tests
   async categorizedPosts(query, subredditName, userId, location) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -920,6 +946,7 @@ class subredditService {
     return { success: true, data: posts.doc };
   }
 
+  // TODO: service tests
   async categorizedSubreddits(category, query) {
     let subs = await this.subredditRepository.categorySubreddits(
       query,
@@ -932,6 +959,7 @@ class subredditService {
     return { success: true, data: subs.doc };
   }
 
+  // TODO: service tests
   async randomSubreddits(query) {
     let subs = await this.subredditRepository.randomSubreddits(query);
     if (!subs.success) {
@@ -940,7 +968,94 @@ class subredditService {
     }
     return { success: true, data: subs.doc };
   }
-  //! Doaa's part
+
+  async approveUser(userId, subredditName, approvedUser, action) {
+    let canDelete = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    
+    if (!canDelete.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+
+    // he is moderator and subreddit is existed => 3]check username existed
+    let userExisted = await this.userRepository.findByUserName(
+      approvedUser,
+      "",
+      ""
+    );
+    if (!userExisted.success)
+      return { success: false, error: userErrors.USER_NOT_FOUND };
+    //  4] check if he is mod to this subreddit
+    let UserIsMod = await this.subredditRepository.isModerator_2(
+      subredditName,
+      userExisted.doc._id
+    );
+
+    if (UserIsMod.success)
+      return { success: false, error: userErrors.MODERATOR };
+
+    if (action === "approve") {
+      //msh m7tag a check 34an already ana bgeb alnas mn al list of approved
+      let approve = await this.subredditRepository.approveUser(
+        userExisted.doc._id,
+        subredditName
+      );
+      if (!approve.success)
+        return { success: false, error: subredditErrors.MONGO_ERR };
+
+      return { success: true };
+    } else {
+      // action === disapprove
+
+      let approved = await this.subredditRepository.approvedUsers(
+        subredditName
+      );
+      if (!approved.success) console.log("this shouldn't be printed");
+
+      let users = approved.doc.approved;
+
+      function removeUser(list, value) {
+        return list.filter(function (ele) {
+          return !value.equals(ele.user._id);
+        });
+      }
+
+      let afterDelete = removeUser(users, userExisted.doc._id);
+      let removed = await this.subredditRepository.updateApproved(
+        subredditName,
+        afterDelete
+      );
+      if (!removed.success)
+        return { success: false, error: subredditErrors.MONGO_ERR };
+
+      return { success: true };
+    }
+  }
+
+  async approved(subredditName, userId) {
+    let subredditExisted = await this.subredditRepository.getsubreddit(
+      subredditName,
+      "",
+      ""
+    );
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let iamMod = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    if (!iamMod.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+
+    let approved = await this.subredditRepository.approvedUsers(subredditName);
+    if (!approved.success)
+      return { success: false, error: subredditErrors.MONGO_ERR };
+
+    return { success: true, data: approved.doc.approved };
+  }
+  //! ===============================================================================================
 
   /**
    *
@@ -1110,17 +1225,18 @@ class subredditService {
    * @returns {Object} flair object if found and an error object if not
    */
   async getFlair(subredditName, flairId) {
-    let subreddit = await this.subredditRepository.getSubredditFlairs(subredditName)
+    let subreddit = await this.subredditRepository.getSubredditFlairs(
+      subredditName
+    );
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-   
-    let flairIndex = subreddit.doc.find((el) => el._id.equals(flairId))
+
+    let flairIndex = subreddit.doc.find((el) => el._id.equals(flairId));
     if (!flairIndex) {
       return { success: false, error: subredditErrors.FLAIR_NOT_FOUND };
     }
 
-    
     return { success: true, data: flairIndex };
   }
 
@@ -1140,7 +1256,7 @@ class subredditService {
     console.log("ffffffffffffffffff");
     // console.log(flairs);
     console.log(flairs);
-    return { success: true, data: flairs.doc};
+    return { success: true, data: flairs.doc };
   }
 
   /**
