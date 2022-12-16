@@ -1,12 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-// *TODO: change all ids to objectid after merging with dev branch
-//    *TODO: postId
-//    *TODO: owner
-//    *TODO: moderators.username
-// ! Dont forget to push again
-
 const subredditSchema = new mongoose.Schema({
   fixedName: {
     type: String,
@@ -64,6 +58,7 @@ const subredditSchema = new mongoose.Schema({
     type: String,
     required: false,
     trim: true,
+    default: "Unknown",
   },
   type: {
     type: String,
@@ -140,7 +135,7 @@ const subredditSchema = new mongoose.Schema({
     default: "subreddits/default.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
-  membersCount: {  
+  membersCount: {
     type: Number,
     required: false,
     default: 1,
@@ -225,6 +220,16 @@ const subredditSchema = new mongoose.Schema({
       muteInfo: {
         muteMessage: { type: String },
       },
+    },
+  ],
+  approved: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      approvedDate: { type: Date, default: Date.now() },
     },
   ],
 });
