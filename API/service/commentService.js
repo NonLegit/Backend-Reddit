@@ -143,10 +143,7 @@ class CommentService {
    */
   async deleteComment(id, userId) {
     //validate comment ID
-    const comment = await this.commentRepo.findById(
-      id,
-      "author parent parentType"
-    );
+    const comment = await this.commentRepo.exists(id);
     if (!comment.success)
       return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
@@ -157,9 +154,9 @@ class CommentService {
       return { success: false, error: commentErrors.NOT_AUTHOR };
 
     //removes comment from its parent replies and decrement replies count
-    if (comment.doc.parentType === "Comment")
-      await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // if (comment.doc.parentType === "Comment")
+    //   await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
 
     await this.commentRepo.deleteComment(id);
 

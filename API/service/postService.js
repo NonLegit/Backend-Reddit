@@ -28,7 +28,8 @@ class PostService {
    */
   async updatePost(id, data, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
@@ -54,7 +55,8 @@ class PostService {
    */
   async deletePost(id, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
