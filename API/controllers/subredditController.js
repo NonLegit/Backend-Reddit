@@ -209,7 +209,7 @@ class subredditController {
       status: "success",
     });
   };
-  // TODO: service tests
+//delete a mod
   deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -269,7 +269,8 @@ class subredditController {
     res.status(204).json({ status: "success" });
   };
 
-  // TODO: service tests
+  // TODO: unit tests (service)
+  //accept or reject 
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -417,6 +418,7 @@ class subredditController {
   };
 
   // TODO: service test
+  //invite the mod
   inviteModerator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -687,6 +689,7 @@ class subredditController {
   };
 
   // TODO: service test
+  //ban a user
   banSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -775,6 +778,7 @@ class subredditController {
   };
 
   // TODO: service testing
+  //mute a user
   muteSettings = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -860,6 +864,7 @@ class subredditController {
       return;
     }
     res.status(204).json({});
+    //from action
   };
 
   // TODO: service tests
@@ -1240,7 +1245,10 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: subreddits.data });
   };
-
+//approve a user
+  
+  
+  //TODO:approve a user message
   approveUser = async (req, res) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
@@ -1626,7 +1634,7 @@ class subredditController {
     let subredditName = req.params.subredditName;
     try {
       let response = await this.subredditServices.checkSubreddit(subredditName);
-      console.log(response);
+     // console.log(response);
       if (response.success) {
         req.toFilter = response.doc._id;
         next();

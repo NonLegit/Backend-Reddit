@@ -374,9 +374,12 @@ class UserController {
               user.data
             );
             if (!isAlreadyFollowed) {
+              req.follower = me;
+              req.followed = user.data;
               res.status(200).json({
                 status: "success",
               });
+              return next();
             } else {
               res.status(304).json({
                 status: "success",

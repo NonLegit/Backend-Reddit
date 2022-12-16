@@ -32,14 +32,16 @@ class Repository {
     try {
       if (!ObjectId.isValid(id))
         return { success: false, error: mongoErrors.NOT_FOUND };
-
+     // console.log("beforeeeeeeeeeeeeeeeeeeeeeeeee");
+     // console.log(select);
+    //  console.log(pop);
       let query = this.model.findById(id);
       if (select) query = query.select(select);
       if (pop) query = query.populate(pop);
       const doc = await query;
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-
+     // console.log(doc);
       return { success: true, doc: doc };
 
       //most probably you won't need error handling in this function but just to be on the safe side

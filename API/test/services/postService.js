@@ -255,4 +255,74 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.POST_NOT_FOUND);
     });
   });
+  // describe("Testing get posts",()=>{
+  //    it("1) test success", async () => {
+  //     const PostRepository = {
+  //       getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+        
+  //     };
+  //     const on = {};
+  //     const subredditServiceObj = new SubredditService({  SubredditRepository,on, on});
+  //     const subredditName = " ";
+      
+  //     const result = await subredditServiceObj.getFlairs(subredditName);
+  //     expect(result.success).to.equal(true);
+  //     expect(result.data[0].text).to.equal( "first flair");
+      
+  //   });
+  // })
 });

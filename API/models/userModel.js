@@ -380,7 +380,7 @@ userSchema.pre("save", async function (next) {
   this.lastUpdatedPassword = Date.now() - 1000;
   if (this.userName === "user") this.userName = "user" + this._id;
   if (this.displayName === undefined) this.displayName = this.userName; // add display name in case of google and facbook name
-  console.log("user to save", this);
+  //console.log("user to save", this);
   next();
 });
 userSchema.pre(/^find/, function (next) {

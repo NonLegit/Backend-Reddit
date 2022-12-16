@@ -146,7 +146,7 @@ describe("User Post Test", () => {
       const postservices = new PostService({ PostRepository });
       it("first test,", async () => {
         posts = await postservices.getUserPosts("", "");
-        console.log(posts);
+        //console.log(posts);
         expect(posts.length).to.equal(1);
         expect(posts[0]["_id"]).to.equal("1");
       });

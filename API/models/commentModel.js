@@ -146,13 +146,22 @@ commentSchema.post("find", function (result) {
 //   this.populate("author","_id userName profilePicture profileBackground");
 // });
 commentSchema.pre(/^find/, function () {
-  const { userComments } = this.options;
-  if(userComments )
-  {
-    this.populate("post");
-  }
-  this.populate("author", "_id userName profilePicture profileBackground");
+  console.log("mmmmmmmmddddddddddddddjjjjjjjjj");
+ // console.log(this);
+  this.populate("post");
+  this.populate("author","_id userName profilePicture profileBackground");
 });
+
+// commentSchema.pre(/^find/, function () {
+//   const { userComments } = this.options;
+//   if(userComments )
+//   {
+//     this.populate("post");
+//   }
+//   this.populate("author", "_id userName profilePicture profileBackground");
+// });
+
+
 commentSchema.pre("save", function (next) {
   // this points to the current query
   this.sortOnHot =

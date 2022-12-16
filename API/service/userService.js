@@ -604,7 +604,7 @@ class UserService {
     return searchUser;
   }
   async addUserImageURL(userId, type, path) {
-    console.log(path);
+    //console.log(path);
     path = "users/" + path;
 
     let user = {};
@@ -635,7 +635,7 @@ class UserService {
       };
     } else {
       let data = await this.SocialRepository.findOne(socialId);
-      console.log(data);
+      //console.log(data);
       if (data.success === true) {
         // bug here should use updateone
 
@@ -751,8 +751,8 @@ class UserService {
     let index2 = otherUser.userMeRelationship.findIndex(
       (item) => item.userId.toString() == me._id.toString()
     );
-    console.log(index);
-    console.log(index2);
+   // console.log(index);
+   // console.log(index2);
     if (index != -1) {
       me.meUserRelationship[index].status = "blocked";
       otherUser.userMeRelationship[index2].status = "blocked";
@@ -821,6 +821,8 @@ class UserService {
   async followUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
+    
+    //console.log(otherUser);
     let isAlreadyFollowed = true;
     let index = me.meUserRelationship.findIndex(
       (item) => item.userId.toString() == otherUser._id.toString()
