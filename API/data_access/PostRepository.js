@@ -244,11 +244,24 @@ class PostRepository extends Repository {
     return tree;
   }
 
-  async addFile(postId, kind, file) {
+  async addImage(postId, image) {
     return await this.model.findByIdAndUpdate(
       postId,
       {
-        $push: { [kind + "s"]: file },
+        $push: { images: image },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
+
+  async addVideo(postId, video) {
+    return await this.model.findByIdAndUpdate(
+      postId,
+      {
+        video: video
       },
       {
         new: true,

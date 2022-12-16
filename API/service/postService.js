@@ -510,7 +510,8 @@ class PostService {
   }
 
   async addFile(postId, kind, file) {
-    return await this.postRepo.addFile(postId, kind, file);
+    if(kind === "image") return await this.postRepo.addImage(postId, file);
+    else return await this.postRepo.addVideo(postId, file)
   }
 
   /**
