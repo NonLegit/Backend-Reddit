@@ -719,6 +719,30 @@ class PostService {
     await user.save();
     return true;
   }
+  async hidePost(user, postId) {
+    const index = user.hidden.findIndex((element) => {
+      return element.toString() === postId.toString();
+    });
+    if (index == -1) {
+      user.hidden.push(postId);
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unHidePost(user, postId) {
+    const index = user.hidden.findIndex((element) => {
+      return element.toString() === postId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.hidden.pull(postId);
+    }
+    await user.save();
+    return true;
+  }
 }
 
 module.exports = PostService;

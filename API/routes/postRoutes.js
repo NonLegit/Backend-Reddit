@@ -34,6 +34,8 @@ router.route("/:postId/spam").patch(PostController.spam);
 router.post("/:postId/vote", PostController.postVote);
 router.post("/:postId/save", PostController.savePost);
 router.post("/:postId/unsave", PostController.unSavePost);
+router.post("/:postId/hide", PostController.hidePost);
+router.post("/:postId/unhide", PostController.unHidePost);
 router
   .route("/:postId/actions/:action")
   .patch(PostController.mustBeAuthOrMod, PostController.postActions);

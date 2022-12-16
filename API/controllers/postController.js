@@ -939,6 +939,90 @@ class PostController {
       });
     }
   };
+  hidePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.hidePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    }
+  };
+  unHidePost = async (req, res, next) => {
+    let me = req.user;
+    let postId = req.params.postId;
+
+    // check post is found
+    let post = await this.postServices.findPostById(postId);
+    if (post.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      console.log(post.data);
+      let isUserBlockedMe = await this.userServices.checkBlockStatus(
+        me,
+        post.data.author
+      );
+      let isMeBlockedUser = await this.userServices.checkBlockStatus(
+        post.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        let isUpdated = await this.postServices.unHidePost(me, postId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    }
+  };
 }
 
 module.exports = PostController;
