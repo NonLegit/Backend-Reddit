@@ -14,9 +14,10 @@ class PostService {
    * @param {object} PostRepository - Data access object for post
    * @param {object} subredditRepo - Data access object for subreddit
    */
-  constructor({ PostRepository, SubredditRepository }) {
+  constructor({ PostRepository, SubredditRepository, UserRepository }) {
     this.postRepo = PostRepository;
     this.subredditRepo = SubredditRepository;
+    this.UserRepository = UserRepository;
     //this.printo = this.printo.bind(this);
   }
 
@@ -85,9 +86,8 @@ class PostService {
       data.sharedFrom ||
       (data.kind === "link" && data.url) ||
       (data.kind === "self" && data.text) ||
-      ((data.kind === "image" || data.kind === "video") &&
-        !data.url &&
-        !data.text);
+      data.kind === "image" ||
+      data.kind === "video";
 
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
@@ -540,6 +540,7 @@ class PostService {
    * @param {bool} dir True for the action, False for its opposite
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async postAction(postId, action) {
     //If action is positive, dir is true, otherwise dir is false
     const prefix = action.slice(0, 2);
@@ -569,6 +570,7 @@ class PostService {
    * @param {string} action The action to be performed
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async modAction(postId, action) {
     return await this.postRepo.modAction(postId, action);
   }
@@ -641,7 +643,7 @@ class PostService {
         name: newPosts[i].savedPost.author.userName,
       };
     }
-    return newPosts;
+    return newPosts.reverse();
   }
   filterPosts(posts, comments) {
     posts = posts.filter(
@@ -651,6 +653,97 @@ class PostService {
         }) === -1
     );
     return posts;
+  }
+  async findPostById(postId) {
+    let post = await this.postRepo.getPostwithAuthor(postId);
+    if (post.success === true) {
+      return { success: true, data: post.doc };
+    } else {
+      return { success: false };
+    }
+  }
+  // Doaa should add here code here
+  async addVote(user, postId, voteDir, votesCount) {
+    let voteNumber = Number(voteDir);
+    const index = user.votePost.findIndex((element) => {
+      return element.posts.toString() === postId.toString();
+    });
+    if (index == -1) {
+      // make it in query
+      user.votePost.push({
+        posts: postId,
+        postVoteStatus: voteDir,
+      });
+    } else {
+      if (user.votePost[index].postVoteStatus === voteDir) {
+        return false;
+      } else {
+        if (user.votePost[index].postVoteStatus === "-1") {
+          voteNumber += 1;
+        } else if (user.votePost[index].postVoteStatus === "1") {
+          voteNumber -= 1;
+        }
+        user.votePost[index].postVoteStatus = voteDir;
+      }
+    }
+    // update post votes count
+    let post = await this.postRepo.updateVotesCount(
+      postId,
+      voteNumber + votesCount
+    );
+    //user.replaceProfileDomain();
+    await user.save();
+    return true;
+  }
+  async savePost(user, postId) {
+    const index = user.saved.findIndex((element) => {
+      return element.savedPost.toString() === postId.toString();
+    });
+    if (index == -1) {
+      user.saved.push({
+        savedPost: postId,
+      });
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unSavePost(user, postId) {
+    const index = user.saved.findIndex((element) => {
+      return element.savedPost.toString() === postId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.saved.pull({ savedPost: postId });
+    }
+    await user.save();
+    return true;
+  }
+  async hidePost(user, postId) {
+    const index = user.hidden.findIndex((element) => {
+      return element.toString() === postId.toString();
+    });
+    if (index == -1) {
+      user.hidden.push(postId);
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unHidePost(user, postId) {
+    const index = user.hidden.findIndex((element) => {
+      return element.toString() === postId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.hidden.pull(postId);
+    }
+    await user.save();
+    return true;
   }
 }
 

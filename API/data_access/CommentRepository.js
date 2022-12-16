@@ -47,15 +47,17 @@ class CommentRepository extends Repository {
   }
 
   async commentTree(children, limit, depth, sort) {
-    const comments = this.model.find({
-      _id: { $in: children },
-    }).sort({[sort]: -1});
+    const comments = this.model
+      .find({
+        _id: { $in: children },
+      })
+      .sort({ [sort]: -1 });
     if (depth >= 0)
       comments
         .populate({
           path: "replies",
           perDocumentLimit: limit,
-          options: { depth, sort:{[sort]: -1} },
+          options: { depth, sort: { [sort]: -1 } },
         })
         .lean();
 
@@ -63,14 +65,23 @@ class CommentRepository extends Repository {
   }
 
   async getUserComments(userId, query, popOptions) {
-    const features = new APIFeatures(this.model.find({ author: userId }), query)
+    const features = new APIFeatures(
+      this.model.find({
+        author: userId,
+        isDeleted: false,
+      }),
+      query
+    )
       .filter()
       .sort()
       .limitFields()
       .paginate();
     // const doc = await features.query.explain();
 
-    let doc = await features.query.populate({ path: popOptions, options: {userComments: true} });
+    let doc = await features.query.populate({
+      path: popOptions,
+      options: { userComments: true },
+    });
     return { success: true, doc: doc };
   }
 }

@@ -533,6 +533,76 @@ class UserService {
       return response;
     }
   }
+  about(me, user) {
+    const relation = me.meUserRelationship.find(
+      (element) => element.userId.toString() === user._id.toString()
+    );
+    let isFollowed = false;
+    let isBlocked = false;
+    if (relation) {
+      if (relation.status === "followed") {
+        isFollowed = true;
+      } else if (relation.status === "blocked") {
+        isBlocked = true;
+      }
+    }
+    const checkBlocked = me.userMeRelationship.find(
+      (element) => element.userId.toString() === user._id.toString()
+    );
+    let userBlockedMe = false;
+    if (checkBlocked) {
+      if (checkBlocked.status === "blocked") userBlockedMe = true;
+    }
+    let searchUser;
+    if (userBlockedMe) {
+      searchUser = {
+        _id: user._id,
+        userName: user.userName,
+        profilePicture: `${process.env.BACKDOMAIN}/users/default.png`,
+        profileBackground: `${process.env.BACKDOMAIN}/users/defaultcover.png`,
+        canbeFollowed: false,
+        followersCount: user.followersCount,
+        friendsCount: user.friendsCount,
+        gender: user.gender,
+        displayName: user.displayName,
+        postKarma: user.postKarma,
+        commentKarma: user.commentKarma,
+        description: "",
+        createdAt: user.joinDate,
+        nsfw: user.nsfw,
+        autoplayMedia: user.autoplayMedia,
+        adultContent: user.adultContent,
+        isFollowed: false,
+        country: user.country,
+        socialLinks: [],
+        isBlocked:isBlocked,
+      };
+    } else {
+      searchUser = {
+        _id: user._id,
+        userName: user.userName,
+        profilePicture: user.profilePicture,
+        profileBackground: user.profileBackground,
+        canbeFollowed: user.canbeFollowed,
+        followersCount: user.followersCount,
+        friendsCount: user.friendsCount,
+        gender: user.gender,
+        displayName: user.displayName,
+        postKarma: user.postKarma,
+        commentKarma: user.commentKarma,
+        description: user.description,
+        createdAt: user.joinDate,
+        nsfw: user.nsfw,
+        autoplayMedia: user.autoplayMedia,
+        adultContent: user.adultContent,
+        isFollowed: isFollowed,
+        country: user.country,
+        socialLinks: user.socialLinks,
+        isBlocked:isBlocked,
+      };
+    }
+    return searchUser;
+  }
   async addUserImageURL(userId, type, path) {
     console.log(path);
     path = "users/" + path;
@@ -660,12 +730,10 @@ class UserService {
     return doc;
   }
   async checkBlockStatus(me, otherUser) {
-    console.log(otherUser.meUserRelationship);
-
     const index = otherUser.meUserRelationship.findIndex((element) => {
       return element.userId.toString() == me._id.toString();
     });
-    console.log(index);
+
     if (index != -1) {
       console.log(otherUser.meUserRelationship[index].status);
       if (otherUser.meUserRelationship[index].status === "blocked") {
@@ -697,6 +765,18 @@ class UserService {
         userId: me._id,
         status: "blocked",
       });
+    }
+    // remove relationship of other user and me
+    index = me.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    index2 = otherUser.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.userMeRelationship[index].status = "none";
+      otherUser.meUserRelationship[index2].status = "none";
     }
     await otherUser.save();
     await me.save();

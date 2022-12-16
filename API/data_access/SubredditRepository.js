@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate: Date.now(),
+              joiningDate: new Date(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,
@@ -36,20 +36,20 @@ class SubredditRepository extends Repository {
     }
   }
 
-//     async getSubredditWithFlairs(name, select) {
-//     try {
-    
-//       const doc = await this.getSubreddit(name,select,"flairIds");
-//       console.log("hhhhhhhhhhhhhhh");
-//       console.log(doc);
-// console.log("hhhhhhhhhhhhhhh");
-//       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+  //     async getSubredditWithFlairs(name, select) {
+  //     try {
 
-//       return { success: true, doc: doc.doc };
-//     } catch (err) {
-//       return { success: false, ...decorateError(err) };
-//     }
-//   }
+  //       const doc = await this.getSubreddit(name,select,"flairIds");
+  //       console.log("hhhhhhhhhhhhhhh");
+  //       console.log(doc);
+  // console.log("hhhhhhhhhhhhhhh");
+  //       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+  //       return { success: true, doc: doc.doc };
+  //     } catch (err) {
+  //       return { success: false, ...decorateError(err) };
+  //     }
+  //   }
   async getsubreddit(name, select, popOptions) {
     try {
       let tempDoc = this.model
@@ -241,7 +241,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             rules: {
-              createdAt: Date.now(),
+              createdAt: new Date(),
               defaultName: data.defaultName,
               description: data.description,
               appliesTo: data.appliesTo,
@@ -269,7 +269,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(),
               profilePicture: user.profilePicture,
               type: "banned",
               banInfo: {
@@ -301,12 +301,34 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(),
               profilePicture: user.profilePicture,
               type: "muted",
               muteInfo: {
                 muteMessage: data.muteMessage,
               },
+            },
+          },
+        }
+      );
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async approveUser(userId, subredditName) {
+    try {
+      let doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            approved: {
+              user: userId,
+              approvedDate: new Date(),
             },
           },
         }
@@ -377,6 +399,26 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+  async updateApproved(subredditName, approved) {
+    try {
+      const doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { approved: approved },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!doc) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: doc };
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
   async updateRules(subredditName, rules) {
     try {
       const doc = await this.model.findOneAndUpdate(
@@ -430,6 +472,24 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async approvedUsers(subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+        })
+        .select("approved")
+        .populate("approved.user", "_id userName joinDate profilePicture");
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async categorySubreddits(query, category) {
     const page = query.page * 1 || 1;
     const limit = query.limit * 1 || 100;
@@ -459,7 +519,7 @@ class SubredditRepository extends Repository {
         .skip(skip)
         .limit(limit)
         .sort("-createdAt");
-        
+
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };
     } catch (err) {
@@ -474,7 +534,6 @@ class SubredditRepository extends Repository {
           fixedName: subredditName,
         })
         .select("punished");
-
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 

@@ -83,6 +83,7 @@ exports.userErrors = Object.freeze({
   Not_BANED: 22,
   ALREADY_MUTED: 31,
   Not_MUTED: 32,
+  ALREADY_APPROVED: 12,
 });
 
 exports.mongoErrors = Object.freeze({
