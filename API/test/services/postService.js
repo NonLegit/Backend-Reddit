@@ -142,7 +142,7 @@ describe("Post service test", () => {
 
   describe("Testing update post", () => {
     const PostRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
           kind: "self",
@@ -189,7 +189,7 @@ describe("Post service test", () => {
     it("post not editable", async () => {
       userId = "578a5fccf267fc3a463b35e4";
 
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
           kind: "link",
@@ -206,7 +206,7 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.NOT_EDITABLE);
     });
     it("post not found", async () => {
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         return { success: false };
       };
       const { success, error } = await postServices.updatePost(
@@ -221,7 +221,7 @@ describe("Post service test", () => {
 
   describe("Testing delete post", () => {
     const PostRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
         };
@@ -247,7 +247,7 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.NOT_AUTHOR);
     });
     it("post not found", async () => {
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         return { success: false };
       };
       const { success, error } = await postServices.deletePost(id, userId);
