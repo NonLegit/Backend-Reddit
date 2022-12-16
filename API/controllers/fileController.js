@@ -192,6 +192,8 @@ class FileController {
     const postId = req.params?.postId;
     const { kind, caption, link } = req.body;
     const file = req.file;
+    const extension = file.originalname.split(".").pop();
+    const mimetype = file.mimetype;
 
     if (!postId || !kind || (kind !== "image" && kind !== "video")) {
       res.status(400).json({
@@ -232,6 +234,19 @@ class FileController {
     let fileObj;
 
     if (kind === "image") {
+      const allowedExts = ["jpeg", "jpg", "png", "svg", "webp"];
+      const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
+      if (
+        !allowedExts.includes(extension) ||
+        !allowedMimeTypes.includes(mimetype)
+      ) {
+        res.status(400).json({
+          status: "fail",
+          message: "Unsupported image format",
+        });
+        return;
+      }
+
       file.filename = `${req.params.postId}/post-${
         req.params.postId
       }-${Date.now()}.jpeg`;
@@ -250,12 +265,33 @@ class FileController {
         .toFile(`public/posts/${file.filename}`);
 
       fileObj = { path: "posts/" + file.filename, caption, link };
-    } else {
-      res.status(400).json({
-        status: "fail",
-        message: "Video posts are not implemented yet",
-      });
-      return;
+    } else if (kind === "video") {
+      const allowedExts = ["mp4", "webm"];
+      const allowedMimeTypes = ["video/mp4", "video/webm"];
+
+      if (
+        !allowedExts.includes(extension) ||
+        !allowedMimeTypes.includes(mimetype)
+      ) {
+        res.status(400).json({
+          status: "fail",
+          message: "Unsupported video format, use either mp4 or webm",
+        });
+        return;
+      }
+
+      file.filename = `${req.params.postId}/post-${
+        req.params.postId
+      }-${Date.now()}.${extension}`;
+
+      let dir = "public/posts/" + req.params.postId;
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir);
+      }
+
+      fs.writeFileSync(`public/posts/${file.filename}`, file.buffer);
+
+      fileObj = { path: "posts/" + file.filename };
     }
 
     const updatedPost = await this.PostService.addFile(postId, kind, fileObj);
