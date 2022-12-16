@@ -7861,21 +7861,9 @@ components:
         images:
           type: array
           items:
-            type: object
-            properties:
-              path:
-                type: string
-              caption:
-                type: string
-              link: 
-                type: string
-        videos:
-          type: array
-          items:
-            type: object
-            properties:
-              path:
-                type: string
+            type: string
+        video:
+          type: string
         votes:
           type: integer
           description: total number of votes
@@ -7976,21 +7964,9 @@ components:
         images:
           type: array
           items:
-            type: object
-            properties:
-              path:
-                type: string
-              caption:
-                type: string
-              link: 
-                type: string
-        videos:
-          type: array
-          items:
-            type: object
-            properties:
-              path:
-                type: string
+            type: string
+        video:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -8156,21 +8132,9 @@ components:
         images:
           type: array
           items:
-            type: object
-            properties:
-              path:
-                type: string
-              caption:
-                type: string
-              link: 
-                type: string
-        videos:
-          type: array
-          items:
-            type: object
-            properties:
-              path:
-                type: string
+            type: string
+        video:
+          type: string
         sortOnHot:
           type: integer
           description: calculated value to sort on it
