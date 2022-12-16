@@ -5994,6 +5994,45 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+  /subreddits/{subredditName}/approved_users:
+    get:
+      tags:
+        - Subreddit
+      summary: ""
+      description: "Get list of approved users in this subreddit"
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: subredditName
+          description: The subreddit name
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/approvedUser"
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
 
   /subreddits/{subredditName}/{action}/invitation:
     post:
@@ -6105,6 +6144,57 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
+                
+  /subreddits/{subredditName}/{userName}/{action}/approve_user:
+    post:
+      tags:
+        - Subreddit
+      summary: "mark or unmark user as approved/disapproved"
+      description: "mark or unmark user as approved/disapproved"
+
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: subredditName
+          description: The subreddit name
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: userName
+          description : the user i want to approve/disapprove
+          required: true
+          schema:
+            type: string
+
+        - in: path
+          name: action
+          description :  approve/disapprove
+          required: true
+          schema:
+            type: string
+            enum: ["approve","disapprove"]
+  
+      responses:
+        "204":
+          description: successful operation
+
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+                
+
 
   /subreddits/leaderboard/{category}:
     get:
@@ -7009,11 +7099,11 @@ paths:
           $ref: "#/components/responses/UnauthorizedError"
 
   /posts/{postId}/images:
-    description: Upload image (or video) to a post
+    description: deal with files (images)
     post:
       tags:
         - Images
-      description: Attach a file to a post after it has been created. The post kind must be image or video and it must match the kind parameter
+      description: upload post file in its folder
       summary: Upload post (image)
       security:
         - BearerAuth: []
@@ -7031,19 +7121,12 @@ paths:
             schema:
               type: object
               properties:
+                filename:
+                  type: string
+                  example: post.png
                 file:
                   type: string
                   format: binary
-                kind:
-                  type: string
-                  enum:
-                  - image
-                  - video
-                caption:
-                  type: string
-                link:
-                  type: string
-
       responses:
         201:
           description: Success operation
@@ -7055,8 +7138,6 @@ paths:
                   status:
                     type: string
                     example: success
-                  post:
-                    $ref: "#/components/schemas/Post"
         400:
           description: Bad Request
           content:
@@ -7067,9 +7148,9 @@ paths:
                   status:
                     type: string
                     example: fail
-                  Message:
+                  errorMessage:
                     type: string
-                    example: Invalid post kind
+                    example: you are not owner of this post
         404:
           description: Not Found
           content:
@@ -8167,20 +8248,7 @@ components:
           description: total number of votes
         repliesCount:
           type: integer
-        nsfw:
-          type: boolean
-        spoiler:
-          type: boolean
-        locked:
-          type: boolean
-          description: whether the post can receive comments or not               
-        modState:
-          type: string
-          enum:
-          - approved
-          - removed
-          - spammed        
-        
+
     moreReplies:
       type: object
       description: Contains the IDs of comments to be used in more_children endpoint. 
@@ -8955,6 +9023,31 @@ components:
           format: date-time
         baninfo:
           $ref: "#/components/schemas/banInfo"
+          
+          
+    approvedInfo:
+      type: object
+      properties:
+        _id:
+          type: string
+        userName:
+          type: string
+        profilePicture:
+          type: string
+        joinDate:
+          type: string
+          format: date-time
+          
+          
+    approvedUser:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/approvedInfo"
+        approvedDate:
+          type: string
+          format: date-time
+
 
     Notification:
       type: object
