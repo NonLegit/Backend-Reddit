@@ -40,7 +40,21 @@ class PostRepository extends Repository {
     });
   }
   async getUserPosts(author, query, popOptions) {
-    const features = new APIFeatures(this.model.find({ author: author }), query)
+    const features = new APIFeatures(
+      this.model.find({
+        $or: [
+          {
+            author: author,
+          },
+        ],
+        $and: [
+          {
+            isDeleted: false,
+          },
+        ],
+      }),
+      query
+    )
       .filter()
       .sort()
       .limitFields()

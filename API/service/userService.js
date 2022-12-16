@@ -698,6 +698,18 @@ class UserService {
         status: "blocked",
       });
     }
+    // remove relationship of other user and me 
+    index = me.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    index2 = otherUser.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.userMeRelationship[index].status = "none";
+      otherUser.meUserRelationship[index2].status = "none";
+    } 
     await otherUser.save();
     await me.save();
     return true;

@@ -228,6 +228,7 @@ module.exports = async function seeder() {
     views: 8,
     shareCount: 0,
     commentCount: 0,
+    isDeleted: true,
   });
   let comment1 = await Comment.create({
     author: user3._id,
@@ -235,6 +236,7 @@ module.exports = async function seeder() {
     post: post2._id,
     parentType: "Post",
     text: "My Fourth comment",
+    isDeleted: true,
   });
   let comment2 = await Comment.create({
     author: user3._id,
