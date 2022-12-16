@@ -641,7 +641,7 @@ class PostService {
         name: newPosts[i].savedPost.author.userName,
       };
     }
-    return newPosts;
+    return newPosts.reverse();
   }
   filterPosts(posts, comments) {
     posts = posts.filter(
@@ -690,6 +690,32 @@ class PostService {
       voteNumber + votesCount
     );
     //user.replaceProfileDomain();
+    await user.save();
+    return true;
+  }
+  async savePost(user, postId) {
+    const index = user.saved.findIndex((element) => {
+      return element.savedPost.toString() === postId.toString();
+    });
+    if (index == -1) {
+      user.saved.push({
+        savedPost: postId,
+      });
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unSavePost(user, postId) {
+    const index = user.saved.findIndex((element) => {
+      return element.savedPost.toString() === postId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.saved.pull({ savedPost: postId });
+    }
     await user.save();
     return true;
   }

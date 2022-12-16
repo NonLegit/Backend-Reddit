@@ -447,15 +447,15 @@ describe("User Post Test", () => {
         };
         const result = postservices.setVoteStatus(user, saved);
         expect(result.length).to.equal(3);
-        expect(result[0].savedPost.author.name).to.equal("ahmed");
-        expect(result[0].savedPost.author._id).to.equal("1");
-        expect(result[0].savedPost.owner.name).to.equal("ahmed");
-        expect(result[0].savedPost.owner._id).to.equal("1");
-        expect(result[0].savedPost.owner.icon).to.equal(
+        expect(result[2].savedPost.author.name).to.equal("ahmed");
+        expect(result[2].savedPost.author._id).to.equal("1");
+        expect(result[2].savedPost.owner.name).to.equal("ahmed");
+        expect(result[2].savedPost.owner._id).to.equal("1");
+        expect(result[2].savedPost.owner.icon).to.equal(
           `${process.env.BACKDOMAIN}/users/default.png`
         );
-        expect(result[0].savedPost.ownerType).to.equal("User");
-        expect(result[0].savedPost.postVoteStatus).to.equal("1");
+        expect(result[2].savedPost.ownerType).to.equal("User");
+        expect(result[2].savedPost.postVoteStatus).to.equal("1");
         expect(result[1].savedPost.owner.name).to.equal("ahmed");
         expect(result[1].savedPost.owner._id).to.equal("1");
         expect(result[1].savedPost.owner.icon).to.equal(
@@ -463,13 +463,13 @@ describe("User Post Test", () => {
         );
         expect(result[1].savedPost.ownerType).to.equal("Subreddit");
         expect(result[1].savedPost.postVoteStatus).to.equal("-1");
-        expect(result[2].savedPost.owner.name).to.equal("ahmed");
-        expect(result[2].savedPost.owner._id).to.equal("1");
-        expect(result[2].savedPost.owner.icon).to.equal(
+        expect(result[0].savedPost.owner.name).to.equal("ahmed");
+        expect(result[0].savedPost.owner._id).to.equal("1");
+        expect(result[0].savedPost.owner.icon).to.equal(
           "subreddits/default.png"
         );
-        expect(result[2].savedPost.ownerType).to.equal("Subreddit");
-        expect(result[2].savedPost.postVoteStatus).to.equal("0");
+        expect(result[0].savedPost.ownerType).to.equal("Subreddit");
+        expect(result[0].savedPost.postVoteStatus).to.equal("0");
       });
     });
   });
