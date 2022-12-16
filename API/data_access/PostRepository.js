@@ -40,7 +40,21 @@ class PostRepository extends Repository {
     });
   }
   async getUserPosts(author, query, popOptions) {
-    const features = new APIFeatures(this.model.find({ author: author }), query)
+    const features = new APIFeatures(
+      this.model.find({
+        $or: [
+          {
+            author: author,
+          },
+        ],
+        $and: [
+          {
+            isDeleted: false,
+          },
+        ],
+      }),
+      query
+    )
       .filter()
       .sort()
       .limitFields()
@@ -100,6 +114,31 @@ class PostRepository extends Repository {
       // let doc = await features.query;
       let doc = await this.model.find({ _id: postId });
       // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async getPostwithAuthor(postId) {
+    try {
+      // const doc = await features.query.explain();
+      // const features = new APIFeatures(this.model.find({ _id: postId }), "");
+      // let doc = await features.query;
+      let doc = await this.model.findOne({ _id: postId }).populate({
+        path: "author",
+        options: { getAuthor: true },
+      });
+      // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async updateVotesCount(postId, newVotes) {
+    try {
+      let doc = await this.model.findByIdAndUpdate(postId, { votes: newVotes });
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };
     } catch (err) {
