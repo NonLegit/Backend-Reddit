@@ -64,6 +64,7 @@ class AuthenticationController {
       ),
       httpOnly: false,
       secure: false,
+      SameSite: "none",
     };
     if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
     if (process.env.NODE_ENV === "production") cookieOptions.httpOnly = true;
