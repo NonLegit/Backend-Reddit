@@ -29,7 +29,8 @@ class PostService {
    */
   async updatePost(id, data, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
@@ -55,7 +56,8 @@ class PostService {
    */
   async deletePost(id, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
@@ -306,7 +308,7 @@ class PostService {
 
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
-      console.log(user.saved[i].savedPost);
+      //console.log(user.saved[i].savedPost);
       // if (user.saved[i].savedType === "Post")
       hash[user.saved[i].savedPost] = user.saved[i].savedPost;
     }
@@ -508,7 +510,8 @@ class PostService {
   }
 
   async addFile(postId, kind, file) {
-    return await this.postRepo.addFile(postId, kind, file);
+    if(kind === "image") return await this.postRepo.addImage(postId, file);
+    else return await this.postRepo.addVideo(postId, file)
   }
 
   /**
@@ -540,6 +543,7 @@ class PostService {
    * @param {bool} dir True for the action, False for its opposite
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async postAction(postId, action) {
     //If action is positive, dir is true, otherwise dir is false
     const prefix = action.slice(0, 2);
@@ -569,6 +573,7 @@ class PostService {
    * @param {string} action The action to be performed
    * @returns {bool} returns true if the action is performed successfully and false otherwise
    */
+  // TODO: mod permissions
   async modAction(postId, action) {
     return await this.postRepo.modAction(postId, action);
   }

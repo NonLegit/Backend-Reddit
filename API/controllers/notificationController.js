@@ -43,27 +43,93 @@ class NotificationController {
     }
  
  
-  addReplyNotification = async (req, res) => {
-    
-    if (!req.user || !req.comment || !req.post) {
+  addReplyNotification = async (req, res, next) => {
+   // console.log(req.post);
+    if (!req.user || !req.comment || !req.post||!req.mentions) {
       return;
     }
     console.log("iiiiiiiiiiiiii");
     let notification = await this.notificationServices.addReplyNotification(req.user, req.comment, req.post);
-    
+   // let notifyMentions = await this.sendMentions(req.user, req.comment, req.post,req.mentions);
+
     if (notification.success) {
       
-      let tokens = await this.notificationServices.getFirebaseToken(req.user._id);
-      console.log(tokens.data.firebaseToken[0]);
-      console.log(notification.data);
+      let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
+     // console.log(tokens.data.firebaseToken[0]);
+      console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+      //console.log(notification.data);
+      let message;
+      if (tokens.success && tokens.data.firebaseToken.length != 0) {
+        message = {
+          registration_ids: tokens.data.firebaseToken,
+          data: { val: JSON.stringify(notification.data) }
+        }
+        
+        fcm.send(message, (err, response) => {
+          if (err) {
+            console.log("Something has gone wrong!" + err);
+          } else {
+            console.log("Successfully sent with response: ");
+          }
+        });
+        console.log("noooo body is in here");
+        console.log(message);
+      //  console.log(notification.data);
+      }
+        if(notification.data.type=="postReply")
+        return next();
+      
+    }
+      return ;
+    }
+    
+  // sendMentions = async (req, res) => {
+  
+  //   console.log("iiiiiiiiiiiiii");
+  //   let notification = await this.notificationServices.addFollowNotification(req.follower, req.followed);
+  //   //  console.log(notification);
+  //   if (notification.success) {
+      
+  //     let tokens = await this.notificationServices.getFirebaseToken(req.followed._id);
+  //     // console.log(tokens.data.firebaseToken[0]);
+  //     // console.log(notification.data);
+  //     let message;
+  //     if (tokens.success) {
+  //        message = {
+  //         registration_ids:tokens.data.firebaseToken,
+  //          data: { val: JSON.stringify(notification.data) }
+  //         }
+  //       };
+  //       fcm.send(message, (err, response) => {
+  //         if (err) {
+  //           console.log("Something has gone wrong!" + err);
+  //         } else {
+  //           console.log("Successfully sent with response: ");
+  //         }
+  //       });
+
+  //   }
+  //     return ;
+  //   }
+  
+  
+  
+   addFollowNotification = async (req, res) => {
+    
+    if (!req.follower || !req.followed) {
+      return;
+    }
+    console.log("iiiiiiiiiiiiii");
+    let notification = await this.notificationServices.addFollowNotification(req.follower, req.followed);
+    //  console.log(notification);
+    if (notification.success) {
+      
+      let tokens = await this.notificationServices.getFirebaseToken(req.followed._id);
+      // console.log(tokens.data.firebaseToken[0]);
+      // console.log(notification.data);
       let message;
       if (tokens.success) {
          message = {
-          //to:"eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
-          // to: "e9fZCcAVgdjfaQyMkAq5VO:APA91bEYMvvwaBLo8Ec2OhFgnngTO1gXFgveBwyqSaniasvuMg9gXdG00cpJylY4vdk-RN0W6H2rpyBvE3POgZ3oPDNuDB9yn8FLsNo28R2JjcxwPowY9SyjNvxDolZVGEbu2VVmHFVY",
-          //  registration_ids: ["eBPImScAT829czRG9LMcyf:APA91bHQTHRIm7RslmHVrxPCvzKZ9yH7zcXtDXi7Guuyplzj6xS_HJmJeJRv5gXt6I1KKjrKMODAArZZVO2NYg1kSbK4m6wjuF942ul8u7cdqZ3GbPyxVj9D2LO4X5hEm0rZsK4ShxvP",
-          //  "cfMDd2dNTfIMxRBSfjtskS:APA91bGobI2lbIUVrbnfjVORHm_3r4ewihiaQteGzgTHx855_5xxHFRgrkn7vM90cAeFqVrROQkahqpkurzyaVXM6yCe_7mjh7Mrb4RlRqza6Y05W61DKfE9y_DpdxnShYlFEkisNLKD"],
-          //to:"cfMDd2dNTfIMxRBSfjtskS:APA91bGobI2lbIUVrbnfjVORHm_3r4ewihiaQteGzgTHx855_5xxHFRgrkn7vM90cAeFqVrROQkahqpkurzyaVXM6yCe_7mjh7Mrb4RlRqza6Y05W61DKfE9y_DpdxnShYlFEkisNLKD",
           registration_ids:tokens.data.firebaseToken,
            data: { val: JSON.stringify(notification.data) }
           }
@@ -130,7 +196,7 @@ markAllNotificationsAsRead=async (req, res) => {
   markNotificationAsRead=async (req, res) => {
     try {
       let userId = req.user._id;
-      console.log(req.params.notificationId);
+     // console.log(req.params.notificationId);
       let notification = await this.notificationServices.markNotificationAsRead(userId,req.params.notificationId);
       //console.log(notifications);
       if (!notification.success) {
@@ -167,7 +233,7 @@ markAllNotificationsAsRead=async (req, res) => {
    hideNotification=async (req, res) => {
     try {
       let userId = req.user._id;
-      console.log(req.params.notificationId);
+   //   console.log(req.params.notificationId);
       let notification = await this.notificationServices.hideNotification(userId,req.params.notificationId);
       //console.log(notifications);
       if (!notification.success) {

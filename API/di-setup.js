@@ -8,6 +8,7 @@ const CommentController = require("./controllers/commentController");
 const subredditController = require("./controllers/subredditController");
 const FileController = require("./controllers/fileController");
 const NotificationController = require("./controllers/notificationController");/////
+const MessageController = require("./controllers/messageController");/////
 // Require Services
 const UserService = require("./service/userService");
 const Email = require("./service/emailService");
@@ -15,6 +16,7 @@ const PostService = require("./service/postService");
 const subredditService = require("./service/subredditService");
 const CommentService = require("./service/commentService");
 const NotificationService = require("./service/notificationService");
+const MessageService = require("./service/messageService");
 // Require Data access
 //const Repository = require("./data_access/repository");
 const UserRepository = require("./data_access/UserRepository");
@@ -48,6 +50,7 @@ function setup() {
     subredditController: awilix.asClass(subredditController),
     FileController: awilix.asClass(FileController),
     NotificationController: awilix.asClass(NotificationController),
+    MessageController: awilix.asClass(MessageController),
     // services
     Email: awilix.asClass(Email),
     UserService: awilix.asClass(UserService),
@@ -55,6 +58,7 @@ function setup() {
     subredditService: awilix.asClass(subredditService),
     CommentService: awilix.asClass(CommentService),
     NotificationService: awilix.asClass(NotificationService),
+    MessageService: awilix.asClass(MessageService),
     // DAOs
     //Repository: awilix.asClass(Repository),
     UserRepository: awilix.asClass(UserRepository),

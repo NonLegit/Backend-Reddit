@@ -23,7 +23,9 @@ class CommentController {
     }
 
     const comment = await this.commentServices.createComment(data);
-
+    console.log("before comment");
+    //console.log(comment);
+     console.log("before comment");
     if (!comment.success) {
       let msg, stat;
       switch (comment.error) {
@@ -49,12 +51,23 @@ class CommentController {
     }
     req.comment = comment.commentToNotify;
     req.post = comment.postToNotify;
+    req.mentions = comment.mentions;
+    console.log("to print comment");
+   // console.log(comment);
+    console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+    // console.log(req.comment);
+    // console.log(req.post);
+    console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+    //console.log(comment.postToNotify);
     //console.log(req);
     res.status(201).json({
       status: "success",
       data: comment.data,
     });
-    return next();
+    //console.log(req.comment.type);
+    
+      return next();
+   
     //mentions
   };
 

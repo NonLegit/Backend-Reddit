@@ -5,6 +5,7 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const subredditController = container.resolve("subredditController");
 const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
+const MessageController = container.resolve("MessageController");
 //const userControllerObj = require("./test");
 //
 const router = express.Router();
@@ -47,16 +48,14 @@ router
   .get(subredditController.getFlair)
   .patch(subredditController.updateFlair)
   .delete(subredditController.deleteFlair);
-router.get(
-  "/:subredditName/about/:location",
-  subredditController.relevantPosts
-);
+
 router.get("/mine/:where", subredditController.subredditsJoined);
 router.get("/moderator/:username", subredditController.subredditsModerated);
 
 router.post(
   "/:subredditName/moderators/:moderatorName",
-  subredditController.inviteModerator
+  subredditController.inviteModerator,
+  MessageController.modMessage
 );
 router.post(
   "/:subredditName/:action/invitation",
@@ -64,10 +63,13 @@ router.post(
 );
 router.delete(
   "/:subredditName/moderator/:moderatorName",
-  subredditController.deletemoderator
+  subredditController.deletemoderator,
+   MessageController.modMessage
+  
+
 );
 router.patch(
-  "/:subredditName/moderator/:moderatorName",
+  "/:subredditName/moderators/:moderatorName",
   subredditController.updatePermissions
 );
 router.get("/:subredditName/moderators", subredditController.getModerators);
@@ -83,14 +85,17 @@ router.get(
 
 router.post(
   "/:subredditName/ban_settings/:action/:userName",
-  subredditController.banSettings
+  subredditController.banSettings,
+  MessageController.modMessage
 );
 router.get("/:subredditName/banned", subredditController.bannedUsers);
 router.get("/:subredditName/muted", subredditController.mutedUsers);
 
 router.post(
   "/:subredditName/mute_settings/:action/:userName",
-  subredditController.muteSettings
+  subredditController.muteSettings,
+  MessageController.modMessage
+
 );
 
 router.post("/:subredditName/rules/:title", subredditController.addRule);
@@ -105,6 +110,19 @@ router.get(
 router.get("/leaderboard/:category", subredditController.leaderboardCategory);
 router.get("/random/leaderboard", subredditController.leaderboardRandom);
 
+router.post(
+  "/:subredditName/:userName/:action/approve_user",
+  subredditController.approveUser,
+  MessageController.modMessage
+
+
+);
+router.get("/:subredditName/approved_users", subredditController.approvedUsers);
+
+// TODO: to be continued
+// router.get("/:topics/posts/like_reels", subredditController.reels);
+
+
 router
   .route("/:subredditName/flair")
   .post(subredditController.createFlair)
@@ -118,52 +136,6 @@ router
 router.route("/:subredditName/subscribe").post(subredditController.subscribe);
 router
   .route("/:subredditName/images")
-  .post(FileController.checkUploadedFile, FileController.uploadSubredditImage)
+  .post(FileController.checkUploadedFile, FileController.uploadSubredditImage);
 
 module.exports = router;
-
-//const subredditController = require("./../controllers/subredditController");
-// const postController = require("./../controllers/postController");
-
-// const Subreddit = require("./../models/subredditModel");
-// const Repository = require("./../data_access/repository");
-// const subredditService = require("../service/subredditService");
-// // !=================================
-// const postService = require("../service/postService");
-// const Post = require('./../models/postModel');//model
-// const PostRepositoryObj = new Repository(Post);//dataaccedss send model
-// const postServiceObj = new postService(Post, PostRepositoryObj);
-
-// // !================================
-// const SubredditRepositoryObj = new Repository(Subreddit);
-// //const subredditController = require("./../controllers/subredditController");
-// // !=================================
-// const AuthenticationController = require("./../controllers/AuthenticationController");
-// const User = require("./../models/userModel");
-// const UserService = require("./../service/userService");
-// const UserRepositoryObj = new Repository(User);
-// // !=================================
-// const Flair = require("./../models/flairModel"); //model
-// const FlairRepositoryObj = new Repository(Flair); //dataaccedss send model
-// const subredditServiceObj = new subredditService(
-//   Subreddit,
-//   SubredditRepositoryObj,
-//   Flair,
-//   FlairRepositoryObj,
-//   User,
-//   UserRepositoryObj
-// );
-
-// /////////////////////////////////////////////
-
-// const userServiceObj = new UserService(User, UserRepositoryObj, null);
-
-// const postControllerObj = new postController(postServiceObj,userServiceObj);
-// const authenticationControllerObj = new AuthenticationController(
-//   userServiceObj
-// );
-
-// const subredditControllerObj = new subredditController(
-//   subredditServiceObj,
-//   userServiceObj
-// );

@@ -2,6 +2,7 @@
 const Repository = require("./repository");
 const { mongoErrors, decorateError } = require("../error_handling/errors");
 const APIFeatures = require("./apiFeatures");
+const ObjectId = require("mongodb").ObjectId;
 
 class PostRepository extends Repository {
   constructor({ Post }) {
@@ -22,8 +23,8 @@ class PostRepository extends Repository {
   }
 
   async deletePost(id) {
-    //await Post.findByIdAndUpdate(id, {isDeleted: true})
-    await this.model.findByIdAndDelete(id);
+    await this.model.findByIdAndUpdate(id, { isDeleted: true });
+    //await this.model.findByIdAndDelete(id);
   }
 
   async addReply(parent, child) {
@@ -87,7 +88,7 @@ class PostRepository extends Repository {
         query.sort = "-sortOnBest";
       }
 
-      console.log(query.sort);
+      //  console.log(query.sort);
       const features = new APIFeatures(
         this.model.find(getSubredditPosts),
         query
@@ -230,6 +231,24 @@ class PostRepository extends Repository {
     }
   }
 
+  async getPostsBySubredditTopic(topic) {
+    try {
+      let doc = await this.model
+        .find({
+          $or: [{ kind: "video" }, { kind: "image" }],
+          ownerType: "Subreddit",
+        })
+        .populate({
+          options: { getAuthor: true, topic: topic, khaled: true },
+        });
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async commentTree(postId, limit, depth, sort) {
     const tree = await this.model
       .findById(postId, "replies")
@@ -237,17 +256,38 @@ class PostRepository extends Repository {
         path: "replies",
         perDocumentLimit: limit,
         options: { depth, sort: { [sort]: -1 } },
+        transform: (doc) => {
+          doc.author.profilePicture =
+            `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+          doc.author.profileBackground =
+            `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+          return doc;
+        },
       })
-      .lean();
+      .lean()
+      .sort({ [sort]: -1 });
 
     return tree;
   }
 
-  async addFile(postId, kind, file) {
+  async addImage(postId, image) {
     return await this.model.findByIdAndUpdate(
       postId,
       {
-        $push: { [kind + "s"]: file },
+        $push: { images: image },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+  }
+
+  async addVideo(postId, video) {
+    return await this.model.findByIdAndUpdate(
+      postId,
+      {
+        video: video,
       },
       {
         new: true,

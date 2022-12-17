@@ -1,12 +1,6 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-// *TODO: change all ids to objectid after merging with dev branch
-//    *TODO: postId
-//    *TODO: owner
-//    *TODO: moderators.username
-// ! Dont forget to push again
-
 const subredditSchema = new mongoose.Schema({
   fixedName: {
     type: String,
@@ -29,7 +23,7 @@ const subredditSchema = new mongoose.Schema({
       createdAt: {
         type: Date,
         default: Date.now(),
-        select: false,
+        select: true,
       },
       defaultName: {
         type: String,
@@ -64,6 +58,7 @@ const subredditSchema = new mongoose.Schema({
     type: String,
     required: false,
     trim: true,
+    default: "Unknown",
   },
   type: {
     type: String,
@@ -140,7 +135,7 @@ const subredditSchema = new mongoose.Schema({
     default: "subreddits/default.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
-  membersCount: {  
+  membersCount: {
     type: Number,
     required: false,
     default: 1,
@@ -148,7 +143,6 @@ const subredditSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now(),
-    select: false,
   },
   topics: {
     type: [{ type: String }],
@@ -174,7 +168,7 @@ const subredditSchema = new mongoose.Schema({
         required: false,
       },
       userName: { type: String },
-      joiningDate: { type: Date, default: Date.now() },
+      joiningDate: { type: Date, required: true, default: Date.now() },
       profilePicture: {
         type: String,
         required: false,
@@ -215,16 +209,26 @@ const subredditSchema = new mongoose.Schema({
       },
       type: { type: String, enum: ["banned", "muted"], required: true },
       banInfo: {
-        punishReason: { type: String, trim: true },
-        punish_type: { type: String },
-        Note: { type: String },
+        punishReason: { type: String, trim: true, default: "No reason" },
+        punish_type: { type: String, default: "other" },
+        Note: { type: String, default: "no Note" },
         duration: {
           type: Number,
         },
       },
       muteInfo: {
-        muteMessage: { type: String },
+        muteMessage: { type: String, default: "Spammer" },
       },
+    },
+  ],
+  approved: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      approvedDate: { type: Date, default: Date.now() },
     },
   ],
 });

@@ -46,6 +46,11 @@ exports.notificationErrors = Object.freeze({
   NOTIFICATION_NOT_FOUND: 1,
 });
 
+exports.messageErrors = Object.freeze({
+  MONGO_ERR: 0,
+  MESSAGE_NOT_FOUND: 1,
+});
+
 exports.subredditErrors = Object.freeze({
   MONGO_ERR: 0,
   SUBREDDIT_NOT_FOUND: 1,
@@ -78,6 +83,9 @@ exports.userErrors = Object.freeze({
   Not_BANED: 22,
   ALREADY_MUTED: 31,
   Not_MUTED: 32,
+  ALREADY_APPROVED: 12,
+  USER_IS_ALREADY_INVITED: 43,
+  NOT_APPROVED: 41,
 });
 
 exports.mongoErrors = Object.freeze({
