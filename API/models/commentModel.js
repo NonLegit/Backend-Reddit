@@ -118,6 +118,13 @@ commentSchema.pre("find", function (next) {
       path: "replies",
       perDocumentLimit: limit,
       options: { depth: depth - 1, sort },
+      transform: (doc) => {
+        doc.author.profilePicture =
+          `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+        doc.author.profileBackground =
+          `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+        return doc;
+      },
     });
   }
 
@@ -140,27 +147,13 @@ commentSchema.post("find", function (result) {
   }
 });
 
-// commentSchema.post("init", function () {
-//   console.log(this);
-//   this.populate("post");
-//   this.populate("author","_id userName profilePicture profileBackground");
-// });
 commentSchema.pre(/^find/, function () {
-  console.log("mmmmmmmmddddddddddddddjjjjjjjjj");
- // console.log(this);
-  this.populate("post");
-  this.populate("author","_id userName profilePicture profileBackground");
+  const { userComments } = this.options;
+  if (userComments) {
+    this.populate("post");
+  }
+  this.populate("author", "_id userName profilePicture profileBackground");
 });
-
-// commentSchema.pre(/^find/, function () {
-//   const { userComments } = this.options;
-//   if(userComments )
-//   {
-//     this.populate("post");
-//   }
-//   this.populate("author", "_id userName profilePicture profileBackground");
-// });
-
 
 commentSchema.pre("save", function (next) {
   // this points to the current query
@@ -168,10 +161,6 @@ commentSchema.pre("save", function (next) {
     this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.repliesCount * 0.2;
   next();
 });
-// commentSchema.pre(/^find/, function(next) {
-//   this.find({ isDeleted: false });
-//   next();
-// });
 
 const Comment = mongoose.model("Comment", commentSchema);
 
