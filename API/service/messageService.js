@@ -7,6 +7,19 @@ class MessageService {
     this.userRepo = UserRepository;
   }
 
+
+  async modMessage(msg) {
+  
+           
+        const messageToSend = await this.messageRepo.modMessage(msg);
+        if (!messageToSend.success) {
+          //  console.log(messageToSend.error);
+            return { success: false, error: messageToSend.error };
+
+        }
+        
+        return { success: true, data: messageToSend.doc };
+ }
     async createMessage(userId,message) {
         //validate post ID
         console.log("here");

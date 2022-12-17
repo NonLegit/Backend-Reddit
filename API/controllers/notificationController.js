@@ -72,6 +72,7 @@ class NotificationController {
           }
         });
         console.log("noooo body is in here");
+        console.log(message);
       //  console.log(notification.data);
       }
         if(notification.data.type=="postReply")
