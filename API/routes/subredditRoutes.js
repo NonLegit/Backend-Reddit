@@ -5,6 +5,7 @@ const AuthenticationController = container.resolve("AuthenticationController");
 const subredditController = container.resolve("subredditController");
 const PostController = container.resolve("PostController");
 const FileController = container.resolve("FileController");
+const MessageController = container.resolve("MessageController");
 //const userControllerObj = require("./test");
 //
 const router = express.Router();
@@ -53,7 +54,8 @@ router.get("/moderator/:username", subredditController.subredditsModerated);
 
 router.post(
   "/:subredditName/moderators/:moderatorName",
-  subredditController.inviteModerator
+  subredditController.inviteModerator,
+  MessageController.modMessage
 );
 router.post(
   "/:subredditName/:action/invitation",
@@ -61,7 +63,10 @@ router.post(
 );
 router.delete(
   "/:subredditName/moderator/:moderatorName",
-  subredditController.deletemoderator
+  subredditController.deletemoderator,
+   MessageController.modMessage
+  
+
 );
 router.patch(
   "/:subredditName/moderator/:moderatorName",
@@ -80,14 +85,17 @@ router.get(
 
 router.post(
   "/:subredditName/ban_settings/:action/:userName",
-  subredditController.banSettings
+  subredditController.banSettings,
+  MessageController.modMessage
 );
 router.get("/:subredditName/banned", subredditController.bannedUsers);
 router.get("/:subredditName/muted", subredditController.mutedUsers);
 
 router.post(
   "/:subredditName/mute_settings/:action/:userName",
-  subredditController.muteSettings
+  subredditController.muteSettings,
+  MessageController.modMessage
+
 );
 
 router.post("/:subredditName/rules/:title", subredditController.addRule);
@@ -104,7 +112,10 @@ router.get("/random/leaderboard", subredditController.leaderboardRandom);
 
 router.post(
   "/:subredditName/:userName/:action/approve_user",
-  subredditController.approveUser
+  subredditController.approveUser,
+  MessageController.modMessage
+
+
 );
 router.get(
   "/:subredditName/approved_users",

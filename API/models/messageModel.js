@@ -22,14 +22,13 @@ const messageSchema = new mongoose.Schema({
       type: String,
       required: true,
       enum: [
-        'postReply',
+        'postReply',//-----------------
         'userMention',
-        'userMessage',//////messages
-        'subredditBan',//////messages no changes
-        'subredditMute',///messages
-        'subredditModeratorInvite',//messages
-        'subredditModeratorAccept',///messages
-        'subredditModeratorRemove',//messages
+        'userMessage',//////messages-----------------
+        'subredditBan',//////messages no changes-----------------
+        'subredditMute',///messages -------------------
+        'subredditModeratorInvite',//messages ---------------
+        'subredditModeratorRemove',//messages xxxxxxxxxxxxxxxxx
         'subredditApprove'//messages
       ]
     },
@@ -61,7 +60,7 @@ const messageSchema = new mongoose.Schema({
       type: Boolean,
       default: false
   },
-      isDeletedInDestination: {
+    isDeletedInDestination: {
       type: Boolean,
       default: false
   },
@@ -76,7 +75,7 @@ messageSchema.pre(/^find/,  function () {
  // console.log(this);
   this.populate("from","_id userName");
   this.populate("to", "_id userName");
-  this.populate("comment","_id text parent -post -author");
+  this.populate("comment","_id text parent -author");
   this.populate("subreddit", "_id fixedName name");
   
 });

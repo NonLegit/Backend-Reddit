@@ -40,6 +40,28 @@ class MessageRepository extends Repository {
             
   }
 
+    async modMessage(msg) {
+       try {
+             
+
+      
+            let messageToSend = await this.model.create(msg);
+         if (!messageToSend) {
+          
+           return { success: false, error: mongoErrors.UNKOWN };
+         }
+        
+        
+            //notify ba2a
+            return { success: true, doc: messageToSend };
+            
+       } catch (err) {
+         console.log("nnnnnnnnnnnnnnnnnnnnnnnnnn");
+         //console.log(err.errors.subject.text);
+            return { success: false, ...decorateError(err) };
+        }
+            
+  }
 
    async createReplyMessage(user, comment, post) {
      try {

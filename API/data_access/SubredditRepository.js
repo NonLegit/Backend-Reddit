@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate: new Date(),
+              joiningDate: Date.now(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,
@@ -241,7 +241,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             rules: {
-              createdAt: new Date(),
+              createdAt: Date.now(),
               defaultName: data.defaultName,
               description: data.description,
               appliesTo: data.appliesTo,
@@ -269,7 +269,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: new Date(),
+              banDate: Date.now(),
               profilePicture: user.profilePicture,
               type: "banned",
               banInfo: {
@@ -301,7 +301,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: new Date(),
+              banDate: Date.now(),
               profilePicture: user.profilePicture,
               type: "muted",
               muteInfo: {
@@ -328,7 +328,7 @@ class SubredditRepository extends Repository {
           $push: {
             approved: {
               user: userId,
-              approvedDate: new Date(),
+              approvedDate: Date.now(),
             },
           },
         }
