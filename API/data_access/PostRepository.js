@@ -231,6 +231,24 @@ class PostRepository extends Repository {
     }
   }
 
+  async getPostsBySubredditTopic(topic) {
+    try {
+      let doc = await this.model
+        .find({
+          $or: [{ kind: "video" }, { kind: "image" }],
+          ownerType: "Subreddit",
+        })
+        .populate({
+          options: { getAuthor: true, topic: topic, khaled: true },
+        });
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async commentTree(postId, limit, depth, sort) {
     const tree = await this.model
       .findById(postId, "replies")

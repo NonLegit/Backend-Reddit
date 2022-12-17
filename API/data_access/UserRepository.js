@@ -200,6 +200,7 @@ class UserRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
   async checkFavourite(userId, subredditId) {
     try {
       let tempDoc = this.model.findOne({
@@ -307,6 +308,14 @@ class UserRepository extends Repository {
   async getBlocked(user) {
     await user.populate("meUserRelationship.userId");
     return user.meUserRelationship;
+  }
+
+  // [khaled]: I use this in a certain case in the creation of a subreddit
+  async subscribe(subredditId,userId){
+    await this.model.findOneAndUpdate({_id:userId}, {
+      subscribed: subredditId,
+    });
+    return true;
   }
 }
 module.exports = UserRepository;
