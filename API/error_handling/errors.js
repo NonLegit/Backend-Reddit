@@ -84,6 +84,8 @@ exports.userErrors = Object.freeze({
   ALREADY_MUTED: 31,
   Not_MUTED: 32,
   ALREADY_APPROVED: 12,
+  USER_IS_ALREADY_INVITED: 43,
+  NOT_APPROVED: 41,
 });
 
 exports.mongoErrors = Object.freeze({

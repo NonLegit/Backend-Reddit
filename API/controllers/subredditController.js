@@ -209,7 +209,7 @@ class subredditController {
       status: "success",
     });
   };
-//delete a mod
+  //delete a mod
   deletemoderator = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
@@ -270,7 +270,7 @@ class subredditController {
   };
 
   // TODO: unit tests (service)
-  //accept or reject 
+  //accept or reject
   ModeratorInvitation = async (req, res) => {
     let userId = req.user._id;
     let userName = req.user.userName;
@@ -468,6 +468,10 @@ class subredditController {
         case userErrors.USER_NOT_FOUND:
           msg = "user not found";
           stat = 404;
+          break;
+        case userErrors.USER_IS_ALREADY_INVITED:
+          msg = "user is already invited";
+          stat = 400;
           break;
         case userErrors.ALREADY_MODERATOR:
           msg = "user is already moderator";
@@ -1245,9 +1249,8 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: subreddits.data });
   };
-//approve a user
-  
-  
+  //approve a user
+
   //TODO:approve a user message
   approveUser = async (req, res) => {
     let userId = req.user._id; //me
@@ -1306,6 +1309,10 @@ class subredditController {
           msg = "user is already approved before";
           stat = 400;
           break;
+        case userErrors.NOT_APPROVED:
+          msg = "user is not approved to disapprove";
+          stat = 400;
+          break;
 
         case subredditErrors.MONGO_ERR:
           msg = approve.msg;
@@ -1333,7 +1340,7 @@ class subredditController {
       return;
     }
 
-    let approved = await this.subredditServices.approved(subredditName,userId);
+    let approved = await this.subredditServices.approved(subredditName, userId);
 
     if (!approved.success) {
       let msg, stat;
@@ -1360,6 +1367,41 @@ class subredditController {
       return;
     }
     res.status(200).json({ status: "success", data: approved.data });
+  };
+
+  reels = async (req, res) => {
+    let topic = req.params.topics;
+
+    if (!topic) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter topic",
+      });
+      return;
+    }
+
+    let posts = await this.subredditServices.reels(topic);
+    if (!posts.success) {
+      let msg, stat;
+      switch (posts.error) {
+        case mongoErrors.NOT_FOUND:
+          res.status(200).json({
+            status: "success",
+            data: [],
+          });
+          return;
+        case subredditErrors.MONGO_ERR:
+          msg = posts.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: posts.data });
   };
 
   //!===================================================================================
@@ -1634,7 +1676,7 @@ class subredditController {
     let subredditName = req.params.subredditName;
     try {
       let response = await this.subredditServices.checkSubreddit(subredditName);
-     // console.log(response);
+      // console.log(response);
       if (response.success) {
         req.toFilter = response.doc._id;
         next();

@@ -45,8 +45,14 @@ class subredditService {
         userName,
         profilePicture
       );
-      if (subreddit.success) return { success: true, data: subreddit.doc };
-      else
+      if (subreddit.success) {
+        let sub = this.userRepository.subscribe(
+          subreddit.doc._id,
+          subreddit.doc.owner
+        );
+
+        return { success: true, data: subreddit.doc };
+      } else
         return {
           success: false,
           error: subredditErrors.MONGO_ERR,
@@ -169,8 +175,20 @@ class subredditService {
           );
 
           if (!UserIsMod.success) {
-            //  send him invite then
-            // console.log("toot" + subredditExisted.data._id);
+            //  check before send that he is not invited
+
+            let invited = await this.userRepository.checkInvetation(
+              userExisted.doc._id,
+              subredditExisted.data._id
+            );
+            //console.log(invited);
+            //TODO: add this case in tests
+            if (invited.success)
+              return {
+                success: false,
+                error: userErrors.USER_IS_ALREADY_INVITED,
+              };
+
             let updateModerators = await this.userRepository.updateByName(
               modName,
               subredditExisted.data._id,
@@ -1001,6 +1019,24 @@ class subredditService {
 
     if (action === "approve") {
       //msh m7tag a check 34an already ana bgeb alnas mn al list of approved
+      // check of he is approved before
+      let checkApproved = await this.subredditRepository.checkApproval(
+        userExisted.doc._id,
+        subredditName
+      );
+      let approvedusers = checkApproved.doc.approved;
+
+      let approved = false;
+      for (const user of approvedusers) {
+        if (user.user.equals(userExisted.doc._id)) {
+          approved = true;
+          break;
+        }
+      }
+
+      if (approved)
+        return { success: false, error: userErrors.ALREADY_APPROVED };
+
       let approve = await this.subredditRepository.approveUser(
         userExisted.doc._id,
         subredditName
@@ -1011,6 +1047,21 @@ class subredditService {
       return { success: true };
     } else {
       // action === disapprove
+
+      let checkApproved = await this.subredditRepository.checkApproval(
+        userExisted.doc._id,
+        subredditName
+      );
+      let approvedusers = checkApproved.doc.approved;
+
+      let exists = false;
+      for (const user of approvedusers) {
+        if (user.user.equals(userExisted.doc._id)) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) return { success: false, error: userErrors.NOT_APPROVED };
 
       let approved = await this.subredditRepository.approvedUsers(
         subredditName
@@ -1058,6 +1109,16 @@ class subredditService {
       return { success: false, error: subredditErrors.MONGO_ERR };
 
     return { success: true, data: approved.doc.approved };
+  }
+
+  async reels(topic) {
+    let posts = await this.postRepository.getPostsBySubredditTopic(topic);
+    if (!posts.success) {
+      if (posts.error === mongoErrors.NOT_FOUND) return posts;
+      else return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+
+    return { success: true, data: posts.doc };
   }
   //! ===============================================================================================
 

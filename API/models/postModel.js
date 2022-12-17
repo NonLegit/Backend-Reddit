@@ -171,23 +171,26 @@ postSchema.pre("save", function (next) {
 postSchema.pre("find", function () {
   const { getAuthor } = this.options;
   this.populate("owner", "_id fixedName userName icon profilePicture ");
-  if (getAuthor === true) {
-    this.populate("author");
-  } else {
-    console.log("shit");
-    this.populate("author", "_id userName profilePicture profileBackground");
-  }
+    if (getAuthor === true) {
+      this.populate("author");
+    } else {
+      console.log("shit");
+      this.populate("author", "_id userName profilePicture profileBackground");
+    }
 
-  this.populate("flairId");
+    this.populate("flairId");
+  
 });
 
 postSchema.post("init", function (doc) {
   const kind = doc.kind;
   if (kind === "video") doc.video = `${process.env.BACKDOMAIN}/` + doc.video;
-  else if (kind === "image" && doc.images)
-    {
-      doc.images.forEach((image, index) => doc.images[index] = `${process.env.BACKDOMAIN}/` + doc.images[index])
-    }
+  else if (kind === "image" && doc.images) {
+    doc.images.forEach(
+      (image, index) =>
+        (doc.images[index] = `${process.env.BACKDOMAIN}/` + doc.images[index])
+    );
+  }
 });
 
 // postSchema.pre("findOneAndUpdate", async function (next) {

@@ -106,10 +106,11 @@ router.post(
   "/:subredditName/:userName/:action/approve_user",
   subredditController.approveUser
 );
-router.get(
-  "/:subredditName/approved_users",
-  subredditController.approvedUsers
-);
+router.get("/:subredditName/approved_users", subredditController.approvedUsers);
+
+// TODO: to be continued
+// router.get("/:topics/posts/like_reels", subredditController.reels);
+
 
 router
   .route("/:subredditName/flair")

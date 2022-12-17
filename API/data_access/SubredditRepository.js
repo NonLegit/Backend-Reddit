@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate:Date.now(),
+              joiningDate: Date.now(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,
@@ -57,7 +57,7 @@ class SubredditRepository extends Repository {
         .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-    //  console.log(doc);
+      //  console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -559,6 +559,25 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  async checkApproval(userId, subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          $and: [{ fixedName: subredditName }, { "aprroved.user": userId }],
+        })
+        .select("approved");
+
+      const doc = await tempDoc;
+      console.log(doc);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async checkRule(title, subredditName) {
     try {
       let tempDoc = this.model.findOne({
@@ -657,7 +676,7 @@ class SubredditRepository extends Repository {
         { new: true }
       );
     }
-   // console.log(doc);
+    // console.log(doc);
     return { success: true, doc: doc };
   }
 }
