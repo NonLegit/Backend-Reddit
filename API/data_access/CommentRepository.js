@@ -42,7 +42,7 @@ class CommentRepository extends Repository {
   }
 
   async deleteComment(id) {
-    await this.model.findByIdAndUpdate(id, {isDeleted: true})
+    await this.model.findByIdAndUpdate(id, { isDeleted: true });
     //await this.model.findByIdAndDelete(id);
   }
 
@@ -52,14 +52,23 @@ class CommentRepository extends Repository {
         _id: { $in: children },
       })
       .sort({ [sort]: -1 });
-    if (depth >= 0)
+
+    if (depth >= 0) {
       comments
         .populate({
           path: "replies",
           perDocumentLimit: limit,
           options: { depth, sort: { [sort]: -1 } },
+          transform: (doc) => {
+            doc.author.profilePicture =
+              `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+            doc.author.profileBackground =
+              `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+            return doc;
+          },
         })
         .lean();
+    }
 
     return await comments;
   }

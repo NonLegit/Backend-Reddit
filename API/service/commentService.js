@@ -240,8 +240,7 @@ class CommentService {
       if (!comment)
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
-      const replies = post.doc.replies;
-      if (!replies.includes(commentId))
+      if (!comment[0].post.equals(postId))
         return { success: false, error: commentErrors.COMMENT_NOT_CHILD };
 
       return { success: true, tree: comment };
