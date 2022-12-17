@@ -5595,6 +5595,62 @@ paths:
                     example: id not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
+          
+  /subreddits/{topic}/posts/like_reels:
+    get:
+      tags:
+        - Subreddit
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      summary: Return a listing of posts relevant to moderators.
+      description: This endpoint behavior depends on the topic paremeter
+       
+      parameters:
+        - in: path
+          name: topic
+          description: The category you want to retrieve
+          required: true
+          schema:
+            type: string
+
+        - in: query
+          name: page
+          description: The page number
+          required: true
+          schema:
+            type: integer
+        - in: query
+          name: limit
+          description: The limit of each page
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        200:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+        404:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: id not found
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
 
   /subreddits/{subredditName}/hot:
     get:
