@@ -20,7 +20,12 @@ const commentSchema = new mongoose.Schema({
   //     ref: "User",
   //   },
   // ],
-  mentions: [String],
+  mentions: [
+    {
+      userName: String,
+      userId: String
+    }
+  ],
   replies: [
     {
       type: mongoose.SchemaTypes.ObjectId,
