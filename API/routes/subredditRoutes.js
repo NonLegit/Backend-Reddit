@@ -60,11 +60,11 @@ router.post(
   subredditController.ModeratorInvitation
 );
 router.delete(
-  "/:subredditName/moderator/:moderatorName",
+  "/:subredditName/moderators/:moderatorName",
   subredditController.deletemoderator
 );
 router.patch(
-  "/:subredditName/moderator/:moderatorName",
+  "/:subredditName/moderators/:moderatorName",
   subredditController.updatePermissions
 );
 router.get("/:subredditName/moderators", subredditController.getModerators);
