@@ -854,6 +854,7 @@ class subredditService {
 
     for (const rule of rules) {
       if (title === rule.title) {
+        rule.title = !data.title ? rule.title : data.title;
         rule.description = !data.description
           ? rule.description
           : data.description;
@@ -974,7 +975,7 @@ class subredditService {
       subredditName,
       userId
     );
-    
+
     if (!canDelete.success)
       return { success: false, error: subredditErrors.NOT_MODERATOR };
 
