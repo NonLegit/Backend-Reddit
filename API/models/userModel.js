@@ -222,9 +222,9 @@ const userSchema = new mongoose.Schema({
         ref: "Post",
       },
       postVoteStatus: {
-        type: String,
-        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-        default: "0",
+        type: Number,
+        enum: [1, 0, -1], // 1 upvote o no vote -1 downvote
+        default: 0,
       },
     },
   ],
@@ -235,9 +235,9 @@ const userSchema = new mongoose.Schema({
         ref: "Comment",
       },
       commentVoteStatus: {
-        type: String,
-        enum: ["1", "0", "-1"], // 1 upvote o no vote -1 downvote
-        default: "0",
+        type: Number,
+        enum: [1, 0, -1], // 1 upvote o no vote -1 downvote
+        default: 0,
       },
     },
   ],
@@ -380,7 +380,7 @@ userSchema.pre("save", async function (next) {
   this.lastUpdatedPassword = Date.now() - 1000;
   if (this.userName === "user") this.userName = "user" + this._id;
   if (this.displayName === undefined) this.displayName = this.userName; // add display name in case of google and facbook name
-  console.log("user to save", this);
+  //console.log("user to save", this);
   next();
 });
 userSchema.pre(/^find/, function (next) {

@@ -1,3 +1,4 @@
+const { ConsoleReporter } = require("jasmine");
 const { commentErrors } = require("../error_handling/errors");
 const ObjectId = require("mongodb").ObjectId;
 
@@ -5,10 +6,16 @@ const ObjectId = require("mongodb").ObjectId;
  * Comment Service class for handling Comment model and services
  */
 class CommentService {
-  constructor({ CommentRepository, PostRepository, NotificationRepository }) {
+  constructor({
+    CommentRepository,
+    PostRepository,
+    NotificationRepository,
+    UserRepository,
+  }) {
     this.commentRepo = CommentRepository;
     this.postRepo = PostRepository;
     this.notificationRepo = NotificationRepository;
+    this.userRepo = UserRepository;
   }
 
   /**
@@ -18,12 +25,15 @@ class CommentService {
    * @returns {boolean}
    */
   async hasValidParent(comment) {
+    console.log("hellllllllllllllllllllllllllllll");
     if (comment.parentType === "Comment") {
       const validParent = await this.commentRepo.findById(
         comment.parent,
         "post locked",
         "post"
       );
+      console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
+     // console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return {
@@ -35,9 +45,11 @@ class CommentService {
     } else if (comment.parentType === "Post") {
       const validParent = await this.postRepo.findById(
         comment.parent,
-        "locked",
+        "",
         "author owner"
       );
+      console.log("oooooooooooooooooooooooooooo");
+     // console.log(validParent);
       if (validParent.success) {
         comment.post = validParent.doc._id;
         return {
@@ -49,6 +61,34 @@ class CommentService {
     }
     return { success: false };
   }
+
+
+  //  async hasValidParent(comment) {
+  //   if (comment.parentType === "Comment") {
+  //     const validParent = await this.commentRepo.findById(
+  //       comment.parent,
+  //       "post",
+  //       "post"
+  //     );
+  //     console.log("lllllllllllllllllllllllllllll");
+  //     console.log(validParent);
+  //      console.log("lllllllllllllllllllllllllllll");
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc.post._id;
+  //       return { success: true, post: validParent.doc.post };
+  //     }
+  //   } else if (comment.parentType === "Post") {
+  //     const validParent = await this.postRepo.findById(comment.parent,"","author owner");
+  //     console.log("lllllllllllllllllllllllllllll");
+  //     console.log(validParent);
+  //      console.log("lllllllllllllllllllllllllllll");
+  //     if (validParent.success) {
+  //       comment.post = validParent.doc._id;
+  //       return { success: true, post: validParent.doc };
+  //     }
+  //   }
+  //   return { success: false };
+  // }
 
   /**
    * Creates a comment
@@ -64,6 +104,18 @@ class CommentService {
     if (validParent.locked)
       return { success: false, error: commentErrors.PARANT_LOCKED };
 
+    const text = data.text.split(" ");
+    const mentions = [];
+    for (const word of text) {
+      if (word.startsWith("u/")) {
+        const userName = word.slice(2);
+        const validUser = await this.userRepo.findByUserName(userName);
+
+        if (validUser.success) mentions.push(userName);
+      }
+    }
+    data.mentions = mentions;
+
     //create the comment
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
@@ -78,24 +130,32 @@ class CommentService {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
+    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+   // console.log(validParent.post);
+     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
       type: comment.doc.parentType,
     };
     let postToNotify;
+    console.log("heeeeeeeeeeeeeeeeeee");
+    //console.log(validParent.post);
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
         _id: validParent.post._id,
         subreddit: {
           _id: validParent.post.owner._id,
           fixedName: validParent.post.owner.fixedName,
+          name:validParent.post.owner.name
         },
         author: {
           _id: validParent.post.author._id,
         },
       };
     } else if (validParent.post.ownerType == "User") {
+      console.log("in type post");
+     // console.log(validParent);
       postToNotify = {
         _id: validParent.post._id,
         author: {
@@ -143,10 +203,7 @@ class CommentService {
    */
   async deleteComment(id, userId) {
     //validate comment ID
-    const comment = await this.commentRepo.findById(
-      id,
-      "author parent parentType"
-    );
+    const comment = await this.commentRepo.exists(id);
     if (!comment.success)
       return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
@@ -157,9 +214,9 @@ class CommentService {
       return { success: false, error: commentErrors.NOT_AUTHOR };
 
     //removes comment from its parent replies and decrement replies count
-    if (comment.doc.parentType === "Comment")
-      await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // if (comment.doc.parentType === "Comment")
+    //   await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
 
     await this.commentRepo.deleteComment(id);
 
@@ -214,8 +271,8 @@ class CommentService {
         newComments[i] = newComments[i].toObject();
       } catch (err) {}
       if (!hash[comments[i]._id]) {
-        newComments[i]["commentVoteStatus"] = "0";
-        Object.assign(newComments[i], { commentVoteStatus: "0" });
+        newComments[i]["commentVoteStatus"] = 0;
+        Object.assign(newComments[i], { commentVoteStatus: 0 });
       } else {
         newComments[i]["commentVoteStatus"] = hash[comments[i]._id];
         Object.assign(newComments[i], {
@@ -316,7 +373,7 @@ class CommentService {
             },
             sortOnHot: element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
-              ? "0"
+              ? 0
               : hash[comments[i]._id],
             isSaved: true,
           },
@@ -341,7 +398,7 @@ class CommentService {
           },
           sortOnHot: element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
-            ? "0"
+            ? 0
             : hash[comments[i]._id],
           isSaved: true,
         });
@@ -371,7 +428,7 @@ class CommentService {
           commentTree.push(post);
         }
         post = element.post;
-        console.log(element.post);
+       // console.log(element.post);
 
         //console.log(element.post);
         // post["_id"] = element.post._id;

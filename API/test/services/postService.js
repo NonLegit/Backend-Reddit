@@ -142,7 +142,7 @@ describe("Post service test", () => {
 
   describe("Testing update post", () => {
     const PostRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
           kind: "self",
@@ -189,7 +189,7 @@ describe("Post service test", () => {
     it("post not editable", async () => {
       userId = "578a5fccf267fc3a463b35e4";
 
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
           kind: "link",
@@ -206,7 +206,7 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.NOT_EDITABLE);
     });
     it("post not found", async () => {
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         return { success: false };
       };
       const { success, error } = await postServices.updatePost(
@@ -221,7 +221,7 @@ describe("Post service test", () => {
 
   describe("Testing delete post", () => {
     const PostRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         const post = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
         };
@@ -247,7 +247,7 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.NOT_AUTHOR);
     });
     it("post not found", async () => {
-      PostRepository.findById = async (id, fields) => {
+      PostRepository.exists = async (id, fields) => {
         return { success: false };
       };
       const { success, error } = await postServices.deletePost(id, userId);
@@ -255,4 +255,74 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.POST_NOT_FOUND);
     });
   });
+  // describe("Testing get posts",()=>{
+  //    it("1) test success", async () => {
+  //     const PostRepository = {
+  //       getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+  //        getPosts: async(x,y) => {
+  //         const response = {
+  //           success: true,
+  //           doc: [{
+  //             _id: "636e901bbc485bd111dd3880",
+  //             text: "first post"
+  //           }]        
+  //         };
+          
+  //         return response;
+  //       },
+        
+  //     };
+  //     const on = {};
+  //     const subredditServiceObj = new SubredditService({  SubredditRepository,on, on});
+  //     const subredditName = " ";
+      
+  //     const result = await subredditServiceObj.getFlairs(subredditName);
+  //     expect(result.success).to.equal(true);
+  //     expect(result.data[0].text).to.equal( "first flair");
+      
+  //   });
+  // })
 });

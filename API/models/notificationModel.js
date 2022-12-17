@@ -15,11 +15,11 @@ const notificationSchema = new mongoose.Schema({
     post: {
       type: mongoose.Schema.ObjectId,
       ref: 'Post',
-      required: true
+      required: false
     },
     comment: {
       type: Object,
-      required: true
+      required: false
     },
     followedUser: {
       type: Object,
@@ -27,7 +27,7 @@ const notificationSchema = new mongoose.Schema({
     },
     followerUser: {
       type: Object,
-      required: false
+      required: true
     },
     followedSubreddit:{
         type: Object,

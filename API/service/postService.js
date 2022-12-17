@@ -29,7 +29,8 @@ class PostService {
    */
   async updatePost(id, data, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
@@ -55,7 +56,8 @@ class PostService {
    */
   async deletePost(id, userId) {
     //validate post ID
-    const post = await this.postRepo.findById(id, "author");
+    //const post = await this.postRepo.findById(id, "author kind sharedFrom");
+    const post = await this.postRepo.exists(id);
     if (!post.success)
       return { success: false, error: postErrors.POST_NOT_FOUND };
 
@@ -306,7 +308,7 @@ class PostService {
 
     let hash = {};
     for (var i = 0; i < user.saved.length; i++) {
-      console.log(user.saved[i].savedPost);
+      //console.log(user.saved[i].savedPost);
       // if (user.saved[i].savedType === "Post")
       hash[user.saved[i].savedPost] = user.saved[i].savedPost;
     }
@@ -402,7 +404,7 @@ class PostService {
         newPosts[i] = newPosts[i].toObject();
       } catch (err) {}
       if (!hash[posts[i]._id]) {
-        newPosts[i]["postVoteStatus"] = "0";
+        newPosts[i]["postVoteStatus"] = 0;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
         newPosts[i]["postVoteStatus"] = hash[posts[i]._id];
@@ -508,7 +510,8 @@ class PostService {
   }
 
   async addFile(postId, kind, file) {
-    return await this.postRepo.addFile(postId, kind, file);
+    if(kind === "image") return await this.postRepo.addImage(postId, file);
+    else return await this.postRepo.addVideo(postId, file)
   }
 
   /**
@@ -617,7 +620,7 @@ class PostService {
         newPosts[i] = newPosts[i].toObject();
       } catch (err) {}
       if (!hashPosts[saved[i].savedPost._id]) {
-        newPosts[i].savedPost.postVoteStatus = "0";
+        newPosts[i].savedPost.postVoteStatus = 0;
         // filteredPost.postVoteStatus ="0";
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
@@ -664,7 +667,7 @@ class PostService {
   }
   // Doaa should add here code here
   async addVote(user, postId, voteDir, votesCount) {
-    let voteNumber = Number(voteDir);
+    let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {
       return element.posts.toString() === postId.toString();
     });
@@ -678,9 +681,9 @@ class PostService {
       if (user.votePost[index].postVoteStatus === voteDir) {
         return false;
       } else {
-        if (user.votePost[index].postVoteStatus === "-1") {
+        if (user.votePost[index].postVoteStatus === -1) {
           voteNumber += 1;
-        } else if (user.votePost[index].postVoteStatus === "1") {
+        } else if (user.votePost[index].postVoteStatus === 1) {
           voteNumber -= 1;
         }
         user.votePost[index].postVoteStatus = voteDir;

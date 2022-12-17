@@ -32,14 +32,16 @@ class Repository {
     try {
       if (!ObjectId.isValid(id))
         return { success: false, error: mongoErrors.NOT_FOUND };
-
+     // console.log("beforeeeeeeeeeeeeeeeeeeeeeeeee");
+     // console.log(select);
+    //  console.log(pop);
       let query = this.model.findById(id);
       if (select) query = query.select(select);
       if (pop) query = query.populate(pop);
       const doc = await query;
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
-
+     // console.log(doc);
       return { success: true, doc: doc };
 
       //most probably you won't need error handling in this function but just to be on the safe side
@@ -110,6 +112,32 @@ class Repository {
     const doc = await this.model.findById(id);
     if (!doc) return false;
     return true;
+  }
+
+  /**
+   * Finds a doc based on its ID
+   * Makes sure post is not soft deleted
+   * @param {string} id - The doc ID
+   * @param {string} [select] - A comma separated list of fields to be selected
+   * @param {string} [pop] - The field to be populated
+   * @returns {object}
+   */
+  async exists(id) {
+    try {
+      if (!ObjectId.isValid(id))
+        return { success: false, error: mongoErrors.NOT_FOUND };
+
+      const doc = await this.model.findOne({ _id: id, isDeleted: false });
+      await doc.depopulate("author");
+
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+
+      //most probably you won't need error handling in this function but just to be on the safe side
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
   }
 
   //==========================================================================================================

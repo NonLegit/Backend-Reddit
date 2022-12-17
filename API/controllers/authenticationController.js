@@ -232,7 +232,7 @@ class AuthenticationController {
         });
       } else {
         const response = this.errorResponse(user.error, user.msg);
-        console.log(response);
+       // console.log(response);
         res.status(response.stat).json({
           status: "fail",
           errorMessage: response.msg,
@@ -380,7 +380,7 @@ class AuthenticationController {
    */
   facebookValidation = async (req, res, next) => {
     let user = req.user;
-    console.log(user);
+    //console.log(user);
     if (user.status == "fail") {
       // user should be created
       const userName = "user";
@@ -391,7 +391,7 @@ class AuthenticationController {
       //   });
       // } else {
       const email = user.email;
-      console.log(email);
+      //console.log(email);
       const password = this.UserServices.generateRandomPassword();
       let newUser = await this.UserServices.signUp(email, userName, password);
       if (newUser.success === true) {

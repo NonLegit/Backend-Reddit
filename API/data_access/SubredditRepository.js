@@ -57,7 +57,7 @@ class SubredditRepository extends Repository {
         .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-      console.log(doc);
+    //  console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -657,7 +657,7 @@ class SubredditRepository extends Repository {
         { new: true }
       );
     }
-    console.log(doc);
+   // console.log(doc);
     return { success: true, doc: doc };
   }
 }

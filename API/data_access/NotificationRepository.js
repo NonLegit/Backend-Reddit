@@ -13,7 +13,7 @@ class NotificationRepository extends Repository {
         try {
             let data;
             let typeOfReply = (comment.type == "Post") ? "postReply" : 'commentReply';
-            console.log(post);
+       //     console.log(post);
             if (!post.subreddit) {
                 data = {
                     type: typeOfReply,
@@ -73,9 +73,40 @@ class NotificationRepository extends Repository {
        
     }
 
+
+
+
+    async addFollowNotification(follower,followed) {
+        try {
+           
+            let data = {
+                type: "follow",
+                followerUser: {
+                    _id: follower._id,
+                    userName: follower.userName,
+                    profilePicture: follower.profilePicture
+                },
+                followedUser: {
+                    _id: followed._id,
+                    userName: followed.userName
+                        
+                }
+            };
+            let notification = await this.model.create(data);
+           // console.log(notification);
+            if (!notification)
+                return { success: false, error: mongoErrors.UNKOWN };     
+            //notify ba2a
+            return { success: true, doc: notification };
+            
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }     
+    }
+
     async getAllNotifications(userId) {
         try {
-            let notifications = await this.model.find({ "followedUser._id": userId }).sort("-createdAt").limit(10);
+            let notifications = await this.model.find({ "followedUser._id": userId ,hidden:false}).sort("-createdAt").limit(10);
             // console.log(notifications);
             if (!notifications) {
                 return { success: false, error: mongoErrors.UNKOWN };
@@ -101,7 +132,7 @@ class NotificationRepository extends Repository {
      async markNotificationAsRead(userId,notificationId) {
         try {
             let notification = await this.model.updateOne({ "followedUser._id": userId ,"_id":notificationId}, { seen: true });
-             console.log(notification);
+             //console.log(notification);
             if (!notification||notification.matchedCount==0) {
                 // console.log("hhh");
                 return { success: false, error: mongoErrors.NOT_FOUND};

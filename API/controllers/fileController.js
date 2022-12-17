@@ -231,8 +231,6 @@ class FileController {
       return;
     }
 
-    let fileObj;
-
     if (kind === "image") {
       const allowedExts = ["jpeg", "jpg", "png", "svg", "webp"];
       const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
@@ -264,7 +262,6 @@ class FileController {
         .jpeg({ quality: 90 })
         .toFile(`public/posts/${file.filename}`);
 
-      fileObj = { path: "posts/" + file.filename, caption, link };
     } else if (kind === "video") {
       const allowedExts = ["mp4", "webm"];
       const allowedMimeTypes = ["video/mp4", "video/webm"];
@@ -290,11 +287,9 @@ class FileController {
       }
 
       fs.writeFileSync(`public/posts/${file.filename}`, file.buffer);
-
-      fileObj = { path: "posts/" + file.filename };
     }
 
-    const updatedPost = await this.PostService.addFile(postId, kind, fileObj);
+    const updatedPost = await this.PostService.addFile(postId, kind, "posts/" + file.filename);
 
     res.status(201).json({
       status: "success",

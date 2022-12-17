@@ -288,7 +288,7 @@ class PostController {
     await me.populate("votePost.posts", "-__v");
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
-    let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, 1);
     posts = this.postServices.setSavedPostStatus(me, posts);
     posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
@@ -312,7 +312,7 @@ class PostController {
     await me.populate("votePost.posts", "-__v");
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
-    let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, -1);
     posts = this.postServices.setSavedPostStatus(me, posts);
     posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
@@ -803,7 +803,7 @@ class PostController {
     let me = req.user;
     let postId = req.params.postId;
     let dir = req.body.dir;
-    if (dir !== "1" && dir !== "0" && dir !== "-1") {
+    if (dir !== 1 && dir !== 0 && dir !== -1) {
       console.log(dir);
       res.status(400).json({
         status: "fail",
@@ -814,7 +814,7 @@ class PostController {
       let post = await this.postServices.findPostById(postId);
       if (post.success === true) {
         // check that author of block is not blocking me or i blocked him
-        console.log(post.data);
+      //  console.log(post.data);
         let isUserBlockedMe = await this.userServices.checkBlockStatus(
           me,
           post.data.author
@@ -863,7 +863,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-      console.log(post.data);
+     // console.log(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author
@@ -905,7 +905,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-      console.log(post.data);
+      //(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author
@@ -947,7 +947,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-      console.log(post.data);
+     // console.log(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author
@@ -989,7 +989,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-      console.log(post.data);
+      //console.log(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author

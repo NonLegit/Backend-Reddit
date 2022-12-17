@@ -42,8 +42,8 @@ class CommentRepository extends Repository {
   }
 
   async deleteComment(id) {
-    //await Post.findByIdAndUpdate(id, {isDeleted: true})
-    await this.model.findByIdAndDelete(id);
+    await this.model.findByIdAndUpdate(id, {isDeleted: true})
+    //await this.model.findByIdAndDelete(id);
   }
 
   async commentTree(children, limit, depth, sort) {
