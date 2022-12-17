@@ -111,7 +111,7 @@ class CommentService {
         const userName = word.slice(2);
         const validUser = await this.userRepo.findByUserName(userName);
 
-        if (validUser.success) mentions.push(userName);
+        if (validUser.success) mentions.push({userName, userId: validUser.doc._id});
       }
     }
     data.mentions = mentions;
