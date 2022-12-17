@@ -140,11 +140,11 @@ class MessageController {
 
     createReplyMessage=async (req, res) => {
     console.log("herssssssssssssssssssssssssssssssssssssse");
-    if (!req.user || !req.comment || !req.post) {
+    if (!req.user || !req.comment || !req.post||!req.mentions) {
       return;
     }
     console.log("iiiiiiiiiiiiii");
-    let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post);
+    let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post,req.mentions);
     
     // if (messageToSend.success) {
       

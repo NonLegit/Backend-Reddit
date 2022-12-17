@@ -175,6 +175,7 @@ class CommentService {
       data: comment.doc,
       postToNotify: postToNotify,
       commentToNotify: commentToNotify,
+      mentions:mentions
     };
   }
 
