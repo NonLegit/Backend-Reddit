@@ -170,7 +170,7 @@ class subredditService {
 
           if (!UserIsMod.success) {
             //  send him invite then
-           // console.log("toot" + subredditExisted.data._id);
+            // console.log("toot" + subredditExisted.data._id);
             let updateModerators = await this.userRepository.updateByName(
               modName,
               subredditExisted.data._id,
@@ -305,12 +305,15 @@ class subredditService {
             let allModerators = await this.subredditRepository.getModerators(
               subredditName
             );
+            console.log("khaled hesham");
             let mods = allModerators.doc.moderators;
             let afterDelete = this.removeId(mods, userExisted.doc._id);
+            console.log(afterDelete);
             let updateMods = await this.subredditRepository.updateModerators(
               subredditName,
               afterDelete
             );
+            console.log(updateMods);
             if (!updateMods.success)
               return { success: false, error: subredditErrors.MONGO_ERR };
 
@@ -512,7 +515,7 @@ class subredditService {
             subredditName,
             userExisted.doc._id
           );
-        //  console.log(UserIsMod);
+          //  console.log(UserIsMod);
           if (UserIsMod.success)
             return { success: false, error: userErrors.MODERATOR };
 
@@ -601,7 +604,7 @@ class subredditService {
             subredditName,
             userExisted.doc._id
           );
-        //  console.log(UserIsMod);
+          //  console.log(UserIsMod);
           if (UserIsMod.success)
             return { success: false, error: userErrors.MODERATOR };
 
@@ -1070,11 +1073,11 @@ class subredditService {
 
     let subreddit = await this.checkSubreddit(subredditName);
     //console.log("oooooooooooooooooooooooooooooooo");
-   // console.log(subreddit);
+    // console.log(subreddit);
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-   // console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+    // console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     //check if user is moderator of subreddit to create flair in
     let isModerator = this.checkModerator(subreddit, userId);
 
@@ -1086,14 +1089,13 @@ class subredditService {
 
     //create the flair
     let flair = await this.flairRepository.createOne(data);
- 
+
     if (!flair.success) {
-    //  console.log(flair);
+      //  console.log(flair);
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-   
-   // console.log(flair);
+    // console.log(flair);
     //add flair to list of refrences flairs in the subreddit
     let addedTorefrencedFlairs =
       await this.subredditRepository.addFlairToSubreddit(
@@ -1105,7 +1107,7 @@ class subredditService {
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-   // console.log(flair);
+    // console.log(flair);
     return { success: true, data: flair.doc };
   }
 
