@@ -146,27 +146,27 @@ class MessageController {
     console.log("iiiiiiiiiiiiii");
     let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post);
     
-    if (messageToSend.success) {
+    // if (messageToSend.success) {
       
-      let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
-    //   console.log(tokens.data.firebaseToken[0]);
-    //   console.log(notification.data);
-      let message;
-        if (tokens.success&&tokens.data.firebaseToken.length!=0) {
-            message = {
-                registration_ids: tokens.data.firebaseToken,
-                data: { val: JSON.stringify(messageToSend.data) }
-            }
+    //   let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
+    // //   console.log(tokens.data.firebaseToken[0]);
+    // //   console.log(notification.data);
+    //   let message;
+    //     if (tokens.success&&tokens.data.firebaseToken.length!=0) {
+    //         message = {
+    //             registration_ids: tokens.data.firebaseToken,
+    //             data: { val: JSON.stringify(messageToSend.data) }
+    //         }
         
-            fcm.send(message, (err, response) => {
-                if (err) {
-                    console.log("Something has gone wrong!" + err);
-                } else {
-                    console.log("Successfully sent with response: ");
-                }
-            });
-        }
-    }
+    //         fcm.send(message, (err, response) => {
+    //             if (err) {
+    //                 console.log("Something has gone wrong!" + err);
+    //             } else {
+    //                 console.log("Successfully sent with response: ");
+    //             }
+    //         });
+    //     }
+    // }
       return ;
     }
 

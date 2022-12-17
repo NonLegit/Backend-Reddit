@@ -115,7 +115,8 @@ class CommentService {
       }
     }
     data.mentions = mentions;
-
+    
+    //console.log(mentions);
     //create the comment
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
@@ -132,7 +133,11 @@ class CommentService {
 
     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
    // console.log(validParent.post);
-     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    
+
+   
+
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
@@ -141,6 +146,7 @@ class CommentService {
     let postToNotify;
     console.log("heeeeeeeeeeeeeeeeeee");
     //console.log(validParent.post);
+
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
         _id: validParent.post._id,
