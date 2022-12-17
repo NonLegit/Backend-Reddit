@@ -23,6 +23,7 @@ router.route("/post_replies").get(MessageController.getPostReplies);//not show d
 router.route("/").get(MessageController.getMessages);//inbox
 router.route("/all").get(MessageController.getAllMessages);//all
 
+router.route("/:parentMessageId/reply").post(MessageController.reply);
 //mentions
 
 //inbocx al except post replies and mentions

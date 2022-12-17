@@ -77,7 +77,7 @@ class NotificationController {
         console.log(message);
       //  console.log(notification.data);
       }
-        if(notification.data.type=="postReply")
+        if(notification.data.type=="postReply"||notification.data.type=="userMention")
         return next();
       
     }

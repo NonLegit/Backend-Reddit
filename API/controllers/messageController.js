@@ -77,6 +77,7 @@ class MessageController {
       return ;
  }
   
+ 
   
   sendMessage = async (req, res) => {
       try {
@@ -118,6 +119,71 @@ class MessageController {
             return res.status(404).json({
             status: "Not Found",
             message: "User Not Found",
+        });
+        }
+        return res.status(500).json({
+          status: "Internal server error",
+          message: "Internal server error",
+        });
+      }
+      return res.status(200).json({
+        status: "OK",
+        data:messageToSend.data
+      });
+      } catch (err) {
+            console.log("error in subredditservices " + err);
+    return  res.status(500).json({
+        status: "fail",
+      });
+      }
+     
+  }
+  
+   reply = async (req, res) => {
+      try {
+         
+        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
+          if (!req.user || !req.body.text || !req.params.parentMessageId) {
+                 res.status(400).json({
+                status: "fail",
+                message: "Invalid request",
+            });
+            return;
+          }
+          
+          let messageToSend = await this.messageServices.reply(req.user._id, req.body.text,req.params.parentMessageId);
+           // console.log(messageToSend);
+          if (messageToSend.success) {
+             // console.log(messageToSend.data.to);
+              let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
+            let message;
+            console.log(tokens);
+              if (tokens.success&&tokens.data.firebaseToken.length!=0) {
+                  message = {
+                      registration_ids: tokens.data.firebaseToken,
+                      data: { val: JSON.stringify(messageToSend.data) }
+                  }
+            };
+           // console.log(tokens);
+              fcm.send(message, (err, response) => {
+                  if (err) {
+                      console.log("Something has gone wrong!" + err);
+                  } else {
+                      console.log("Successfully sent with response: ");
+                  }
+              });
+
+          }
+        if (!messageToSend.success) {
+          if (messageToSend.error == messageErrors.MESSAGE_NOT_FOUND) {
+            return res.status(404).json({
+            status: "Not Found",
+            message: "Message Not Found",
+        });
+          } else if (messageToSend.error == messageErrors.MESSAGE_NOT_FOUND_IN_INBOX) {
+              return res.status(404).json({
+            status: "Not Found",
+            message: "Message Not Found In Your Inbox",
         });
         }
         return res.status(500).json({

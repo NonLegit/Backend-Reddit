@@ -39,6 +39,27 @@ class MessageService {
         }
         
         return { success: true, data: messageToSend.doc };
+  }
+   async reply(userId,text,parentMessageId) {
+        //validate post ID
+     console.log("here");
+     let messageExisted = await this.messageRepo.findById(parentMessageId);
+
+
+     if (!messageExisted.success) {
+        return { success: false, error: messageErrors.MESSAGE_NOT_FOUND };
+     }
+     if (!messageExisted.doc.to._id.equals(userId)) {
+           return { success: false, error: messageErrors.MESSAGE_NOT_FOUND_IN_INBOX };
+        }
+        const messageToSend = await this.messageRepo.reply(userId,text,messageExisted.doc);
+        if (!messageToSend.success) {
+          //  console.log(messageToSend.error);
+            return { success: false, error: messageToSend.error };
+
+        }
+        
+        return { success: true, data: messageToSend.doc };
     }
     async createReplyMessage(user,comment,post) {
         //validate post ID
