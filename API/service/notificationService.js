@@ -17,6 +17,18 @@ class NotificationService {
     
     return { success: true, data: notification.doc };
   }
+
+
+   async sendMentions(user,comment,post,mentions) {
+    //validate post ID
+    const notification = await this.notificationRepo.sendMentions(user,comment,post,mentions);
+    if (!notification)
+      return { success: false, error: notification.error };
+
+    
+    
+    return { success: true, data: notification.doc };
+  }
    async addFollowNotification(follower,followed) {
     //validate post ID
      const notification = await this.notificationRepo.addFollowNotification(follower, followed);
