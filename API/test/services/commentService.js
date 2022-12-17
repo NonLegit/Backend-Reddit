@@ -22,7 +22,7 @@ describe("Comment service test", () => {
       },
     };
     const PostRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         return {
           success: true,
           doc: {
@@ -133,7 +133,7 @@ describe("Comment service test", () => {
 
   describe("Testing delete comment", () => {
     const CommentRepository = {
-      findById: async (id, fields) => {
+      exists: async (id, fields) => {
         const comment = {
           author: ObjectId("578a5fccf267fc3a463b35e4"),
           parent: ObjectId("578a5fccf267fc3a463b35e4"),
@@ -171,7 +171,7 @@ describe("Comment service test", () => {
       expect(error).to.equal(commentErrors.NOT_AUTHOR);
     });
     it("comment not found", async () => {
-      CommentRepository.findById = async (id, fields) => {
+      CommentRepository.exists = async (id, fields) => {
         return { success: false };
       };
       const { success, error } = await commentServices.deleteComment(

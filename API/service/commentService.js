@@ -6,10 +6,16 @@ const ObjectId = require("mongodb").ObjectId;
  * Comment Service class for handling Comment model and services
  */
 class CommentService {
-  constructor({ CommentRepository, PostRepository, NotificationRepository }) {
+  constructor({
+    CommentRepository,
+    PostRepository,
+    NotificationRepository,
+    UserRepository,
+  }) {
     this.commentRepo = CommentRepository;
     this.postRepo = PostRepository;
     this.notificationRepo = NotificationRepository;
+    this.userRepo = UserRepository;
   }
 
   /**
@@ -98,6 +104,18 @@ class CommentService {
     if (validParent.locked)
       return { success: false, error: commentErrors.PARANT_LOCKED };
 
+    const text = data.text.split(" ");
+    const mentions = [];
+    for (const word of text) {
+      if (word.startsWith("u/")) {
+        const userName = word.slice(2);
+        const validUser = await this.userRepo.findByUserName(userName);
+
+        if (validUser.success) mentions.push({userName, userId: validUser.doc._id});
+      }
+    }
+    data.mentions = mentions;
+
     //create the comment
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
@@ -185,10 +203,7 @@ class CommentService {
    */
   async deleteComment(id, userId) {
     //validate comment ID
-    const comment = await this.commentRepo.findById(
-      id,
-      "author parent parentType"
-    );
+    const comment = await this.commentRepo.exists(id);
     if (!comment.success)
       return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
@@ -199,9 +214,9 @@ class CommentService {
       return { success: false, error: commentErrors.NOT_AUTHOR };
 
     //removes comment from its parent replies and decrement replies count
-    if (comment.doc.parentType === "Comment")
-      await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // if (comment.doc.parentType === "Comment")
+    //   await this.commentRepo.removeReply(comment.doc.parent, comment.doc._id);
+    // else await this.postRepo.removeReply(comment.doc.parent, comment.doc._id);
 
     await this.commentRepo.deleteComment(id);
 
@@ -225,8 +240,7 @@ class CommentService {
       if (!comment)
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
-      const replies = post.doc.replies;
-      if (!replies.includes(commentId))
+      if (!comment[0].post.equals(postId))
         return { success: false, error: commentErrors.COMMENT_NOT_CHILD };
 
       return { success: true, tree: comment };
@@ -256,8 +270,8 @@ class CommentService {
         newComments[i] = newComments[i].toObject();
       } catch (err) {}
       if (!hash[comments[i]._id]) {
-        newComments[i]["commentVoteStatus"] = "0";
-        Object.assign(newComments[i], { commentVoteStatus: "0" });
+        newComments[i]["commentVoteStatus"] = 0;
+        Object.assign(newComments[i], { commentVoteStatus: 0 });
       } else {
         newComments[i]["commentVoteStatus"] = hash[comments[i]._id];
         Object.assign(newComments[i], {
@@ -358,7 +372,7 @@ class CommentService {
             },
             sortOnHot: element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
-              ? "0"
+              ? 0
               : hash[comments[i]._id],
             isSaved: true,
           },
@@ -383,7 +397,7 @@ class CommentService {
           },
           sortOnHot: element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
-            ? "0"
+            ? 0
             : hash[comments[i]._id],
           isSaved: true,
         });

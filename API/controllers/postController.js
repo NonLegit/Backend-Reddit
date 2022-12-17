@@ -288,7 +288,7 @@ class PostController {
     await me.populate("votePost.posts", "-__v");
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
-    let posts = this.postServices.selectPostsWithVotes(me.votePost, "1");
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, 1);
     posts = this.postServices.setSavedPostStatus(me, posts);
     posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
@@ -312,7 +312,7 @@ class PostController {
     await me.populate("votePost.posts", "-__v");
     // get vote of me if these post i vote on it
     //let posts = this.postServices.setVotePostStatus(me, me.votePost);
-    let posts = this.postServices.selectPostsWithVotes(me.votePost, "-1");
+    let posts = this.postServices.selectPostsWithVotes(me.votePost, -1);
     posts = this.postServices.setSavedPostStatus(me, posts);
     posts = this.postServices.setHiddenPostStatus(me, posts);
     posts = this.postServices.setPostOwnerData(posts);
@@ -803,7 +803,7 @@ class PostController {
     let me = req.user;
     let postId = req.params.postId;
     let dir = req.body.dir;
-    if (dir !== "1" && dir !== "0" && dir !== "-1") {
+    if (dir !== 1 && dir !== 0 && dir !== -1) {
       console.log(dir);
       res.status(400).json({
         status: "fail",

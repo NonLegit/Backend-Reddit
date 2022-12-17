@@ -58,30 +58,11 @@ const postSchema = new mongoose.Schema({
     type: Url,
     required: false,
   },
-  images: [
-    {
-      path: {
-        type: String,
-        required: true,
-      },
-      caption: {
-        type: String,
-        required: false,
-      },
-      link: {
-        type: String,
-        required: false,
-      },
-    },
-  ],
-  videos: [
-    {
-      path: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
+  images: [String],
+  video: {
+    type: String,
+    required: false,
+  },
   createdAt: {
     type: Date,
     required: true,
@@ -198,6 +179,15 @@ postSchema.pre("find", function () {
   }
 
   this.populate("flairId");
+});
+
+postSchema.post("init", function (doc) {
+  const kind = doc.kind;
+  if (kind === "video") doc.video = `${process.env.BACKDOMAIN}/` + doc.video;
+  else if (kind === "image" && doc.images)
+    {
+      doc.images.forEach((image, index) => doc.images[index] = `${process.env.BACKDOMAIN}/` + doc.images[index])
+    }
 });
 
 // postSchema.pre("findOneAndUpdate", async function (next) {

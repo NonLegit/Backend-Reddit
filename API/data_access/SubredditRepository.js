@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate: Date.now(),
+              joiningDate:Date.now(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,

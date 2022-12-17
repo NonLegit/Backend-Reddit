@@ -266,16 +266,19 @@ class CommentController {
     let userName = req.params.userName;
     let valid = true;
     let userId = me._id;
-    let user ;
+    let user = me;
     if (userName !== me.userName) {
       // find user if not found return not found
       user = await this.UserService.getUserByName(userName, "");
+ 
       if (user.success === true) {
         valid = true;
         userId = user.data._id;
+        user = user.data;
       } else {
         valid = false;
       }
+
     }
     if (valid) {
       let limit = req.query.limit;
@@ -303,12 +306,13 @@ class CommentController {
         limit: limit,
         page: page,
       };
+      console.log(user);
       let isUserBlockedMe = await this.UserService.checkBlockStatus(
         me,
-        user.data
+        user
       );
       let isMeBlockedUser = await this.UserService.checkBlockStatus(
-        user.data,
+        user,
         me
       );
       // get post which he creates

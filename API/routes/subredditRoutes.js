@@ -69,7 +69,7 @@ router.delete(
 
 );
 router.patch(
-  "/:subredditName/moderator/:moderatorName",
+  "/:subredditName/moderators/:moderatorName",
   subredditController.updatePermissions
 );
 router.get("/:subredditName/moderators", subredditController.getModerators);
