@@ -76,7 +76,7 @@ messageSchema.pre(/^find/,  function () {
  // console.log(this);
   this.populate("from","_id userName");
   this.populate("to", "_id userName");
-  this.populate("comment","_id text parent -post -author");
+  this.populate("comment","_id text parent -author");
   this.populate("subreddit", "_id fixedName name");
   
 });
