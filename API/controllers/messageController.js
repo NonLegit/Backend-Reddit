@@ -32,7 +32,7 @@ class MessageController {
 //       const userId = req.user._id;
 //       const savedToUser = await this.userServices.saveFirebaseToken(userId,token);
 //       if (!savedToUser.success) {
-//           res.status(500).json({     
+//           res.status(500).json({
 //             message : "Internal server error",
 //             statusCode : 500,
 //             status : "Internal Server Error"
@@ -43,7 +43,41 @@ class MessageController {
       
 //     }
  
- 
+  modMessage = async (req, res) => {
+    if (!req.messageObject) {
+                 res.status(400).json({
+                status: "fail",
+                message: "Invalid request",
+            });
+            return;
+    }
+     let invite = await this.messageServices.modMessage(req.messageObject);
+    //  console.log(notification);
+    if (invite.success) {
+      
+      let tokens = await this.notificationServices.getFirebaseToken(req.messageObject.to);
+      // console.log(tokens.data.firebaseToken[0]);
+      // console.log(notification.data);
+      let message;
+      if (tokens.success) {
+        message = {
+          registration_ids: tokens.data.firebaseToken,
+          data: { val: JSON.stringify(invite.data) }
+        }
+        
+        fcm.send(message, (err, response) => {
+          if (err) {
+            console.log("Something has gone wrong!" + err);
+          } else {
+            console.log("Successfully sent with response: ");
+          }
+        });
+      }
+    }
+      return ;
+ }
+  
+  
   sendMessage = async (req, res) => {
       try {
          

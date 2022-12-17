@@ -210,7 +210,7 @@ class subredditController {
     });
   };
 //delete a mod
-  deletemoderator = async (req, res) => {
+  deletemoderator = async (req, res,next) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let moderatorName = req.params.moderatorName;
@@ -267,7 +267,10 @@ class subredditController {
       return;
     }
     res.status(204).json({ status: "success" });
+    req.messageObject = deleted.messageObj;
+   return next();
   };
+
 
   // TODO: unit tests (service)
   //accept or reject 
@@ -419,7 +422,7 @@ class subredditController {
 
   // TODO: service test
   //invite the mod
-  inviteModerator = async (req, res) => {
+  inviteModerator = async (req, res,next) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let moderatorName = req.params.moderatorName;
@@ -484,7 +487,10 @@ class subredditController {
       });
       return;
     }
+    
     res.status(204).json({ status: "success" });
+    req.messageObject = invitation.messageObj;
+   return next();
   };
 
   // TODO: service tests
@@ -690,7 +696,7 @@ class subredditController {
 
   // TODO: service test
   //ban a user
-  banSettings = async (req, res) => {
+  banSettings = async (req, res,next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let banedUser = req.params.userName;
@@ -735,6 +741,7 @@ class subredditController {
       action,
       data
     );
+    console.log("ttttttttttttttttttttttttttt");
 
     if (!result.success) {
       let msg, stat;
@@ -774,12 +781,28 @@ class subredditController {
       });
       return;
     }
+     
     res.status(204).json({});
+    if (action == "ban") {
+      console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+      //  let messageObj = {
+      // to:result.bannedId,
+      // from:req.user._id,
+      // type:"subredditBan",
+      //    subreddit: result.subredditId
+      //  };
+       
+// console.log(messageObj);
+     req.messageObject = result.messageObj;
+    
+      return next();
+    }
+    return;
   };
 
   // TODO: service testing
   //mute a user
-  muteSettings = async (req, res) => {
+  muteSettings = async (req, res,next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let mutedUser = req.params.userName;
@@ -863,7 +886,21 @@ class subredditController {
       });
       return;
     }
+   // console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    //console.log(result);
     res.status(204).json({});
+    console.log("kkkkkkkkkkkkkkkkkkkkkkk");
+    if (action == "mute") {
+      //  let messageObj = {
+      // to:result.mutedId,
+      // from:req.user._id,
+      // type:"subredditMute",
+      // subreddit:result.subredditId};
+
+      req.messageObject = result.messageObj;
+      return next();
+    }
+    return;
     //from action
   };
 
@@ -1249,7 +1286,7 @@ class subredditController {
   
   
   //TODO:approve a user message
-  approveUser = async (req, res) => {
+  approveUser = async (req, res,next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let approvedUser = req.params.userName;
@@ -1278,7 +1315,7 @@ class subredditController {
       });
       return;
     }
-
+    console.log("ppppppppppppppppppppppppppppppppppppppp");
     let approve = await this.subredditServices.approveUser(
       userId,
       subredditName,
@@ -1319,6 +1356,23 @@ class subredditController {
       return;
     }
     res.status(204).json({});
+    console.log(action);
+     if (action == "approve") {
+      console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+      //  let messageObj = {
+      // to:approve.approvedId,
+      // from:req.user._id,
+      // type:"subredditApprove",
+      //    subreddit: approve.subredditId
+      //  };
+       
+      //console.log(messageObj);
+     req.messageObject = approve.messageObj;
+    
+      return next();
+    }
+    return;
+
   };
 
   approvedUsers = async (req, res) => {
