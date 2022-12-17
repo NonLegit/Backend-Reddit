@@ -62,10 +62,9 @@ class AuthenticationController {
       expires: new Date(
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
-      sameSite: 'None',
+      sameSite: "None",
       httpOnly: false,
       secure: false,
-
     };
     if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
     if (process.env.NODE_ENV === "production") cookieOptions.httpOnly = true;
@@ -232,7 +231,7 @@ class AuthenticationController {
         });
       } else {
         const response = this.errorResponse(user.error, user.msg);
-       // console.log(response);
+        // console.log(response);
         res.status(response.stat).json({
           status: "fail",
           errorMessage: response.msg,
@@ -326,11 +325,16 @@ class AuthenticationController {
             errorMessage: "User not found",
           });
         } else {
-          if (user.data.changedPasswordAfter(time)) {
-            res.status(400).json({
-              status: "fail",
-              errorMessage: "Password is changed , Please login again",
-            });
+          if (user.data.keepLoggedIn !== true) {
+            if (user.data.changedPasswordAfter(time)) {
+              res.status(400).json({
+                status: "fail",
+                errorMessage: "Password is changed , Please login again",
+              });
+            } else {
+              req.user = user.data;
+              next();
+            }
           } else {
             req.user = user.data;
             next();
@@ -541,6 +545,73 @@ class AuthenticationController {
         status: "fail",
         errorMessage: "Token Invalid or Has Expired",
       });
+    }
+  };
+  changePassword = async (req, res, next) => {
+    let oldPassword = req.body.oldPassword;
+    let confirmNewPassword = req.body.confirmNewPassword;
+    let newPassword = req.body.newPassword;
+    let keepLoggedIn = req.body.keepLoggedIn;
+    if (!confirmNewPassword || !newPassword || !oldPassword) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage:
+          "Provide old password and new password and confirmed new password ",
+        errorType: 0,
+      });
+    } else if (newPassword !== confirmNewPassword) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide Equal Passwords",
+        errorType: 1,
+      });
+    } else {
+      if (oldPassword === newPassword) {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: "Enter New Password not old password",
+          errorType: 4,
+        });
+      } else {
+        const passwordStrength =
+          this.UserServices.checkPasswordStrength(newPassword);
+        if (passwordStrength === "Too weak" || passwordStrength === "Weak") {
+          res.status(400).json({
+            status: "fail",
+            errorMessage: passwordStrength + " password",
+            errorType: 2,
+          });
+        } else {
+          // check on user password get me
+          let me = req.user;
+
+          let isCorrectPassword = await this.UserServices.checkPassword(
+            oldPassword,
+            me.userName
+          );
+          if (isCorrectPassword === true) {
+            if (keepLoggedIn) {
+              keepLoggedIn = true;
+            } else {
+              keepLoggedIn = false;
+            }
+            let token = await this.UserServices.changePassword(
+              me,
+              keepLoggedIn,
+              newPassword
+            );
+            this.createCookie(res, token, 200);
+          } else {
+            res.status(400).json({
+              status: "fail",
+              errorMessage: "Incorrect Password",
+              errorType: 3,
+            });
+          }
+        }
+      }
+
+      //res.status(response.status).json(response.body);
     }
   };
   checkResetTokentime = async (req, res, next) => {

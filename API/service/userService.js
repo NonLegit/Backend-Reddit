@@ -284,6 +284,17 @@ class UserService {
       return response;
     }
   }
+  async changePassword(user, keepLoggedIn, password) {
+    // let user = await this.userRepository.changekeepLoggedIn(
+    //   userId,
+    //   keepLoggedIn
+    // );
+    user.password = password;
+    user.keepLoggedIn = keepLoggedIn;
+    await user.save();
+    const token = this.createToken(user._id);
+    return token;
+  }
   async verifyEmailToken(verificationToken) {
     const hashedToken = crypto
       .createHash("sha256")
@@ -575,7 +586,7 @@ class UserService {
         isFollowed: false,
         country: user.country,
         socialLinks: [],
-        isBlocked:isBlocked,
+        isBlocked: isBlocked,
       };
     } else {
       searchUser = {
@@ -598,7 +609,7 @@ class UserService {
         isFollowed: isFollowed,
         country: user.country,
         socialLinks: user.socialLinks,
-        isBlocked:isBlocked,
+        isBlocked: isBlocked,
       };
     }
     return searchUser;
@@ -751,8 +762,8 @@ class UserService {
     let index2 = otherUser.userMeRelationship.findIndex(
       (item) => item.userId.toString() == me._id.toString()
     );
-   // console.log(index);
-   // console.log(index2);
+    // console.log(index);
+    // console.log(index2);
     if (index != -1) {
       me.meUserRelationship[index].status = "blocked";
       otherUser.userMeRelationship[index2].status = "blocked";
@@ -821,7 +832,7 @@ class UserService {
   async followUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
-    
+
     //console.log(otherUser);
     let isAlreadyFollowed = true;
     let index = me.meUserRelationship.findIndex(
