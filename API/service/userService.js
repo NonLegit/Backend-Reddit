@@ -847,6 +847,7 @@ class UserService {
       }
       me.meUserRelationship[index].status = "followed";
       otherUser.userMeRelationship[index2].status = "followed";
+      otherUser.followersCount = otherUser.followersCount +1;
     } else {
       me.meUserRelationship.push({
         userId: otherUser._id,
@@ -856,6 +857,7 @@ class UserService {
         userId: me._id,
         status: "followed",
       });
+      otherUser.followersCount = otherUser.followersCount +1;
       isAlreadyFollowed = false;
     }
     await otherUser.save();
@@ -879,6 +881,7 @@ class UserService {
       }
       me.meUserRelationship[index].status = "none";
       otherUser.userMeRelationship[index2].status = "none";
+      otherUser.followersCount = otherUser.followersCount - 1;
     }
     await otherUser.save();
     await me.save();
