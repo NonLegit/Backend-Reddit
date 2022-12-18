@@ -2163,16 +2163,16 @@ paths:
               - all
         - in: query
           name: page
-          description: The page number
-          default: 1
           schema:
             type: integer
+            description: The page number
+            default: 1
         - in: query
           name: limit
-          description: The limit of each page
-          default: 10
           schema:
             type: integer
+            description: The limit of each page
+            default: 10
       responses:
         200:
           description: Success operation
