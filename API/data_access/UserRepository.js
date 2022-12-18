@@ -159,7 +159,7 @@ class UserRepository extends Repository {
       }
     );
     if (!user) {
-     // console.log(user);
+      // console.log(user);
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };
@@ -309,12 +309,26 @@ class UserRepository extends Repository {
     await user.populate("meUserRelationship.userId");
     return user.meUserRelationship;
   }
+  // async changekeepLoggedIn(userId, keepLoggedIn) {
+  //   const user = await this.model.findByIdAndUpdate(
+  //     userId,
+  //     { keepLoggedIn: keepLoggedIn },
+  //     {
+  //       new: true,
+  //       runValidators: true,
+  //     }
+  //   );
+  //   return { success: true, doc: user };
+  // }
 
   // [khaled]: I use this in a certain case in the creation of a subreddit
-  async subscribe(subredditId,userId){
-    await this.model.findOneAndUpdate({_id:userId}, {
-      subscribed: subredditId,
-    });
+  async subscribe(subredditId, userId) {
+    await this.model.findOneAndUpdate(
+      { _id: userId },
+      {
+        subscribed: subredditId,
+      }
+    );
     return true;
   }
 }

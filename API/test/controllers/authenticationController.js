@@ -12,7 +12,7 @@ chai.use(sinonChai);
 
 //var res = { send: sinon.spy() ,status: sinon.spy(),json: sinon.spy()};
 const statusJsonSpy = sinon.spy();
-const next = sinon.spy();
+let next = sinon.spy();
 const res = {
   json: sinon.spy(),
   status: sinon.stub().returns({ json: statusJsonSpy }),
@@ -594,7 +594,7 @@ describe("Authentication Controller Test", () => {
       await authObj.authorize(req, res, next);
       expect(next).to.have.been.calledOnce;
     });
-    it("second test bad request not provide all body data", async () => {
+    it("second test fail", async () => {
       const req = {
         cookies: {},
         headers: {
@@ -660,234 +660,485 @@ describe("Authentication Controller Test", () => {
         errorMessage: "Password is changed , Please login again",
       });
     });
+
+    it("fourth test keeploggedin ", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              keepLoggedIn: true,
+
+              changedPasswordAfter: (time) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next2 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next2);
+      expect(next).to.have.been.calledOnce;
+    });
   });
-});
 
-// process.env.NODE_ENV = "test";
-// const request = require("supertest");
-// const seeder = require("./seed");
-// const app = require("./../../app");
-// const { mockRequest, mockResponse } = require("mock-req-res");
-// const { stub, match } = require("sinon");
-// const proxyquire = require("proxyquire");
-
-/*
-describe("Authentication Controller Test", () => {
-  describe("Sign-up Test", () => {
-    it("first test success", (done) => {
-      seeder().then(() => {
-        request(app)
-          .post("/api/v1/users/signup")
-          .send({
-            email: "ahmedsabry123@gmail.com",
-            userName: "ahmed123",
-            password: "12345678",
-          })
-          .then((res) => {
-            assert.equal(res.body.status, "success");
-            request(app)
-              .post("/api/v1/users/signup")
-              .send({
-                email: "ahmedsabry123@gmail.com",
-                userName: "ahmed123",
-                password: "12345678",
-              })
-              .then((res) => {
-                assert.equal(res.body.status, "fail");
-              });
-            done();
-          })
-          .catch((err) => {
-            done(err);
-          });
+  describe("changeEmail  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          newEmail: "ahmed2@gmail.com",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
       });
     });
-    it("second test (fail,not provide all body)", (done) => {
-      request(app)
-        .post("/api/v1/users/signup")
-        .send({
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          _id: "1",
           email: "ahmed@gmail.com",
-          userName: "ahmedd",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          request(app)
-            .post("/api/v1/users/signup")
-            .send({
-              email: "kahled@gmail.com",
-              password: "12345678",
-            })
-            .then((res) => {
-              assert.equal(res.body.status, "fail");
-              assert.equal(res.status, 400);
-            });
-          done();
-        });
-    });
-  });
+        },
+        body: {
+          newEmail: "ahmed2@gmail.com",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          return {
+            success: false,
+            error: userErrors.EMAIL_ERROR,
+            msg: "Cannot Send Emails at that moment ,try again later",
+          };
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
 
-  describe("login Test", () => {
-    it("first test success", (done) => {
-      request(app)
-        .post("/api/v1/users/signup")
-        .send({
-          email: "ahmed1234@gmail.com",
-          userName: "ahmed1234",
-          password: "12345678",
-        })
-        .then((res1) => {
-          request(app)
-            .post("/api/v1/users/login")
-            .send({
-              userName: "ahmed123",
-              password: "12345678",
-            })
-            .then((res) => {
-              expect(res.body.status).to.equal("success");
-            });
-          done();
-        });
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
     });
-    it("second test (fail,not provide all body)", (done) => {
-      request(app)
-        .post("/api/v1/users/login")
-        .send({
+
+    it("thrid test fail  ", async () => {
+      const req = {
+        user: {
+          _id: "1",
           email: "ahmed@gmail.com",
-          userName: "ahmedd",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          request(app)
-            .post("/api/v1/users/login")
-            .send({
-              email: "kahled@gmail.com",
-              password: "12345678",
-            })
-            .then((res) => {
-              assert.equal(res.body.status, "fail");
-              assert.equal(res.status, 400);
-            });
-          done();
-        });
+        },
+        body: {
+          newEmail: "ahmed2@gmail.com",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: false,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Email is already taken by another user",
+      });
     });
-  });
-  describe("forgot password Test", () => {
-    it("first test success", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_password")
-        .send({
-          userName: "Ahmed",
-          email: "ahmedsabry@gmail.com",
-        })
-        .then((res) => {
-          expect(res.status).to.equal(204);
-          done();
-        });
-    });
-    it("second test (fail,not provide all body)", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_password")
-        .send({
+
+    it("fourth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
           email: "ahmed@gmail.com",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          done();
-        });
+        },
+        body: {
+          newEmail: "ahmed2@gmail.com",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return false;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Incorrect password",
+      });
     });
-    it("thrid test (fail,user not exists )", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_password")
-        .send({
+    it("fifth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
           email: "ahmed@gmail.com",
-          userName: "none",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 404);
-          done();
-        });
+        },
+        body: {
+          newEmail: "ahmed@gmail.com",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Insert different email",
+      });
     });
   });
-  describe("forgot username Test", () => {
-    it("first test success", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_username")
-        .send({
-          email: "ahmedsabry@gmail.com",
-        })
-        .then((res) => {
-          expect(res.status).to.equal(204);
-          done();
-        });
+
+  describe("cnangePassword  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "12345",
+          confirmNewPassword: "123456",
+          newPassword: "123456",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "strong";
+        },
+        checkPassword: async (token) => {
+          return true;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
     });
-    it("second test (fail,not provide all body)", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_username")
-        .send({})
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          done();
-        });
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "12345",
+          confirmNewPassword: "123456",
+          newPassword: "123456",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "strong";
+        },
+        checkPassword: async (token) => {
+          return false;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Incorrect Password",
+        errorType: 3,
+      });
     });
-    it("thrid test (fail,user not exists )", (done) => {
-      request(app)
-        .post("/api/v1/users/forgot_username")
-        .send({
-          email: "ahmed566666@gmail.com",
-        })
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 404);
-          done();
-        });
+
+    it("thrid test fail  ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "12345",
+          confirmNewPassword: "123456",
+          newPassword: "123456",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "weak";
+        },
+        checkPassword: async (token) => {
+          return false;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Weak password",
+        errorType: 2,
+      });
+    });
+
+    it("fourth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "123456",
+          confirmNewPassword: "123456",
+          newPassword: "123456",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "weak";
+        },
+        checkPassword: async (token) => {
+          return false;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter New Password not old password",
+        errorType: 4,
+      });
+    });
+    it("fifth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "123456",
+          confirmNewPassword: "1234556",
+          newPassword: "123456",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "weak";
+        },
+        checkPassword: async (token) => {
+          return false;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);      
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide Equal Passwords",
+        errorType: 1,
+      });
+    });
+    it("sixth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "123456",
+          confirmNewPassword: "1234556",
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: async (password, username) => {
+          return "weak";
+        },
+        checkPassword: async (token) => {
+          return false;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);      
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage:
+          "Provide old password and new password and confirmed new password ",
+        errorType: 0,
+      });
     });
   });
-  describe("reset password", () => {
-    it("first test (fail, provide invalid token)", (done) => {
-      request(app)
-        .post("/api/v1/users/reset_password/asasa")
-        .send({})
-        .then((res) => {
-          assert.equal(res.body.status, "fail");
-          assert.equal(res.status, 400);
-          done();
-        });
+
+
+  describe("verifyEmail Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params:{
+          token:""
+        },
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        verifyEmailToken: async (userName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.verifyEmail(req, res, "");
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {},
+        params:{
+          token:""
+        },
+      };
+      const UserService = {
+        verifyEmailToken: async (password, userName) => {
+          const response = {
+            success: false,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.verifyEmail(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Token Invalid or Has Expired",
+      });
     });
   });
-  describe("logout Test", () => {
-    it("first test success", (done) => {
-      request(app)
-        .post("/api/v1/users/logout")
-        .send({})
-        .then((res) => {
-          expect(res.status).to.equal(200);
-          done();
-        });
-    });
-  });
-}); */
 
-// const mockSave = stub();
+});
 
-// const res = mockResponse();
-// const resetStubs = () => {
-//     mockSave.resetHistory();
-//     res.json.resetHistory();
-// };
-// const expected = { name: "", description: "", id: 1 };
-// before(() => {
-//     //save.returns(expected);
-// });
-//it
-
-// const req = mockRequest({
-//     body: { email: "", password: "", userName: "" },
-// });
-
-// await authenticationControllerObj.signUp(req, res);
-// console.log(res);
