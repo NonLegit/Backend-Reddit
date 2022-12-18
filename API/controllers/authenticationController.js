@@ -501,7 +501,6 @@ class AuthenticationController {
                 req.user
               );
               //change email using update email
-
               if (response.success === true) {
                 const changedUser = await this.UserServices.updateUserEmail(
                   req.user._id,
@@ -511,6 +510,7 @@ class AuthenticationController {
                   status: "success",
                 });
               } else {
+                console.log("nooo");
                 response = this.errorResponse(response.error, response.msg);
                 res.status(response.stat).json({
                   status: "fail",
