@@ -22,14 +22,15 @@ const messageSchema = new mongoose.Schema({
       type: String,
       required: true,
       enum: [
-        'postReply',
+        'postReply',//-----------------
         'userMention',
-        'userMessage',//////messages
-        'subredditBan',//////messages no changes
-        'subredditMute',///messages
-        'subredditModeratorInvite',//messages
-        'subredditModeratorAccept',///messages
-        'subredditModeratorRemove',//messages
+        'userMessage',//////messages-----------------
+
+        
+        'subredditBan',//////messages no changes-----------------
+        'subredditMute',///messages -------------------
+        'subredditModeratorInvite',//messages ---------------
+        'subredditModeratorRemove',//messages xxxxxxxxxxxxxxxxx
         'subredditApprove'//messages
       ]
     },
@@ -61,7 +62,7 @@ const messageSchema = new mongoose.Schema({
       type: Boolean,
       default: false
   },
-      isDeletedInDestination: {
+    isDeletedInDestination: {
       type: Boolean,
       default: false
   },

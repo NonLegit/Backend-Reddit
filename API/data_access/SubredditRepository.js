@@ -15,7 +15,7 @@ class SubredditRepository extends Repository {
             moderators: {
               id: doc.owner,
               userName: userName,
-              joiningDate: new Date(),
+              joiningDate: Date.now(),
               profilePicture: profilePicture,
               moderatorPermissions: {
                 all: true,
@@ -57,7 +57,7 @@ class SubredditRepository extends Repository {
         .select(select + "-__v -punished");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-    //  console.log(doc);
+      //  console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -241,7 +241,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             rules: {
-              createdAt: new Date(),
+              createdAt: Date.now(),
               defaultName: data.defaultName,
               description: data.description,
               appliesTo: data.appliesTo,
@@ -269,7 +269,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: new Date(),
+              banDate: Date.now(),
               profilePicture: user.profilePicture,
               type: "banned",
               banInfo: {
@@ -301,7 +301,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: new Date(),
+              banDate: Date.now(),
               profilePicture: user.profilePicture,
               type: "muted",
               muteInfo: {
@@ -328,7 +328,7 @@ class SubredditRepository extends Repository {
           $push: {
             approved: {
               user: userId,
-              approvedDate: new Date(),
+              approvedDate: Date.now(),
             },
           },
         }
@@ -559,6 +559,25 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  async checkApproval(userId, subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          $and: [{ fixedName: subredditName }, { "aprroved.user": userId }],
+        })
+        .select("approved");
+
+      const doc = await tempDoc;
+      console.log(doc);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
   async checkRule(title, subredditName) {
     try {
       let tempDoc = this.model.findOne({
@@ -657,7 +676,7 @@ class SubredditRepository extends Repository {
         { new: true }
       );
     }
-   // console.log(doc);
+    // console.log(doc);
     return { success: true, doc: doc };
   }
 }

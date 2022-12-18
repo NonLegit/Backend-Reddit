@@ -209,15 +209,15 @@ const subredditSchema = new mongoose.Schema({
       },
       type: { type: String, enum: ["banned", "muted"], required: true },
       banInfo: {
-        punishReason: { type: String, trim: true },
-        punish_type: { type: String },
-        Note: { type: String },
+        punishReason: { type: String, trim: true, default: "No reason" },
+        punish_type: { type: String, default: "other" },
+        Note: { type: String, default: "no Note" },
         duration: {
           type: Number,
         },
       },
       muteInfo: {
-        muteMessage: { type: String },
+        muteMessage: { type: String, default: "Spammer" },
       },
     },
   ],

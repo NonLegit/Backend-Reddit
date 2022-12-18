@@ -45,12 +45,13 @@ class NotificationController {
  
   addReplyNotification = async (req, res, next) => {
    // console.log(req.post);
-    if (!req.user || !req.comment || !req.post) {
+    if (!req.user || !req.comment || !req.post||!req.mentions) {
       return;
     }
     console.log("iiiiiiiiiiiiii");
     let notification = await this.notificationServices.addReplyNotification(req.user, req.comment, req.post);
-    
+   // let notifyMentions = await this.sendMentions(req.user, req.comment, req.post,req.mentions);
+
     if (notification.success) {
       
       let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
@@ -72,6 +73,7 @@ class NotificationController {
           }
         });
         console.log("noooo body is in here");
+        console.log(message);
       //  console.log(notification.data);
       }
         if(notification.data.type=="postReply")
@@ -81,6 +83,37 @@ class NotificationController {
       return ;
     }
     
+  // sendMentions = async (req, res) => {
+  
+  //   console.log("iiiiiiiiiiiiii");
+  //   let notification = await this.notificationServices.addFollowNotification(req.follower, req.followed);
+  //   //  console.log(notification);
+  //   if (notification.success) {
+      
+  //     let tokens = await this.notificationServices.getFirebaseToken(req.followed._id);
+  //     // console.log(tokens.data.firebaseToken[0]);
+  //     // console.log(notification.data);
+  //     let message;
+  //     if (tokens.success) {
+  //        message = {
+  //         registration_ids:tokens.data.firebaseToken,
+  //          data: { val: JSON.stringify(notification.data) }
+  //         }
+  //       };
+  //       fcm.send(message, (err, response) => {
+  //         if (err) {
+  //           console.log("Something has gone wrong!" + err);
+  //         } else {
+  //           console.log("Successfully sent with response: ");
+  //         }
+  //       });
+
+  //   }
+  //     return ;
+  //   }
+  
+  
+  
    addFollowNotification = async (req, res) => {
     
     if (!req.follower || !req.followed) {

@@ -45,8 +45,14 @@ class subredditService {
         userName,
         profilePicture
       );
-      if (subreddit.success) return { success: true, data: subreddit.doc };
-      else
+      if (subreddit.success) {
+        let sub = this.userRepository.subscribe(
+          subreddit.doc._id,
+          subreddit.doc.owner
+        );
+
+        return { success: true, data: subreddit.doc };
+      } else
         return {
           success: false,
           error: subredditErrors.MONGO_ERR,
@@ -169,15 +175,35 @@ class subredditService {
           );
 
           if (!UserIsMod.success) {
-            //  send him invite then
-           // console.log("toot" + subredditExisted.data._id);
+            //  check before send that he is not invited
+
+            let invited = await this.userRepository.checkInvetation(
+              userExisted.doc._id,
+              subredditExisted.data._id
+            );
+            //console.log(invited);
+            //TODO: add this case in tests
+            if (invited.success)
+              return {
+                success: false,
+                error: userErrors.USER_IS_ALREADY_INVITED,
+              };
+
             let updateModerators = await this.userRepository.updateByName(
               modName,
               subredditExisted.data._id,
               data.permissions
             );
             if (!updateModerators.success) return updateModerators;
-            else return { success: true }; //  finally sent
+            let messageObj = {
+              from: userId,
+              to:updateModerators.doc._id,
+              subreddit:subredditExisted.data._id,
+              type:"subredditModeratorInvite",
+
+            };
+            //console.log(messageObj);
+             return { success: true,messageObj:messageObj }; //  finally sent
           } else return { success: false, error: userErrors.ALREADY_MODERATOR };
         }
       }
@@ -259,14 +285,13 @@ class subredditService {
    * @returns a response.
    */
   // TODO: service tests
-  async deleteMod(subredditName, userId, modName) {
+   async deleteMod(subredditName, userId, modName) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
       userId,
       subredditName,
       true
     );
-
     if (!subredditExisted.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     else {
@@ -302,20 +327,33 @@ class subredditService {
             parseInt(UserIsMod.doc.moderators[0]["joiningDate"])
           ) {
             // delete mod
+            console.log("newbieeeeeeeeeeeeeeeeeeeee");
             let allModerators = await this.subredditRepository.getModerators(
               subredditName
             );
+            console.log("khaled hesham");
             let mods = allModerators.doc.moderators;
+            
             let afterDelete = this.removeId(mods, userExisted.doc._id);
+          //  console.log(afterDelete);
             let updateMods = await this.subredditRepository.updateModerators(
               subredditName,
               afterDelete
             );
+           // console.log(updateMods);
             if (!updateMods.success)
               return { success: false, error: subredditErrors.MONGO_ERR };
+              let messageObj = {
+              from: userId,
+              to:userExisted.doc._id,
+              subreddit:subredditExisted.data._id,
+              type:"subredditModeratorRemove",
 
-            return { success: true };
+            };
+            return { success: true, messageObj:messageObj };
+           // return { success: true ,};
           }
+          console.log("lumiereeeeeeeeeeeeee");
         }
       }
     }
@@ -512,7 +550,7 @@ class subredditService {
             subredditName,
             userExisted.doc._id
           );
-        //  console.log(UserIsMod);
+          //  console.log(UserIsMod);
           if (UserIsMod.success)
             return { success: false, error: userErrors.MODERATOR };
 
@@ -533,8 +571,15 @@ class subredditService {
             );
             if (!baned.success)
               return { success: false, error: subredditErrors.mongoErrors };
+            console.log("ooooooooooooooooooooooooo");
+            let messageObj = {
+              from: userId,
+              to:userExisted.doc._id,
+              subreddit:subredditExisted.data._id,
+              type:"subredditBan",
 
-            return { success: true };
+            };
+            return { success: true, messageObj:messageObj };
           } else {
             //unban
             let check = await this.subredditRepository.checkPunished(
@@ -601,7 +646,7 @@ class subredditService {
             subredditName,
             userExisted.doc._id
           );
-        //  console.log(UserIsMod);
+          //  console.log(UserIsMod);
           if (UserIsMod.success)
             return { success: false, error: userErrors.MODERATOR };
 
@@ -622,8 +667,15 @@ class subredditService {
             );
             if (!muted.success)
               return { success: false, error: subredditErrors.mongoErrors };
+            let messageObj = {
+              from: userId,
+              to:userExisted.doc._id,
+              subreddit:subredditExisted.data._id,
+              type:"subredditMute",
 
-            return { success: true };
+            };
+            return { success: true, messageObj:messageObj };
+            //return { success: true ,mutedId: userExisted.doc._id, subredditId:subredditExisted.data._id};
           } else {
             //unmute
             let check = await this.subredditRepository.checkPunished(
@@ -649,6 +701,8 @@ class subredditService {
             );
             if (!updateList.success)
               return { success: false, error: subredditErrors.MONGO_ERR };
+            // console.log("jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
+            // console.log(userExisted);
 
             return { success: true };
           }
@@ -854,6 +908,7 @@ class subredditService {
 
     for (const rule of rules) {
       if (title === rule.title) {
+        rule.title = !data.title ? rule.title : data.title;
         rule.description = !data.description
           ? rule.description
           : data.description;
@@ -974,7 +1029,6 @@ class subredditService {
       subredditName,
       userId
     );
-    
     if (!canDelete.success)
       return { success: false, error: subredditErrors.NOT_MODERATOR };
 
@@ -997,16 +1051,56 @@ class subredditService {
 
     if (action === "approve") {
       //msh m7tag a check 34an already ana bgeb alnas mn al list of approved
+      // check of he is approved before
+      let checkApproved = await this.subredditRepository.checkApproval(
+        userExisted.doc._id,
+        subredditName
+      );
+      let approvedusers = checkApproved.doc.approved;
+
+      let approved = false;
+      for (const user of approvedusers) {
+        if (user.user.equals(userExisted.doc._id)) {
+          approved = true;
+          break;
+        }
+      }
+
+      if (approved)
+        return { success: false, error: userErrors.ALREADY_APPROVED };
+
       let approve = await this.subredditRepository.approveUser(
         userExisted.doc._id,
         subredditName
       );
       if (!approve.success)
         return { success: false, error: subredditErrors.MONGO_ERR };
+ let messageObj = {
+              from: userId,
+              to:userExisted.doc._id,
+              subreddit:canDelete.doc._id,
+              type:"subredditApprove",
 
-      return { success: true };
+            };
+            return { success: true, messageObj:messageObj };
+     // return { success: true , approvedId: userExisted.doc._id, subredditId : canDelete.doc._id };
     } else {
       // action === disapprove
+
+      let checkApproved = await this.subredditRepository.checkApproval(
+        userExisted.doc._id,
+        subredditName
+      );
+      let approvedusers = checkApproved.doc.approved;
+
+      let exists = false;
+      for (const user of approvedusers) {
+        if (user.user.equals(userExisted.doc._id)) {
+          exists = true;
+          break;
+        }
+      }
+      if (!exists) return { success: false, error: userErrors.NOT_APPROVED };
 
       let approved = await this.subredditRepository.approvedUsers(
         subredditName
@@ -1055,6 +1149,16 @@ class subredditService {
 
     return { success: true, data: approved.doc.approved };
   }
+
+  async reels(topic) {
+    let posts = await this.postRepository.getPostsBySubredditTopic(topic);
+    if (!posts.success) {
+      if (posts.error === mongoErrors.NOT_FOUND) return posts;
+      else return { success: false, error: subredditErrors.MONGO_ERR };
+    }
+
+    return { success: true, data: posts.doc };
+  }
   //! ===============================================================================================
 
   /**
@@ -1069,11 +1173,11 @@ class subredditService {
 
     let subreddit = await this.checkSubreddit(subredditName);
     //console.log("oooooooooooooooooooooooooooooooo");
-   // console.log(subreddit);
+    // console.log(subreddit);
     if (!subreddit.success) {
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
     }
-   // console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
+    // console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmm");
     //check if user is moderator of subreddit to create flair in
     let isModerator = this.checkModerator(subreddit, userId);
 
@@ -1085,14 +1189,13 @@ class subredditService {
 
     //create the flair
     let flair = await this.flairRepository.createOne(data);
- 
+
     if (!flair.success) {
-    //  console.log(flair);
+      //  console.log(flair);
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-   
-   // console.log(flair);
+    // console.log(flair);
     //add flair to list of refrences flairs in the subreddit
     let addedTorefrencedFlairs =
       await this.subredditRepository.addFlairToSubreddit(
@@ -1104,7 +1207,7 @@ class subredditService {
       return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-   // console.log(flair);
+    // console.log(flair);
     return { success: true, data: flair.doc };
   }
 

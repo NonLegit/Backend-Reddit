@@ -63,6 +63,11 @@ const userSchema = new mongoose.Schema({
     default: Date.now(),
     select: false,
   },
+  keepLoggedIn: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
   emailVerified: {
     type: Boolean,
     required: false,

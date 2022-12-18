@@ -115,7 +115,8 @@ class CommentService {
       }
     }
     data.mentions = mentions;
-
+    
+    //console.log(mentions);
     //create the comment
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
@@ -131,8 +132,12 @@ class CommentService {
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    // console.log(validParent.post);
+   // console.log(validParent.post);
     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    
+
+   
+
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
@@ -141,6 +146,7 @@ class CommentService {
     let postToNotify;
     console.log("heeeeeeeeeeeeeeeeeee");
     //console.log(validParent.post);
+
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
         _id: validParent.post._id,
@@ -169,6 +175,7 @@ class CommentService {
       data: comment.doc,
       postToNotify: postToNotify,
       commentToNotify: commentToNotify,
+      mentions:mentions
     };
   }
 
@@ -327,7 +334,7 @@ class CommentService {
           post._id !== undefined &&
           post._id.toString() !== element.savedComment.post._id.toString()
         ) {
-          commentTree.push({ savedComemnt: post, createdAt: createdAt });
+          commentTree.push({ savedComment: post, createdAt: createdAt });
         }
         post = {};
         createdAt = element.createdAt;
@@ -407,7 +414,7 @@ class CommentService {
       }
     });
     if (post._id !== undefined)
-      commentTree.push({ savedComemnt: post, createdAt: createdAt });
+      commentTree.push({ savedComment: post, createdAt: createdAt });
     console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
