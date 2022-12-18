@@ -33,7 +33,7 @@ class CommentService {
         "post"
       );
       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
-     // console.log(validParent.doc);
+      // console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return {
@@ -49,7 +49,7 @@ class CommentService {
         "author owner"
       );
       console.log("oooooooooooooooooooooooooooo");
-     // console.log(validParent);
+      // console.log(validParent);
       if (validParent.success) {
         comment.post = validParent.doc._id;
         return {
@@ -61,7 +61,6 @@ class CommentService {
     }
     return { success: false };
   }
-
 
   //  async hasValidParent(comment) {
   //   if (comment.parentType === "Comment") {
@@ -111,7 +110,8 @@ class CommentService {
         const userName = word.slice(2);
         const validUser = await this.userRepo.findByUserName(userName);
 
-        if (validUser.success) mentions.push({userName, userId: validUser.doc._id});
+        if (validUser.success)
+          mentions.push({ userName, userId: validUser.doc._id });
       }
     }
     data.mentions = mentions;
@@ -131,8 +131,8 @@ class CommentService {
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-   // console.log(validParent.post);
-     console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+    // console.log(validParent.post);
+    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
@@ -147,7 +147,7 @@ class CommentService {
         subreddit: {
           _id: validParent.post.owner._id,
           fixedName: validParent.post.owner.fixedName,
-          name:validParent.post.owner.name
+          name: validParent.post.owner.name,
         },
         author: {
           _id: validParent.post.author._id,
@@ -155,7 +155,7 @@ class CommentService {
       };
     } else if (validParent.post.ownerType == "User") {
       console.log("in type post");
-     // console.log(validParent);
+      // console.log(validParent);
       postToNotify = {
         _id: validParent.post._id,
         author: {
@@ -232,12 +232,15 @@ class CommentService {
       const tree = await this.postRepo.commentTree(postId, limit, depth, sort);
       return { success: true, tree: tree.replies };
     } else {
+      if (!ObjectId.isValid(commentId))
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+
       const comment = await this.commentRepo.commentTree(
         [commentId],
         limit,
         depth - 1
       );
-      if (!comment)
+      if (!comment[0])
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
       if (!comment[0].post.equals(postId))
@@ -427,7 +430,7 @@ class CommentService {
           commentTree.push(post);
         }
         post = element.post;
-       // console.log(element.post);
+        // console.log(element.post);
 
         //console.log(element.post);
         // post["_id"] = element.post._id;
