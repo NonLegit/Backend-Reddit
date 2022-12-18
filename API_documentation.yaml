@@ -595,8 +595,8 @@ paths:
     post:
       tags:
         - "Users"
-      description: Change Password 
-      summary: Change Password 
+      description: Change Password
+      summary: Change Password
       parameters:
         - in: path
           name: token
@@ -633,8 +633,8 @@ paths:
     post:
       tags:
         - "Users"
-      description: Change Password 
-      summary: Change Password 
+      description: Change Password
+      summary: Change Password
       security:
         - BearerAuth: []
         - cookieAuth: []
@@ -1690,7 +1690,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: "#/components/schemas/commentsandposts"
+                $ref: "#/components/schemas/commentsandposts"
         "400":
           description: Invalid userName supplied
         "404":
@@ -2182,10 +2182,10 @@ paths:
                 oneOf:
                   - type: array
                     items:
-                      $ref: "#/components/schemas/Post"
+                      $ref: "#/components/schemas/PostSearch"
                   - type: array
                     items:
-                      $ref: "#/components/schemas/comment"
+                      $ref: "#/components/schemas/CommentSearch"
                   - type: array
                     items:
                       type: object
@@ -2211,10 +2211,32 @@ paths:
                           example: 1
                         description:
                           type: string
-                          example: " info"                
+                          example: " info"
+                        isFollowed:
+                          type: boolean
                   - type: array
                     items:
-                      $ref: "#/components/schemas/Subreddit"
+                      type: object
+                      properties:
+                        icon:
+                          type: string
+                        _id:
+                          type: string
+                          format: int64
+                          example: 10
+                        fixedName:
+                          type: string
+                          example: uniquesubreddit
+                        membersCount:
+                          type: integer
+                          example: 10000
+                        description:
+                          type: string
+                          example: "welcome to subreddit"
+                        name:
+                          type: string
+                        nsfw:
+                          type: boolean
 
   /search/trending:
     get:
@@ -3571,7 +3593,7 @@ paths:
   #           application/json:
   #             schema:
   #               $ref: "#/components/schemas/error"
-  
+
   /posts/{postId}/moderate/{action}:
     patch:
       tags:
@@ -3632,7 +3654,8 @@ paths:
       tags:
         - Posts
       summary: Perform an action on a post
-      description: These actions can only be performed by the post author or a moderator in the subreddit
+      description:
+        These actions can only be performed by the post author or a moderator in the subreddit
         that owns the post.
       security:
         - BearerAuth: []
@@ -3688,7 +3711,8 @@ paths:
       tags:
         - Posts
       summary: Report a post as spammed
-      description: A moderator can spam a post directly, but a non-mod user can only report it as spammed. 
+      description:
+        A moderator can spam a post directly, but a non-mod user can only report it as spammed.
         A post exceeding a certain threshold of spam reports is marked as spammed
       security:
         - BearerAuth: []
@@ -3712,7 +3736,7 @@ paths:
                   type: integer
                   enum:
                     - 1
-                    - -1       
+                    - -1
       responses:
         204:
           description: successful operation
@@ -3740,7 +3764,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-
 
   /posts/{postId}/vote:
     description: Post Resource
@@ -4559,8 +4582,8 @@ paths:
                     type: array
                     items:
                       anyOf:
-                      - $ref: '#/components/schemas/comment'
-                      - $ref: '#/components/schemas/moreReplies'
+                        - $ref: "#/components/schemas/comment"
+                        - $ref: "#/components/schemas/moreReplies"
         404:
           description: failed operation
           content:
@@ -4592,7 +4615,8 @@ paths:
       tags:
         - Comments
       summary: Retrieve additional comments omitted from a base comment tree.
-      description: When a comment tree is rendered, the most relevant comments are selected for display first. 
+      description:
+        When a comment tree is rendered, the most relevant comments are selected for display first.
         Additional comments are fetched with this API call. Only the comment IDs in children are fetched(with their subtrees)
       security:
         - BearerAuth: []
@@ -4615,7 +4639,7 @@ paths:
           in: query
           description: The maximum number of replies in each level
           schema:
-            type: integer     
+            type: integer
         - name: sort
           in: query
           schema:
@@ -4639,8 +4663,8 @@ paths:
                     type: array
                     items:
                       anyOf:
-                      - $ref: '#/components/schemas/comment'
-                      - $ref: '#/components/schemas/moreReplies'
+                        - $ref: "#/components/schemas/comment"
+                        - $ref: "#/components/schemas/moreReplies"
         404:
           description: failed operation
           content:
@@ -5099,8 +5123,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
-                
+
   /subreddits/{subredditName}/rules/{title}:
     post:
       tags:
@@ -5108,9 +5131,9 @@ paths:
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: add rule to subreddit 
+      summary: add rule to subreddit
       description: add rule to subreddit by passing its title
-       
+
       parameters:
         - name: subredditName
           in: path
@@ -5137,7 +5160,7 @@ paths:
                   type: string
                 appliesTo:
                   type: string
-                  enum: ["Posts & comments","Posts only","Comments only"]
+                  enum: ["Posts & comments", "Posts only", "Comments only"]
       responses:
         "204":
           description: successful operation
@@ -5170,9 +5193,9 @@ paths:
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: delete rule from subreddit 
+      summary: delete rule from subreddit
       description: delete rule from subreddit  by passing its title
-       
+
       parameters:
         - name: subredditName
           in: path
@@ -5218,9 +5241,9 @@ paths:
       security:
         - BearerAuth: []
         - cookieAuth: []
-      summary: update rule of subreddit  
+      summary: update rule of subreddit
       description: update rule of subreddit by passing its title
-       
+
       parameters:
         - name: subredditName
           in: path
@@ -5247,7 +5270,7 @@ paths:
                   type: string
                 appliesTo:
                   type: string
-                  enum: ["Posts & comments","Posts only","Comments only"]
+                  enum: ["Posts & comments", "Posts only", "Comments only"]
       responses:
         "204":
           description: successful operation
@@ -5595,7 +5618,7 @@ paths:
                     example: id not found
         401:
           $ref: "#/components/responses/UnauthorizedError"
-          
+
   /subreddits/{topic}/posts/like_reels:
     get:
       tags:
@@ -5605,7 +5628,7 @@ paths:
         - cookieAuth: []
       summary: Return a listing of posts relevant to topic.
       description: This endpoint behavior depends on the topic paremeter
-       
+
       parameters:
         - in: path
           name: topic
@@ -6159,7 +6182,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
+
   /subreddits/{subredditName}/approved_users:
     get:
       tags:
@@ -6309,7 +6332,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
+
   /subreddits/{subredditName}/{userName}/{action}/approve_user:
     post:
       tags:
@@ -6329,19 +6352,19 @@ paths:
             type: string
         - in: path
           name: userName
-          description : the user i want to approve/disapprove
+          description: the user i want to approve/disapprove
           required: true
           schema:
             type: string
 
         - in: path
           name: action
-          description :  approve/disapprove
+          description: approve/disapprove
           required: true
           schema:
             type: string
-            enum: ["approve","disapprove"]
-  
+            enum: ["approve", "disapprove"]
+
       responses:
         "204":
           description: successful operation
@@ -6358,8 +6381,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-                
-
 
   /subreddits/leaderboard/{category}:
     get:
@@ -8061,17 +8082,109 @@ components:
           description: indicates whether the post accepts replies in private messages or not
         locked:
           type: boolean
-          description: whether the post can receive comments or not               
+          description: whether the post can receive comments or not
         modState:
           type: string
           enum:
-          - approved
-          - removed
-          - spammed        
+            - approved
+            - removed
+            - spammed
         flairId:
           type: string
         flairText:
           type: string
+
+    PostSearch:
+      type: object
+      properties:
+        _id:
+          type: string
+        author:
+          type: object
+          properties:
+            _id:
+              type: string
+              format: int64
+              example: 10
+            userName:
+              type: string
+              example: uniqueuser
+            profilePicture:
+              type: string
+              example: src url
+            displayName:
+              type: string
+              example: "firstname secondname"
+        owner:
+          $ref: "#/components/schemas/Subreddit"
+        title:
+          type: string
+        kind:
+          type: string
+          enum:
+            - link
+            - self
+            - image
+            - video
+        text:
+          type: string
+          description: the text of the post in case the kind is self
+        url:
+          type: string
+          description: A valid URL in case the kind is link
+        images:
+          type: array
+          items:
+            type: string
+        video:
+          type: string
+        votes:
+          type: integer
+          description: total number of votes
+        commentCount:
+          type: integer
+          description: total number of comments
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        flairId:
+          $ref: "#/components/schemas/flair"
+
+    CommentSearch:
+      type: object
+      properties:
+        _id:
+          type: string
+        author:
+          type: object
+          properties:
+            _id:
+              type: string
+              format: int64
+              example: 10
+            userName:
+              type: string
+              example: uniqueuser
+            profilePicture:
+              type: string
+              example: src url
+            displayName:
+              type: string
+              example: "firstname secondname"
+        post:
+          $ref: "#/components/schemas/PostSearch"
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+          example: 2017-07-21T17:32:28Z
+        votes:
+          type: integer
+          description: total number of votes
+        repliesCount:
+          type: integer
 
     HomePost:
       type: object
@@ -8184,10 +8297,10 @@ components:
         modState:
           type: string
           enum:
-          - "unmoderated"
-          - "approved"
-          - "removed"
-          - "spammed"
+            - "unmoderated"
+            - "approved"
+            - "removed"
+            - "spammed"
         isSaved:
           type: boolean
         postVoteStatus:
@@ -8284,10 +8397,10 @@ components:
         modState:
           type: string
           enum:
-          - "unmoderated"
-          - "approved"
-          - "removed"
-          - "spammed"
+            - "unmoderated"
+            - "approved"
+            - "removed"
+            - "spammed"
         sharedFrom:
           type: string
           description: post id if shared ,undefined if not shared
@@ -8392,8 +8505,8 @@ components:
           type: array
           items:
             anyOf:
-            - $ref: '#/components/schemas/comment'
-            - $ref: '#/components/schemas/moreReplies'
+              - $ref: "#/components/schemas/comment"
+              - $ref: "#/components/schemas/moreReplies"
         parent:
           type: string
         parentType:
@@ -8418,20 +8531,20 @@ components:
           type: boolean
         locked:
           type: boolean
-          description: whether the post can receive comments or not               
+          description: whether the post can receive comments or not
         modState:
           type: string
           enum:
-          - approved
-          - removed
-          - spammed            
+            - approved
+            - removed
+            - spammed
         sortOnHot:
           type: integer
           description: calculated value to sort on it
 
     moreReplies:
       type: object
-      description: Contains the IDs of comments to be used in more_children endpoint. 
+      description: Contains the IDs of comments to be used in more_children endpoint.
       properties:
         Type:
           type: string
@@ -8484,7 +8597,7 @@ components:
                     type: string
                   name:
                     type: string
-      
+
                 description: The  user who created the post
               ownerType:
                 type: string
@@ -8555,10 +8668,10 @@ components:
               modState:
                 type: string
                 enum:
-                - "unmoderated"
-                - "approved"
-                - "removed"
-                - "spammed"
+                  - "unmoderated"
+                  - "approved"
+                  - "removed"
+                  - "spammed"
               sharedFrom:
                 type: string
                 description: post id if shared ,undefined if not shared
@@ -8574,8 +8687,8 @@ components:
                 type: string
               sortOnHot:
                 type: integer
-                description: calculated value to sort on it    
-                  
+                description: calculated value to sort on it
+
               comments:
                 type: array
                 items:
@@ -8648,9 +8761,9 @@ components:
               savedPost:
                 # type: array
                 # items:
-                  # type: object
-                  # properties:    
-                    $ref: "#/components/schemas/userPost"
+                # type: object
+                # properties:
+                $ref: "#/components/schemas/userPost"
         savedComments:
           type: array
           items:
@@ -8672,7 +8785,7 @@ components:
                         type: string
                       name:
                         type: string
-          
+
                     description: The  user who created the post
                   ownerType:
                     type: string
@@ -8743,10 +8856,10 @@ components:
                   modState:
                     type: string
                     enum:
-                    - "unmoderated"
-                    - "approved"
-                    - "removed"
-                    - "spammed"
+                      - "unmoderated"
+                      - "approved"
+                      - "removed"
+                      - "spammed"
                   sharedFrom:
                     type: string
                     description: post id if shared ,undefined if not shared
@@ -8762,8 +8875,8 @@ components:
                     type: string
                   sortOnHot:
                     type: integer
-                    description: calculated value to sort on it    
-                  
+                    description: calculated value to sort on it
+
                   comments:
                     type: array
                     items:
@@ -8818,7 +8931,6 @@ components:
                           type: integer
                           description: calculated value to sort on it
 
-
     overview:
       type: object
       properties:
@@ -8839,7 +8951,7 @@ components:
                     type: string
                   name:
                     type: string
-      
+
                 description: The  user who created the post
               ownerType:
                 type: string
@@ -8910,10 +9022,10 @@ components:
               modState:
                 type: string
                 enum:
-                - "unmoderated"
-                - "approved"
-                - "removed"
-                - "spammed"
+                  - "unmoderated"
+                  - "approved"
+                  - "removed"
+                  - "spammed"
               sharedFrom:
                 type: string
                 description: post id if shared ,undefined if not shared
@@ -8929,8 +9041,8 @@ components:
                 type: string
               sortOnHot:
                 type: integer
-                description: calculated value to sort on it    
-                  
+                description: calculated value to sort on it
+
               comments:
                 type: array
                 items:
@@ -9203,8 +9315,7 @@ components:
           format: date-time
         baninfo:
           $ref: "#/components/schemas/banInfo"
-          
-          
+
     approvedInfo:
       type: object
       properties:
@@ -9217,8 +9328,7 @@ components:
         joinDate:
           type: string
           format: date-time
-          
-          
+
     approvedUser:
       type: object
       properties:
@@ -9227,7 +9337,6 @@ components:
         approvedDate:
           type: string
           format: date-time
-
 
     Notification:
       type: object
