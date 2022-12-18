@@ -2133,23 +2133,22 @@ paths:
           name: sort
           schema:
             type: string
-            default: relevance
+            default: new
             enum:
               - hot
               - top
               - new
-              - relevance
               - comments
         - in: query
           name: type
           schema:
             type: string
-            default: post
+            default: posts
             enum:
-              - sr
-              - post
-              - user
-              - comment
+              - communities
+              - posts
+              - people
+              - comments
         - in: query
           name: time
           schema:
@@ -2165,13 +2164,13 @@ paths:
         - in: query
           name: page
           description: The page number
-          required: true
+          default: 1
           schema:
             type: integer
         - in: query
           name: limit
           description: The limit of each page
-          required: true
+          default: 10
           schema:
             type: integer
       responses:
@@ -2193,28 +2192,29 @@ paths:
                       properties:
                         _id:
                           type: string
-                        username:
+                          format: int64
+                          example: 10
+                        userName:
                           type: string
-                          example: user
-                        karma:
+                          example: uniqueuser
+                        profilePicture:
+                          type: string
+                          example: src url
+                        displayName:
+                          type: string
+                          example: "firstname secondname"
+                        postKarma:
                           type: integer
-                          example: 100
-                        bio:
+                          example: 1
+                        commentKarma:
+                          type: integer
+                          example: 1
+                        description:
                           type: string
+                          example: " info"                
                   - type: array
                     items:
-                      type: object
-                      properties:
-                        _id:
-                          type: string
-                        subreddit:
-                          type: string
-                          example: subreddit
-                        members:
-                          type: integer
-                          example: 100
-                        about:
-                          type: string
+                      $ref: "#/components/schemas/Subreddit"
 
   /search/trending:
     get:
