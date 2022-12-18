@@ -331,7 +331,7 @@ class CommentService {
           post._id !== undefined &&
           post._id.toString() !== element.savedComment.post._id.toString()
         ) {
-          commentTree.push({ savedComemnt: post, createdAt: createdAt });
+          commentTree.push({ savedComment: post, createdAt: createdAt });
         }
         post = {};
         createdAt = element.createdAt;
@@ -411,7 +411,7 @@ class CommentService {
       }
     });
     if (post._id !== undefined)
-      commentTree.push({ savedComemnt: post, createdAt: createdAt });
+      commentTree.push({ savedComment: post, createdAt: createdAt });
     console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
