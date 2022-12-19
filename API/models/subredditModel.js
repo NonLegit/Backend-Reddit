@@ -158,6 +158,16 @@ const subredditSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   }, //subreddit owner (first mod) by time of being mod
+  users: [
+    {
+      _id: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      subDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
 
   moderators: [
     {
@@ -168,7 +178,7 @@ const subredditSchema = new mongoose.Schema({
         required: false,
       },
       userName: { type: String },
-      joiningDate: { type: Date, required: true, default: Date.now() },
+      joiningDate: { type: Date, default: Date.now() },
       profilePicture: {
         type: String,
         required: false,

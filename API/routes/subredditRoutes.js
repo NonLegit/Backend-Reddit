@@ -64,9 +64,7 @@ router.post(
 router.delete(
   "/:subredditName/moderator/:moderatorName",
   subredditController.deletemoderator,
-   MessageController.modMessage
-  
-
+  MessageController.modMessage
 );
 router.patch(
   "/:subredditName/moderators/:moderatorName",
@@ -95,7 +93,6 @@ router.post(
   "/:subredditName/mute_settings/:action/:userName",
   subredditController.muteSettings,
   MessageController.modMessage
-
 );
 
 router.post("/:subredditName/rules/:title", subredditController.addRule);
@@ -114,14 +111,13 @@ router.post(
   "/:subredditName/:userName/:action/approve_user",
   subredditController.approveUser,
   MessageController.modMessage
-
-
 );
 router.get("/:subredditName/approved_users", subredditController.approvedUsers);
 
 // TODO: to be continued
-// router.get("/:topics/posts/like_reels", subredditController.reels);
+router.get("/:topics/posts/like_reels", subredditController.reels);
 
+router.get("/traffic/:subredditName",subredditController.traffic);
 
 router
   .route("/:subredditName/flair")

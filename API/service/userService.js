@@ -18,12 +18,14 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor({ /*Repository*/ UserRepository, Email, SocialRepository }) {
+  constructor({ /*Repository*/ UserRepository, Email, SocialRepository,SubredditRepository }) {
     //this.User = User; // can be mocked in unit testing
     //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
     this.emailServices = Email;
     this.SocialRepository = SocialRepository;
+    this.subredditRepository = SubredditRepository; 
+
     // this.createUser = this.createUser.bind(this);
     // this.createToken = this.createToken.bind(this);
     // this.signUp = this.signUp.bind(this);
@@ -476,15 +478,13 @@ class UserService {
     );
     //In order to subscribe, user should not be already subscribed
     if (action === "sub" && !alreadySubscribed) {
-      await this.userRepository.push(userId, {
-        subscribed: subredditId,
-      });
+      await this.userRepository.subscribe(subredditId, userId);
+      await this.subredditRepository.subscribe(subredditId, userId);
       return true;
       //In order to unsubscribe, user should be already subscribed
     } else if (action === "unsub" && alreadySubscribed) {
-      await this.userRepository.pull(userId, {
-        subscribed: subredditId,
-      });
+      await this.userRepository.unSubscribe(subredditId, userId);
+      await this.subredditRepository.unSubscribe(subredditId, userId);
       return true;
     }
 
@@ -575,7 +575,7 @@ class UserService {
         isFollowed: false,
         country: user.country,
         socialLinks: [],
-        isBlocked:isBlocked,
+        isBlocked: isBlocked,
       };
     } else {
       searchUser = {
@@ -598,7 +598,7 @@ class UserService {
         isFollowed: isFollowed,
         country: user.country,
         socialLinks: user.socialLinks,
-        isBlocked:isBlocked,
+        isBlocked: isBlocked,
       };
     }
     return searchUser;
@@ -751,8 +751,8 @@ class UserService {
     let index2 = otherUser.userMeRelationship.findIndex(
       (item) => item.userId.toString() == me._id.toString()
     );
-   // console.log(index);
-   // console.log(index2);
+    // console.log(index);
+    // console.log(index2);
     if (index != -1) {
       me.meUserRelationship[index].status = "blocked";
       otherUser.userMeRelationship[index2].status = "blocked";
@@ -821,7 +821,7 @@ class UserService {
   async followUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
-    
+
     //console.log(otherUser);
     let isAlreadyFollowed = true;
     let index = me.meUserRelationship.findIndex(

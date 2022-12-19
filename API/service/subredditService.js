@@ -1,3 +1,4 @@
+const { query } = require("express");
 const {
   subredditErrors,
   mongoErrors,
@@ -197,13 +198,12 @@ class subredditService {
             if (!updateModerators.success) return updateModerators;
             let messageObj = {
               from: userId,
-              to:updateModerators.doc._id,
-              subreddit:subredditExisted.data._id,
-              type:"subredditModeratorInvite",
-
+              to: updateModerators.doc._id,
+              subreddit: subredditExisted.data._id,
+              type: "subredditModeratorInvite",
             };
             //console.log(messageObj);
-             return { success: true,messageObj:messageObj }; //  finally sent
+            return { success: true, messageObj: messageObj }; //  finally sent
           } else return { success: false, error: userErrors.ALREADY_MODERATOR };
         }
       }
@@ -285,7 +285,7 @@ class subredditService {
    * @returns a response.
    */
   // TODO: service tests
-   async deleteMod(subredditName, userId, modName) {
+  async deleteMod(subredditName, userId, modName) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -333,25 +333,24 @@ class subredditService {
             );
             console.log("khaled hesham");
             let mods = allModerators.doc.moderators;
-            
+
             let afterDelete = this.removeId(mods, userExisted.doc._id);
-          //  console.log(afterDelete);
+            //  console.log(afterDelete);
             let updateMods = await this.subredditRepository.updateModerators(
               subredditName,
               afterDelete
             );
-           // console.log(updateMods);
+            // console.log(updateMods);
             if (!updateMods.success)
               return { success: false, error: subredditErrors.MONGO_ERR };
-              let messageObj = {
+            let messageObj = {
               from: userId,
-              to:userExisted.doc._id,
-              subreddit:subredditExisted.data._id,
-              type:"subredditModeratorRemove",
-
+              to: userExisted.doc._id,
+              subreddit: subredditExisted.data._id,
+              type: "subredditModeratorRemove",
             };
-            return { success: true, messageObj:messageObj };
-           // return { success: true ,};
+            return { success: true, messageObj: messageObj };
+            // return { success: true ,};
           }
           console.log("lumiereeeeeeeeeeeeee");
         }
@@ -574,12 +573,11 @@ class subredditService {
             console.log("ooooooooooooooooooooooooo");
             let messageObj = {
               from: userId,
-              to:userExisted.doc._id,
-              subreddit:subredditExisted.data._id,
-              type:"subredditBan",
-
+              to: userExisted.doc._id,
+              subreddit: subredditExisted.data._id,
+              type: "subredditBan",
             };
-            return { success: true, messageObj:messageObj };
+            return { success: true, messageObj: messageObj };
           } else {
             //unban
             let check = await this.subredditRepository.checkPunished(
@@ -669,12 +667,11 @@ class subredditService {
               return { success: false, error: subredditErrors.mongoErrors };
             let messageObj = {
               from: userId,
-              to:userExisted.doc._id,
-              subreddit:subredditExisted.data._id,
-              type:"subredditMute",
-
+              to: userExisted.doc._id,
+              subreddit: subredditExisted.data._id,
+              type: "subredditMute",
             };
-            return { success: true, messageObj:messageObj };
+            return { success: true, messageObj: messageObj };
             //return { success: true ,mutedId: userExisted.doc._id, subredditId:subredditExisted.data._id};
           } else {
             //unmute
@@ -1075,15 +1072,14 @@ class subredditService {
       );
       if (!approve.success)
         return { success: false, error: subredditErrors.MONGO_ERR };
- let messageObj = {
-              from: userId,
-              to:userExisted.doc._id,
-              subreddit:canDelete.doc._id,
-              type:"subredditApprove",
-
-            };
-            return { success: true, messageObj:messageObj };
-     // return { success: true , approvedId: userExisted.doc._id, subredditId : canDelete.doc._id };
+      let messageObj = {
+        from: userId,
+        to: userExisted.doc._id,
+        subreddit: canDelete.doc._id,
+        type: "subredditApprove",
+      };
+      return { success: true, messageObj: messageObj };
+      // return { success: true , approvedId: userExisted.doc._id, subredditId : canDelete.doc._id };
     } else {
       // action === disapprove
 
@@ -1150,14 +1146,52 @@ class subredditService {
     return { success: true, data: approved.doc.approved };
   }
 
-  async reels(topic) {
-    let posts = await this.postRepository.getPostsBySubredditTopic(topic);
+  async reels(topic, query) {
+    let posts = await this.postRepository.getPostsBySubredditTopic(
+      topic,
+      query
+    );
+
+    let filtered = posts.doc;
+
+    function filter(list, value) {
+      return list.filter(function (ele) {
+        return value === ele.owner.primaryTopic;
+      });
+    }
+    let afterfilter = filter(filtered, topic);
+
     if (!posts.success) {
       if (posts.error === mongoErrors.NOT_FOUND) return posts;
       else return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-    return { success: true, data: posts.doc };
+    return { success: true, data: afterfilter };
+  }
+
+  async traffic(subredditName, userId) {
+    let subredditExisted = await this.subredditRepository.getsubreddit(
+      subredditName,
+      "",
+      ""
+    );
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let iamMod = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    if (!iamMod.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+    // get stats
+    let stats = await this.userRepository.traffic(subredditName);
+    if (!stats.success)
+      return { success: false, error: subredditErrors.MONGO_ERR };
+
+    console.log(stats);
+
+    return { success: true, data: stats.doc }; //
   }
   //! ===============================================================================================
 

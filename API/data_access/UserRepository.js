@@ -159,7 +159,7 @@ class UserRepository extends Repository {
       }
     );
     if (!user) {
-     // console.log(user);
+      // console.log(user);
       return { success: false, error: mongoErrors.INVALID_ID };
     }
     return { success: true, doc: user };
@@ -310,11 +310,27 @@ class UserRepository extends Repository {
     return user.meUserRelationship;
   }
 
-  // [khaled]: I use this in a certain case in the creation of a subreddit
-  async subscribe(subredditId,userId){
-    await this.model.findOneAndUpdate({_id:userId}, {
-      subscribed: subredditId,
-    });
+  async subscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      userId,
+      { $push: { subscribed: { _id: subredditId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
+  async unSubscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      userId,
+      { $pull: { subscribed: { _id: subredditId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
     return true;
   }
 }

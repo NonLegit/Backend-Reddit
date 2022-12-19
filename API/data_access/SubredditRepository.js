@@ -578,6 +578,30 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async subscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      subredditId,
+      { $push: { users: { _id: userId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
+  async unSubscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      subredditId,
+      { $pull: { users: { _id: userId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
   async checkRule(title, subredditName) {
     try {
       let tempDoc = this.model.findOne({
