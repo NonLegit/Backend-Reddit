@@ -160,13 +160,33 @@ commentSchema.post("find", function (result) {
     return result;
   }
 });
-
-commentSchema.pre(/^find/, function () {
-  const { userComments } = this.options;
+commentSchema.pre("findOne", function () {
+  const { userComments, getAuthor } = this.options;
+  console.log(this.options);
   if (userComments) {
     this.populate("post");
   }
-  this.populate("author", "_id userName profilePicture profileBackground");
+  console.log(getAuthor);
+  if (getAuthor) {
+    console.log("success middleware");
+    this.populate("author");
+  } else {
+    // this.populate("author", "_id userName profilePicture profileBackground");
+    this.populate("author");
+  }
+});
+commentSchema.pre("find", function () {
+  const { userComments, getAuthor } = this.options;
+  console.log[this.options];
+  if (userComments) {
+    this.populate("post");
+  }
+  if (getAuthor) {
+    console.log("success middleware");
+    this.populate("author");
+  } else {
+    this.populate("author", "_id userName profilePicture profileBackground");
+  }
 });
 
 commentSchema.pre("save", function (next) {

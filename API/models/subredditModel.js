@@ -132,7 +132,7 @@ const subredditSchema = new mongoose.Schema({
   backgroundImage: {
     type: String,
     required: false,
-    default: "subreddits/default.png",
+    default: "subreddits/defaultcover.png",
     trim: true, // *TODO: it will be unique with time stamp and username
   },
   membersCount: {
