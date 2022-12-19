@@ -233,6 +233,18 @@ const subredditSchema = new mongoose.Schema({
   ],
 });
 
+//Indexed fields for search
+// subredditSchema.index({
+//   name: "text",
+//   fixedName: "text",
+//   description: "text",
+//   'rules.title': "text",
+//   'rules.description': "text",
+//   primaryTopic: "text",
+//   topics: "text",
+// });
+subredditSchema.index({ "$**": "text" });
+
 function topicsLimit(val) {
   return val.length <= 25;
 }
