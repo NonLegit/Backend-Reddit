@@ -368,6 +368,12 @@ describe("Post Controller Test", () => {
         setPostOwnerData: (posts) => {
           return posts;
         },
+        setSavedPostStatus: (me, posts) => {
+          return posts;
+        },
+        setHiddenPostStatus: (me, posts) => {
+          return posts;
+        },
       };
 
       const authObj = new auth({ PostService, UserService });
@@ -476,6 +482,7 @@ describe("Post Controller Test", () => {
         setPostOwnerData: (posts) => {
           return posts;
         },
+        
       };
 
       const authObj = new auth({ PostService, UserService });
