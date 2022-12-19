@@ -94,6 +94,10 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
+    //To avoid invalid data in case of image/video posts
+    delete data.images;
+    delete data.video;
+
     if (data.ownerType === "User") {
       data.owner = data.author;
       if (data.flairId) delete data.flairId;
@@ -116,8 +120,16 @@ class PostService {
       const parentPost = await this.postRepo.findById(data.sharedFrom);
       if (!parentPost.success)
         return { success: false, error: postErrors.INVALID_PARENT_POST };
+
+      //parent is inherited
+      if (parentPost.doc.sharedFrom)
+        data.sharedFrom = parentPost.doc.sharedFrom;
+
+      //This data is meaningless in share case
+      // delete data.text;
+      // delete data.url;
+
       data.kind = parentPost.doc.kind;
-      ``;
     }
 
     const post = await this.postRepo.createOne(data);
@@ -693,8 +705,7 @@ class PostService {
           // decrease karma here
           author.postKarma = author.postKarma - 1;
           await author.save();
-        }
-        else if (voteDir === 1) {
+        } else if (voteDir === 1) {
           author.postKarma = author.postKarma + 1;
           await author.save();
         }
