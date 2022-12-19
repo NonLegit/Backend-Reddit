@@ -679,6 +679,20 @@ class SubredditRepository extends Repository {
     // console.log(doc);
     return { success: true, doc: doc };
   }
+
+  async search(q, page, limit) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q} })
+      .select("_id fixedName name icon membersCount description nsfw")
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } });
+
+    const result = await query;
+    return result;
+  }
 }
 
 module.exports = SubredditRepository;
