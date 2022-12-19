@@ -543,6 +543,49 @@ class CommentService {
     await user.save();
     return true;
   }
+  async addVote(user, commentId, voteDir, votesCount, author) {
+    let voteNumber = voteDir;
+    const index = user.voteComment.findIndex((element) => {
+      return element.comments.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      // make it in query
+      user.voteComment.push({
+        comments: commentId,
+        commentVoteStatus: voteDir,
+      });
+      // check if vote status is 1 so that increase karma
+      if (voteDir === 1) {
+        author.commentKarma = author.commentKarma + 1;
+        await author.save();
+      }
+    } else {
+      if (user.voteComment[index].commentVoteStatus === voteDir) {
+        return false;
+      } else {
+        if (user.voteComment[index].commentVoteStatus === -1) {
+          voteNumber += 1;
+        } else if (user.voteComment[index].commentVoteStatus === 1) {
+          voteNumber -= 1;
+          // decrease karma here
+          author.commentKarma = author.commentKarma - 1;
+          await author.save();
+        } else if (voteDir === 1) {
+          author.commentKarma = author.commentKarma + 1;
+          await author.save();
+        }
+        user.voteComment[index].commentVoteStatus = voteDir;
+      }
+    }
+    // update post votes count
+    let comment = await this.commentRepo.updateVotesCount(
+      commentId,
+      voteNumber + votesCount
+    );
+    //user.replaceProfileDomain();
+    await user.save();
+    return true;
+  }
 }
 
 module.exports = CommentService;
