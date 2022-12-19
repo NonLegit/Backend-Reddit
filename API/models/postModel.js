@@ -174,7 +174,7 @@ postSchema.pre("find", function () {
     if (getAuthor === true) {
       this.populate("author");
     } else {
-      console.log("shit");
+      this.populate("sharedFrom");
       this.populate("author", "_id userName profilePicture profileBackground");
     }
 

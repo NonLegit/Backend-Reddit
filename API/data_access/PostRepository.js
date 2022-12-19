@@ -61,7 +61,12 @@ class PostRepository extends Repository {
       .limitFields()
       .paginate();
     // const doc = await features.query.explain();
-    let doc = await features.query.populate(popOptions);
+    let options = {
+      path: "sharedFrom",
+      options: { getAuthor: true },
+    };
+
+    let doc = await features.query.populate(options);
     return { success: true, doc: doc };
   }
   async getPosts(filter, query, sortType) {

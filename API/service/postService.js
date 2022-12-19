@@ -218,13 +218,14 @@ class PostService {
    * @param {string} sortType - sorting posts according to new , top, Hot
    * @returns {Array<object>} - list of posts
    */
-  async getUserPosts(author, sortType) {
+  async getUserPosts(author, sortType, limit, page) {
     if (sortType === "Hot") {
       // algorithm
       //console.log("Hot");
+
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-sortOnHot" },
+        { sort: "-sortOnHot", limit: limit, page: page },
         "owner"
       );
       return posts.doc;
@@ -233,13 +234,14 @@ class PostService {
       //console.log("Top");
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-votes" },
+        { sort: "-votes", limit: limit, page: page  },
         "owner"
       );
       return posts.doc;
     } else {
       // sort by createdAt
-      const posts = await this.postRepo.getUserPosts(author, "", "owner");
+      console.log(limit,page);
+      const posts = await this.postRepo.getUserPosts(author,  { sort: "-createdAt", limit: limit, page: page }, "owner");
       return posts.doc;
     }
   }
@@ -254,11 +256,28 @@ class PostService {
     let newPosts = posts;
     let owner = {};
     for (var i = 0; i < posts.length; i++) {
+      owner = {};
       try {
         newPosts[i] = newPosts[i].toObject();
         //console.log(newPosts[i]);
       } catch (err) {}
+      if (posts[i].sharedFrom) {
+        let sharedOwner = {};
+        if (newPosts[i].sharedFrom.ownerType === "User") {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.userName;
+          sharedOwner["icon"] =
+            `${process.env.BACKDOMAIN}/` +
+            newPosts[i].sharedFrom.owner.profilePicture;
+        } else {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.fixedName;
+          sharedOwner["icon"] = newPosts[i].sharedFrom.owner.icon;
+        }
+        newPosts[i].sharedFrom.owner = sharedOwner;
+      }
       if (posts[i].ownerType === "User") {
+        console.log(i);
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
         owner["icon"] =
@@ -281,7 +300,18 @@ class PostService {
         `${process.env.BACKDOMAIN}/` + posts[i].author.profilePicture;
 
       newPosts[i]["author"] = author;
+      if (posts[i].sharedFrom) {
+        let sharedAuthor = {};
+        sharedAuthor["_id"] = newPosts[i].sharedFrom.author._id;
+        sharedAuthor["name"] = newPosts[i].sharedFrom.author.userName;
+        sharedAuthor["icon"] =
+          `${process.env.BACKDOMAIN}/` +
+          newPosts[i].sharedFrom.author.profilePicture;
+
+        newPosts[i].sharedFrom["author"] = sharedAuthor;
+      }
     }
+    //console.log(newPosts)
     return newPosts;
   }
   /**
@@ -376,8 +406,10 @@ class PostService {
   setHiddenPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
+    console.log("hidden ", user.hidden);
     for (var i = 0; i < user.hidden.length; i++) {
       hash[user.hidden[i]] = user.hidden[i];
+      if (user.hidden[i]._id) hash[user.hidden[i]._id] = user.hidden[i]._id;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
@@ -387,7 +419,6 @@ class PostService {
       } catch (err) {}
       if (hash[posts[i]._id]) {
         newPosts[i]["isHidden"] = true;
-        newPosts[i]["isSaved"] = false;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
         newPosts[i]["isHidden"] = false;
