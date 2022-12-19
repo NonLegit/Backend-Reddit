@@ -509,6 +509,40 @@ class CommentService {
     //console.log(commentTree);
     return commentTree;
   }
+  async findCommentById(commentId) {
+    let comment = await this.commentRepo.getCommentwithAuthor(commentId);
+    if (comment.success === true) {
+      return { success: true, data: comment.doc };
+    } else {
+      return { success: false };
+    }
+  }
+  async saveComment(user, commentId) {
+    const index = user.savedComments.findIndex((element) => {
+      return element.savedComment.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      user.savedComments.push({
+        savedComment: commentId,
+      });
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unSaveComment(user, commentId) {
+    const index = user.savedComments.findIndex((element) => {
+      return element.savedComment.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.savedComments.pull({ savedComment: commentId });
+    }
+    await user.save();
+    return true;
+  }
 }
 
 module.exports = CommentService;

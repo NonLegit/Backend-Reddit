@@ -165,30 +165,7 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  // saved: [
-  //   {
-  //     saved: {
-  //       type: mongoose.Schema.ObjectId,
-  //       refPath: "saved.savedType",
-  //     },
-  //     savedType: {
-  //       type: String,
-  //       enum: ["Post", "Comment"],
-  //     },
-  //     createdAt:{
-  //       type: Date,
-  //       required: true,
-  //       default: Date.now(),
-  //     }
-  //   },
-  // ],
-
-  // saved: [
-  //   {
-  //     type: mongoose.Schema.ObjectId,
-  //     ref: "Post",
-  //   },
-  // ],
+  
   savedComments: [
     {
       savedComment: {
@@ -202,12 +179,6 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  // savedComment: [
-  //   {
-  //     type: mongoose.Schema.ObjectId,
-  //     ref: "Comment",
-  //   },
-  // ],
   hidden: [
     {
       type: mongoose.Schema.ObjectId,

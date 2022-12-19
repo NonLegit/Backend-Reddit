@@ -156,10 +156,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 34,
-    views: 90,
-    shareCount: 2,
-    commentCount: 9,
+    votes: 2,
+    views: 0,
+    shareCount: 0,
+    commentCount: 0,
   });
   let post2 = await Post.create({
     title: "Second Post",
@@ -173,10 +173,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: -60,
-    views: 95,
-    shareCount: 0,
-    commentCount: 9,
+    votes: 0,
+    views: 0,
+    shareCount: 1,
+    commentCount: 3,
   });
   let post3 = await Post.create({
     title: "Thrid Post",
@@ -190,10 +190,10 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 90,
-    views: 500,
+    votes: 2,
+    views: 0,
     shareCount: 0,
-    commentCount: 66,
+    commentCount: 1,
   });
   let post4 = await Post.create({
     title: "Fourth Post",
@@ -214,7 +214,7 @@ module.exports = async function seeder() {
   });
   let post5 = await Post.create({
     title: "Fifth Post",
-    kind: "image",
+    kind: "self",
     text: "this is my fifth post on NONLEGIT",
     author: user3._id,
     owner: user3._id,
@@ -224,18 +224,37 @@ module.exports = async function seeder() {
     sendReplies: true,
     suggestedSort: "top",
     scheduled: false,
-    votes: 0,
-    views: 8,
+    votes: -2,
+    views: 0,
     shareCount: 0,
     commentCount: 0,
-    isDeleted: true,
+    isDeleted: false,
+  });
+  let sharedPost = await Post.create({
+    title: "Cross Post",
+    kind: "self",
+    text: "this is my sixth post on NONLEGIT",
+    author: user3._id,
+    owner: user3._id,
+    ownerType: "User",
+    sharedFrom: post2._id,
+    nsfw: true,
+    spoiler: false,
+    sendReplies: true,
+    suggestedSort: "top",
+    scheduled: false,
+    votes: 1,
+    views: 0,
+    shareCount: 0,
+    commentCount: 0,
+    isDeleted: false,
   });
   let comment1 = await Comment.create({
     author: user3._id,
     parent: post2._id,
     post: post2._id,
     parentType: "Post",
-    text: "My Fourth comment",
+    text: "My First comment",
     isDeleted: true,
   });
   let comment2 = await Comment.create({
@@ -243,9 +262,16 @@ module.exports = async function seeder() {
     parent: post3._id,
     post: post3._id,
     parentType: "Post",
-    text: "My Fourth comment",
+    text: "My Second comment",
   });
   let comment3 = await Comment.create({
+    author: user3._id,
+    parent: post2._id,
+    post: post2._id,
+    parentType: "Post",
+    text: "My Thrid comment",
+  });
+  let comment4 = await Comment.create({
     author: user3._id,
     parent: post2._id,
     post: post2._id,
@@ -281,6 +307,7 @@ module.exports = async function seeder() {
             { posts: post2._id, postVoteStatus: -1 },
             { posts: post3._id, postVoteStatus: 1 },
             { posts: post4._id, postVoteStatus: -1 },
+            { posts: sharedPost._id, postVoteStatus: 1 },
           ],
         },
         saved: {
@@ -288,6 +315,7 @@ module.exports = async function seeder() {
             { savedPost: post2._id, createdAt: Date.now() },
             { savedPost: post3._id, createdAt: Date.now() },
             { savedPost: post4._id, createdAt: Date.now() },
+            { savedPost: sharedPost._id, createdAt: Date.now() },
           ],
         },
         savedComments: {
@@ -295,6 +323,7 @@ module.exports = async function seeder() {
             { savedComment: comment1._id, createdAt: Date.now() },
             { savedComment: comment2._id, createdAt: Date.now() },
             { savedComment: comment3._id, createdAt: Date.now() },
+            { savedComment: comment4._id, createdAt: Date.now() },
           ],
         },
         // saved: {

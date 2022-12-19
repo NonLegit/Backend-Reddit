@@ -168,8 +168,16 @@ class PostController {
       });
     } else {
       let sortType = "New";
+      let limit = req.query.limit;
+      let page = req.query.page;
       if (req.query.sort) {
         sortType = req.query.sort;
+      }
+      if (limit === undefined || limit > 100 || limit < 0) {
+        limit = 100;
+      }
+      if (page === undefined || page < 0) {
+        page = 1;
       }
       const userName = req.params.userName;
       let user = await this.userServices.getUserByName(userName, "");
@@ -193,7 +201,7 @@ class PostController {
             posts: [],
           });
         } else {
-          let posts = await this.postServices.getUserPosts(userId, sortType);
+          let posts = await this.postServices.getUserPosts(userId, sortType,limit,page);
           // get vote of me if these post i vote on it
           posts = this.postServices.setVotePostStatus(me, posts);
           posts = this.postServices.setSavedPostStatus(me, posts);
@@ -267,6 +275,8 @@ class PostController {
     //posts = this.postServices.setVotePostStatus(me, posts);
     let posts = this.postServices.setVotePostStatus(me, me.hidden);
     posts = this.postServices.setPostOwnerData(posts);
+    posts = this.postServices.setSavedPostStatus(me, posts);
+    posts = this.postServices.setHiddenPostStatus(me, posts);
     res.status(200).json({
       status: "success",
       posts: posts,
@@ -780,7 +790,8 @@ class PostController {
           user.data,
           query
         );
-        let posts = await this.postServices.getUserPosts(userId, sort);
+        console.log(query);
+        let posts = await this.postServices.getUserPosts(userId, sort,limit,page);
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
         posts = this.postServices.setHiddenPostStatus(me, posts);
@@ -814,7 +825,7 @@ class PostController {
       let post = await this.postServices.findPostById(postId);
       if (post.success === true) {
         // check that author of block is not blocking me or i blocked him
-      //  console.log(post.data);
+        //  console.log(post.data);
         let isUserBlockedMe = await this.userServices.checkBlockStatus(
           me,
           post.data.author
@@ -864,7 +875,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-     // console.log(post.data);
+      // console.log(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author
@@ -948,7 +959,7 @@ class PostController {
     let post = await this.postServices.findPostById(postId);
     if (post.success === true) {
       // check that author of block is not blocking me or i blocked him
-     // console.log(post.data);
+      // console.log(post.data);
       let isUserBlockedMe = await this.userServices.checkBlockStatus(
         me,
         post.data.author

@@ -25,7 +25,7 @@ class CommentController {
     const comment = await this.commentServices.createComment(data);
     console.log("before comment");
     //console.log(comment);
-     console.log("before comment");
+    console.log("before comment");
     if (!comment.success) {
       let msg, stat;
       switch (comment.error) {
@@ -53,7 +53,7 @@ class CommentController {
     req.post = comment.postToNotify;
     req.mentions = comment.mentions;
     console.log("to print comment");
-   // console.log(comment);
+    // console.log(comment);
     console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
     // console.log(req.comment);
     // console.log(req.post);
@@ -65,9 +65,9 @@ class CommentController {
       data: comment.data,
     });
     //console.log(req.comment.type);
-    
-      return next();
-   
+
+    return next();
+
     //mentions
   };
 
@@ -271,7 +271,7 @@ class CommentController {
     if (userName !== me.userName) {
       // find user if not found return not found
       user = await this.UserService.getUserByName(userName, "");
- 
+
       if (user.success === true) {
         valid = true;
         userId = user.data._id;
@@ -279,7 +279,6 @@ class CommentController {
       } else {
         valid = false;
       }
-
     }
     if (valid) {
       let limit = req.query.limit;
@@ -308,14 +307,8 @@ class CommentController {
         page: page,
       };
       console.log(user);
-      let isUserBlockedMe = await this.UserService.checkBlockStatus(
-        me,
-        user
-      );
-      let isMeBlockedUser = await this.UserService.checkBlockStatus(
-        user,
-        me
-      );
+      let isUserBlockedMe = await this.UserService.checkBlockStatus(me, user);
+      let isMeBlockedUser = await this.UserService.checkBlockStatus(user, me);
       // get post which he creates
       if (isUserBlockedMe === true || isMeBlockedUser === true) {
         res.status(200).json({
@@ -338,6 +331,93 @@ class CommentController {
       res.status(404).json({
         status: "fail",
         errorMessage: "User Not Found",
+      });
+    }
+  };
+  saveComment = async (req, res, next) => {
+    let me = req.user;
+    let commentId = req.params.commentId;
+
+    // check post is found
+    let comment = await this.commentServices.findCommentById(commentId);
+    if (comment.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      // console.log(post.data);
+      console.log(comment.data.author)
+      let isUserBlockedMe = await this.UserService.checkBlockStatus(
+        me,
+        comment.data.author
+      );
+      let isMeBlockedUser = await this.UserService.checkBlockStatus(
+        comment.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        console.log(comment.data.author)
+        let isUpdated = await this.commentServices.saveComment(me, commentId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Comment Not Found",
+      });
+    }
+  };
+  unSaveComment = async (req, res, next) => {
+    let me = req.user;
+    let commentId = req.params.commentId;
+
+    // check post is found
+    let comment = await this.commentServices.findCommentById(commentId);
+    if (comment.success === true) {
+      // check that author of block is not blocking me or i blocked him
+      //(post.data);
+      let isUserBlockedMe = await this.UserService.checkBlockStatus(
+        me,
+        comment.data.author
+      );
+      let isMeBlockedUser = await this.UserService.checkBlockStatus(
+        comment.data.author,
+        me
+      );
+      if (isUserBlockedMe === true || isMeBlockedUser === true) {
+        res.status(405).json({
+          status: "fail",
+          errorMessage: "Method Not Allowed",
+        });
+      } else {
+        // add vote status of user
+        console.log(comment.data.author)
+        let isUpdated = await this.commentServices.unSaveComment(me, commentId);
+        if (isUpdated === true) {
+          res.status(200).json({
+            status: "success",
+          });
+        } else {
+          res.status(304).json({
+            status: "success",
+          });
+        }
+      }
+    } else {
+      res.status(404).json({
+        status: "fail",
+        errorMessage: "Comment Not Found",
       });
     }
   };
