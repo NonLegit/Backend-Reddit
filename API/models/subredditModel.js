@@ -22,7 +22,7 @@ const subredditSchema = new mongoose.Schema({
     {
       createdAt: {
         type: Date,
-        default: Date.now(),
+        default: new Date(Date.now()),
         select: true,
       },
       defaultName: {
@@ -142,7 +142,7 @@ const subredditSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: new Date(Date.now()),
   },
   topics: {
     type: [{ type: String }],
@@ -172,18 +172,10 @@ const subredditSchema = new mongoose.Schema({
   moderators: [
     {
       type: Object,
-      id: {
+      user: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
-      },
-      userName: { type: String },
-      joiningDate: { type: Date, default: Date.now() },
-      profilePicture: {
-        type: String,
-        required: false,
-        trim: true, // *TODO: it will be unique with time stamp and username
-        default: "users/default.png",
       },
       moderatorPermissions: {
         type: Object,
@@ -204,13 +196,13 @@ const subredditSchema = new mongoose.Schema({
   ],
   punished: [
     {
-      id: {
+      user: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
       userName: { type: String },
-      banDate: { type: Date, default: Date.now() },
+      banDate: { type: Date, default: new Date(Date.now()) },
       profilePicture: {
         type: String,
         required: false,
@@ -238,7 +230,7 @@ const subredditSchema = new mongoose.Schema({
         ref: "User",
         required: false,
       },
-      approvedDate: { type: Date, default: Date.now() },
+      approvedDate: { type: Date, default: new Date(Date.now()) },
     },
   ],
 });

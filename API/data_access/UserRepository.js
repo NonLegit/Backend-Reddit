@@ -313,7 +313,7 @@ class UserRepository extends Repository {
   async subscribe(subredditId, userId) {
     await this.model.findByIdAndUpdate(
       userId,
-      { $push: { subscribed: { _id: subredditId } } },
+      { $push: { subscribed: subredditId } },
       {
         new: true,
         runValidators: true,
@@ -325,7 +325,7 @@ class UserRepository extends Repository {
   async unSubscribe(subredditId, userId) {
     await this.model.findByIdAndUpdate(
       userId,
-      { $pull: { subscribed: { _id: subredditId } } },
+      { $pull: { subscribed: subredditId } },
       {
         new: true,
         runValidators: true,
