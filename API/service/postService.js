@@ -3,6 +3,7 @@ const {
   mongoErrors,
   postActions,
 } = require("../error_handling/errors");
+const UserService = require("./userService");
 
 /**
  * Post Service class for handling Post model and services
@@ -173,8 +174,9 @@ class PostService {
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-  async getPosts(query, filter, me, sortType) {
-    const posts = await this.postRepo.getPosts(filter, query, sortType);
+  async getPosts(query, filter, me, sortType,people) {
+   
+    const posts = await this.postRepo.getPosts(filter, query, sortType,me,people);
 
     if (posts.success) {
       if (posts.doc.length == 0) {

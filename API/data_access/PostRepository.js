@@ -64,7 +64,7 @@ class PostRepository extends Repository {
     let doc = await features.query.populate(popOptions);
     return { success: true, doc: doc };
   }
-  async getPosts(filter, query, sortType) {
+  async getPosts(filter, query, sortType,user,people) {
     try {
       // if (user) {
       //   //console.log("oooooooooooooooooooo");
@@ -75,7 +75,7 @@ class PostRepository extends Repository {
       // console.log(user);
       // let getSubredditPosts = filter ? { owner: filter, _id:{"$nin":user.hidden._id} } : { _id:{"$nin":user.hidden}};
 
-      let getSubredditPosts = filter ? { owner: filter } : {};
+      //let getSubredditPosts = filter ? { owner: filter } : {};
 
       if (sortType == "hot") {
         query.sort = "-sortOnHot";
@@ -88,9 +88,28 @@ class PostRepository extends Repository {
         query.sort = "-sortOnBest";
       }
 
+      console.log(people.people);
+      console.log(people.blocked);
+      console.log(query);
+      let selector;
+    // this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false, type: { $nin:["postReply","userMention"] } },{ "to": userId, "isDeletedInDestination": false, type: { $nin:["postReply","userMention"] } }] }),
+        
+      if (!filter&&user) {
+        // selector = { owner: { $in: user.subscribed } };
+        //post is in subreddit that i subscribe
+        //OR post is from a user that i follow or is my friend
+        //And we didn't block each other
+        selector = { $or: [{ author: { $in: people.people } },{ owner: { $in: user.subscribed } }],  author: { $nin: people.blocked  }};
+      } else if(filter){
+        selector = { owner: filter , author: { $nin: people.blocked  }};
+      }
+      
+      if (!user) {
+        selector = { owner: filter };
+      }
       //  console.log(query.sort);
       const features = new APIFeatures(
-        this.model.find(getSubredditPosts),
+        this.model.find(selector),
         query
       )
         .filter()
@@ -99,6 +118,18 @@ class PostRepository extends Repository {
         .sort();
       //console.log(doc);
       let doc = await features.query;
+      if (doc.length == 0) {
+        let featuresGen =
+          new APIFeatures(
+        this.model.find(),
+        query
+      )
+        .filter()
+        .limitFields()
+        .paginate()
+        .sort();
+        doc = await featuresGen.query;
+      }
       //console.log(doc);
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
