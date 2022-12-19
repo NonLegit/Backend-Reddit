@@ -10,6 +10,7 @@ const postRouter = require("./routes/postRoutes");
 const commentRouter = require("./routes/commentRoutes");
 const notificationRouter = require("./routes/notificationRoutes");
 const messageRouter = require("./routes/messageRoutes");
+const searchRouter = require("./routes/searchRoutes");
 const cors = require("cors");
 const { errorHandler } = require("./error_handling/errors");
 
@@ -55,6 +56,7 @@ app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/message", messageRouter);
+app.use("/api/v1/search", searchRouter);
 app.use(errorHandler);
 
 app.all("*", (req, res, next) => {

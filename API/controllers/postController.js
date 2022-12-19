@@ -835,7 +835,8 @@ class PostController {
             me,
             postId,
             dir,
-            post.data.votes
+            post.data.votes,
+            post.data.author
           );
           if (isUpdated === true) {
             res.status(200).json({

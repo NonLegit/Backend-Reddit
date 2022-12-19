@@ -1126,39 +1126,39 @@
 //   });
 //   // !===============================================================
 //   describe("ModeratorInvitation invite Test", () => {
-//     // it("1st test success", async () => {
-//     //   const req = {
-//     //     params: {
-//     //       subredditName: "subreddit",
-//     //       action: "accept",
-//     //     },
-//     //     user: {
-//     //       _id: "1",
-//     //       userName: "khaled",
-//     //       profilePicture: "defult.png",
-//     //     },
-//     //   };
-//     //   const UserService = {};
-//     //   const subredditService = {
-//     //     handleInvitation: async (
-//     //       userId,
-//     //       userName,
-//     //       profilePicture,
-//     //       subredditName,
-//     //       action
-//     //     ) => {
-//     //       return { success: true };
-//     //     },
-//     //   };
+//     it("1st test success", async () => {
+//       const req = {
+//         params: {
+//           subredditName: "subreddit",
+//           action: "accept",
+//         },
+//         user: {
+//           _id: "1",
+//           userName: "khaled",
+//           profilePicture: "defult.png",
+//         },
+//       };
+//       const UserService = {};
+//       const subredditService = {
+//         handleInvitation: async (
+//           userId,
+//           userName,
+//           profilePicture,
+//           subredditName,
+//           action
+//         ) => {
+//           return { success: true };
+//         },
+//       };
 
-//     //   const subredditController = new SubredditController({
-//     //     subredditService,
-//     //     UserService,
-//     //   });
-//     //   // console.log(subredditController);
-//     //   await subredditController.ModeratorInvitation(req, res);
-//     //   expect(res.status).to.have.been.calledWith(204);
-//     // });
+//       const subredditController = new SubredditController({
+//         subredditService,
+//         UserService,
+//       });
+//       // console.log(subredditController);
+//       await subredditController.ModeratorInvitation(req, res);
+//       expect(res.status).to.have.been.calledWith(204);
+//     });
 //     it("2nd test success", async () => {
 //       const req = {
 //         params: {

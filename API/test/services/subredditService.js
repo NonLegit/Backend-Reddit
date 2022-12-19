@@ -8,57 +8,57 @@
 // describe("Subreddit Test", () => {
 //   describe("Subreddit services Test", () => {
 //     describe("createSubreddit function ", () => {
-//       // it("first test", async () => {
-//       //   const UserRepository = {
-//       //     createOne: async (userData) => {
-//       //       const response = {
-//       //         success: true,
-//       //         doc: {
-//       //           _id: "10",
-//       //         },
-//       //       };
-//       //       return response;
-//       //     },
-//       //     isSubscribed: async (user, subreddit) => {
-//       //       return false;
-//       //     },
-//       //   };
-//       //   const SubredditRepository = {
-//       //     create: async (data, userName, profilePicture) => {
-//       //       return { success: true, doc: { _id: "10" } };
-//       //     },
-//       //     getsubreddit: async (name, select, popOptions) => {
-//       //       return {
-//       //         success: false,
-//       //         data: { _id: "10", fixedName: "subreddit", nsfw: true },
-//       //       };
-//       //     },
-//       //   };
-//       //   const FlairRepository = {};
-//       //   const subredditServices = new subredditService({
-//       //     SubredditRepository,
-//       //     FlairRepository,
-//       //     UserRepository,
-//       //   });
-//       //   let userName = "khaled";
+//       it("first test", async () => {
+//         const UserRepository = {
+//           createOne: async (userData) => {
+//             const response = {
+//               success: true,
+//               doc: {
+//                 _id: "10",
+//               },
+//             };
+//             return response;
+//           },
+//           isSubscribed: async (user, subreddit) => {
+//             return false;
+//           },
+//         };
+//         const SubredditRepository = {
+//           create: async (data, userName, profilePicture) => {
+//             return { success: true, doc: { _id: "10" } };
+//           },
+//           getsubreddit: async (name, select, popOptions) => {
+//             return {
+//               success: false,
+//               data: { _id: "10", fixedName: "subreddit", nsfw: true },
+//             };
+//           },
+//         };
+//         const FlairRepository = {};
+//         const subredditServices = new subredditService({
+//           SubredditRepository,
+//           FlairRepository,
+//           UserRepository,
+//         });
+//         let userName = "khaled";
 
-//       //   let data = {
-//       //     owner: userName,
-//       //     fixedName: "subreddit",
-//       //     type: "Public",
-//       //     nsfw: true,
-//       //   };
+//         let data = {
+//           owner: userName,
+//           fixedName: "subreddit",
+//           type: "Public",
+//           nsfw: true,
+//         };
 
-//       //   let profilePicture = "profile.png";
+//         let profilePicture = "profile.png";
 
-//       //   const result = await subredditServices.createSubreddit(
-//       //     data,
-//       //     userName,
-//       //     profilePicture
-//       //   );
+//         const result = await subredditServices.createSubreddit(
+//           data,
+//           userName,
+//           profilePicture
+//         );
 
-//       //   expect(result.data._id).to.equal("10");
-//       // });
+//         expect(result.data._id).to.equal("10");
+//       });
 
 //       it("second test (fail) ", async () => {
 //         const UserRepository = {
@@ -818,64 +818,64 @@
 //     });
 
 //     describe("inviteMod function ", () => {
-//       // it("first test", async () => {
-//       //   const UserRepository = {
-//       //     isSubscribed: async (user, subreddit) => {
-//       //       return false;
-//       //     },
-//       //     findByUserName: async (userName, select, pop) => {
-//       //       return { success: true, doc: { _id: "1", userName: "khaled" } };
-//       //     },
-//       //     updateByName: async (userName, subredditId, permissions) => {
-//       //       return { success: true, doc: { _id: "1", userName: "khaled" } };
-//       //     },
-//       //   };
-//       //   const SubredditRepository = {
-//       //     create: async (data, userName, profilePicture) => {
-//       //       return { success: true, doc: { _id: "10" } };
-//       //     },
-//       //     getsubreddit: async (name, select, popOptions) => {
-//       //       return {
-//       //         success: true,
-//       //         doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-//       //       };
-//       //     },
-//       //     isModerator_1: async (subredditName, userID) => {
-//       //       return {
-//       //         success: true,
-//       //         doc: { _id: "10", moderators: [{ _id: "1" }] },
-//       //       };
-//       //     },
-//       //     isModerator_2: async (subredditName, userID) => {
-//       //       return {
-//       //         success: false,
-//       //         doc: { _id: "10", moderators: [{ _id: "1" }] },
-//       //       };
-//       //     },
-//       //   };
-//       //   const FlairRepository = {};
-//       //   const subredditServices = new subredditService({
-//       //     SubredditRepository,
-//       //     FlairRepository,
-//       //     UserRepository,
-//       //   });
+//       it("first test", async () => {
+//         const UserRepository = {
+//           isSubscribed: async (user, subreddit) => {
+//             return false;
+//           },
+//           findByUserName: async (userName, select, pop) => {
+//             return { success: true, doc: { _id: "1", userName: "khaled" } };
+//           },
+//           updateByName: async (userName, subredditId, permissions) => {
+//             return { success: true, doc: { _id: "1", userName: "khaled" } };
+//           },
+//         };
+//         const SubredditRepository = {
+//           create: async (data, userName, profilePicture) => {
+//             return { success: true, doc: { _id: "10" } };
+//           },
+//           getsubreddit: async (name, select, popOptions) => {
+//             return {
+//               success: true,
+//               doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+//             };
+//           },
+//           isModerator_1: async (subredditName, userID) => {
+//             return {
+//               success: true,
+//               doc: { _id: "10", moderators: [{ _id: "1" }] },
+//             };
+//           },
+//           isModerator_2: async (subredditName, userID) => {
+//             return {
+//               success: false,
+//               doc: { _id: "10", moderators: [{ _id: "1" }] },
+//             };
+//           },
+//         };
+//         const FlairRepository = {};
+//         const subredditServices = new subredditService({
+//           SubredditRepository,
+//           FlairRepository,
+//           UserRepository,
+//         });
 
-//       //   const result = await subredditServices.inviteMod(
-//       //     "subreddit",
-//       //     "1",
-//       //     "khaled",
-//       //     {
-//       //       permissions: {
-//       //         all: false,
-//       //         access: true,
-//       //         config: true,
-//       //         flair: false,
-//       //         posts: false,
-//       //       },
-//       //     }
-//       //   );
-//       //   expect(result.success).to.equal(true);
-//       // });
+//         const result = await subredditServices.inviteMod(
+//           "subreddit",
+//           "1",
+//           "khaled",
+//           {
+//             permissions: {
+//               all: false,
+//               access: true,
+//               config: true,
+//               flair: false,
+//               posts: false,
+//             },
+//           }
+//         );
+//         expect(result.success).to.equal(true);
+//       });
 //     });
 //     // !=======================
 //     describe("handleInvitation function ", () => {

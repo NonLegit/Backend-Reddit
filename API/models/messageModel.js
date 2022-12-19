@@ -25,6 +25,8 @@ const messageSchema = new mongoose.Schema({
         'postReply',//-----------------
         'userMention',
         'userMessage',//////messages-----------------
+
+        
         'subredditBan',//////messages no changes-----------------
         'subredditMute',///messages -------------------
         'subredditModeratorInvite',//messages ---------------

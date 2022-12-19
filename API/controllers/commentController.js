@@ -51,6 +51,7 @@ class CommentController {
     }
     req.comment = comment.commentToNotify;
     req.post = comment.postToNotify;
+    req.mentions = comment.mentions;
     console.log("to print comment");
    // console.log(comment);
     console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn");
@@ -179,8 +180,8 @@ class CommentController {
     }
 
     let { limit, depth, context, sort, commentId } = req.query;
-    if (!limit || limit <= 0) limit = LIMIT;
-    if (!depth || depth < 0) depth = DEPTH;
+    if (isNaN(limit) || !limit || limit <= 0) limit = LIMIT;
+    if (isNaN(depth) || !depth || depth < 0) depth = DEPTH;
     sort = sortTypes.get(sort) || SORT;
 
     const commentTree = await this.commentServices.commentTree(
@@ -230,8 +231,8 @@ class CommentController {
     ]);
 
     let { children, limit, depth, sort } = req.query;
-    if (!limit || limit <= 0) limit = LIMIT;
-    if (!depth || depth < 0) depth = DEPTH;
+    if (isNaN(limit) || !limit || limit <= 0) limit = LIMIT;
+    if (isNaN(depth) || !depth || depth < 0) depth = DEPTH;
     sort = sortTypes.get(sort) || SORT;
 
     if (!children || children.length === 0) {

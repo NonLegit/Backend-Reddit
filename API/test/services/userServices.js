@@ -1021,4 +1021,220 @@ describe("User Services Test", () => {
       assert.equal(other.userMeRelationship[0].status, "none");
     });
   });
+
+
+  // follow user
+
+  describe("followUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "4",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        meUserRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.followUser(me, other);
+      assert.equal(result, false);
+      assert.equal(me.meUserRelationship[0].status, "followed");
+      assert.equal(other.userMeRelationship[2].status, "followed");
+    });
+    it("test2 should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: "3",
+            status: "none",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        meUserRelationship: [
+          {
+            userId: "3",
+            status: "none",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.followUser(me, other);
+      assert.equal(result, true);
+    });
+  });
+
+  // unblock user
+  describe("unFollowUser  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "1",
+            status: "followed",
+          },
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.unfollowUser(me, other);
+      assert.equal(result, false);
+      assert.equal(me.meUserRelationship[0].status, "none");
+      assert.equal(other.userMeRelationship[0].status, "none");
+    });
+
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "5",
+            status: "blocked",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        userMeRelationship: [
+          {
+            userId: "4",
+            status: "blocked",
+          },
+          {
+            userId: "5",
+            status: "blocked",
+          },
+        ],
+        _id: "2",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let result = await userServiceObj.unfollowUser(me, other);
+      assert.equal(result, true);
+    });
+  });
+
 });

@@ -94,6 +94,10 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
+    //To avoid invalid data in case of image/video posts
+    delete data.images;
+    delete data.video;
+
     if (data.ownerType === "User") {
       data.owner = data.author;
       if (data.flairId) delete data.flairId;
@@ -116,8 +120,16 @@ class PostService {
       const parentPost = await this.postRepo.findById(data.sharedFrom);
       if (!parentPost.success)
         return { success: false, error: postErrors.INVALID_PARENT_POST };
+
+      //parent is inherited
+      if (parentPost.doc.sharedFrom)
+        data.sharedFrom = parentPost.doc.sharedFrom;
+
+      //This data is meaningless in share case
+      // delete data.text;
+      // delete data.url;
+
       data.kind = parentPost.doc.kind;
-      ``;
     }
 
     const post = await this.postRepo.createOne(data);
@@ -510,8 +522,8 @@ class PostService {
   }
 
   async addFile(postId, kind, file) {
-    if(kind === "image") return await this.postRepo.addImage(postId, file);
-    else return await this.postRepo.addVideo(postId, file)
+    if (kind === "image") return await this.postRepo.addImage(postId, file);
+    else return await this.postRepo.addVideo(postId, file);
   }
 
   /**
@@ -666,7 +678,7 @@ class PostService {
     }
   }
   // Doaa should add here code here
-  async addVote(user, postId, voteDir, votesCount) {
+  async addVote(user, postId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {
       return element.posts.toString() === postId.toString();
@@ -677,6 +689,11 @@ class PostService {
         posts: postId,
         postVoteStatus: voteDir,
       });
+      // check if vote status is 1 so that increase karma
+      if (voteDir === 1) {
+        author.postKarma = author.postKarma + 1;
+        await author.save();
+      }
     } else {
       if (user.votePost[index].postVoteStatus === voteDir) {
         return false;
@@ -685,6 +702,12 @@ class PostService {
           voteNumber += 1;
         } else if (user.votePost[index].postVoteStatus === 1) {
           voteNumber -= 1;
+          // decrease karma here
+          author.postKarma = author.postKarma - 1;
+          await author.save();
+        } else if (voteDir === 1) {
+          author.postKarma = author.postKarma + 1;
+          await author.save();
         }
         user.votePost[index].postVoteStatus = voteDir;
       }

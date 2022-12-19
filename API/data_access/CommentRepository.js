@@ -59,13 +59,13 @@ class CommentRepository extends Repository {
           path: "replies",
           perDocumentLimit: limit,
           options: { depth, sort: { [sort]: -1 } },
-          transform: (doc) => {
-            doc.author.profilePicture =
-              `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
-            doc.author.profileBackground =
-              `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
-            return doc;
-          },
+          // transform: (doc) => {
+          //   doc.author.profilePicture =
+          //     `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+          //   doc.author.profileBackground =
+          //     `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+          //   return doc;
+          // },
         })
         .lean();
     }

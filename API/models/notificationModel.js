@@ -8,8 +8,6 @@ const notificationSchema = new mongoose.Schema({
             'postReply',
             'commentReply',
             'userMention',
-            'firstPostUpVote',
-            'firstCommentUpVote',
             'follow']
     },
     post: {
