@@ -595,8 +595,8 @@ paths:
     post:
       tags:
         - "Users"
-      description: Change Password
-      summary: Change Password
+      description: Verify Email
+      summary: Verify Email
       parameters:
         - in: path
           name: token
@@ -4144,36 +4144,66 @@ paths:
             type: string
 
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Unauthorized
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: comment not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted comment)
 
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
   /comments/{commentId}/unsave:
     post:
       tags:
@@ -4192,36 +4222,66 @@ paths:
             type: string
 
       responses:
-        "204":
-          description: successful operation
-
-        "400":
-          description: Bad Request
-
+        200:
+          description: Success operation
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/error"
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        304:
+          description: already unsaved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Unauthorized
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: comment not found
+        405:
+          description: failed operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author or deleted comment)
 
-        "401":
-          description: Authorization Required
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
-        "404":
-          description: Not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        "409":
-          description: Conflict
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
   /comments/{commentId}/marknsfw:
     patch:
       tags:
@@ -4432,14 +4492,23 @@ paths:
           required: true
           schema:
             type: string
-        - in: query
-          name: dir
-          description: "1 for upvote  0 for novote -1 for downvote"
-          required: true
-          schema:
-            type: integer
+            
+      requestBody:
+        required: true
+        description: "1 for upvote  0 for novote -1 for downvote"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dir:
+                  type: integer
+                  enum:
+                    - 1
+                    - 0
+                    - -1
       responses:
-        201:
+        200:
           description: Success operation
           content:
             application/json:
@@ -4449,8 +4518,8 @@ paths:
                   status:
                     type: string
                     example: success
-        409:
-          description: Conflict Not Completed Request
+        304:
+          description: Success operation
           content:
             application/json:
               schema:
@@ -4461,7 +4530,20 @@ paths:
                     example: fail
                   errorMessage:
                     type: string
-                    example: "you already upvote (downvote) comment"
+                    example: "you already upvote or  downvote or novote comment"
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Unauthorized
         404:
           description: Not Found
           content:
@@ -4475,6 +4557,21 @@ paths:
                   errorMessage:
                     type: string
                     example: comment not found
+        405:
+          description: Method Not Allowed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Method Not Allowed (blocked by author)
+
+
   /comments/{commentId}/spam:
     patch:
       tags:
@@ -8402,8 +8499,113 @@ components:
             - "removed"
             - "spammed"
         sharedFrom:
-          type: string
-          description: post id if shared ,undefined if not shared
+          type: object
+          properties:
+            _id:
+              type: string
+            author:
+              type: object
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+            owner:
+              type: object
+              description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+              properties:
+                _id:
+                  type: string
+                name:
+                  type: string
+                icon:
+                  type: string
+            ownerType:
+              type: string
+              enum:
+                - "Subreddit"
+                - "User"
+            title:
+              type: string
+            kind:
+              type: string
+              enum:
+                - link
+                - self
+                - image
+                - video
+            text:
+              type: string
+              description: the text of the post in case the kind is self
+            url:
+              type: string
+              description: A valid URL in case the kind is link
+            votes:
+              type: integer
+              description: total number of votes
+            commentCount:
+              type: integer
+              description: total number of comments
+            views:
+              type: integer
+              description: total number of views
+            createdAt:
+              type: string
+              format: date-time
+              example: 2017-07-21T17:32:28Z
+            suggestedSort:
+              type: string
+              enum:
+                - top
+                - new
+                - best
+                - old
+            nsfw:
+              type: boolean
+            spoiler:
+              type: boolean
+            sendReplies:
+              type: boolean
+              description: indicates whether the post accepts replies in private messages or not
+            locked:
+              type: boolean
+              description: whether the post can receive comments or not
+            flairId:
+              $ref: "#/components/schemas/flair"
+            flairText:
+              type: string
+            postVoteStatus:
+              type: string
+              enum:
+                - "1"
+                - "0"
+                - "-1"
+            isSaved:
+              type: boolean
+              example: true
+            isHidden:
+              type: boolean
+              example: true
+            modState:
+              type: string
+              enum:
+                - "unmoderated"
+                - "approved"
+                - "removed"
+                - "spammed"
+            shareCount:
+              type: integer
+              description: Total numbers of share
+            images:
+              type: array
+              items:
+                type: string
+            video:
+              type: string
+            sortOnHot:
+              type: integer
+              description: calculated value to sort on it
+
         shareCount:
           type: integer
           description: Total numbers of share
@@ -9027,8 +9229,113 @@ components:
                   - "removed"
                   - "spammed"
               sharedFrom:
-                type: string
-                description: post id if shared ,undefined if not shared
+                  type: object
+                  properties:
+                    _id:
+                      type: string
+                    author:
+                      type: object
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                    owner:
+                      type: object
+                      description: The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead
+                      properties:
+                        _id:
+                          type: string
+                        name:
+                          type: string
+                        icon:
+                          type: string
+                    ownerType:
+                      type: string
+                      enum:
+                        - "Subreddit"
+                        - "User"
+                    title:
+                      type: string
+                    kind:
+                      type: string
+                      enum:
+                        - link
+                        - self
+                        - image
+                        - video
+                    text:
+                      type: string
+                      description: the text of the post in case the kind is self
+                    url:
+                      type: string
+                      description: A valid URL in case the kind is link
+                    votes:
+                      type: integer
+                      description: total number of votes
+                    commentCount:
+                      type: integer
+                      description: total number of comments
+                    views:
+                      type: integer
+                      description: total number of views
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2017-07-21T17:32:28Z
+                    suggestedSort:
+                      type: string
+                      enum:
+                        - top
+                        - new
+                        - best
+                        - old
+                    nsfw:
+                      type: boolean
+                    spoiler:
+                      type: boolean
+                    sendReplies:
+                      type: boolean
+                      description: indicates whether the post accepts replies in private messages or not
+                    locked:
+                      type: boolean
+                      description: whether the post can receive comments or not
+                    flairId:
+                      $ref: "#/components/schemas/flair"
+                    flairText:
+                      type: string
+                    postVoteStatus:
+                      type: string
+                      enum:
+                        - "1"
+                        - "0"
+                        - "-1"
+                    isSaved:
+                      type: boolean
+                      example: true
+                    isHidden:
+                      type: boolean
+                      example: true
+                    modState:
+                      type: string
+                      enum:
+                        - "unmoderated"
+                        - "approved"
+                        - "removed"
+                        - "spammed"
+                    shareCount:
+                      type: integer
+                      description: Total numbers of share
+                    images:
+                      type: array
+                      items:
+                        type: string
+                    video:
+                      type: string
+                    sortOnHot:
+                      type: integer
+                      description: calculated value to sort on it
+
               shareCount:
                 type: integer
                 description: Total numbers of share

@@ -883,8 +883,8 @@
         "tags": [
           "Users"
         ],
-        "description": "Change Password",
-        "summary": "Change Password",
+        "description": "Verify Email",
+        "summary": "Verify Email",
         "parameters": [
           {
             "in": "path",
@@ -3116,12 +3116,11 @@
             "name": "sort",
             "schema": {
               "type": "string",
-              "default": "relevance",
+              "default": "new",
               "enum": [
                 "hot",
                 "top",
                 "new",
-                "relevance",
                 "comments"
               ]
             }
@@ -3131,12 +3130,12 @@
             "name": "type",
             "schema": {
               "type": "string",
-              "default": "post",
+              "default": "posts",
               "enum": [
-                "sr",
-                "post",
-                "user",
-                "comment"
+                "communities",
+                "posts",
+                "people",
+                "comments"
               ]
             }
           },
@@ -3159,19 +3158,19 @@
           {
             "in": "query",
             "name": "page",
-            "description": "The page number",
-            "required": true,
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "description": "The page number",
+              "default": 1
             }
           },
           {
             "in": "query",
             "name": "limit",
-            "description": "The limit of each page",
-            "required": true,
             "schema": {
-              "type": "integer"
+              "type": "integer",
+              "description": "The limit of each page",
+              "default": 10
             }
           }
         ],
@@ -3185,13 +3184,13 @@
                     {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/Post"
+                        "$ref": "#/components/schemas/PostSearch"
                       }
                     },
                     {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/comment"
+                        "$ref": "#/components/schemas/CommentSearch"
                       }
                     },
                     {
@@ -3200,18 +3199,36 @@
                         "type": "object",
                         "properties": {
                           "_id": {
-                            "type": "string"
-                          },
-                          "username": {
                             "type": "string",
-                            "example": "user"
+                            "format": "int64",
+                            "example": 10
                           },
-                          "karma": {
+                          "userName": {
+                            "type": "string",
+                            "example": "uniqueuser"
+                          },
+                          "profilePicture": {
+                            "type": "string",
+                            "example": "src url"
+                          },
+                          "displayName": {
+                            "type": "string",
+                            "example": "firstname secondname"
+                          },
+                          "postKarma": {
                             "type": "integer",
-                            "example": 100
+                            "example": 1
                           },
-                          "bio": {
-                            "type": "string"
+                          "commentKarma": {
+                            "type": "integer",
+                            "example": 1
+                          },
+                          "description": {
+                            "type": "string",
+                            "example": " info"
+                          },
+                          "isFollowed": {
+                            "type": "boolean"
                           }
                         }
                       }
@@ -3221,19 +3238,31 @@
                       "items": {
                         "type": "object",
                         "properties": {
+                          "icon": {
+                            "type": "string"
+                          },
                           "_id": {
-                            "type": "string"
-                          },
-                          "subreddit": {
                             "type": "string",
-                            "example": "subreddit"
+                            "format": "int64",
+                            "example": 10
                           },
-                          "members": {
+                          "fixedName": {
+                            "type": "string",
+                            "example": "uniquesubreddit"
+                          },
+                          "membersCount": {
                             "type": "integer",
-                            "example": 100
+                            "example": 10000
                           },
-                          "about": {
+                          "description": {
+                            "type": "string",
+                            "example": "welcome to subreddit"
+                          },
+                          "name": {
                             "type": "string"
+                          },
+                          "nsfw": {
+                            "type": "boolean"
                           }
                         }
                       }
@@ -5613,45 +5642,94 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
+          "200": {
+            "description": "Success operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "already saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "Authorization Required",
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "comment not found"
+                    }
+                  }
                 }
               }
             }
           },
-          "409": {
-            "description": "Conflict",
+          "405": {
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Method Not Allowed (blocked by author or deleted comment)"
+                    }
+                  }
                 }
               }
             }
@@ -5686,45 +5764,94 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "successful operation"
-          },
-          "400": {
-            "description": "Bad Request",
+          "200": {
+            "description": "Success operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "already unsaved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    }
+                  }
                 }
               }
             }
           },
           "401": {
-            "description": "Authorization Required",
+            "description": "Unauthorized",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Unauthorized"
+                    }
+                  }
                 }
               }
             }
           },
           "404": {
-            "description": "Not found",
+            "description": "Not Found",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "comment not found"
+                    }
+                  }
                 }
               }
             }
           },
-          "409": {
-            "description": "Conflict",
+          "405": {
+            "description": "failed operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/error"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Method Not Allowed (blocked by author or deleted comment)"
+                    }
+                  }
                 }
               }
             }
@@ -6049,19 +6176,31 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "in": "query",
-            "name": "dir",
-            "description": "1 for upvote  0 for novote -1 for downvote",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "description": "1 for upvote  0 for novote -1 for downvote",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "dir": {
+                    "type": "integer",
+                    "enum": [
+                      1,
+                      0,
+                      -1
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
-          "201": {
+          "200": {
             "description": "Success operation",
             "content": {
               "application/json": {
@@ -6071,6 +6210,46 @@
                     "status": {
                       "type": "string",
                       "example": "success"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "304": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "you already upvote or  downvote or novote comment"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "Unauthorized"
                     }
                   }
                 }
@@ -6097,8 +6276,8 @@
               }
             }
           },
-          "409": {
-            "description": "Conflict Not Completed Request",
+          "405": {
+            "description": "Method Not Allowed",
             "content": {
               "application/json": {
                 "schema": {
@@ -6110,7 +6289,7 @@
                     },
                     "errorMessage": {
                       "type": "string",
-                      "example": "you already upvote (downvote) comment"
+                      "example": "Method Not Allowed (blocked by author)"
                     }
                   }
                 }
@@ -7778,6 +7957,90 @@
                 "unmoderated",
                 "edited"
               ]
+            }
+          },
+          {
+            "in": "query",
+            "name": "page",
+            "description": "The page number",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "The limit of each page",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Post"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "description": "failed operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "fail"
+                    },
+                    "errorMessage": {
+                      "type": "string",
+                      "example": "id not found"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/subreddits/{topic}/posts/like_reels": {
+      "get": {
+        "tags": [
+          "Subreddit"
+        ],
+        "security": [
+          {
+            "BearerAuth": []
+          },
+          {
+            "cookieAuth": []
+          }
+        ],
+        "summary": "Return a listing of posts relevant to topic.",
+        "description": "This endpoint behavior depends on the topic paremeter",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "topic",
+            "description": "The category you want to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
           {
@@ -11528,6 +11791,132 @@
           }
         }
       },
+      "PostSearch": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "format": "int64",
+                "example": 10
+              },
+              "userName": {
+                "type": "string",
+                "example": "uniqueuser"
+              },
+              "profilePicture": {
+                "type": "string",
+                "example": "src url"
+              },
+              "displayName": {
+                "type": "string",
+                "example": "firstname secondname"
+              }
+            }
+          },
+          "owner": {
+            "$ref": "#/components/schemas/Subreddit"
+          },
+          "title": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "link",
+              "self",
+              "image",
+              "video"
+            ]
+          },
+          "text": {
+            "type": "string",
+            "description": "the text of the post in case the kind is self"
+          },
+          "url": {
+            "type": "string",
+            "description": "A valid URL in case the kind is link"
+          },
+          "images": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "video": {
+            "type": "string"
+          },
+          "votes": {
+            "type": "integer",
+            "description": "total number of votes"
+          },
+          "commentCount": {
+            "type": "integer",
+            "description": "total number of comments"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-07-21T17:32:28.000Z"
+          },
+          "flairId": {
+            "$ref": "#/components/schemas/flair"
+          }
+        }
+      },
+      "CommentSearch": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string",
+                "format": "int64",
+                "example": 10
+              },
+              "userName": {
+                "type": "string",
+                "example": "uniqueuser"
+              },
+              "profilePicture": {
+                "type": "string",
+                "example": "src url"
+              },
+              "displayName": {
+                "type": "string",
+                "example": "firstname secondname"
+              }
+            }
+          },
+          "post": {
+            "$ref": "#/components/schemas/PostSearch"
+          },
+          "text": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2017-07-21T17:32:28.000Z"
+          },
+          "votes": {
+            "type": "integer",
+            "description": "total number of votes"
+          },
+          "repliesCount": {
+            "type": "integer"
+          }
+        }
+      },
       "HomePost": {
         "type": "object",
         "properties": {
@@ -11824,8 +12213,153 @@
             ]
           },
           "sharedFrom": {
-            "type": "string",
-            "description": "post id if shared ,undefined if not shared"
+            "type": "object",
+            "properties": {
+              "_id": {
+                "type": "string"
+              },
+              "author": {
+                "type": "object",
+                "properties": {
+                  "_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "owner": {
+                "type": "object",
+                "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+                "properties": {
+                  "_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "icon": {
+                    "type": "string"
+                  }
+                }
+              },
+              "ownerType": {
+                "type": "string",
+                "enum": [
+                  "Subreddit",
+                  "User"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "link",
+                  "self",
+                  "image",
+                  "video"
+                ]
+              },
+              "text": {
+                "type": "string",
+                "description": "the text of the post in case the kind is self"
+              },
+              "url": {
+                "type": "string",
+                "description": "A valid URL in case the kind is link"
+              },
+              "votes": {
+                "type": "integer",
+                "description": "total number of votes"
+              },
+              "commentCount": {
+                "type": "integer",
+                "description": "total number of comments"
+              },
+              "views": {
+                "type": "integer",
+                "description": "total number of views"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2017-07-21T17:32:28.000Z"
+              },
+              "suggestedSort": {
+                "type": "string",
+                "enum": [
+                  "top",
+                  "new",
+                  "best",
+                  "old"
+                ]
+              },
+              "nsfw": {
+                "type": "boolean"
+              },
+              "spoiler": {
+                "type": "boolean"
+              },
+              "sendReplies": {
+                "type": "boolean",
+                "description": "indicates whether the post accepts replies in private messages or not"
+              },
+              "locked": {
+                "type": "boolean",
+                "description": "whether the post can receive comments or not"
+              },
+              "flairId": {
+                "$ref": "#/components/schemas/flair"
+              },
+              "flairText": {
+                "type": "string"
+              },
+              "postVoteStatus": {
+                "type": "string",
+                "enum": [
+                  "1",
+                  "0",
+                  "-1"
+                ]
+              },
+              "isSaved": {
+                "type": "boolean",
+                "example": true
+              },
+              "isHidden": {
+                "type": "boolean",
+                "example": true
+              },
+              "modState": {
+                "type": "string",
+                "enum": [
+                  "unmoderated",
+                  "approved",
+                  "removed",
+                  "spammed"
+                ]
+              },
+              "shareCount": {
+                "type": "integer",
+                "description": "Total numbers of share"
+              },
+              "images": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "video": {
+                "type": "string"
+              },
+              "sortOnHot": {
+                "type": "integer",
+                "description": "calculated value to sort on it"
+              }
+            }
           },
           "shareCount": {
             "type": "integer",
@@ -12681,8 +13215,153 @@
                   ]
                 },
                 "sharedFrom": {
-                  "type": "string",
-                  "description": "post id if shared ,undefined if not shared"
+                  "type": "object",
+                  "properties": {
+                    "_id": {
+                      "type": "string"
+                    },
+                    "author": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "owner": {
+                      "type": "object",
+                      "description": "The name of the subreddit where the post was created. If the post was created in a user profile the userName is passesd instead",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "icon": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "ownerType": {
+                      "type": "string",
+                      "enum": [
+                        "Subreddit",
+                        "User"
+                      ]
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "link",
+                        "self",
+                        "image",
+                        "video"
+                      ]
+                    },
+                    "text": {
+                      "type": "string",
+                      "description": "the text of the post in case the kind is self"
+                    },
+                    "url": {
+                      "type": "string",
+                      "description": "A valid URL in case the kind is link"
+                    },
+                    "votes": {
+                      "type": "integer",
+                      "description": "total number of votes"
+                    },
+                    "commentCount": {
+                      "type": "integer",
+                      "description": "total number of comments"
+                    },
+                    "views": {
+                      "type": "integer",
+                      "description": "total number of views"
+                    },
+                    "createdAt": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2017-07-21T17:32:28.000Z"
+                    },
+                    "suggestedSort": {
+                      "type": "string",
+                      "enum": [
+                        "top",
+                        "new",
+                        "best",
+                        "old"
+                      ]
+                    },
+                    "nsfw": {
+                      "type": "boolean"
+                    },
+                    "spoiler": {
+                      "type": "boolean"
+                    },
+                    "sendReplies": {
+                      "type": "boolean",
+                      "description": "indicates whether the post accepts replies in private messages or not"
+                    },
+                    "locked": {
+                      "type": "boolean",
+                      "description": "whether the post can receive comments or not"
+                    },
+                    "flairId": {
+                      "$ref": "#/components/schemas/flair"
+                    },
+                    "flairText": {
+                      "type": "string"
+                    },
+                    "postVoteStatus": {
+                      "type": "string",
+                      "enum": [
+                        "1",
+                        "0",
+                        "-1"
+                      ]
+                    },
+                    "isSaved": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "isHidden": {
+                      "type": "boolean",
+                      "example": true
+                    },
+                    "modState": {
+                      "type": "string",
+                      "enum": [
+                        "unmoderated",
+                        "approved",
+                        "removed",
+                        "spammed"
+                      ]
+                    },
+                    "shareCount": {
+                      "type": "integer",
+                      "description": "Total numbers of share"
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "video": {
+                      "type": "string"
+                    },
+                    "sortOnHot": {
+                      "type": "integer",
+                      "description": "calculated value to sort on it"
+                    }
+                  }
                 },
                 "shareCount": {
                   "type": "integer",
