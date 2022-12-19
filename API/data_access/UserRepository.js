@@ -309,24 +309,26 @@ class UserRepository extends Repository {
     await user.populate("meUserRelationship.userId");
     return user.meUserRelationship;
   }
-  // async changekeepLoggedIn(userId, keepLoggedIn) {
-  //   const user = await this.model.findByIdAndUpdate(
-  //     userId,
-  //     { keepLoggedIn: keepLoggedIn },
-  //     {
-  //       new: true,
-  //       runValidators: true,
-  //     }
-  //   );
-  //   return { success: true, doc: user };
-  // }
 
-  // [khaled]: I use this in a certain case in the creation of a subreddit
   async subscribe(subredditId, userId) {
-    await this.model.findOneAndUpdate(
-      { _id: userId },
+    await this.model.findByIdAndUpdate(
+      userId,
+      { $push: { subscribed: subredditId } },
       {
-        subscribed: subredditId,
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
+  async unSubscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      userId,
+      { $pull: { subscribed: subredditId } },
+      {
+        new: true,
+        runValidators: true,
       }
     );
     return true;

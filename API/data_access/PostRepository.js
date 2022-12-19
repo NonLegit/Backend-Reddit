@@ -236,7 +236,10 @@ class PostRepository extends Repository {
     }
   }
 
-  async getPostsBySubredditTopic(topic) {
+  async getPostsBySubredditTopic(topic, query) {
+    const page = query.page * 1 || 1;
+    const limit = query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
     try {
       let doc = await this.model
         .find({
@@ -244,8 +247,15 @@ class PostRepository extends Repository {
           ownerType: "Subreddit",
         })
         .populate({
-          options: { getAuthor: true, topic: topic, khaled: true },
-        });
+          path: "owner",
+          options: { getAuthor: true },
+          $group: { primaryTopic: topic },
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort("sortOnHot");
+
+      console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };

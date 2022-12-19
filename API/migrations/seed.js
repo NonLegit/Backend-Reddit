@@ -425,6 +425,7 @@ module.exports = async function seeder() {
     await Subreddit.findOneAndUpdate(
       { _id: subreddit1 },
       {
+        name: "Nonlegit",
         description: "this is a Nonlegit subreddit",
         icon: `subreddits/default.png`,
         membersCount: 1000,
