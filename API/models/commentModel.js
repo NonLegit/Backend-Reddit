@@ -162,13 +162,11 @@ commentSchema.post("find", function (result) {
 });
 commentSchema.pre("findOne", function () {
   const { userComments, getAuthor } = this.options;
-  console.log(this.options);
   if (userComments) {
     this.populate("post");
   }
   console.log(getAuthor);
   if (getAuthor) {
-    console.log("success middleware");
     this.populate("author");
   } else {
     // this.populate("author", "_id userName profilePicture profileBackground");
@@ -177,12 +175,10 @@ commentSchema.pre("findOne", function () {
 });
 commentSchema.pre("find", function () {
   const { userComments, getAuthor } = this.options;
-  console.log[this.options];
   if (userComments) {
     this.populate("post");
   }
   if (getAuthor) {
-    console.log("success middleware");
     this.populate("author");
   } else {
     this.populate("author", "_id userName profilePicture profileBackground");
