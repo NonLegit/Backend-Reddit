@@ -21,7 +21,7 @@ router
   .patch(CommentController.updateComment)
   .delete(CommentController.deleteComment);
 
-//router.post("/:commentId/vote", CommentController.commentVote);
+router.post("/:commentId/vote", CommentController.commentVote);
 router.post("/:commentId/save", CommentController.saveComment);
 router.post("/:commentId/unsave", CommentController.unSaveComment);
 router.route("/comment_tree/:postId").get(CommentController.commentTree);

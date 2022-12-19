@@ -708,7 +708,7 @@ class PostService {
       return { success: false };
     }
   }
-  // Doaa should add here code here
+  
   async addVote(user, postId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {

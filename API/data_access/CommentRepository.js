@@ -109,5 +109,16 @@ class CommentRepository extends Repository {
       return { success: false };
     }
   }
+  async updateVotesCount(commentId, newVotes) {
+    try {
+      let doc = await this.model.findByIdAndUpdate(commentId, {
+        votes: newVotes,
+      });
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
 }
 module.exports = CommentRepository;
