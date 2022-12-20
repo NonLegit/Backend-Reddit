@@ -158,5 +158,21 @@ class CommentRepository extends Repository {
     if (doc) return true;
     return false;
   }
+
+  async search(q, page, limit) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q }})
+      .select("_id post text createdAt votes repliesCount")
+      .populate({path: "post",select:"-sharedFrom", match: {ownerType: "Subreddit"}})
+      .skip(skip)
+      .limit(limit)
+      .sort({score: { $meta: "textScore" }})
+      .lean();
+
+    const result = await query;
+    return result;
+  }
 }
 module.exports = CommentRepository;

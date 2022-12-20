@@ -69,7 +69,7 @@ class PostRepository extends Repository {
     let doc = await features.query.populate(options);
     return { success: true, doc: doc };
   }
-  async getPosts(filter, query, sortType,user,people) {
+  async getPosts(filter, query, sortType, user, people) {
     try {
       // if (user) {
       //   //console.log("oooooooooooooooooooo");
@@ -97,28 +97,31 @@ class PostRepository extends Repository {
       // console.log(people.blocked);
       // console.log(query);
       let selector;
-    // this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false, type: { $nin:["postReply","userMention"] } },{ "to": userId, "isDeletedInDestination": false, type: { $nin:["postReply","userMention"] } }] }),
-        
-      if (!filter&&user) {
+      // this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false, type: { $nin:["postReply","userMention"] } },{ "to": userId, "isDeletedInDestination": false, type: { $nin:["postReply","userMention"] } }] }),
+
+      if (!filter && user) {
         // selector = { owner: { $in: user.subscribed } };
         //post is in subreddit that i subscribe
         //OR post is from a user that i follow or is my friend
         //And we didn't block each other
-        selector = { $or: [{ author: { $in: people.people } },{ owner: { $in: user.subscribed } }],  author: { $nin: people.blocked  }};
+        selector = {
+          $or: [
+            { author: { $in: people.people } },
+            { owner: { $in: user.subscribed } },
+          ],
+          author: { $nin: people.blocked },
+        };
       } else if (filter && user) {
         console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiii");
         console.log(filter);
-        selector = { owner: filter , author: { $nin: people.blocked  }};
+        selector = { owner: filter, author: { $nin: people.blocked } };
       }
 
-      if (!user&&filter) {
+      if (!user && filter) {
         selector = { owner: filter };
       }
       //  console.log(query.sort);
-      const features = new APIFeatures(
-        this.model.find(selector),
-        query
-      )
+      const features = new APIFeatures(this.model.find(selector), query)
         .filter()
         .limitFields()
         .paginate()
@@ -126,17 +129,13 @@ class PostRepository extends Repository {
       console.log(selector);
       let doc = await features.query;
       console.log(doc);
-      if (doc.length == 0&&!filter) {
+      if (doc.length == 0 && !filter) {
         console.log("======================");
-        let featuresGen =
-          new APIFeatures(
-        this.model.find(),
-        query
-      )
-        .filter()
-        .limitFields()
-        .paginate()
-        .sort();
+        let featuresGen = new APIFeatures(this.model.find(), query)
+          .filter()
+          .limitFields()
+          .paginate()
+          .sort();
         doc = await featuresGen.query;
       }
       //console.log(doc);
@@ -350,14 +349,21 @@ class PostRepository extends Repository {
     const skip = (page - 1) * limit;
 
     const query = this.model
-      .find({ $text: { $search: q }, ownerType: "Subreddit"})
+      .find({ $text: { $search: q }, ownerType: "Subreddit" })
+      .select("-sharedFrom")
       .skip(skip)
       .limit(limit)
-      .sort({[sort]: -1,  score: { $meta: "textScore" }})
+      .sort({ [sort]: -1, score: { $meta: "textScore" } })
       .lean();
 
     const result = await query;
     return result;
+  }
+
+  async incReplies(postId) {
+    await this.model.findByIdAndUpdate(postId, {
+      $inc: { commentCount: 1 },
+    });
   }
 }
 
