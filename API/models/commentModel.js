@@ -143,7 +143,11 @@ commentSchema.post("find", function (result) {
     const author = comment.author;
     // console.log("-------------------------");
     // console.log(author);
-    if (author&&author.profilePicture&&!author.profilePicture.startsWith(process.env.BACKDOMAIN)) {
+    if (
+      author &&
+      author.profilePicture &&
+      !author.profilePicture.startsWith(process.env.BACKDOMAIN)
+    ) {
       author.profilePicture =
         `${process.env.BACKDOMAIN}/` + author.profilePicture;
       author.profileBackground =
@@ -185,8 +189,14 @@ commentSchema.pre("find", function () {
   if (getAuthor) {
     this.populate("author");
   } else {
-    this.populate("author", "_id userName profilePicture profileBackground displayName");
+    this.populate(
+      "author",
+      "_id userName profilePicture profileBackground displayName"
+    );
   }
+
+  //soft delete
+  this.find({ isDeleted: false });
 });
 
 commentSchema.pre("save", function (next) {
