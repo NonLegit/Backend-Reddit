@@ -32,12 +32,15 @@ class UserRepository extends Repository {
     if (select) query = query.select(select);
     if (pop) query = query.populate(pop);
     const user = await query;
+    console.log(user);
     if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
     return { success: true, doc: user };
   }
   async findByName(userName) {
     let query = this.model.findOne({ userName: userName });
     const user = await query;
+    console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnn");
+    console.log(user);
     if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
     return { success: true, doc: user };
   }

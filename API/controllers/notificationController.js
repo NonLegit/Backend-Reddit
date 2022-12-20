@@ -88,10 +88,15 @@ class NotificationController {
   
     console.log("iiiiiiiiiiiiii");
 
-    let notification = await this.notificationServices.sendMentions(user, comment, post,mentions);
+    let notification = await this.notificationServices.sendMentions(user, comment, post, mentions);
+    console.log(notification);
     //  console.log(notification);
     if (notification.success) {
+     // if(notification.data.length==0)
       let tokens;
+      if (notification.data.length == 0) {
+        return;
+      }
       for (let i = 0; i < notification.data.length; i++) {
         console.log("comme si t' etais la");
         if (mentions[i].userId == user._id) continue;

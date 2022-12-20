@@ -22,18 +22,20 @@ class MessageService {
  }
     async createMessage(userId,message) {
         //validate post ID
-        console.log("here");
-        let userExisted = await this.userRepo.findByUserName(
-            message.to,
-            "",
-            ""
+      console.log("here");
+      console.log(message.to);
+        let userExisted = await this.userRepo.findByName(
+            message.to
+           
         );//user id to send
      // console.log(userExisted);
+      console.log(userExisted);
             if (!userExisted.success)
             return { success: false, error: userErrors.USER_NOT_FOUND };
         const messageToSend = await this.messageRepo.createMessage(userId,message,userExisted.doc._id);
         if (!messageToSend.success) {
           //  console.log(messageToSend.error);
+          console.log("moooooooooooooooooooooooooooooo");
             return { success: false, error: messageToSend.error };
 
         }
@@ -45,11 +47,11 @@ class MessageService {
      console.log("here");
      let messageExisted = await this.messageRepo.findById(parentMessageId);
 
-
+     console.log(messageExisted);
      if (!messageExisted.success) {
         return { success: false, error: messageErrors.MESSAGE_NOT_FOUND };
      }
-     if (!messageExisted.doc.to._id.equals(userId)) {
+     if (!messageExisted.doc.to._id.equals(userId)&&!messageExisted.doc.from._id.equals(userId)) {
            return { success: false, error: messageErrors.MESSAGE_NOT_FOUND_IN_INBOX };
         }
         const messageToSend = await this.messageRepo.reply(userId,text,messageExisted.doc);

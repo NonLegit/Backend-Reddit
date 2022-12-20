@@ -89,7 +89,16 @@ class MessageController {
                 message: "Invalid request",
             });
             return;
-          }
+        }
+        console.log(";;;;;;;;;;;;;;;;;;;;;;;;;;;;");
+        console.log(req.body.subject.length);
+        if (req.body.subject.length >20) {
+            res.status(400).json({
+                status: "fail",
+                message: "Subject must have less or equal than 100 characters",
+            });
+            return;
+        }
           
           let messageToSend = await this.messageServices.createMessage(req.user._id, req.body);
            // console.log(messageToSend);
@@ -210,7 +219,8 @@ class MessageController {
       return;
     }
     console.log("iiiiiiiiiiiiii");
-    let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post,req.mentions);
+      let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post, req.mentions);
+      console.log(req.post);
     
     // if (messageToSend.success) {
       

@@ -22,6 +22,7 @@ class MessageRepository extends Repository {
            }
            
          };
+         console.log(data);
             let messageToSend = await this.model.create(data);
          if (!messageToSend) {
           
@@ -33,7 +34,7 @@ class MessageRepository extends Repository {
             return { success: true, doc: messageToSend };
             
        } catch (err) {
-         console.log("nnnnnnnnnnnnnnnnnnnnnnnnnn");
+         console.log("nnnnnnnnnnnnnnnnnnnnnnnnnn"+err);
          //console.log(err.errors.subject.text);
             return { success: false, ...decorateError(err) };
         }
@@ -48,7 +49,8 @@ class MessageRepository extends Repository {
            type: "userMessage",
            from: userId,
            to: parentMessage.from._id,
-           subject: parentMessage.subject
+           subject: parentMessage.subject,
+           parentMessage:parentMessage._id
            
          };
             let messageToSend = await this.model.create(data);

@@ -13,7 +13,16 @@ class NotificationRepository extends Repository {
         try {
             let data;
             let typeOfReply = (comment.type == "Post") ? "postReply" : 'commentReply';
+            console.log(comment);
        //     console.log(post);
+            let followedUserId;
+            if (typeOfReply == 'commentReply') {
+                console.log("ppppppppppppp");
+                followedUserId= comment.parentCommentAuthor;
+            } else {
+                followedUserId = post.author._id;
+            }
+            
             if (!post.subreddit) {
                 data = {
                     type: typeOfReply,
@@ -23,7 +32,7 @@ class NotificationRepository extends Repository {
                         profilePicture: user.profilePicture
                     },
                     followedUser: {
-                        _id: post.author._id,
+                        _id: followedUserId,
                         userName: post.author.userName
                         
                     },
@@ -50,7 +59,7 @@ class NotificationRepository extends Repository {
                         text: comment.text
                     },
                     followedUser: {
-                        _id: post.author._id
+                        _id: followedUserId
                         
                     },
                     post: post._id
@@ -139,11 +148,11 @@ class NotificationRepository extends Repository {
                
             }
             console.log(listNotifactions);
+            console.log("jjjjjjjjjjjjjjjjjjjjjjjjj");
+            // if (listNotifactions.length==0)
+            //     return { success: false, error: mongoErrors.UNKOWN };
             
-            if (listNotifactions.length==0)
-                return { success: false, error: mongoErrors.UNKOWN };
-            
-        
+            console.log(listNotifactions);
         
             //notify ba2a
             return { success: true, doc: listNotifactions };

@@ -132,15 +132,20 @@ class CommentService {
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
     await comment.doc.populate("author", "_id userName profilePicture profileBackground");
+    let parentComment=await this.commentRepo.getComment(comment.doc.parent);
+         console.log(".......................");
+     console.log(parentComment.doc.author._id);
     comment.doc.author.profilePicture =
       `${process.env.BACKDOMAIN}/` + comment.doc.author.profilePicture;
     comment.doc.author.profileBackground =
       `${process.env.BACKDOMAIN}/` + comment.doc.author.profileBackground;
 
+    // console.log(commentReplyParent);
     let commentToNotify = {
       _id: comment.doc._id,
       text: comment.doc.text,
       type: comment.doc.parentType,
+      parentCommentAuthor: parentComment.doc.author._id
     };
     let postToNotify;
 

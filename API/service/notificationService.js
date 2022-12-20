@@ -10,7 +10,7 @@ class NotificationService {
   async addReplyNotification(user,comment,post) {
     //validate post ID
     const notification = await this.notificationRepo.addReplyNotification(user,comment,post);
-    if (!notification)
+    if (!notification.success)
       return { success: false, error: notification.error };
 
     
@@ -22,7 +22,7 @@ class NotificationService {
    async sendMentions(user,comment,post,mentions) {
     //validate post ID
     const notification = await this.notificationRepo.sendMentions(user,comment,post,mentions);
-    if (!notification)
+    if (!notification.success)
       return { success: false, error: notification.error };
 
     
@@ -33,7 +33,7 @@ class NotificationService {
     //validate post ID
      const notification = await this.notificationRepo.addFollowNotification(follower, followed);
     // console.log(notification);
-    if (!notification)
+    if (!notification.success)
       return { success: false, error: notification.error };
 
     
@@ -44,8 +44,8 @@ class NotificationService {
   async getFirebaseToken(userId) {
     //validate post ID
     const tokens = await this.userRepo.getFirebaseToken(userId);
-    if (!tokens)
-      return { success: false, error: notification.error };
+    if (!tokens.success)
+      return { success: false, error: tokens.error };
 
     
     
