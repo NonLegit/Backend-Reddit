@@ -361,6 +361,30 @@ class UserService {
       return response;
     }
   }
+
+
+
+
+
+
+
+  async getUserWithFollowers(id) {
+    let user = await this.userRepository.findById(id, "", "");
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
+  }
   /**
    * @property {Function} getUserByEmail get user information from database by email
    * @param {string} email - user email
@@ -929,6 +953,30 @@ class UserService {
       }
     });
     return followers;
+  }
+
+
+
+
+    getPeopleUserKnows(user) {
+      let people = [];
+      let blockedTwoWay= [];
+    user.meUserRelationship.forEach((element) => {
+      if (element.status === "followed" || element.status === "friend") {
+        
+        if (!user.userMeRelationship.find((el) => { return (el.userId.equals(element.userId)&&el.status=="blocked") })) {
+            people.push(element.userId);
+        }       
+        else {
+          blockedTwoWay.push(element.userId)
+        }
+      }
+      if (element.status === "blocked") {
+        blockedTwoWay.push(element.userId);
+      }
+    });
+      return { people:people, blocked:blockedTwoWay};
+     // return people;
   }
   isFollowed(me, userId) {
     const relation = me.meUserRelationship.find(

@@ -14,7 +14,7 @@ router.use(AuthenticationController.authorize);
 
 
 
-router.route("/mark_as_read").post(MessageController.markAllAsRead);
+router.route("/mark_as_read").patch(MessageController.markAllAsRead);
 router.route("/sent").get(MessageController.getSentMessage);//not show delete
 router.route("/unread").get(MessageController.getUnreadMessage);//
 router.route("/").post(MessageController.sendMessage);
@@ -23,6 +23,7 @@ router.route("/post_replies").get(MessageController.getPostReplies);//not show d
 router.route("/").get(MessageController.getMessages);//inbox
 router.route("/all").get(MessageController.getAllMessages);//all
 
+router.route("/:parentMessageId/reply").post(MessageController.reply);
 //mentions
 
 //inbocx al except post replies and mentions

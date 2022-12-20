@@ -4,7 +4,7 @@ const User = require('./userModel');
 const subjectSchema = new mongoose.Schema({text: {
       type: String,
       required: false,
-      maxlength: [20, 'Subject must have less or equal than 100 characters']
+      maxlength: [20, 'Subject must have less or equal than 20 characters']
       },});
 const messageSchema = new mongoose.Schema({
 
