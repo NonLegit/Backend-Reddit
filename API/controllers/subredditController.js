@@ -390,6 +390,7 @@ class subredditController {
     });
   };
   // TODO: service tests
+  // TODO: this for deleting DB
   subredditsModerated = async (req, res) => {
     let userName = req.params.username;
 
