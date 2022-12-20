@@ -109,15 +109,16 @@ class AuthenticationController {
         const user = await this.UserServices.signUp(email, userName, password);
         if (user.success === true) {
           //res.status(201).json(response.body);
-          try {
-            var fs = require("fs");
-            var dir = `./public/users/${userName}`;
-            if (!fs.existsSync(dir)) {
-              fs.mkdirSync(dir, { recursive: true });
-            }
-          } catch (error) {
-            console.log(error);
-          }
+          
+          // try {
+          //   var fs = require("fs");
+          //   var dir = `./public/users/${userName}`;
+          //   if (!fs.existsSync(dir)) {
+          //     fs.mkdirSync(dir, { recursive: true });
+          //   }
+          // } catch (error) {
+          //   console.log(error);
+          // }
 
           this.createCookie(res, user.token, 201);
         } else {
