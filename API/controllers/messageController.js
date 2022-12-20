@@ -44,37 +44,41 @@ class MessageController {
 //     }
  
   modMessage = async (req, res) => {
-    if (!req.messageObject) {
-                 res.status(400).json({
-                status: "fail",
-                message: "Invalid request",
-            });
-            return;
-    }
-     let invite = await this.messageServices.modMessage(req.messageObject);
-    //  console.log(notification);
-    if (invite.success) {
-      
-      let tokens = await this.notificationServices.getFirebaseToken(req.messageObject.to);
-      // console.log(tokens.data.firebaseToken[0]);
-      // console.log(notification.data);
-      let message;
-      if (tokens.success) {
-        message = {
-          to: tokens.data.firebaseToken,
-          data: { val: JSON.stringify(invite.data) }
-        }
-        
-        fcm.send(message, (err, response) => {
-          if (err) {
-            console.log("Something has gone wrong!" + err);
-          } else {
-            console.log("Successfully sent with response: ");
-          }
+    try {
+      if (!req.messageObject) {
+        res.status(400).json({
+          status: "fail",
+          message: "Invalid request",
         });
+        return;
       }
+      let invite = await this.messageServices.modMessage(req.messageObject);
+      //  console.log(notification);
+      if (invite.success) {
+      
+        let tokens = await this.notificationServices.getFirebaseToken(req.messageObject.to);
+        // console.log(tokens.data.firebaseToken[0]);
+        // console.log(notification.data);
+        let message;
+        if (tokens.success) {
+          message = {
+            to: tokens.data.firebaseToken,
+            data: { val: JSON.stringify(invite.data) }
+          }
+        
+          fcm.send(message, (err, response) => {
+            if (err) {
+              console.log("Something has gone wrong!" + err);
+            } else {
+              console.log("Successfully sent with response: ");
+            }
+          });
+        }
+      }
+      return;
+    } catch (err) {
+      return;
     }
-      return ;
  }
   
  
@@ -106,7 +110,9 @@ class MessageController {
              // console.log(messageToSend.data.to);
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
-            console.log(tokens);
+            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
+            console.log(messageToSend.data);
+            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
               if (tokens.success) {
                   message = {
                       to: tokens.data.firebaseToken,
@@ -213,37 +219,21 @@ class MessageController {
      
     }
 
-    createReplyMessage=async (req, res) => {
-    console.log("herssssssssssssssssssssssssssssssssssssse");
-    if (!req.user || !req.comment || !req.post||!req.mentions) {
-      return;
-    }
-    console.log("iiiiiiiiiiiiii");
+  createReplyMessage = async (req, res) => {
+    try {
+      console.log("herssssssssssssssssssssssssssssssssssssse");
+      if (!req.user || !req.comment || !req.post || !req.mentions) {
+        return;
+      }
+      console.log("iiiiiiiiiiiiii");
       let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post, req.mentions);
       console.log(req.post);
     
-    // if (messageToSend.success) {
-      
-    //   let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
-    // //   console.log(tokens.data.firebaseToken[0]);
-    // //   console.log(notification.data);
-    //   let message;
-    //     if (tokens.success&&tokens.data.firebaseToken.length!=0) {
-    //         message = {
-    //             registration_ids: tokens.data.firebaseToken,
-    //             data: { val: JSON.stringify(messageToSend.data) }
-    //         }
-        
-    //         fcm.send(message, (err, response) => {
-    //             if (err) {
-    //                 console.log("Something has gone wrong!" + err);
-    //             } else {
-    //                 console.log("Successfully sent with response: ");
-    //             }
-    //         });
-    //     }
-    // }
-      return ;
+     
+      return;
+    } catch (err) {
+      return;
+    }
     }
 
   getMessages = async (req, res) => {
