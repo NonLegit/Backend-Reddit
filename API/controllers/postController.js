@@ -205,6 +205,7 @@ class PostController {
           // get vote of me if these post i vote on it
           posts = this.postServices.setVotePostStatus(me, posts);
           posts = this.postServices.setSavedPostStatus(me, posts);
+          posts = this.postServices.removeHiddenPosts(me, posts);
           posts = this.postServices.setHiddenPostStatus(me, posts);
           posts = this.postServices.setPostOwnerData(posts);
           //console.log(posts[0]);
@@ -809,6 +810,7 @@ class PostController {
         let posts = await this.postServices.getUserPosts(userId, sort,limit,page);
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
+        posts = this.postServices.removeHiddenPosts(me, posts);
         posts = this.postServices.setHiddenPostStatus(me, posts);
         posts = this.postServices.setPostOwnerData(posts);
         posts = this.postServices.filterPosts(posts, comments);
