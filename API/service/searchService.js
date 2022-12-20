@@ -24,14 +24,13 @@ class CommentService {
     switch (type) {
       case "posts":
         result = await this.postRepo.search(q, page, limit, sort, time);
-        
+
         result.forEach((post) => {
-          const { author, owner, ownerType } = post;
-          if (post.ownerType === "User") delete post.owner;
+          const { author, owner } = post;
           if (!author.profilePicture.startsWith(process.env.BACKDOMAIN))
             author.profilePicture =
               `${process.env.BACKDOMAIN}/` + author.profilePicture;
-          if (post.owner && !owner.icon.startsWith(process.env.BACKDOMAIN))
+          if (!owner.icon.startsWith(process.env.BACKDOMAIN))
             owner.icon = `${process.env.BACKDOMAIN}/` + owner.icon;
         });
         break;
@@ -65,6 +64,18 @@ class CommentService {
           if (userStatus.get(user._id.toString()) === "followed") {
             user.isFollowed = true;
           } else user.isFollowed = false;
+        });
+        break;
+      case "comments":
+        result = await this.commentRepo.search(q, page, limit);
+        result = result.filter((comment) => comment.post !== null);
+        result.forEach((comment) => {
+          const { author, owner } = comment.post;
+          if (!author.profilePicture.startsWith(process.env.BACKDOMAIN))
+            author.profilePicture =
+              `${process.env.BACKDOMAIN}/` + author.profilePicture;
+          if (!owner.icon.startsWith(process.env.BACKDOMAIN))
+            owner.icon = `${process.env.BACKDOMAIN}/` + owner.icon;
         });
         break;
     }

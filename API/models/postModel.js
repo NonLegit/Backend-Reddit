@@ -110,12 +110,12 @@ const postSchema = new mongoose.Schema({
     default: 0,
     min: 0,
   },
-  shareCount: {
-    type: Number,
-    required: true,
-    default: 0,
-    min: 0,
-  },
+  // shareCount: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0,
+  //   min: 0,
+  // },
   suggestedSort: {
     type: String,
     required: true,
@@ -172,16 +172,24 @@ postSchema.pre("save", function (next) {
 //Whoever added this middleware should add more restrictions
 postSchema.pre("find", function () {
   const { getAuthor } = this.options;
-  this.populate("owner", "_id fixedName name userName icon profilePicture primaryTopic");
-    if (getAuthor === true) {
-      this.populate("author");
-    } else {
-      this.populate("sharedFrom");
-      this.populate("author", "_id userName profilePicture profileBackground");
-    }
+  this.populate(
+    "owner",
+    "_id fixedName name userName icon profilePicture primaryTopic"
+  );
+  if (getAuthor === true) {
+    this.populate("author");
+  } else {
+    this.populate("sharedFrom");
+    this.populate(
+      "author",
+      "_id userName profilePicture profileBackground displayName"
+    );
+  }
 
-    this.populate("flairId");
-  
+  this.populate("flairId");
+
+  //soft delete
+  this.find({ isDeleted: false });
 });
 
 postSchema.post("init", function (doc) {

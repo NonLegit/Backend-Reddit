@@ -1,7 +1,7 @@
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
-const { postErrors } = require("../error_handling/errors");
+const { postErrors, subredditErrors } = require("../error_handling/errors");
 
 /**
  * FileController Class which handles authentication and authorization of user in backend
@@ -124,7 +124,6 @@ class FileController {
     // check on type is provided or not
     // check subreddit exists
 
-    // check user is moderator in subreddit
 
     const type = req.body.type;
     req.file.filename = `${req.params.subredditName}/subreddit-${
@@ -233,7 +232,12 @@ class FileController {
 
     if (kind === "image") {
       const allowedExts = ["jpeg", "jpg", "png", "svg", "webp"];
-      const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
+      const allowedMimeTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/svg+xml",
+        "image/webp",
+      ];
       if (
         !allowedExts.includes(extension) ||
         !allowedMimeTypes.includes(mimetype)
@@ -261,7 +265,6 @@ class FileController {
         .toFormat("jpeg")
         .jpeg({ quality: 90 })
         .toFile(`public/posts/${file.filename}`);
-
     } else if (kind === "video") {
       const allowedExts = ["mp4", "webm"];
       const allowedMimeTypes = ["video/mp4", "video/webm"];
@@ -289,7 +292,11 @@ class FileController {
       fs.writeFileSync(`public/posts/${file.filename}`, file.buffer);
     }
 
-    const updatedPost = await this.PostService.addFile(postId, kind, "posts/" + file.filename);
+    const updatedPost = await this.PostService.addFile(
+      postId,
+      kind,
+      "posts/" + file.filename
+    );
 
     res.status(201).json({
       status: "success",

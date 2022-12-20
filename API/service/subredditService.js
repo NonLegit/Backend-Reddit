@@ -199,6 +199,11 @@ class subredditService {
               subredditExisted.data._id,
               data.permissions
             );
+            let updateInvetation = await this.subredditRepository.invite(
+              userId,
+              subredditName
+            );
+
             if (!updateModerators.success) return updateModerators;
             let messageObj = {
               from: userId,
@@ -412,12 +417,29 @@ class subredditService {
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
-      let subreddits = await this.subredditRepository.getSubreddits(
-        userId,
-        "id"
-      );
-      if (!subreddits.success) return subreddits;
-      else return { success: true, data: subreddits.doc };
+      let sub = await this.subredditRepository.getSubreddits(userId, "id");
+      if (!sub.success) return sub;
+      else {
+        let subreddits = [];
+        for (const subreddit of sub.doc) {
+          if (subreddit.users.find((el) => el._id.equals(userId))) {
+            subreddit.isJoined = true;
+          }
+
+          subreddits.push({
+            _id: subreddit._id,
+            fixedName: subreddit.fixedName,
+            isJoined: subreddit.isJoined,
+            icon: subreddit.icon,
+            backgroundImage: subreddit.backgroundImage,
+            membersCount: subreddit.membersCount,
+            description: subreddit.description,
+          });
+        }
+        return { success: true, data: subreddits };
+
+        // return { success: true, data: subreddits.doc };
+      }
     } else if (location === "subscriber") {
       // ! get it from user (easy too)
       let subreddits = await this.userRepository.getSubreddits(userId);
@@ -1005,7 +1027,7 @@ class subredditService {
   }
 
   // TODO: service tests
-  async categorizedSubreddits(category, query) {
+  async categorizedSubreddits(category, query, userId) {
     let subs = await this.subredditRepository.categorySubreddits(
       query,
       category
@@ -1014,17 +1036,49 @@ class subredditService {
       if (subs.error === mongoErrors.NOT_FOUND) return subs;
       else return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    return { success: true, data: subs.doc };
+
+    let subreddits = [];
+    for (const subreddit of subs.doc) {
+      if (subreddit.users.find((el) => el._id.equals(userId))) {
+        subreddit.isJoined = true;
+      }
+
+      subreddits.push({
+        _id: subreddit._id,
+        fixedName: subreddit.fixedName,
+        isJoined: subreddit.isJoined,
+        icon: subreddit.icon,
+        backgroundImage: subreddit.backgroundImage,
+        membersCount: subreddit.membersCount,
+        description: subreddit.description,
+      });
+    }
+    return { success: true, data: subreddits };
   }
 
   // TODO: service tests
-  async randomSubreddits(query) {
-    let subs = await this.subredditRepository.randomSubreddits(query);
+  async randomSubreddits(query, userId) {
+    let subs = await this.subredditRepository.randomSubreddits(query, userId);
     if (!subs.success) {
       if (subs.error === mongoErrors.NOT_FOUND) return subs;
       else return { success: false, error: subredditErrors.MONGO_ERR };
     }
-    return { success: true, data: subs.doc };
+    console.log(subs);
+    let subreddits = [];
+    for (const subreddit of subs.doc) {
+      if (subreddit.users.find((el) => el._id.equals(userId))) {
+        subreddit.isJoined = true;
+      }
+
+      subreddits.push({
+        _id: subreddit._id,
+        fixedName: subreddit.fixedName,
+        isJoined: subreddit.isJoined,
+        icon: subreddit.icon,
+        backgroundImage: subreddit.backgroundImage,
+      });
+    }
+    return { success: true, data: subreddits };
   }
 
   async approveUser(userId, subredditName, approvedUser, action) {
@@ -1200,6 +1254,7 @@ class subredditService {
 
     return { success: true, data: stats.doc }; //
   }
+
   //! ===============================================================================================
 
   /**
@@ -1292,7 +1347,7 @@ class subredditService {
   //  * @returns {Object} subreddit object if the moderator exists within it and an error obj if not
   //  */
   checkModerator(subreddit, userID) {
-    if (!subreddit.doc.moderators.find((el) => el.id.equals(userID))) {
+    if (!subreddit.doc.moderators.find((el) => el.user.equals(userID))) {
       return { success: false, error: subredditErrors.NOT_MODERATOR };
     }
 
@@ -1446,6 +1501,7 @@ class subredditService {
     return {
       icon: subreddit.doc.icon,
       backgroundImage: subreddit.doc.backgroundImage,
+      theme: subreddit.doc.theme,
     };
   }
 }

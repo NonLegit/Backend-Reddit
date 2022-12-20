@@ -21,6 +21,19 @@ describe("Comment service test", () => {
         };
         return { success: true, doc: data };
       },
+      getComment: async () => {
+        return {
+          success: true,
+          doc: {
+            _id: "1",
+            text: "text",
+            type: "Post",
+            author: {
+              _id: "2",
+            },
+          },
+        };
+      },
       addReply: async (parent, child) => {},
       findById: async (id, fields) => {
         return {
@@ -39,6 +52,7 @@ describe("Comment service test", () => {
         };
       },
       addReply: async (parent, child) => {},
+      incReplies: async (postId) => {},
     };
     const commentServices = new CommentService({
       CommentRepository,
