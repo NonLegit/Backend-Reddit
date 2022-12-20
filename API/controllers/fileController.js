@@ -123,8 +123,18 @@ class FileController {
   uploadSubredditImage = async (req, res, next) => {
     // check on type is provided or not
     // check subreddit exists
-
+    let subreddit = await this.subredditService.retrieveSubreddit(
+      req.user._id,
+      req.params.subredditName,
+      true
+    );
+    if (!subreddit.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+    console.log(subreddit);
     // check user is moderator in subreddit
+    if (!subreddit.data.moderators.find((el) => el.user.equals(req.user._id))) {
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+    }
 
     const type = req.body.type;
     req.file.filename = `${req.params.subredditName}/subreddit-${
@@ -233,7 +243,12 @@ class FileController {
 
     if (kind === "image") {
       const allowedExts = ["jpeg", "jpg", "png", "svg", "webp"];
-      const allowedMimeTypes = ["image/jpeg", "image/png", "image/svg+xml", "image/webp"];
+      const allowedMimeTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/svg+xml",
+        "image/webp",
+      ];
       if (
         !allowedExts.includes(extension) ||
         !allowedMimeTypes.includes(mimetype)
@@ -261,7 +276,6 @@ class FileController {
         .toFormat("jpeg")
         .jpeg({ quality: 90 })
         .toFile(`public/posts/${file.filename}`);
-
     } else if (kind === "video") {
       const allowedExts = ["mp4", "webm"];
       const allowedMimeTypes = ["video/mp4", "video/webm"];
@@ -289,7 +303,11 @@ class FileController {
       fs.writeFileSync(`public/posts/${file.filename}`, file.buffer);
     }
 
-    const updatedPost = await this.PostService.addFile(postId, kind, "posts/" + file.filename);
+    const updatedPost = await this.PostService.addFile(
+      postId,
+      kind,
+      "posts/" + file.filename
+    );
 
     res.status(201).json({
       status: "success",
