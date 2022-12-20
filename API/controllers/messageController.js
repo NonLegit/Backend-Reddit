@@ -61,7 +61,7 @@ class MessageController {
       let message;
       if (tokens.success) {
         message = {
-          registration_ids: tokens.data.firebaseToken,
+          to: tokens.data.firebaseToken,
           data: { val: JSON.stringify(invite.data) }
         }
         
@@ -109,7 +109,7 @@ class MessageController {
             console.log(tokens);
               if (tokens.success&&tokens.data.firebaseToken.length!=0) {
                   message = {
-                      registration_ids: tokens.data.firebaseToken,
+                      to: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
                   }
             };
@@ -169,7 +169,7 @@ class MessageController {
             console.log(tokens);
               if (tokens.success&&tokens.data.firebaseToken.length!=0) {
                   message = {
-                      registration_ids: tokens.data.firebaseToken,
+                      to: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
                   }
             };

@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
     validate: [validator.isEmail, " Provide valid email"],
   },
   firebaseToken: {
-    type: [String],
+    type: String,
     required: false,
     select: false,
   },

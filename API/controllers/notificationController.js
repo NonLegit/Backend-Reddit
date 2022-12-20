@@ -62,7 +62,7 @@ class NotificationController {
       let message;
       if (tokens.success && tokens.data.firebaseToken.length != 0) {
         message = {
-          registration_ids: tokens.data.firebaseToken,
+          to: tokens.data.firebaseToken,
           data: { val: JSON.stringify(notification.data) }
         }
         
@@ -106,7 +106,7 @@ class NotificationController {
         if (oneToken.success) {
         
          message = {
-          registration_ids:oneToken.data.firebaseToken,
+          to:oneToken.data.firebaseToken,
            data: { val: JSON.stringify(notification.data[i]) }
           }
         };
@@ -143,7 +143,7 @@ class NotificationController {
       let message;
       if (tokens.success) {
          message = {
-          registration_ids:tokens.data.firebaseToken,
+          to:tokens.data.firebaseToken,
            data: { val: JSON.stringify(notification.data) }
           }
         };
