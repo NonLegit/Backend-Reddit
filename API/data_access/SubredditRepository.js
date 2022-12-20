@@ -90,7 +90,8 @@ class SubredditRepository extends Repository {
           fixedName: subredditName,
           "moderators.user": userID,
         })
-        .select({ "moderators.$": 1 });
+        .select({ "moderators.$": 1 })
+        .populate("moderators.user", "_id userName joinDate profilePicture");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -112,7 +113,8 @@ class SubredditRepository extends Repository {
           fixedName: subredditName,
           "moderators.user": userID,
         })
-        .select({ "moderators.$": 1 });
+        .select({ "moderators.$": 1 })
+        .populate("moderators.user", "_id userName joinDate profilePicture");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -492,6 +494,7 @@ class SubredditRepository extends Repository {
     const page = query.page * 1 || 1;
     const limit = query.limit * 1 || 100;
     const skip = (page - 1) * limit;
+
     try {
       let doc = await this.model
         .find({
@@ -514,7 +517,7 @@ class SubredditRepository extends Repository {
     try {
       let doc = await this.model
         .find({ khaled: userId })
-        .select("_id icon fixedName isJoined users")
+        .select("_id icon fixedName isJoined users membersCount description")
         .skip(skip)
         .limit(limit);
 
@@ -735,6 +738,51 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  async disInvite(userId, subredditName) {
+    try {
+      const user = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $pull: {
+            invitations: {
+              user: userId,
+            },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+  async invitations(subredditName) {
+    try {
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+        })
+        .select("invitations")
+        .populate("invitations.user", "_id userName joinDate profilePicture");
+
+      const doc = await tempDoc;
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
+  }
+
+  async traffic(subredditName) {}
 
   async search(q, page, limit) {
     const skip = (page - 1) * limit;

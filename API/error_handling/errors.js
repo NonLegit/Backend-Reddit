@@ -51,7 +51,7 @@ exports.notificationErrors = Object.freeze({
 exports.messageErrors = Object.freeze({
   MONGO_ERR: 0,
   MESSAGE_NOT_FOUND: 1,
-  MESSAGE_NOT_FOUND_IN_INBOX:2
+  MESSAGE_NOT_FOUND_IN_INBOX: 2,
 });
 
 exports.subredditErrors = Object.freeze({
@@ -67,7 +67,8 @@ exports.subredditErrors = Object.freeze({
   NO_INVITATION: 9,
   RULE_TAKEN: 15,
   RULE_NOT_FOUND: 17,
-  CANOT_DELETE:100
+  CANNOT_DELETE: 100,
+  CANNOT_UPDATE: 101,
 });
 
 exports.userErrors = Object.freeze({

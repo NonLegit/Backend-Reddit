@@ -388,7 +388,6 @@ class AuthenticationController {
    */
   facebookValidation = async (req, res, next) => {
     let user = req.user;
-    //console.log(user);
     if (user.status == "fail") {
       // user should be created
       const userName = "user";
@@ -499,6 +498,7 @@ class AuthenticationController {
                 req.user
               );
               //change email using update email
+
               if (response.success === true) {
                 const changedUser = await this.UserServices.updateUserEmail(
                   req.user._id,
@@ -508,8 +508,9 @@ class AuthenticationController {
                   status: "success",
                 });
               } else {
-                console.log("nooo");
+
                 response = this.errorResponse(response.error, response.msg);
+                console.log(response);
                 res.status(response.stat).json({
                   status: "fail",
                   errorMessage: response.msg,

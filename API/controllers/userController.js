@@ -116,6 +116,7 @@ class UserController {
       nsfw: user.nsfw,
       socialLinks: user.socialLinks,
       country: user.country,
+      emailVerified: user.emailVerified,
     };
     res.status(200).json({
       status: "success",

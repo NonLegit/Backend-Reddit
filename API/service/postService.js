@@ -107,10 +107,17 @@ class PostService {
         return { success: false, error: postErrors.INVALID_OWNER };
       const subreddit = await this.subredditRepo.findById(
         data.owner,
-        "flairIds"
+        "flairIds allowImgs allowVideos allowLinks"
       );
       if (!subreddit.success)
         return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
+
+      if (
+        (data.kind === "image" && !subreddit.doc.allowImgs) ||
+        (data.kind === "video" && !subreddit.doc.allowVideos) ||
+        (data.kind === "link" && !subreddit.doc.allowLinks)
+      )
+        return { success: false, error: postErrors.INVALID_POST_KIND };
 
       if (data.flairId && !subreddit.doc.flairIds.includes(data.flairId)) {
         return { success: false, error: postErrors.FLAIR_NOT_FOUND };
@@ -133,6 +140,7 @@ class PostService {
       data.kind = parentPost.doc.kind;
     }
 
+    data.createdAt = Date.now();
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
@@ -191,14 +199,14 @@ class PostService {
           sharedOwner["icon"] = newPosts[i].sharedFrom.owner.icon;
         }
         newPosts[i].sharedFrom.owner = sharedOwner;
-  
+
         let sharedAuthor = {};
         sharedAuthor["_id"] = newPosts[i].sharedFrom.author._id;
         sharedAuthor["name"] = newPosts[i].sharedFrom.author.userName;
         sharedAuthor["icon"] =
           `${process.env.BACKDOMAIN}/` +
           newPosts[i].sharedFrom.author.profilePicture;
-  
+
         newPosts[i].sharedFrom["author"] = sharedAuthor;
       }
     }
@@ -348,6 +356,9 @@ class PostService {
       }
     }
     //console.log(newPosts)
+    newPosts = newPosts.filter(function (item) {
+      return !item.isDeleted;
+    });
     return newPosts;
   }
   /**
@@ -726,6 +737,9 @@ class PostService {
         name: newPosts[i].savedPost.author.userName,
       };
     }
+    newPosts = newPosts.filter(function (item) {
+      return !item.savedPost.isDeleted;
+    });
     return newPosts.reverse();
   }
   filterPosts(posts, comments) {
