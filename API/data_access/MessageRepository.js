@@ -22,6 +22,37 @@ class MessageRepository extends Repository {
            }
            
          };
+         console.log(data);
+            let messageToSend = await this.model.create(data);
+         if (!messageToSend) {
+          
+           return { success: false, error: mongoErrors.UNKOWN };
+         }
+        
+        
+            //notify ba2a
+            return { success: true, doc: messageToSend };
+            
+       } catch (err) {
+         console.log("nnnnnnnnnnnnnnnnnnnnnnnnnn"+err);
+         //console.log(err.errors.subject.text);
+            return { success: false, ...decorateError(err) };
+        }
+            
+  }
+  async reply(userId, text,parentMessage) {
+       try {
+             
+
+         let data = {
+           text: text,
+           type: "userMessage",
+           from: userId,
+           to: parentMessage.from._id,
+           subject: parentMessage.subject,
+           parentMessage:parentMessage._id
+           
+         };
             let messageToSend = await this.model.create(data);
          if (!messageToSend) {
           
@@ -77,30 +108,67 @@ class MessageRepository extends Repository {
            
                data = {
                     type: 'postReply',
-                    from:  user._id,
-            
-                   
-                    
-                    comment: comment._id,
-                       
-                    to:  post.author._id,
-                        
-                    
+                    from:  user._id,                 
+                    comment: comment._id,    
+                    to:  post.author._id,  
                     post: post._id
          };
            console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
-       } else {
-          
+       } else {        
                 data = {
                     type: 'postReply',
                     from:  user._id,
-            
                    subreddit:  post.subreddit._id,
-                    comment: comment._id,
-                       
-                    to:  post.author._id,
-                        
+                    comment: comment._id,     
+                    to:  post.author._id,       
+                    post: post._id
+                };
+       }
+       
+      // console.log(data);
+       let message = await this.model.create(data);
+       console.log("comme un enfannt");
+     //  console.log(message);
+       console.log("comme un enfannt");
+            if (!message)
+                return { success: false, error: mongoErrors.UNKOWN };
+            
+        
+        
+            //notify ba2a
+            return { success: true, doc: message };
+            
+     } catch (err) {
+       console.log(err);
+            return { success: false, ...decorateError(err) };
+        }
+            
+       
+  }
+  
+    async createMentionMessage(user, comment, post) {
+     try {
+      
+       let data;
+      
+       if (!post.subreddit) {
+           
+               data = {
+                    type: 'postReply',
+                    from:  user._id,                 
+                    comment: comment._id,    
+                    to:  post.author._id,  
+                 post: post._id,
                     
+         };
+           console.log("uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu");
+       } else {        
+                data = {
+                    type: 'postReply',
+                    from:  user._id,
+                   subreddit:  post.subreddit._id,
+                    comment: comment._id,     
+                    to:  post.author._id,       
                     post: post._id
                 };
        }
