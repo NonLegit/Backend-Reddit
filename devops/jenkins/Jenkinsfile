@@ -2,7 +2,7 @@ pipeline {
     agent any
     stages {
         stage('Building backend') {
-    	    when { branch "main" }
+    	    when { branch "development" }
             environment {
                 GIT_PASSWORD = credentials('github-pat')
                 DB_CREDS = credentials('db-creds')
@@ -24,7 +24,7 @@ pipeline {
             }
         }
         stage('Deploying backend') {
-    	    when { branch "main" }
+    	    when { branch "development" }
             environment {
                 DB_CREDS = credentials('db-creds')
                 NONLEGIT = credentials('nonlegit-db-user')
