@@ -439,10 +439,7 @@ module.exports = async function seeder() {
         ],
         $push: {
           moderators: {
-            id: user1._id,
-            userName: user1.userName,
-            joiningDate: Date.now(),
-            profilePicture: `users/default.png`,
+            user: user1._id,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -480,10 +477,7 @@ module.exports = async function seeder() {
         ],
         $push: {
           moderators: {
-            id: user2._id,
-            userName: user2.userName,
-            joiningDate: Date.now(),
-            profilePicture: `users/default.png`,
+            user: user2._id,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -520,10 +514,7 @@ module.exports = async function seeder() {
         ],
         $push: {
           moderators: {
-            id: user3._id,
-            userName: user3.userName,
-            joiningDate: Date.now(),
-            profilePicture: `users/default.png`,
+            user: user3._id,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -560,10 +551,7 @@ module.exports = async function seeder() {
         ],
         $push: {
           moderators: {
-            id: user4._id,
-            userName: user4.userName,
-            joiningDate: Date.now(),
-            profilePicture: `users/default.png`,
+            user: user4._id,
             moderatorPermissions: {
               all: true,
               access: true,
@@ -600,10 +588,7 @@ module.exports = async function seeder() {
         ],
         $push: {
           moderators: {
-            id: user5._id,
-            userName: user5.userName,
-            joiningDate: Date.now(),
-            profilePicture: `users/default.png`,
+            user: user5._id,
             moderatorPermissions: {
               all: true,
               access: true,

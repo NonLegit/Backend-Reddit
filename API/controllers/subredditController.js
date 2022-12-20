@@ -137,6 +137,8 @@ class subredditController {
       false
     );
 
+    console.log(subreddit);
+
     if (!subreddit.success) {
       let msg, stat;
       switch (subreddit.error) {
@@ -1236,7 +1238,8 @@ class subredditController {
 
     let subreddits = await this.subredditServices.categorizedSubreddits(
       category,
-      req.query
+      req.query,
+      req.user._id
     );
 
     if (!subreddits.success) {
@@ -1264,7 +1267,10 @@ class subredditController {
 
   // TODO: service tests
   leaderboardRandom = async (req, res) => {
-    let subreddits = await this.subredditServices.randomSubreddits(req.query);
+    let subreddits = await this.subredditServices.randomSubreddits(
+      req.query,
+      req.user._id
+    );
 
     if (!subreddits.success) {
       let msg, stat;
@@ -1423,7 +1429,7 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: approved.data });
   };
-
+  // this is for droping database commit
   reels = async (req, res) => {
     let topic = req.params.topics;
 
@@ -1500,6 +1506,8 @@ class subredditController {
       data: reports.data,
     });
   };
+
+  pendingInvetations = async (req, res) => {};
 
   //!===================================================================================
   createFlair = async (req, res) => {

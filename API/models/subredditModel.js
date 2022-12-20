@@ -127,13 +127,19 @@ const subredditSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: "subreddits/default.png",
-    trim: true, // *TODO: it will be unique with time stamp and username
+    trim: true,
+  },
+  theme: {
+    type: String,
+    required: false,
+    default: "subreddits/default.png",
+    trim: true,
   },
   backgroundImage: {
     type: String,
     required: false,
     default: "subreddits/defaultcover.png",
-    trim: true, // *TODO: it will be unique with time stamp and username
+    trim: true,
   },
   membersCount: {
     type: Number,
@@ -166,6 +172,17 @@ const subredditSchema = new mongoose.Schema({
         required: false,
       },
       subDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
+
+  invetations: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      inviteDate: { type: Date, default: new Date(Date.now()) },
     },
   ],
 
@@ -240,9 +257,11 @@ subredditSchema.index({ "$**": "text" });
 function topicsLimit(val) {
   return val.length <= 25;
 }
+
 subredditSchema.post("init", function (doc) {
   doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
   doc.backgroundImage = `${process.env.BACKDOMAIN}/` + doc.backgroundImage;
+  doc.theme = `${process.env.BACKDOMAIN}/` + doc.theme;
 });
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 
