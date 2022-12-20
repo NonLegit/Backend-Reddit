@@ -24,6 +24,16 @@ class CommentService {
     switch (type) {
       case "posts":
         result = await this.postRepo.search(q, page, limit, sort, time);
+        
+        result.forEach((post) => {
+          const { author, owner, ownerType } = post;
+          if (post.ownerType === "User") delete post.owner;
+          if (!author.profilePicture.startsWith(process.env.BACKDOMAIN))
+            author.profilePicture =
+              `${process.env.BACKDOMAIN}/` + author.profilePicture;
+          if (post.owner && !owner.icon.startsWith(process.env.BACKDOMAIN))
+            owner.icon = `${process.env.BACKDOMAIN}/` + owner.icon;
+        });
         break;
       case "communities":
         result = await this.subredditRepo.search(q, page, limit);

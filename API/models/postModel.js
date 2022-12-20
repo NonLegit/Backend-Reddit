@@ -153,6 +153,8 @@ const postSchema = new mongoose.Schema({
     },
   ],
 });
+postSchema.index({ "$**": "text" });
+
 postSchema.pre("save", function (next) {
   // this points to the current query
 

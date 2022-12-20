@@ -310,6 +310,20 @@ class PostRepository extends Repository {
       }
     );
   }
+
+  async search(q, page, limit, sort, time) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q } })
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
+
+    const result = await query;
+    return result;
+  }
 }
 
 module.exports = PostRepository;
