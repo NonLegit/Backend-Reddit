@@ -782,7 +782,114 @@ class SubredditRepository extends Repository {
     }
   }
 
-  async traffic(subredditName) {}
+  async traffic(subredditName, type) {
+    try {
+      if (type === "hour") {
+        const doc = await this.model.aggregate([
+          {
+            $unwind: "$users",
+          },
+          {
+            $match: { fixedName: subredditName },
+          },
+          {
+            $group: {
+              _id: { $hour: "$users.subDate" },
+              numOfUsers: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { numOfUsers: -1 },
+          },
+        ]);
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: true, doc: doc };
+      } else if (type === "day") {
+        const doc = await this.model.aggregate([
+          {
+            $unwind: "$users",
+          },
+          {
+            $match: { fixedName: subredditName },
+          },
+          {
+            $group: {
+              _id: { $dayOfWeek: "$users.subDate" },
+              numOfUsers: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { numOfUsers: -1 },
+          },
+        ]);
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: true, doc: doc };
+      } else if (type === "week") {
+        const doc = await this.model.aggregate([
+          {
+            $unwind: "$users",
+          },
+          {
+            $match: { fixedName: subredditName },
+          },
+          {
+            $group: {
+              _id: { $week: "$users.subDate" },
+              numOfUsers: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { numOfUsers: -1 },
+          },
+        ]);
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: true, doc: doc };
+      } else if (type === "year") {
+        const doc = await this.model.aggregate([
+          {
+            $unwind: "$users",
+          },
+          {
+            $match: { fixedName: subredditName },
+          },
+          {
+            $group: {
+              _id: { $year: "$users.subDate" },
+              numOfUsers: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { numOfUsers: -1 },
+          },
+        ]);
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: true, doc: doc };
+      } else if (type === "month") {
+        const doc = await this.model.aggregate([
+          {
+            $unwind: "$users",
+          },
+          {
+            $match: { fixedName: subredditName },
+          },
+          {
+            $group: {
+              _id: { $month: "$users.subDate" },
+              numOfUsers: { $sum: 1 },
+            },
+          },
+          {
+            $sort: { numOfUsers: -1 },
+          },
+        ]);
+        if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+        return { success: true, doc: doc };
+      }
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
 
   async search(q, page, limit) {
     const skip = (page - 1) * limit;
