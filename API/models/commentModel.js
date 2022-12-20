@@ -94,6 +94,8 @@ const commentSchema = new mongoose.Schema({
   },
 });
 
+commentSchema.index({ "$**": "text" });
+
 //A middleware to cascade soft delete
 // commentSchema.pre("findOneAndUpdate", async function (next) {
 //   const comment = await this.model.findOne(this.getQuery());
@@ -183,7 +185,7 @@ commentSchema.pre("find", function () {
   if (getAuthor) {
     this.populate("author");
   } else {
-    this.populate("author", "_id userName profilePicture profileBackground");
+    this.populate("author", "_id userName profilePicture profileBackground displayName");
   }
 });
 
