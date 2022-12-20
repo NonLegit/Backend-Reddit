@@ -30,7 +30,7 @@ class CommentController {
     if (!TIMES.includes(time)) time = TIME;
     sort = sortTypes.get(sort) || SORT;
 
-    const result = await this.SearchService.search(q, type, page, limit, sort, time);
+    const result = await this.SearchService.search(q, type, page, limit, sort, time, req.user);
 
     res.status(200).json({
       status: "success",

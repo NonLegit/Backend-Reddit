@@ -439,7 +439,8 @@ class SubredditRepository extends Repository {
         .findOne({
           fixedName: subredditName,
         })
-        .select("moderators").populate("moderators.user","_id userName joiningDate profilePicture");
+        .select("moderators")
+        .populate("moderators.user", "_id userName joiningDate profilePicture");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -697,17 +698,23 @@ class SubredditRepository extends Repository {
     return { success: true, doc: doc };
   }
 
-  async search(q, page, limit) {
+  async search(q, page, limit, subscribed) {
     const skip = (page - 1) * limit;
 
     const query = this.model
-      .find({ $text: { $search: q} })
+      .find({ $text: { $search: q } })
       .select("_id fixedName name icon membersCount description nsfw")
       .skip(skip)
       .limit(limit)
       .sort({ score: { $meta: "textScore" } });
 
     const result = await query;
+
+    for (const sr of result) {
+      if (subscribed.includes(sr._id)) sr.isJoined = true;
+      else sr.isJoined = false;
+    }
+
     return result;
   }
 }
