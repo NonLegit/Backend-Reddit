@@ -675,7 +675,7 @@ describe("Authentication Controller Test", () => {
               keepLoggedIn: true,
 
               changedPasswordAfter: (time) => {
-                return true;
+                return false;
               },
             },
           };
@@ -688,7 +688,120 @@ describe("Authentication Controller Test", () => {
       let next2 = sinon.spy();
       const authObj = new auth({ UserService });
       await authObj.authorize(req, res, next2);
-      expect(next).to.have.been.calledOnce;
+      expect(next2).to.have.been.calledOnce;
+    });
+    it("fifth test success", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return true;
+            },
+            split: () => {
+              return ["Bearer", "Token"];
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next3 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next3);
+      expect(next3).to.have.been.calledOnce;
+    });
+
+    it("sixth test", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return true;
+            },
+            split: () => {
+              return ["Bearer", "Token"];
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: false,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next3 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next3);
+      expect(res.status(404).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User not found",
+      });
+    });
+    it("seventh test", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return true;
+            },
+            split: () => {
+              return ["Bearer", "Token"];
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: false,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          console.log(error);
+          return "1";
+        },
+      };
+      let next3 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.authorize(req, res, next3);
+      expect(res.status(401).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Unauthorized",
+      });
     });
   });
 
@@ -710,13 +823,14 @@ describe("Authentication Controller Test", () => {
         },
         getUserByEmail: async (token) => {
           const response = {
-            success: true,
+            success: false,
           };
           return response;
         },
         sendVerificationToken: async (token) => {
           const response = {
             success: true,
+            test: "a",
           };
           return response;
         },
@@ -750,7 +864,7 @@ describe("Authentication Controller Test", () => {
         },
         getUserByEmail: async (token) => {
           const response = {
-            success: true,
+            success: false,
           };
           return response;
         },
@@ -793,13 +907,13 @@ describe("Authentication Controller Test", () => {
         },
         getUserByEmail: async (token) => {
           const response = {
-            success: false,
+            success: true,
           };
           return response;
         },
         sendVerificationToken: async (token) => {
           const response = {
-            success: true,
+            success: false,
           };
           return response;
         },
@@ -900,6 +1014,87 @@ describe("Authentication Controller Test", () => {
         errorMessage: "Insert different email",
       });
     });
+    it("sixth test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          newEmail: "ahmed@gmail.com",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide New Email and password",
+      });
+    });
+    it("seventh test fail ", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          newEmail: "ahmed",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        checkPassword: async (password, username) => {
+          return true;
+        },
+        getUserByEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        sendVerificationToken: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        updateUserEmail: async (token) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changeEmail(req, res, next);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Invaild Email",
+      });
+    });
   });
 
   describe("cnangePassword  Test", () => {
@@ -913,10 +1108,11 @@ describe("Authentication Controller Test", () => {
           oldPassword: "12345",
           confirmNewPassword: "123456",
           newPassword: "123456",
+          keepLoggedIn: true,
         },
       };
       const UserService = {
-        checkPasswordStrength: async (password, username) => {
+        checkPasswordStrength: (password, username) => {
           return "strong";
         },
         checkPassword: async (token) => {
@@ -943,7 +1139,7 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
-        checkPasswordStrength: async (password, username) => {
+        checkPasswordStrength: (password, username) => {
           return "strong";
         },
         checkPassword: async (token) => {
@@ -975,8 +1171,8 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
-        checkPasswordStrength: async (password, username) => {
-          return "weak";
+        checkPasswordStrength: (password, username) => {
+          return "Weak";
         },
         checkPassword: async (token) => {
           return false;
@@ -1007,8 +1203,8 @@ describe("Authentication Controller Test", () => {
         },
       };
       const UserService = {
-        checkPasswordStrength: async (password, username) => {
-          return "weak";
+        checkPasswordStrength: (password, username) => {
+          return "Weak";
         },
         checkPassword: async (token) => {
           return false;
@@ -1049,7 +1245,7 @@ describe("Authentication Controller Test", () => {
         },
       };
       const authObj = new auth({ UserService });
-      await authObj.changePassword(req, res, next);      
+      await authObj.changePassword(req, res, next);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "Provide Equal Passwords",
@@ -1079,7 +1275,7 @@ describe("Authentication Controller Test", () => {
         },
       };
       const authObj = new auth({ UserService });
-      await authObj.changePassword(req, res, next);      
+      await authObj.changePassword(req, res, next);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
         errorMessage:
@@ -1087,14 +1283,59 @@ describe("Authentication Controller Test", () => {
         errorType: 0,
       });
     });
+    it("seventh test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+          email: "ahmed@gmail.com",
+        },
+        body: {
+          oldPassword: "12345",
+          confirmNewPassword: "123456",
+          newPassword: "123456",
+          keepLoggedIn: false,
+        },
+      };
+      const UserService = {
+        checkPasswordStrength: (password, username) => {
+          return "strong";
+        },
+        checkPassword: async (token) => {
+          return true;
+        },
+        changePassword: async (token) => {
+          return "";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.changePassword(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
+    });
   });
 
-
+  describe("Logout Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          token: "",
+        },
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {};
+      const authObj = new auth({ UserService });
+      await authObj.logOut(req, res, "");
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+  });
   describe("verifyEmail Test", () => {
     it("first test success", async () => {
       const req = {
-        params:{
-          token:""
+        params: {
+          token: "",
         },
         body: {
           email: "ahmedAgmail.com",
@@ -1117,8 +1358,8 @@ describe("Authentication Controller Test", () => {
     it("second test bad request not provide all body data", async () => {
       const req = {
         body: {},
-        params:{
-          token:""
+        params: {
+          token: "",
         },
       };
       const UserService = {
@@ -1140,5 +1381,341 @@ describe("Authentication Controller Test", () => {
     });
   });
 
-});
+  describe("deleteAccount Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName: "ahmed",
+        },
+        params: {
+          token: "",
+        },
+        body: {
+          userName: "ahmed",
+          password: "12345",
+        },
+      };
+      const UserService = {
+        logIn: async (userName, password) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+        deleteAccount: async () => {
+          return true;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.deleteAccount(req, res, "");
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        user: {
+          userName: "ahmed",
+        },
+        body: { userName: "ahmed" },
+        params: {
+          token: "",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: false,
+            token: "jwt",
+          };
+          return response;
+        },
+        deleteAccount: async () => {
+          return true;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.deleteAccount(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide username and password",
+      });
+    });
+    it("thrid test invalid name  ", async () => {
+      const req = {
+        user: {
+          userName: "ahmeddddd",
+        },
+        body: { userName: "ahmed", password: "123" },
+        params: {
+          token: "",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: false,
+            token: "jwt",
+          };
+          return response;
+        },
+        deleteAccount: async () => {
+          return true;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.deleteAccount(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Invalid userName",
+      });
+    });
+    it("fourth test ", async () => {
+      const req = {
+        user: {
+          userName: "ahmed",
+          password: "123",
+        },
+        body: { userName: "ahmed", password: "123" },
+        params: {
+          token: "",
+        },
+      };
+      const UserService = {
+        logIn: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.INCORRECT_PASSWORD,
+            msg: "Incorrect Password",
+          };
+          return response;
+        },
+        deleteAccount: async () => {
+          return true;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.deleteAccount(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Incorrect Password",
+      });
+    });
+  });
+  describe("checkResetTokentime Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          token: "",
+        },
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        checkResetTokenTime: async (userName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.checkResetTokentime(req, res, "");
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {},
+        params: {
+          token: "",
+        },
+      };
+      const UserService = {
+        checkResetTokenTime: async (password, userName) => {
+          const response = {
+            success: false,
+          };
+          return response;
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.checkResetTokentime(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Token is invalid or has expired",
+      });
+    });
+  });
 
+  describe("facebookValidation  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          user: { _id: "1" },
+          email: "ahmed@gmail.com",
+          status: "fail",
+        },
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        generateRandomPassword: (userName) => {
+          return "Apassword1234*";
+        },
+        signUp: async (userName) => {
+          const response = {
+            success: true,
+            token: "token",
+          };
+          return response;
+        },
+        createToken: () => {
+          return "token";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.facebookValidation(req, res, "");
+      expect(res.status).to.have.been.calledWith(201);
+    });
+    it("second test bad request not provide all body data", async () => {
+      const req = {
+        body: {},
+        user: {
+          status: "fail",
+          user: { _id: "1" },
+          email: "ahmed@gmail.com",
+        },
+      };
+      const UserService = {
+        signUp: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_ALREADY_EXISTS,
+            msg: "User Already Exists",
+          };
+          return response;
+        },
+        generateRandomPassword: (userName) => {
+          return "Apassword1234*";
+        },
+        createToken: () => {
+          return "token";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.facebookValidation(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Already Exists",
+      });
+    });
+    it("thrid test ", async () => {
+      const req = {
+        body: {},
+        user: {
+          status: "success",
+          user: { _id: "1" },
+          email: "ahmed@gmail.com",
+        },
+      };
+      const UserService = {
+        signUp: async (password, userName) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_ALREADY_EXISTS,
+            msg: "",
+          };
+          return response;
+        },
+        generateRandomPassword: (userName) => {
+          return "password";
+        },
+        createToken: () => {
+          return "token";
+        },
+      };
+      const authObj = new auth({ UserService });
+      await authObj.facebookValidation(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+    });
+  });
+
+  describe("facebookAuth Test", () => {
+    it("first test success", async () => {
+      const profile = {
+        emails: [
+          {
+            value: "ahmed",
+          },
+        ],
+        body: {
+          email: "ahmedAgmail.com",
+        },
+      };
+      const UserService = {
+        getUserByEmail: async (userName) => {
+          const response = {
+            success: true,
+            data: "data",
+          };
+          return response;
+        },
+      };
+      let done = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.facebookAuth("", "", profile, done);
+      expect(done).to.have.been.calledWith(null, {
+        status: "success",
+        user: "data",
+      });
+    });
+    it("second test bad request not provide all body data", async () => {
+      const profile = {
+        body: {},
+        emails: [
+          {
+            value: "ahmed",
+          },
+        ],
+      };
+      const UserService = {
+        getUserByEmail: async (password, userName) => {
+          const response = {
+            success: false,
+            token: "jwt",
+          };
+          return response;
+        },
+      };
+      let done2 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.facebookAuth("", "", profile, done2);
+      expect(done2).to.have.been.calledWith(null, {
+        status: "fail",
+        email: "ahmed",
+      });
+    });
+  });
+  describe("errorResponse Test", () => {
+    it("first test success", async () => {
+      const UserService = {};
+      const authObj = new auth({ UserService });
+      let response = await authObj.errorResponse(userErrors.MONGO_ERR, "Error");
+      expect(response.msg).to.be.equal("Invalid parent, couldn't create user");
+      expect(response.stat).to.be.equal(400);
+
+      response = await authObj.errorResponse(userErrors.INVALID_TOKEN, "Error");
+      expect(response.msg).to.be.equal("Error");
+      expect(response.stat).to.be.equal(400);
+    });
+  });
+});

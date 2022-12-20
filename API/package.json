@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "test": "mocha --timeout 1000000 --recursive --exit ",
-    "covarage": "nyc mocha --timeout 1000000 --recursive --exit ",
+    "covarage": "nyc --reporter=html mocha --timeout 1000000 --recursive --exit ",
+    "test_covarage":"nyc --check-coverage=true  --reporter=html npm run test",
     "start": "nodemon server.js",
     "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",
