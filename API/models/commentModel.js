@@ -76,16 +76,16 @@ const commentSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
-  nsfw: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
-  spoiler: {
-    type: Boolean,
-    required: true,
-    default: false,
-  },
+  // nsfw: {
+  //   type: Boolean,
+  //   required: true,
+  //   default: false,
+  // },
+  // spoiler: {
+  //   type: Boolean,
+  //   required: true,
+  //   default: false,
+  // },
   modState: {
     type: String,
     required: true,
@@ -95,24 +95,24 @@ const commentSchema = new mongoose.Schema({
 });
 
 //A middleware to cascade soft delete
-commentSchema.pre("findOneAndUpdate", async function (next) {
-  const comment = await this.model.findOne(this.getQuery());
-  await this.model.updateMany(
-    { _id: { $in: comment.replies } },
-    { isDeleted: true }
-  );
-  next();
-});
-commentSchema.pre("updateMany", async function (next) {
-  const comments = await this.model.find(this.getQuery());
-  for (const comment of comments) {
-    await this.model.updateMany(
-      { _id: { $in: comment.replies } },
-      { isDeleted: true }
-    );
-  }
-  next();
-});
+// commentSchema.pre("findOneAndUpdate", async function (next) {
+//   const comment = await this.model.findOne(this.getQuery());
+//   await this.model.updateMany(
+//     { _id: { $in: comment.replies } },
+//     { isDeleted: true }
+//   );
+//   next();
+// });
+// commentSchema.pre("updateMany", async function (next) {
+//   const comments = await this.model.find(this.getQuery());
+//   for (const comment of comments) {
+//     await this.model.updateMany(
+//       { _id: { $in: comment.replies } },
+//       { isDeleted: true }
+//     );
+//   }
+//   next();
+// });
 
 commentSchema.pre("find", function (next) {
   const { limit, depth, sort } = this.options;
