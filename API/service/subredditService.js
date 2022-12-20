@@ -417,12 +417,29 @@ class subredditService {
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
-      let subreddits = await this.subredditRepository.getSubreddits(
-        userId,
-        "id"
-      );
-      if (!subreddits.success) return subreddits;
-      else return { success: true, data: subreddits.doc };
+      let sub = await this.subredditRepository.getSubreddits(userId, "id");
+      if (!sub.success) return sub;
+      else {
+        let subreddits = [];
+        for (const subreddit of sub.doc) {
+          if (subreddit.users.find((el) => el._id.equals(userId))) {
+            subreddit.isJoined = true;
+          }
+
+          subreddits.push({
+            _id: subreddit._id,
+            fixedName: subreddit.fixedName,
+            isJoined: subreddit.isJoined,
+            icon: subreddit.icon,
+            backgroundImage: subreddit.backgroundImage,
+            membersCount: subreddit.membersCount,
+            description: subreddit.description,
+          });
+        }
+        return { success: true, data: subreddits };
+
+        // return { success: true, data: subreddits.doc };
+      }
     } else if (location === "subscriber") {
       // ! get it from user (easy too)
       let subreddits = await this.userRepository.getSubreddits(userId);
