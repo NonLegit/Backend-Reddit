@@ -4849,6 +4849,61 @@ paths:
                   message:
                     type: string
 
+  /comments/{commentId}/moderate/{action}:
+    patch:
+      tags:
+        - Comments
+      summary: Changes the comment state according to action.
+      description: Moderators can change the state of a comment.
+        A comment is by default unmoderated, but it can be approved, removed, or spammed.
+        The comment state is overwriten by the most recent action.
+      security:
+        - BearerAuth: []
+        - cookieAuth: []
+      parameters:
+        - name: commentId
+          in: path
+          description: id of the post
+          required: true
+          schema:
+            type: string
+        - name: action
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - spam
+              - approve
+              - remove
+      responses:
+        204:
+          description: successful operation
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        404:
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        409:
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        401:
+          description: Unathorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  
   #SUBREDDITS
 
   /subreddits:
