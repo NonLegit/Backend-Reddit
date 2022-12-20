@@ -7,10 +7,8 @@ class UserRepository extends Repository {
   }
 
   //can be further extended to allow select and populate
-  async findById() {
+  async findById(id,select,pop) {
     try {
-      if (!ObjectId.isValid(id))
-        return { success: false, error: mongoErrors.NOT_FOUND };
       // console.log("beforeeeeeeeeeeeeeeeeeeeeeeeee");
       // console.log(select);
       //  console.log(pop);
@@ -18,13 +16,14 @@ class UserRepository extends Repository {
       if (select) query = query.select(select);
       if (pop) query = query.populate(pop);
       const doc = await query;
-
+      console.log("doc",doc);
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       // console.log(doc);
       return { success: true, doc: doc };
 
       //most probably you won't need error handling in this function but just to be on the safe side
     } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }
