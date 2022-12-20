@@ -23,7 +23,6 @@ pipeline {
                 sh(returnStdout: true, script: "bash -e /var/jenkins_home/scripts/backend/build.sh")
             }
         }
-	
         stage('Deploying backend') {
     	    when { branch "development" }
             environment {
