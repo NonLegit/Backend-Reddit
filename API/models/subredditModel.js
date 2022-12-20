@@ -261,6 +261,7 @@ function topicsLimit(val) {
 subredditSchema.post("init", function (doc) {
   doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
   doc.backgroundImage = `${process.env.BACKDOMAIN}/` + doc.backgroundImage;
+  doc.theme = `${process.env.BACKDOMAIN}/` + doc.theme;
 });
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 

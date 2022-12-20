@@ -199,6 +199,11 @@ class subredditService {
               subredditExisted.data._id,
               data.permissions
             );
+            let updateInvetation = await this.subredditRepository.invite(
+              userId,
+              subredditName
+            );
+
             if (!updateModerators.success) return updateModerators;
             let messageObj = {
               from: userId,
@@ -1005,7 +1010,7 @@ class subredditService {
   }
 
   // TODO: service tests
-  async categorizedSubreddits(category, query,userId) {
+  async categorizedSubreddits(category, query, userId) {
     let subs = await this.subredditRepository.categorySubreddits(
       query,
       category

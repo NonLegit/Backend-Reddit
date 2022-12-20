@@ -1,7 +1,7 @@
 const multer = require("multer");
 const sharp = require("sharp");
 const fs = require("fs");
-const { postErrors } = require("../error_handling/errors");
+const { postErrors, subredditErrors } = require("../error_handling/errors");
 
 /**
  * FileController Class which handles authentication and authorization of user in backend
@@ -123,18 +123,7 @@ class FileController {
   uploadSubredditImage = async (req, res, next) => {
     // check on type is provided or not
     // check subreddit exists
-    let subreddit = await this.subredditService.retrieveSubreddit(
-      req.user._id,
-      req.params.subredditName,
-      true
-    );
-    if (!subreddit.success)
-      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
-    console.log(subreddit);
-    // check user is moderator in subreddit
-    if (!subreddit.data.moderators.find((el) => el.user.equals(req.user._id))) {
-      return { success: false, error: subredditErrors.NOT_MODERATOR };
-    }
+
 
     const type = req.body.type;
     req.file.filename = `${req.params.subredditName}/subreddit-${
