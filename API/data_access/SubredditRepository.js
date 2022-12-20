@@ -51,8 +51,9 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model
         .findOne({ fixedName: name })
-        .select(select + "-__v -punished -approved");
-      if (popOptions) tempDoc = tempDoc.populate(popOptions);
+        .select(select + "-__v -punished -approved")
+        .populate("moderators.user", "_id userName joinDate profilePicture");
+
       const doc = await tempDoc;
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -702,6 +703,31 @@ class SubredditRepository extends Repository {
     }
     // console.log(doc);
     return { success: true, doc: doc };
+  }
+  async invite(userId, subredditName) {
+    try {
+      const user = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        {
+          $push: {
+            invitations: {
+              user: userId,
+            },
+          },
+        },
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
+
+      if (!user) {
+        return { success: false, error: mongoErrors.NOT_FOUND };
+      }
+      return { success: true, doc: user };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
   }
 
   async search(q, page, limit) {

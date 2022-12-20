@@ -137,6 +137,8 @@ class subredditController {
       false
     );
 
+    console.log(subreddit);
+
     if (!subreddit.success) {
       let msg, stat;
       switch (subreddit.error) {
@@ -1427,7 +1429,7 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: approved.data });
   };
-// this is for droping database commit
+  // this is for droping database commit
   reels = async (req, res) => {
     let topic = req.params.topics;
 
@@ -1505,9 +1507,7 @@ class subredditController {
     });
   };
 
-  pendingInvetations = async (req, res) => {
-    
-  };
+  pendingInvetations = async (req, res) => {};
 
   //!===================================================================================
   createFlair = async (req, res) => {
