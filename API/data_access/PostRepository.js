@@ -88,9 +88,9 @@ class PostRepository extends Repository {
         query.sort = "-sortOnBest";
       }
 
-      console.log(people.people);
-      console.log(people.blocked);
-      console.log(query);
+      // console.log(people.people);
+      // console.log(people.blocked);
+      // console.log(query);
       let selector;
     // this.model.find({ $or: [{ "from": userId, "isDeletedInSource": false, type: { $nin:["postReply","userMention"] } },{ "to": userId, "isDeletedInDestination": false, type: { $nin:["postReply","userMention"] } }] }),
         
@@ -100,11 +100,13 @@ class PostRepository extends Repository {
         //OR post is from a user that i follow or is my friend
         //And we didn't block each other
         selector = { $or: [{ author: { $in: people.people } },{ owner: { $in: user.subscribed } }],  author: { $nin: people.blocked  }};
-      } else if(filter){
+      } else if (filter && user) {
+        console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        console.log(filter);
         selector = { owner: filter , author: { $nin: people.blocked  }};
       }
-      
-      if (!user) {
+
+      if (!user&&filter) {
         selector = { owner: filter };
       }
       //  console.log(query.sort);
@@ -116,9 +118,11 @@ class PostRepository extends Repository {
         .limitFields()
         .paginate()
         .sort();
-      //console.log(doc);
+      console.log(selector);
       let doc = await features.query;
-      if (doc.length == 0) {
+      console.log(doc);
+      if (doc.length == 0&&!filter) {
+        console.log("======================");
         let featuresGen =
           new APIFeatures(
         this.model.find(),

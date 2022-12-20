@@ -14,7 +14,7 @@ router.use(AuthenticationController.authorize);
 
 
 
-router.route("/mark_as_read").post(MessageController.markAllAsRead);
+router.route("/mark_as_read").patch(MessageController.markAllAsRead);
 router.route("/sent").get(MessageController.getSentMessage);//not show delete
 router.route("/unread").get(MessageController.getUnreadMessage);//
 router.route("/").post(MessageController.sendMessage);

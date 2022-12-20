@@ -54,7 +54,7 @@ app.use("/api/v1/subreddits", subredditRouter);
 app.use("/api/v1/posts", postRouter);
 app.use("/api/v1/comments", commentRouter);
 app.use("/api/v1/notifications", notificationRouter);
-app.use("/api/v1/message", messageRouter);
+app.use("/api/v1/messages", messageRouter);
 app.use(errorHandler);
 
 app.all("*", (req, res, next) => {
