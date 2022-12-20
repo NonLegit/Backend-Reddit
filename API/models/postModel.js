@@ -153,6 +153,8 @@ const postSchema = new mongoose.Schema({
     },
   ],
 });
+postSchema.index({ "$**": "text" });
+
 postSchema.pre("save", function (next) {
   // this points to the current query
 
@@ -170,11 +172,11 @@ postSchema.pre("save", function (next) {
 //Whoever added this middleware should add more restrictions
 postSchema.pre("find", function () {
   const { getAuthor } = this.options;
-  this.populate("owner", "_id fixedName userName icon profilePicture ");
+  this.populate("owner", "_id fixedName name userName icon profilePicture primaryTopic");
     if (getAuthor === true) {
       this.populate("author");
     } else {
-      console.log("shit");
+      this.populate("sharedFrom");
       this.populate("author", "_id userName profilePicture profileBackground");
     }
 

@@ -109,6 +109,8 @@ router
   .delete(FileController.deleteUserImage);
 
 router.post("/change_email", AuthenticationController.changeEmail);
+router.post("/change_password", AuthenticationController.changePassword);
+router.post("/delete_account", AuthenticationController.deleteAccount);
 router.get("/me", UserController.getMe);
 router.get("/me/prefs", UserController.getPrefs);
 router.patch(

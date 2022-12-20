@@ -33,7 +33,7 @@ class CommentService {
         "post"
       );
       console.log("mmmmmmmmmmmmmmmmmmmmmmmmmm");
-     // console.log(validParent.doc);
+      // console.log(validParent.doc);
       if (validParent.success) {
         comment.post = validParent.doc.post._id;
         return {
@@ -49,7 +49,7 @@ class CommentService {
         "author owner"
       );
       console.log("oooooooooooooooooooooooooooo");
-     // console.log(validParent);
+      // console.log(validParent);
       if (validParent.success) {
         comment.post = validParent.doc._id;
         return {
@@ -61,7 +61,6 @@ class CommentService {
     }
     return { success: false };
   }
-
 
   //  async hasValidParent(comment) {
   //   if (comment.parentType === "Comment") {
@@ -111,11 +110,12 @@ class CommentService {
         const userName = word.slice(2);
         const validUser = await this.userRepo.findByUserName(userName);
 
-        if (validUser.success) mentions.push({userName, userId: validUser.doc._id});
+        if (validUser.success)
+          mentions.push({ userName, userId: validUser.doc._id });
       }
     }
     data.mentions = mentions;
-    
+
     //console.log(mentions);
     //create the comment
     const comment = await this.commentRepo.createOne(data);
@@ -131,12 +131,11 @@ class CommentService {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
-    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-   // console.log(validParent.post);
-    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    
-
-   
+    await comment.doc.populate("author", "_id userName profilePicture profileBackground");
+    comment.doc.author.profilePicture =
+      `${process.env.BACKDOMAIN}/` + comment.doc.author.profilePicture;
+    comment.doc.author.profileBackground =
+      `${process.env.BACKDOMAIN}/` + comment.doc.author.profileBackground;
 
     let commentToNotify = {
       _id: comment.doc._id,
@@ -144,8 +143,6 @@ class CommentService {
       type: comment.doc.parentType,
     };
     let postToNotify;
-    console.log("heeeeeeeeeeeeeeeeeee");
-    //console.log(validParent.post);
 
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
@@ -153,7 +150,7 @@ class CommentService {
         subreddit: {
           _id: validParent.post.owner._id,
           fixedName: validParent.post.owner.fixedName,
-          name:validParent.post.owner.name
+          name: validParent.post.owner.name,
         },
         author: {
           _id: validParent.post.author._id,
@@ -161,7 +158,7 @@ class CommentService {
       };
     } else if (validParent.post.ownerType == "User") {
       console.log("in type post");
-     // console.log(validParent);
+      // console.log(validParent);
       postToNotify = {
         _id: validParent.post._id,
         author: {
@@ -175,7 +172,7 @@ class CommentService {
       data: comment.doc,
       postToNotify: postToNotify,
       commentToNotify: commentToNotify,
-      mentions:mentions
+      mentions: mentions,
     };
   }
 
@@ -239,12 +236,15 @@ class CommentService {
       const tree = await this.postRepo.commentTree(postId, limit, depth, sort);
       return { success: true, tree: tree.replies };
     } else {
+      if (!ObjectId.isValid(commentId))
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+
       const comment = await this.commentRepo.commentTree(
         [commentId],
         limit,
         depth - 1
       );
-      if (!comment)
+      if (!comment[0])
         return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
 
       if (!comment[0].post.equals(postId))
@@ -331,7 +331,7 @@ class CommentService {
           post._id !== undefined &&
           post._id.toString() !== element.savedComment.post._id.toString()
         ) {
-          commentTree.push({ savedComemnt: post, createdAt: createdAt });
+          commentTree.push({ savedComment: post, createdAt: createdAt });
         }
         post = {};
         createdAt = element.createdAt;
@@ -411,7 +411,7 @@ class CommentService {
       }
     });
     if (post._id !== undefined)
-      commentTree.push({ savedComemnt: post, createdAt: createdAt });
+      commentTree.push({ savedComment: post, createdAt: createdAt });
     console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
@@ -434,7 +434,7 @@ class CommentService {
           commentTree.push(post);
         }
         post = element.post;
-       // console.log(element.post);
+        // console.log(element.post);
 
         //console.log(element.post);
         // post["_id"] = element.post._id;
@@ -505,6 +505,83 @@ class CommentService {
     if (post._id !== undefined) commentTree.push(post);
     //console.log(commentTree);
     return commentTree;
+  }
+  async findCommentById(commentId) {
+    let comment = await this.commentRepo.getCommentwithAuthor(commentId);
+    if (comment.success === true) {
+      return { success: true, data: comment.doc };
+    } else {
+      return { success: false };
+    }
+  }
+  async saveComment(user, commentId) {
+    const index = user.savedComments.findIndex((element) => {
+      return element.savedComment.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      user.savedComments.push({
+        savedComment: commentId,
+      });
+    } else {
+      return false;
+    }
+    await user.save();
+    return true;
+  }
+  async unSaveComment(user, commentId) {
+    const index = user.savedComments.findIndex((element) => {
+      return element.savedComment.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      return false;
+    } else {
+      user.savedComments.pull({ savedComment: commentId });
+    }
+    await user.save();
+    return true;
+  }
+  async addVote(user, commentId, voteDir, votesCount, author) {
+    let voteNumber = voteDir;
+    const index = user.voteComment.findIndex((element) => {
+      return element.comments.toString() === commentId.toString();
+    });
+    if (index == -1) {
+      // make it in query
+      user.voteComment.push({
+        comments: commentId,
+        commentVoteStatus: voteDir,
+      });
+      // check if vote status is 1 so that increase karma
+      if (voteDir === 1) {
+        author.commentKarma = author.commentKarma + 1;
+        await author.save();
+      }
+    } else {
+      if (user.voteComment[index].commentVoteStatus === voteDir) {
+        return false;
+      } else {
+        if (user.voteComment[index].commentVoteStatus === -1) {
+          voteNumber += 1;
+        } else if (user.voteComment[index].commentVoteStatus === 1) {
+          voteNumber -= 1;
+          // decrease karma here
+          author.commentKarma = author.commentKarma - 1;
+          await author.save();
+        } else if (voteDir === 1) {
+          author.commentKarma = author.commentKarma + 1;
+          await author.save();
+        }
+        user.voteComment[index].commentVoteStatus = voteDir;
+      }
+    }
+    // update post votes count
+    let comment = await this.commentRepo.updateVotesCount(
+      commentId,
+      voteNumber + votesCount
+    );
+    //user.replaceProfileDomain();
+    await user.save();
+    return true;
   }
 }
 

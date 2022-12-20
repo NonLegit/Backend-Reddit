@@ -59,13 +59,13 @@ class CommentRepository extends Repository {
           path: "replies",
           perDocumentLimit: limit,
           options: { depth, sort: { [sort]: -1 } },
-          transform: (doc) => {
-            doc.author.profilePicture =
-              `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
-            doc.author.profileBackground =
-              `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
-            return doc;
-          },
+          // transform: (doc) => {
+          //   doc.author.profilePicture =
+          //     `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+          //   doc.author.profileBackground =
+          //     `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+          //   return doc;
+          // },
         })
         .lean();
     }
@@ -92,6 +92,33 @@ class CommentRepository extends Repository {
       options: { userComments: true },
     });
     return { success: true, doc: doc };
+  }
+  async getCommentwithAuthor(commentId) {
+    try {
+      // const doc = await features.query.explain();
+      // const features = new APIFeatures(this.model.find({ _id: postId }), "");
+      // let doc = await features.query;
+      let doc = await this.model.findOne({ _id: commentId }).populate({
+        path: "author",
+        options: { getAuthor: true },
+      });
+      // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false };
+    }
+  }
+  async updateVotesCount(commentId, newVotes) {
+    try {
+      let doc = await this.model.findByIdAndUpdate(commentId, {
+        votes: newVotes,
+      });
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false, ...decorateError(err) };
+    }
   }
 }
 module.exports = CommentRepository;

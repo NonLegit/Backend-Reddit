@@ -61,7 +61,12 @@ class PostRepository extends Repository {
       .limitFields()
       .paginate();
     // const doc = await features.query.explain();
-    let doc = await features.query.populate(popOptions);
+    let options = {
+      path: "sharedFrom",
+      options: { getAuthor: true },
+    };
+
+    let doc = await features.query.populate(options);
     return { success: true, doc: doc };
   }
   async getPosts(filter, query, sortType,user,people) {
@@ -266,7 +271,10 @@ class PostRepository extends Repository {
     }
   }
 
-  async getPostsBySubredditTopic(topic) {
+  async getPostsBySubredditTopic(topic, query) {
+    const page = query.page * 1 || 1;
+    const limit = query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
     try {
       let doc = await this.model
         .find({
@@ -274,8 +282,15 @@ class PostRepository extends Repository {
           ownerType: "Subreddit",
         })
         .populate({
-          options: { getAuthor: true, topic: topic, khaled: true },
-        });
+          path: "owner",
+          options: { getAuthor: true },
+          $group: { primaryTopic: topic },
+        })
+        .skip(skip)
+        .limit(limit)
+        .sort("sortOnHot");
+
+      console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };
@@ -291,13 +306,13 @@ class PostRepository extends Repository {
         path: "replies",
         perDocumentLimit: limit,
         options: { depth, sort: { [sort]: -1 } },
-        transform: (doc) => {
-          doc.author.profilePicture =
-            `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
-          doc.author.profileBackground =
-            `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
-          return doc;
-        },
+        // transform: (doc) => {
+        //   doc.author.profilePicture =
+        //     `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+        //   doc.author.profileBackground =
+        //     `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+        //   return doc;
+        // },
       })
       .lean()
       .sort({ [sort]: -1 });
@@ -329,6 +344,20 @@ class PostRepository extends Repository {
         runValidators: true,
       }
     );
+  }
+
+  async search(q, page, limit, sort, time) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q } })
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
+
+    const result = await query;
+    return result;
   }
 }
 

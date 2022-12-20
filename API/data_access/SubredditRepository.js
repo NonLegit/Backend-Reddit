@@ -13,10 +13,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             moderators: {
-              id: doc.owner,
-              userName: userName,
-              joiningDate: Date.now(),
-              profilePicture: profilePicture,
+              user: doc.owner,
               moderatorPermissions: {
                 all: true,
                 access: true,
@@ -91,7 +88,7 @@ class SubredditRepository extends Repository {
       let tempDoc = this.model
         .findOne({
           fixedName: subredditName,
-          "moderators.id": userID,
+          "moderators.user": userID,
         })
         .select({ "moderators.$": 1 });
 
@@ -113,7 +110,7 @@ class SubredditRepository extends Repository {
       let tempDoc = this.model
         .findOne({
           fixedName: subredditName,
-          "moderators.id": userID,
+          "moderators.user": userID,
         })
         .select({ "moderators.$": 1 });
 
@@ -186,7 +183,7 @@ class SubredditRepository extends Repository {
       let tempDoc =
         type === "id"
           ? this.model
-              .find({ "moderators.id": userId })
+              .find({ "moderators.user": userId })
               .select("_id fixedName icon membersCount description")
           : this.model
               .find({ "moderators.userName": userId })
@@ -203,16 +200,12 @@ class SubredditRepository extends Repository {
 
   async addModerator(userId, userName, PP, subredditName, permissions) {
     try {
-      // ---> problem here
       let doc = await this.model.findOneAndUpdate(
         { fixedName: subredditName },
         {
           $push: {
             moderators: {
-              id: userId,
-              userName: userName,
-              joiningDate: Date.now(),
-              profilePicture: PP,
+              user: userId,
               moderatorPermissions: {
                 all: permissions.all,
                 access: permissions.access,
@@ -241,7 +234,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             rules: {
-              createdAt: Date.now(),
+              createdAt: new Date(Date.now()),
               defaultName: data.defaultName,
               description: data.description,
               appliesTo: data.appliesTo,
@@ -269,7 +262,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(Date.now()),
               profilePicture: user.profilePicture,
               type: "banned",
               banInfo: {
@@ -301,7 +294,7 @@ class SubredditRepository extends Repository {
             punished: {
               id: user._id,
               userName: user.userName,
-              banDate: Date.now(),
+              banDate: new Date(Date.now()),
               profilePicture: user.profilePicture,
               type: "muted",
               muteInfo: {
@@ -328,7 +321,7 @@ class SubredditRepository extends Repository {
           $push: {
             approved: {
               user: userId,
-              approvedDate: Date.now(),
+              approvedDate: new Date(Date.now()),
             },
           },
         }
@@ -446,7 +439,8 @@ class SubredditRepository extends Repository {
         .findOne({
           fixedName: subredditName,
         })
-        .select("moderators");
+        .select("moderators")
+        .populate("moderators.user", "_id userName joiningDate profilePicture");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -578,6 +572,30 @@ class SubredditRepository extends Repository {
     }
   }
 
+  async subscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      subredditId,
+      { $push: { users: { _id: userId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
+  async unSubscribe(subredditId, userId) {
+    await this.model.findByIdAndUpdate(
+      subredditId,
+      { $pull: { users: { _id: userId } } },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    return true;
+  }
+
   async checkRule(title, subredditName) {
     try {
       let tempDoc = this.model.findOne({
@@ -649,7 +667,7 @@ class SubredditRepository extends Repository {
       let tempDoc = this.model
         .findOne({
           _id: subredditId,
-          "moderators.id": userId,
+          "moderators.user": userId,
         })
         .select({ "moderators.$": 1 });
 
@@ -678,6 +696,21 @@ class SubredditRepository extends Repository {
     }
     // console.log(doc);
     return { success: true, doc: doc };
+  }
+
+  async search(q, page, limit) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q } })
+      .select("_id fixedName name icon membersCount description nsfw")
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
+
+    const result = await query;
+    return result;
   }
 }
 

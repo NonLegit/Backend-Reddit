@@ -23,8 +23,8 @@ const commentSchema = new mongoose.Schema({
   mentions: [
     {
       userName: String,
-      userId: String
-    }
+      userId: String,
+    },
   ],
   replies: [
     {
@@ -123,13 +123,13 @@ commentSchema.pre("find", function (next) {
       path: "replies",
       perDocumentLimit: limit,
       options: { depth: depth - 1, sort },
-      transform: (doc) => {
-        doc.author.profilePicture =
-          `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
-        doc.author.profileBackground =
-          `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
-        return doc;
-      },
+      // transform: (doc) => {
+      //   doc.author.profilePicture =
+      //     `${process.env.BACKDOMAIN}/` + doc.author.profilePicture;
+      //   doc.author.profileBackground =
+      //     `${process.env.BACKDOMAIN}/` + doc.author.profileBackground;
+      //   return doc;
+      // },
     });
   }
 
@@ -137,8 +137,17 @@ commentSchema.pre("find", function (next) {
 });
 
 commentSchema.post("find", function (result) {
-  const { limit, depth } = this.options;
+  for (const comment of result) {
+    const author = comment.author;
+    if (!author.profilePicture.startsWith(process.env.BACKDOMAIN)) {
+      author.profilePicture =
+        `${process.env.BACKDOMAIN}/` + author.profilePicture;
+      author.profileBackground =
+        `${process.env.BACKDOMAIN}/` + author.profileBackground;
+    }
+  }
 
+  const { limit, depth } = this.options;
   if (limit && depth) {
     const ids = this.getFilter()._id.$in.slice(limit);
     const more = {
@@ -151,13 +160,29 @@ commentSchema.post("find", function (result) {
     return result;
   }
 });
-
-commentSchema.pre(/^find/, function () {
-  const { userComments } = this.options;
+commentSchema.pre("findOne", function () {
+  const { userComments, getAuthor } = this.options;
   if (userComments) {
     this.populate("post");
   }
-  this.populate("author", "_id userName profilePicture profileBackground");
+  console.log(getAuthor);
+  if (getAuthor) {
+    this.populate("author");
+  } else {
+    // this.populate("author", "_id userName profilePicture profileBackground");
+    this.populate("author");
+  }
+});
+commentSchema.pre("find", function () {
+  const { userComments, getAuthor } = this.options;
+  if (userComments) {
+    this.populate("post");
+  }
+  if (getAuthor) {
+    this.populate("author");
+  } else {
+    this.populate("author", "_id userName profilePicture profileBackground");
+  }
 });
 
 commentSchema.pre("save", function (next) {

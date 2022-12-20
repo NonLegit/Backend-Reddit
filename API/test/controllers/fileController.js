@@ -52,7 +52,73 @@ describe("file Controller Test", () => {
             postKarma: "",
             commentKarma: "",
             createdAt: "",
-            joinDate:"",
+            joinDate: "",
+            description: "",
+            adultContent: "",
+            nsfw: "",
+          };
+        },
+      };
+      //const fileController = new FileController({ UserService });
+      //await fileController.uploadUserImage(req, res, "");
+      // expect(res.status).to.have.been.calledWith(201);
+      // expect(res.status(201).json).to.have.been.calledWith({
+      //   status: "success",
+      //   user: {
+      //     _id: "",
+      //     userName: "",
+      //     email: "",
+      //     profilePicture: "",
+      //     profileBackground: "",
+      //     canbeFollowed: "",
+      //     lastUpdatedPassword: "",
+      //     followersCount: "",
+      //     friendsCount: "",
+      //     accountActivated: "",
+      //     gender: "",
+      //     displayName: "",
+      //     postKarma: "",
+      //     commentKarma: "",
+      //     createdAt: "",
+      //     description: "",
+      //     adultContent: "",
+      //     nsfw: "",
+      //   },
+      // });
+    });
+    it("second test fail", async () => {
+      var file;
+      file = fs.readFileSync(`${__dirname}/default.png`);
+      const req = {
+        body: {
+          type: "",
+        },
+        user: {
+          userName: "ahmed",
+        },
+        file: {
+          buffer: file,
+        },
+      };
+      const UserService = {
+        addUserImageURL: async () => {
+          return {
+            _id: "",
+            userName: "",
+            email: "",
+            profilePicture: "",
+            profileBackground: "",
+            canbeFollowed: "",
+            lastUpdatedPassword: "",
+            followersCount: "",
+            friendsCount: "",
+            accountActivated: "",
+            gender: "",
+            displayName: "",
+            postKarma: "",
+            commentKarma: "",
+            createdAt: "",
+            joinDate: "",
             description: "",
             adultContent: "",
             nsfw: "",
@@ -61,78 +127,11 @@ describe("file Controller Test", () => {
       };
       const fileController = new FileController({ UserService });
       await fileController.uploadUserImage(req, res, "");
-      expect(res.status).to.have.been.calledWith(201);
-      expect(res.status(201).json).to.have.been.calledWith({
-        status: "success",
-        user: {
-          _id: "",
-          userName: "",
-          email: "",
-          profilePicture: "",
-          profileBackground: "",
-          canbeFollowed: "",
-          lastUpdatedPassword: "",
-          followersCount: "",
-          friendsCount: "",
-          accountActivated: "",
-          gender: "",
-          displayName: "",
-          postKarma: "",
-          commentKarma: "",
-          createdAt: "",
-          description: "",
-          adultContent: "",
-          nsfw: "",
-        },
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Please provide correct type of image you want to save",
       });
     });
-    it("second test fail", async () => {
-        var file;
-        file = fs.readFileSync(`${__dirname}/default.png`);
-        const req = {
-          body: {
-            type: "",
-          },
-          user: {
-            userName: "ahmed",
-          },
-          file: {
-            buffer: file,
-          },
-        };
-        const UserService = {
-          addUserImageURL: async () => {
-            return {
-              _id: "",
-              userName: "",
-              email: "",
-              profilePicture: "",
-              profileBackground: "",
-              canbeFollowed: "",
-              lastUpdatedPassword: "",
-              followersCount: "",
-              friendsCount: "",
-              accountActivated: "",
-              gender: "",
-              displayName: "",
-              postKarma: "",
-              commentKarma: "",
-              createdAt: "",
-              joinDate:"",
-              description: "",
-              adultContent: "",
-              nsfw: "",
-            };
-          },
-        };
-        const fileController = new FileController({ UserService });
-        await fileController.uploadUserImage(req, res, "");
-        expect(res.status).to.have.been.calledWith(400);
-        expect(res.status(400).json).to.have.been.calledWith({
-            status: "fail",
-            errorMessage: "Please provide correct type of image you want to save",
-        });
-      });
-  
   });
 });

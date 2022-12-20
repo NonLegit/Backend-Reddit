@@ -268,9 +268,8 @@ class subredditController {
     }
     res.status(204).json({ status: "success" });
     req.messageObject = deleted.messageObj;
-   return next();
+    return next();
   };
-
 
   // TODO: unit tests (service)
   //accept or reject
@@ -343,7 +342,10 @@ class subredditController {
       status: "success",
     });
   };
+
   // TODO: service tests
+  // TODO: add name with fixedName in body
+
   subredditsJoined = async (req, res) => {
     let userId = req.user._id;
     let location = req.params.where;
@@ -422,7 +424,7 @@ class subredditController {
 
   // TODO: service test
   //invite the mod
-  inviteModerator = async (req, res,next) => {
+  inviteModerator = async (req, res, next) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let moderatorName = req.params.moderatorName;
@@ -491,10 +493,10 @@ class subredditController {
       });
       return;
     }
-    
+
     res.status(204).json({ status: "success" });
     req.messageObject = invitation.messageObj;
-   return next();
+    return next();
   };
 
   // TODO: service tests
@@ -700,7 +702,7 @@ class subredditController {
 
   // TODO: service test
   //ban a user
-  banSettings = async (req, res,next) => {
+  banSettings = async (req, res, next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let banedUser = req.params.userName;
@@ -785,7 +787,7 @@ class subredditController {
       });
       return;
     }
-     
+
     res.status(204).json({});
     if (action == "ban") {
       console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
@@ -795,10 +797,10 @@ class subredditController {
       // type:"subredditBan",
       //    subreddit: result.subredditId
       //  };
-       
-// console.log(messageObj);
-     req.messageObject = result.messageObj;
-    
+
+      // console.log(messageObj);
+      req.messageObject = result.messageObj;
+
       return next();
     }
     return;
@@ -806,7 +808,7 @@ class subredditController {
 
   // TODO: service testing
   //mute a user
-  muteSettings = async (req, res,next) => {
+  muteSettings = async (req, res, next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let mutedUser = req.params.userName;
@@ -890,7 +892,7 @@ class subredditController {
       });
       return;
     }
-   // console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
+    // console.log("eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee");
     //console.log(result);
     res.status(204).json({});
     console.log("kkkkkkkkkkkkkkkkkkkkkkk");
@@ -1289,7 +1291,7 @@ class subredditController {
   //approve a user
 
   //TODO:approve a user message
-  approveUser = async (req, res,next) => {
+  approveUser = async (req, res, next) => {
     let userId = req.user._id; //me
     let subredditName = req.params.subredditName;
     let approvedUser = req.params.userName;
@@ -1364,7 +1366,7 @@ class subredditController {
     }
     res.status(204).json({});
     console.log(action);
-     if (action == "approve") {
+    if (action == "approve") {
       console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
       //  let messageObj = {
       // to:approve.approvedId,
@@ -1372,14 +1374,13 @@ class subredditController {
       // type:"subredditApprove",
       //    subreddit: approve.subredditId
       //  };
-       
+
       //console.log(messageObj);
-     req.messageObject = approve.messageObj;
-    
+      req.messageObject = approve.messageObj;
+
       return next();
     }
     return;
-
   };
 
   approvedUsers = async (req, res) => {
@@ -1434,7 +1435,7 @@ class subredditController {
       return;
     }
 
-    let posts = await this.subredditServices.reels(topic);
+    let posts = await this.subredditServices.reels(topic, req.query);
     if (!posts.success) {
       let msg, stat;
       switch (posts.error) {
@@ -1456,6 +1457,48 @@ class subredditController {
       return;
     }
     res.status(200).json({ status: "success", data: posts.data });
+  };
+
+  traffic = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter topic",
+      });
+      return;
+    }
+
+    let reports = await this.subredditServices.traffic(subredditName, userId);
+
+    if (!reports.success) {
+      let msg, stat;
+      switch (reports.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this request";
+          stat = 401;
+          break;
+        case subredditErrors.MONGO_ERR:
+          msg = reports.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({
+      status: "success",
+      data: reports.data,
+    });
   };
 
   //!===================================================================================

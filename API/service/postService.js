@@ -95,6 +95,10 @@ class PostService {
     if (!validType)
       return { success: false, error: postErrors.INVALID_POST_KIND };
 
+    //To avoid invalid data in case of image/video posts
+    delete data.images;
+    delete data.video;
+
     if (data.ownerType === "User") {
       data.owner = data.author;
       if (data.flairId) delete data.flairId;
@@ -117,8 +121,16 @@ class PostService {
       const parentPost = await this.postRepo.findById(data.sharedFrom);
       if (!parentPost.success)
         return { success: false, error: postErrors.INVALID_PARENT_POST };
+
+      //parent is inherited
+      if (parentPost.doc.sharedFrom)
+        data.sharedFrom = parentPost.doc.sharedFrom;
+
+      //This data is meaningless in share case
+      // delete data.text;
+      // delete data.url;
+
       data.kind = parentPost.doc.kind;
-      ``;
     }
 
     const post = await this.postRepo.createOne(data);
@@ -208,13 +220,14 @@ class PostService {
    * @param {string} sortType - sorting posts according to new , top, Hot
    * @returns {Array<object>} - list of posts
    */
-  async getUserPosts(author, sortType) {
+  async getUserPosts(author, sortType, limit, page) {
     if (sortType === "Hot") {
       // algorithm
       //console.log("Hot");
+
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-sortOnHot" },
+        { sort: "-sortOnHot", limit: limit, page: page },
         "owner"
       );
       return posts.doc;
@@ -223,13 +236,18 @@ class PostService {
       //console.log("Top");
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-votes" },
+        { sort: "-votes", limit: limit, page: page },
         "owner"
       );
       return posts.doc;
     } else {
       // sort by createdAt
-      const posts = await this.postRepo.getUserPosts(author, "", "owner");
+      console.log(limit, page);
+      const posts = await this.postRepo.getUserPosts(
+        author,
+        { sort: "-createdAt", limit: limit, page: page },
+        "owner"
+      );
       return posts.doc;
     }
   }
@@ -244,11 +262,28 @@ class PostService {
     let newPosts = posts;
     let owner = {};
     for (var i = 0; i < posts.length; i++) {
+      owner = {};
       try {
         newPosts[i] = newPosts[i].toObject();
         //console.log(newPosts[i]);
       } catch (err) {}
+      if (posts[i].sharedFrom) {
+        let sharedOwner = {};
+        if (newPosts[i].sharedFrom.ownerType === "User") {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.userName;
+          sharedOwner["icon"] =
+            `${process.env.BACKDOMAIN}/` +
+            newPosts[i].sharedFrom.owner.profilePicture;
+        } else {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.fixedName;
+          sharedOwner["icon"] = newPosts[i].sharedFrom.owner.icon;
+        }
+        newPosts[i].sharedFrom.owner = sharedOwner;
+      }
       if (posts[i].ownerType === "User") {
+        console.log(i);
         owner["_id"] = posts[i].owner._id;
         owner["name"] = posts[i].owner.userName;
         owner["icon"] =
@@ -271,7 +306,18 @@ class PostService {
         `${process.env.BACKDOMAIN}/` + posts[i].author.profilePicture;
 
       newPosts[i]["author"] = author;
+      if (posts[i].sharedFrom) {
+        let sharedAuthor = {};
+        sharedAuthor["_id"] = newPosts[i].sharedFrom.author._id;
+        sharedAuthor["name"] = newPosts[i].sharedFrom.author.userName;
+        sharedAuthor["icon"] =
+          `${process.env.BACKDOMAIN}/` +
+          newPosts[i].sharedFrom.author.profilePicture;
+
+        newPosts[i].sharedFrom["author"] = sharedAuthor;
+      }
     }
+    //console.log(newPosts)
     return newPosts;
   }
   /**
@@ -366,8 +412,10 @@ class PostService {
   setHiddenPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
+    console.log("hidden ", user.hidden);
     for (var i = 0; i < user.hidden.length; i++) {
       hash[user.hidden[i]] = user.hidden[i];
+      if (user.hidden[i]._id) hash[user.hidden[i]._id] = user.hidden[i]._id;
     }
     // console.log(hash);
     // check if posts is in map then set in its object vote status with in user
@@ -377,7 +425,6 @@ class PostService {
       } catch (err) {}
       if (hash[posts[i]._id]) {
         newPosts[i]["isHidden"] = true;
-        newPosts[i]["isSaved"] = false;
         //Object.assign(newPosts[i], {postVoteStatus: "0"});
       } else {
         newPosts[i]["isHidden"] = false;
@@ -512,8 +559,8 @@ class PostService {
   }
 
   async addFile(postId, kind, file) {
-    if(kind === "image") return await this.postRepo.addImage(postId, file);
-    else return await this.postRepo.addVideo(postId, file)
+    if (kind === "image") return await this.postRepo.addImage(postId, file);
+    else return await this.postRepo.addVideo(postId, file);
   }
 
   /**
@@ -631,6 +678,7 @@ class PostService {
         // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
         //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
+      newPosts[i].savedPost.isSaved = true;
       newPosts[i].savedPost.owner = {
         _id: newPosts[i].savedPost.owner._id,
         name:
@@ -667,8 +715,8 @@ class PostService {
       return { success: false };
     }
   }
-  // Doaa should add here code here
-  async addVote(user, postId, voteDir, votesCount) {
+
+  async addVote(user, postId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {
       return element.posts.toString() === postId.toString();
@@ -679,6 +727,11 @@ class PostService {
         posts: postId,
         postVoteStatus: voteDir,
       });
+      // check if vote status is 1 so that increase karma
+      if (voteDir === 1) {
+        author.postKarma = author.postKarma + 1;
+        await author.save();
+      }
     } else {
       if (user.votePost[index].postVoteStatus === voteDir) {
         return false;
@@ -687,6 +740,12 @@ class PostService {
           voteNumber += 1;
         } else if (user.votePost[index].postVoteStatus === 1) {
           voteNumber -= 1;
+          // decrease karma here
+          author.postKarma = author.postKarma - 1;
+          await author.save();
+        } else if (voteDir === 1) {
+          author.postKarma = author.postKarma + 1;
+          await author.save();
         }
         user.votePost[index].postVoteStatus = voteDir;
       }

@@ -107,6 +107,7 @@ module.exports = async function seeder() {
     votes: 5,
   });
 
+
   await User.findOneAndUpdate(
     { userName: "Ahmed" },
     {

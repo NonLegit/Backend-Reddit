@@ -9,17 +9,23 @@ const router = express.Router();
 
 router.use(AuthenticationController.authorize);
 
-router.route("/").post(CommentController.createComment,
-  NotificationController.addReplyNotification,
-MessageController.createReplyMessage);
+router
+  .route("/")
+  .post(
+    CommentController.createComment,
+    NotificationController.addReplyNotification,
+    MessageController.createReplyMessage
+  );
 router
   .route("/:commentId")
   .patch(CommentController.updateComment)
   .delete(CommentController.deleteComment);
 
+router.post("/:commentId/vote", CommentController.commentVote);
+router.post("/:commentId/save", CommentController.saveComment);
+router.post("/:commentId/unsave", CommentController.unSaveComment);
 router.route("/comment_tree/:postId").get(CommentController.commentTree);
 router.route("/more_children").get(CommentController.moreChildren);
-
 
 module.exports = router;
 
