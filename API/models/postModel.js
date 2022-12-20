@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Comment = require('./commentModel')
+const Comment = require("./commentModel");
 const Url = require("mongoose-type-url");
 const validator = require("validator");
 require("mongoose-type-url");
@@ -8,12 +8,12 @@ const postSchema = new mongoose.Schema({
   owner: {
     type: mongoose.SchemaTypes.ObjectId,
     refPath: "ownerType",
-    required: true,
+    required: [true, "A post must have an owner"],
   },
   ownerType: {
     type: String,
     enum: ["Subreddit", "User"],
-    required: true,
+    required: [true, "A post must have an ownerType"],
   },
   author: {
     type: mongoose.SchemaTypes.ObjectId,
@@ -26,7 +26,7 @@ const postSchema = new mongoose.Schema({
       ref: "Comment",
     },
   ],
-  flair: {
+  flairId: {
     type: mongoose.SchemaTypes.ObjectId,
     ref: "Flair",
     required: false,
@@ -42,11 +42,11 @@ const postSchema = new mongoose.Schema({
   },
   title: {
     type: String,
-    required: true,
+    required: [true, "A post must have a title"],
   },
   kind: {
     type: String,
-    required: true,
+    required: [true, "A post must have a kind"],
     enum: ["link", "self", "image", "video"],
     default: "self",
   },
@@ -110,12 +110,12 @@ const postSchema = new mongoose.Schema({
     default: 0,
     min: 0,
   },
-  shareCount: {
-    type: Number,
-    required: true,
-    default: 0,
-    min: 0,
-  },
+  // shareCount: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0,
+  //   min: 0,
+  // },
   suggestedSort: {
     type: String,
     required: true,
@@ -127,21 +127,104 @@ const postSchema = new mongoose.Schema({
     required: true,
     default: false,
   },
+  sortOnHot: {
+    type: Number,
+    required: false,
+  },
+  sortOnBest: {
+    type: Number,
+    required: false,
+  },
+  modState: {
+    type: String,
+    required: true,
+    enum: ["unmoderated", "approved", "removed", "spammed"],
+    default: "unmoderated",
+  },
+  spamCount: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  spammedBy: [
+    {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "User",
+    },
+  ],
 });
-postSchema.pre('find', function() {
-  this.populate('owner');
-});
-postSchema.pre("findOneAndUpdate", async function (next) {
-  if (this._update.isDeleted) {
-    const post = await this.model.findOne(this.getQuery());
-    await Comment.updateMany(
-      { _id: { $in: post.replies } },
-      { isDeleted: true }
-    );
-  }
+postSchema.index({ "$**": "text" });
+
+postSchema.pre("save", function (next) {
+  // this points to the current query
+
+  this.sortOnHot =
+    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.commentCount * 0.2;
+  this.sortOnBest =
+    this.createdAt.getTime() * 0.4 +
+    this.votes * 0.25 +
+    this.commentCount * 0.2 +
+    this.shareCount * 0.15;
+
   next();
 });
 
+//Whoever added this middleware should add more restrictions
+postSchema.pre("find", function () {
+  const { getAuthor } = this.options;
+  this.populate(
+    "owner",
+    "_id fixedName name userName icon profilePicture primaryTopic"
+  );
+  if (getAuthor === true) {
+    this.populate("author");
+  } else {
+    this.populate("sharedFrom");
+    this.populate(
+      "author",
+      "_id userName profilePicture profileBackground displayName"
+    );
+  }
+
+  this.populate("flairId");
+
+  //soft delete
+  this.find({ isDeleted: false });
+});
+
+postSchema.post("init", function (doc) {
+  const kind = doc.kind;
+  if (kind === "video") doc.video = `${process.env.BACKDOMAIN}/` + doc.video;
+  else if (kind === "image" && doc.images) {
+    doc.images.forEach(
+      (image, index) =>
+        (doc.images[index] = `${process.env.BACKDOMAIN}/` + doc.images[index])
+    );
+  }
+});
+
+// postSchema.pre("findOneAndUpdate", async function (next) {
+//   if (this._update.isDeleted) {
+//     const post = await this.model.findOne(this.getQuery());
+//     await Comment.updateMany(
+//       { _id: { $in: post.replies } },
+//       { isDeleted: true }
+//     );
+//   }
+//   next();
+// });
+
+// postSchema.pre('find', function(){
+//   this.sortOnHot = (this.votes) * 0.8 + (this.commentCount) * 0.2;
+//   this.sortOnBest=(this.createdAt.getTime())*0.4+(this.votes)*0.25+(this.commentCount)*0.2+(this.shareCount)*0.15;
+
+// });
+// postSchema.virtual('sortOnHot').get(function () {
+//   return (this.votes)*0.8+(this.commentCount)*0.2;
+// });
+// postSchema.virtual('sortOnBest').get(function () {
+//   return (this.createdAt.getTime())*0.4+(this.votes)*0.25+(this.commentCount)*0.2+(this.shareCount)*0.15;
+// });
 const Post = mongoose.model("Post", postSchema);
 
 module.exports = Post;

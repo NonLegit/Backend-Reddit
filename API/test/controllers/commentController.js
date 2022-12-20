@@ -1,310 +1,250 @@
+const assert = require("chai").assert;
 const expect = require("chai").expect;
-const request = require("supertest");
-
+const chai = require("chai");
+const sinon = require("sinon");
+const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
-process.env.NODE_ENV = "test";
-const seeder = require("./../../models/seed");
+const CommentController = require("./../../controllers/commentController");
+const { commentErrors } = require("./../../error_handling/errors");
+dotenv.config();
+chai.use(sinonChai);
 
-const app = require("./../../app");
+const statusJsonSpy = sinon.spy();
+const next = sinon.spy();
+const res = {
+  json: sinon.spy(),
+  status: sinon.stub().returns({ json: statusJsonSpy }),
+  cookie: sinon.spy(),
+};
 
-describe("Comment controller test", () => {
-  describe("Create comment", () => {
-    it("create a post reply and a comment", async () => {
-      await seeder();
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+describe("Comment Controller CRUD operations", () => {
+  describe("Create comment test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      body: {
+        parent: "637769a739070007b3bf4de1",
+        parentType: "Comment",
+        text: "comment text",
+      },
+    };
+
+    const UserService = {};
+    const CommentService = {
+      createComment: async (data) => {
+        return { success: true, data };
+      },
+    };
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
+    });
+
+    it("successful creation", async () => {
+      await commentController.createComment(req, res, () => {
+        return true;
       });
-      expect(res.status).to.equal(200);
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-        });
-      expect(postRes.status).to.equal(201);
-
-      postReply = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Post",
-          text: "Top level comment",
-        });
-      expect(postReply.status).to.equal(201);
-
-      comment = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postReply._body.data._id,
+      expect(res.status).to.have.been.calledWith(201);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: {
+          author: "123e4aab2a94c22ae492983a",
+          parent: "637769a739070007b3bf4de1",
           parentType: "Comment",
-          text: "comment reply",
-        });
-      expect(comment.status).to.equal(201);
+          text: "comment text",
+        },
+      });
     });
 
     it("Invalid parent", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+      CommentService.createComment = async (data) => {
+        return { success: false, error: commentErrors.INVALID_PARENT };
+      };
+      await commentController.createComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid parent, couldn't create comment",
       });
-      expect(res.status).to.equal(200);
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-        });
-      expect(postRes.status).to.equal(201);
-
-      postReply = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Comment",
-          text: "Top level comment",
-        });
-      expect(postReply.status).to.equal(404);
     });
 
-    it("Invalid req", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+    it("mongo error", async () => {
+      CommentService.createComment = async (data) => {
+        return {
+          success: false,
+          error: commentErrors.MONGO_ERR,
+          msg: "message",
+        };
+      };
+      await commentController.createComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "message",
       });
-      expect(res.status).to.equal(200);
+    });
 
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-        });
-      expect(postRes.status).to.equal(201);
-
-      postReply = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          text: "Top level comment",
-        });
-      expect(postReply.status).to.equal(400);
+    it("Invalid request", async () => {
+      delete req.body.parent;
+      await commentController.createComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter",
+      });
     });
   });
 
-  describe("Delete comment", () => {
-    it("successful deletion", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-        });
-      expect(postRes.status).to.equal(201);
-
-      postReply = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Post",
-          text: "Top level comment",
-        });
-      expect(postReply.status).to.equal(201);
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/comments/${postReply._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(204);
+  describe("Update comment test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      params: {
+        commentId: "456p4aab2a94c22ae492983a",
+      },
+      body: {
+        text: "this is a comment",
+      },
+    };
+    const UserService = {};
+    const CommentService = {
+      updateComment: async (id, data, userId) => {
+        return { success: true, data };
+      },
+    };
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
     });
 
-    it("delete: non valid id", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/comments/636d490f3ff67d626ec990cb`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(404);
-    });
-
-    it("delete: unauthorized", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-        });
-      expect(postRes.status).to.equal(201);
-
-      postReply = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Post",
-          text: "Top level comment",
-        });
-      expect(postReply.status).to.equal(201);
-
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "khaled",
-        email: "khaled@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/comments/${postReply._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(401);
-    });
-  });
-
-  describe("Update comment", () => {
     it("successful update", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+      await commentController.updateComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: {
+          text: "this is a comment",
+        },
       });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      comment = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Post",
-          text: "Top level comment",
-        });
-      expect(comment.status).to.equal(201);
-
-      updateRes = await request(app)
-        .patch(`/api/v1/comments/${comment._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "Updated comment text" });
-      expect(updateRes.status).to.equal(200);
-      expect(updateRes._body.data.text).to.equal("Updated comment text");
     });
 
-    it("Update: non valid id", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+    it("User must be author", async () => {
+      CommentService.updateComment = async (data) => {
+        return { success: false, error: commentErrors.NOT_AUTHOR };
+      };
+      await commentController.updateComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be author",
       });
-
-      updateRes = await request(app)
-        .patch(`/api/v1/comments/636d490f3ff67d626ec990cb`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "some text" });
-      expect(updateRes.status).to.equal(404);
     });
 
-    it("update: unauthorized", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
+    it("Comment not found", async () => {
+      CommentService.updateComment = async (data) => {
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+      };
+      await commentController.updateComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Comment not found",
       });
-      expect(res.status).to.equal(200);
+    });
 
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      comment = await request(app)
-        .post("/api/v1/comments")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          parent: postRes._body.data._id,
-          parentType: "Post",
-          text: "Top level comment",
-        });
-      expect(comment.status).to.equal(201);
-
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "khaled",
-        email: "khaled@gmail.com",
-        password: "12345678",
+    it("mongo error", async () => {
+      CommentService.updateComment = async (data) => {
+        return {
+          success: false,
+          error: commentErrors.MONGO_ERR,
+          msg: "message",
+        };
+      };
+      await commentController.updateComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "message",
       });
-      expect(res.status).to.equal(200);
+    });
 
-      updateRes = await request(app)
-        .patch(`/api/v1/comments/${comment._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "some text" });
-      expect(updateRes.status).to.equal(401);
+    it("Invalid request", async () => {
+      delete req.params;
+      await commentController.updateComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Delete comment test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      params: {
+        commentId: "456p4aab2a94c22ae492983a",
+      },
+      body: {
+        text: "this is a comment",
+      },
+    };
+    const UserService = {};
+    const CommentService = {
+      deleteComment: async () => {
+        return { success: true };
+      },
+    };
+    const commentController = new CommentController({
+      CommentService,
+      UserService,
+    });
+
+    it("successful delete", async () => {
+      await commentController.deleteComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: null,
+      });
+    });
+
+    it("User must be author", async () => {
+      CommentService.deleteComment = async () => {
+        return { success: false, error: commentErrors.NOT_AUTHOR };
+      };
+      await commentController.deleteComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be author",
+      });
+    });
+
+    it("Comment not found", async () => {
+      CommentService.deleteComment = async () => {
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+      };
+      await commentController.deleteComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Comment not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params.commentId;
+      await commentController.deleteComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter commentId",
+      });
     });
   });
 });

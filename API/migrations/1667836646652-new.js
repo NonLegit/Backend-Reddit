@@ -8,12 +8,12 @@
 //   useNewUrlParser: true,
 // });
 const dotenv = require("dotenv");
-dotenv.config({ path: "config/config.env" });
+dotenv.config();
 
 async function up() {
   // Write migration here
-  const seeder = require("./../models/seed");
-  await seeder();
+  // const seeder = require("./seed");
+  // await seeder();
 }
 
 /**

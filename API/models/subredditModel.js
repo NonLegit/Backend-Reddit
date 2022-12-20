@@ -1,16 +1,10 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 
-// *TODO: change all ids to objectid after merging with dev branch
-//    *TODO: postId
-//    *TODO: owner
-//    *TODO: moderators.username
-// ! Dont forget to push again
-
 const subredditSchema = new mongoose.Schema({
-  name: {
+  fixedName: {
     type: String,
-    required: [true, "subreddit Name must be unique"],
+    required: [true, "subreddit must have a name"],
     unique: true,
     trim: true,
     maxlength: [
@@ -18,33 +12,41 @@ const subredditSchema = new mongoose.Schema({
       "A subreddit name must have less or equal then 40 characters",
     ],
     minlength: [
-      10,
-      "A subreddit name must have more or equal then 10 characters",
+      2,
+      "A subreddit name must have more or equal then 2 characters",
     ],
   },
-  rules: {
-    type: Object,
-    required: false,
-    defaultName: {
-      type: String,
-      trim: true,
+  name: { type: String, default: " " },
+  isJoined: { type: Boolean, default: false },
+  rules: [
+    {
+      createdAt: {
+        type: Date,
+        default: new Date(Date.now()),
+        select: true,
+      },
+      defaultName: {
+        type: String,
+        trim: true,
+      },
+      description: {
+        type: String,
+        trim: true,
+      },
+      appliesTo: {
+        type: String,
+        trim: true,
+      },
+      title: {
+        type: String,
+        trim: true,
+      },
     },
-    description: {
-      type: String,
-      trim: true,
-    },
-    appliesTo: {
-      type: String,
-      trim: true,
-    },
-    title: {
-      type: String,
-      trim: true,
-    },
-  },
+  ],
   description: {
     type: String,
     required: false,
+    default: "",
     trim: true,
   },
   language: {
@@ -56,6 +58,7 @@ const subredditSchema = new mongoose.Schema({
     type: String,
     required: false,
     trim: true,
+    default: "Unknown",
   },
   type: {
     type: String,
@@ -116,25 +119,36 @@ const subredditSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
+  allowImgs: { type: Boolean, required: false, default: true },
+  allowVideos: { type: Boolean, required: false, default: true },
+  allowLinks: { type: Boolean, required: false, default: true },
+  suggestedSort: { type: String, default: "Top" },
   icon: {
     type: String,
     required: false,
-    trim: true, // *TODO: it will be unique with time stamp and username
+    default: "subreddits/default.png",
+    trim: true,
+  },
+  theme: {
+    type: String,
+    required: false,
+    default: "subreddits/default.png",
+    trim: true,
   },
   backgroundImage: {
     type: String,
     required: false,
-    trim: true, // *TODO: it will be unique with time stamp and username
+    default: "subreddits/defaultcover.png",
+    trim: true,
   },
-  usersCount: {
+  membersCount: {
     type: Number,
     required: false,
     default: 1,
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
-    select: false,
+    default: new Date(Date.now()),
   },
   topics: {
     type: [{ type: String }],
@@ -150,24 +164,43 @@ const subredditSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   }, //subreddit owner (first mod) by time of being mod
-
-  moderators: [
+  users: [
     {
-      type: Object,
-      username: {
+      _id: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
-      mod_time: { type: Date, default: Date.now() },
-      permissions: {
-        type: Object,
+      subDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
+
+  invitations: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
         required: false,
-        all: { type: Boolean },
-        access: { type: Boolean },
-        config: { type: Boolean },
-        flair: { type: Boolean },
-        posts: { type: Boolean },
+      },
+      inviteDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
+
+  moderators: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      modDate: { type: Date, default: new Date(Date.now()) },
+      moderatorPermissions: {
+        required: false,
+        all: { type: Boolean }, // everything
+        access: { type: Boolean }, // can edit users
+        config: { type: Boolean }, // manage settings
+        flair: { type: Boolean }, // manage flairs
+        posts: { type: Boolean }, // manage posts
       },
     },
   ],
@@ -179,27 +212,59 @@ const subredditSchema = new mongoose.Schema({
   ],
   punished: [
     {
-      userId: {
+      user: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
+      banDate: { type: Date, default: new Date(Date.now()) },
       type: { type: String, enum: ["banned", "muted"], required: true },
-      punishReason: { type: String, trim: true },
-      punish_type: { type: String },
-      Note: { type: String },
-      duration: {
-        startTime: { type: Date },
-        endTime: { type: Date },
+      banInfo: {
+        punishReason: { type: String, trim: true, default: "No reason" },
+        punish_type: { type: String, default: "other" },
+        Note: { type: String, default: "no Note" },
+        duration: {
+          type: Number,
+        },
+      },
+      muteInfo: {
+        muteMessage: { type: String, default: "Spammer" },
       },
     },
   ],
+  approved: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      approvedDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
 });
+
+//Indexed fields for search
+// subredditSchema.index({
+//   name: "text",
+//   fixedName: "text",
+//   description: "text",
+//   'rules.title': "text",
+//   'rules.description': "text",
+//   primaryTopic: "text",
+//   topics: "text",
+// });
+subredditSchema.index({ "$**": "text" });
 
 function topicsLimit(val) {
   return val.length <= 25;
 }
 
+subredditSchema.post("init", function (doc) {
+  doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
+  doc.backgroundImage = `${process.env.BACKDOMAIN}/` + doc.backgroundImage;
+  doc.theme = `${process.env.BACKDOMAIN}/` + doc.theme;
+});
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 
 // singleton User model

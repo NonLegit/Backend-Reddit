@@ -19,6 +19,7 @@ class APIFeatures {
   }
 
   sort() {
+    
     if (this.queryString.sort) {
       const sortBy = this.queryString.sort.split(",").join(" ");
       this.query = this.query.sort(sortBy);
@@ -41,10 +42,19 @@ class APIFeatures {
   }
 
   paginate() {
-    const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 100;
-    const skip = (page - 1) * limit;
+    let page;
+    let limit;
+    let skip;
 
+    if (this.queryString.page * 1 < 0||this.queryString.limit<0) {
+      page = 1;
+      limit = 20;
+      skip = (page - 1) * limit;
+    } else {
+      page = this.queryString.page * 1 || 1;
+      limit = this.queryString.limit * 1 || 100;
+      skip = (page - 1) * limit;
+    }
     this.query = this.query.skip(skip).limit(limit);
 
     return this;

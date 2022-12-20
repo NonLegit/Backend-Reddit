@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    stages {
+        stage('Building backend') {
+    	    when { branch "main" }
+            environment {
+                GIT_PASSWORD = credentials('github-pat')
+                DB_CREDS = credentials('db-creds')
+                DB_NAME = credentials('db-name')
+                EMAIL_CREDS = credentials('email-creds')
+                DOCKER_CREDS = credentials('docker-creds')
+                FACEBOOK_APP = credentials('facebook-app')
+                GOOGLE_APP = credentials('google-app')
+                JWT_SECRET = credentials('jwt-secret')
+                EMAIL_HOST = credentials('email-host')
+                EMAIL_PORT = credentials('email-port')
+		FIREBASE_SERVER_KEY = credentials('firebase-server-key')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
+            }
+            steps {
+                sh(returnStdout: true, script: "bash -e /var/jenkins_home/scripts/backend/build.sh")
+            }
+        }
+        stage('Deploying backend') {
+    	    when { branch "main" }
+            environment {
+                DB_CREDS = credentials('db-creds')
+                NONLEGIT = credentials('nonlegit-db-user')
+                BACKEND = credentials('backend-db-user')
+                AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+                AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
+                SOURCE_EMAIL = credentials('source-email')
+            }
+            steps {
+               sh(returnStdout: true, script: "bash -e /var/jenkins_home/scripts/backend/deploy.sh")
+            }
+        }
+    }
+}

@@ -1,6 +1,10 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
+const { passwordStrength } = require("check-password-strength");
+const generator = require("generate-password");
+const { userErrors } = require("../error_handling/errors");
+
 const { promisify } = require("util");
 
 /**
@@ -14,43 +18,65 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor(User, UserRepository, emailServices) {
-    this.User = User; // can be mocked in unit testing
+  constructor({
+    /*Repository*/ UserRepository,
+    Email,
+    SocialRepository,
+    SubredditRepository,
+  }) {
+    //this.User = User; // can be mocked in unit testing
+    //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
-    this.emailServices = emailServices;
-    this.createUser = this.createUser.bind(this);
-    this.createToken = this.createToken.bind(this);
-    this.signUp = this.signUp.bind(this);
-    this.logIn = this.logIn.bind(this);
-    this.forgotPassword = this.forgotPassword.bind(this);
-    this.forgotUserName = this.forgotUserName.bind(this);
-    this.resetPassword = this.resetPassword.bind(this);
-    this.getUser = this.getUser.bind(this);
-    this.getUserByEmail = this.getUserByEmail.bind(this);
-    this.getUserByName = this.getUserByName.bind(this);
-    this.decodeToken = this.decodeToken.bind(this);
-    this.getPrefs = this.getPrefs.bind(this);
-    this.updatePrefs = this.updatePrefs.bind(this);
-    this.filterObj = this.filterObj.bind(this);
+    this.emailServices = Email;
+    this.SocialRepository = SocialRepository;
+    this.subredditRepository = SubredditRepository;
 
-    this.isAvailable = this.isAvailable.bind(this);
-    this.subscribe = this.subscribe.bind(this);
+    // this.createUser = this.createUser.bind(this);
+    // this.createToken = this.createToken.bind(this);
+    // this.signUp = this.signUp.bind(this);
+    // this.logIn = this.logIn.bind(this);
+    // this.forgotPassword = this.forgotPassword.bind(this);
+    // this.forgotUserName = this.forgotUserName.bind(this);
+    // this.resetPassword = this.resetPassword.bind(this);
+    // this.getUser = this.getUser.bind(this);
+    // this.getUserByEmail = this.getUserByEmail.bind(this);
+    // this.getUserByName = this.getUserByName.bind(this);
+    // this.decodeToken = this.decodeToken.bind(this);
+    // this.getPrefs = this.getPrefs.bind(this);
+    // this.updatePrefs = this.updatePrefs.bind(this);
+    // this.filterObj = this.filterObj.bind(this);
+
+    // this.isAvailable = this.isAvailable.bind(this);
+    // this.subscribe = this.subscribe.bind(this);
   }
 
-  async createUser(data) {
-    try {
-      let user = await this.userRepository.createOne(data);
-      return user;
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
+  generateRandomPassword() {
+    var password = generator.generate({
+      length: 10,
+      uppercase: true,
+      numbers: true,
+      symbols: true,
+    });
+    console.log(password);
+    return password;
   }
+  checkPasswordStrength(password) {
+    return passwordStrength(password).value;
+  }
+  // async createUser(data) {
+  //   try {
+  //     let user = await this.userRepository.createOne(data);
+  //     return user;
+  //   } catch (err) {
+  //     console.log("catch error here" + err);
+  //     const error = {
+  //       status: "fail",
+  //       statusCode: 400,
+  //       err,
+  //     };
+  //     return error;
+  //   }
+  // }
   /**
    * @property {Function} createToken create user token
    * @param {string} id - User Id to be stored in token
@@ -78,25 +104,21 @@ class UserService {
       userName: userName,
       password: password,
     };
+    //this.checkPasswordStrength(password);
     let user = await this.userRepository.createOne(userData);
-    if (user.status === "fail") {
+    if (user.success === false) {
       // user with this email or username is exists
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "User already Exists",
-        },
+        success: false,
+        error: userErrors.USER_ALREADY_EXISTS,
+        msg: user.msg,
       };
       return response;
     } else {
       const token = this.createToken(user.doc._id);
       const response = {
-        status: 201,
-        body: {
-          status: "success",
-          token: token,
-        },
+        success: true,
+        token: token,
       };
       return response;
     }
@@ -110,38 +132,29 @@ class UserService {
    * @returns {object} - response of login contain status of services and body to send to client
    */
   async logIn(userName, password) {
-    let user = await this.userRepository.getOne(
-      { userName: userName },
-      "+password",
-      ""
-    );
-    if (user.status === "fail") {
+    let user = await this.userRepository.findByUserName(userName, "+password");
+    if (user.success === false) {
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "Invalid username or password",
-        },
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: user.msg,
+        // msg:"invaild userName or password",
       };
       return response;
     } else {
       if (await user.doc.checkPassword(password, user.doc.password)) {
         const token = this.createToken(user.doc._id);
         const response = {
-          status: 200,
-          body: {
-            status: "success",
-            token: token,
-          },
+          success: true,
+          token: token,
         };
         return response;
       } else {
         const response = {
-          status: 400,
-          body: {
-            status: "fail",
-            errorMessage: "Invalid username or password",
-          },
+          success: false,
+          error: userErrors.INCORRECT_PASSWORD,
+          msg: "Incorrect Password",
+          // msg:"invaild userName or password",
         };
         return response;
       }
@@ -154,35 +167,29 @@ class UserService {
    */
   async forgotUserName(email) {
     try {
-      let user = await this.userRepository.getOne({ email: email }, "", "");
-      if (user.statusCode === 200) {
-        await this.emailServices.sendUserName(user.doc);
+      let user = await this.userRepository.findByEmail(email);
+      if (user.success === true) {
+        const resetURL = `${process.env.FRONTDOMAIN}/login`;
+        await this.emailServices.sendUserName(user.doc, resetURL);
         const response = {
-          status: 204,
-          body: {
-            status: "success",
-          },
+          success: true,
         };
         return response;
       } else {
         const response = {
-          status: 404,
-          body: {
-            status: "fail",
-            errorMessage: "User Not Found",
-          },
+          success: false,
+          error: userErrors.USER_NOT_FOUND,
+          msg: "User Not Found",
         };
         return response;
       }
     } catch (err) {
-      console.log("catch error : " + err);
-      const error = {
-        status: 400,
-        body: {
-          errorMessage: err,
-        },
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
       };
-      return error;
+      return response;
     }
   }
   /**
@@ -194,44 +201,59 @@ class UserService {
    */
   async forgotPassword(userName, email) {
     try {
-      const query = {
-        userName: userName,
-        email: email,
-      };
-      let user = await this.userRepository.getOne(query, "");
+      let user = await this.userRepository.findByEmailAndUserName(
+        userName,
+        email
+      );
 
-      if (user.statusCode === 200) {
+      if (user.success === true) {
         const resetToken = user.doc.createPasswordResetToken();
+        this.replaceProfile(user.doc);
         await user.doc.save({ validateBeforeSave: false });
-        const resetURL = `${process.env.FRONTDOMAIN}resetPassword/${resetToken}`;
+        const resetURL = `${process.env.FRONTDOMAIN}/resetpassword/${resetToken}`;
         await this.emailServices.sendPasswordReset(user.doc, resetURL);
         const response = {
-          status: 204,
-          body: {
-            status: "success",
-          },
+          success: true,
         };
         return response;
       } else {
         const response = {
-          status: 404,
-          body: {
-            status: "fail",
-            errorMessage: "User Not Found",
-          },
+          success: false,
+          error: userErrors.USER_NOT_FOUND,
+          msg: "User Not Found",
         };
         return response;
       }
     } catch (err) {
-      console.log("catch error:" + err);
-      const error = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: err,
-        },
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
       };
-      return error;
+      return response;
+    }
+  }
+  async sendVerificationToken(user) {
+    const verificationToken = user.createVerificationToken();
+    user.emailVerified = false;
+    this.replaceProfile(user);
+    await user.save({ validateBeforeSave: false });
+
+    // front Domain verification page
+    const verifyURL = `${process.env.FRONTDOMAIN}/verification/${verificationToken}`;
+    try {
+      await this.emailServices.sendVerificationMail(user, verifyURL);
+      const response = {
+        success: true,
+      };
+      return response;
+    } catch (error) {
+      const response = {
+        success: false,
+        error: userErrors.EMAIL_ERROR,
+        msg: "Cannot Send Emails at that moment ,try again later",
+      };
+      return response;
     }
   }
   /**
@@ -246,38 +268,71 @@ class UserService {
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
-    let user = await this.userRepository.getOne(
-      {
-        passwordResetToken: hashedToken,
-        passwordResetExpires: { $gt: Date.now() },
-      },
-      "",
-      ""
-    );
-    if (user.status === "fail") {
+    let user = await this.userRepository.findByResetPassword(hashedToken);
+    if (user.success === false) {
       // invalid token or time passed
       const response = {
-        status: 400,
-        body: {
-          status: "fail",
-          errorMessage: "token is invalid or has expired ",
-        },
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
       };
       return response;
     } else {
       user.doc.password = password;
       user.doc.passwordResetToken = undefined;
       user.doc.passwordResetExpires = undefined;
+      this.replaceProfile(user.doc);
       await user.doc.save();
       const token = this.createToken(user.doc._id);
       const response = {
-        status: 200,
-        body: {
-          token: token,
-        },
+        success: true,
+        token: token,
       };
       return response;
     }
+  }
+  async changePassword(user, keepLoggedIn, password) {
+    // let user = await this.userRepository.changekeepLoggedIn(
+    //   userId,
+    //   keepLoggedIn
+    // );
+    user.password = password;
+    user.keepLoggedIn = keepLoggedIn;
+    await user.save();
+    const token = this.createToken(user._id);
+    return token;
+  }
+  async verifyEmailToken(verificationToken) {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(verificationToken)
+      .digest("hex");
+    let user = await this.userRepository.findByVerificationToken(hashedToken);
+    if (user.success === false) {
+      // invalid token or time passed
+      const response = {
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
+      };
+      return response;
+    } else {
+      user.doc.verificationToken = undefined;
+      user.doc.verificationTokenExpires = undefined;
+      user.doc.emailVerified = true;
+      this.replaceProfile(user.doc);
+      await user.doc.save();
+      const response = {
+        success: true,
+      };
+      return response;
+    }
+  }
+  async deleteAccount(user) {
+    user.isDeleted = true;
+    user.keepLoggedIn = false;
+    await user.save();
+    return true;
   }
   /**
    * @property {Function} decodeToken get information out from token
@@ -296,8 +351,39 @@ class UserService {
    * @returns {object} - user model
    */
   async getUser(id) {
-    let user = await this.userRepository.getOne({ _id: id }, "", "");
-    return user;
+    let user = await this.userRepository.findById(id, "", "");
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
+  }
+
+  async getUserWithFollowers(id) {
+    let user = await this.userRepository.findById(id, "", "");
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getUserByEmail get user information from database by email
@@ -305,8 +391,21 @@ class UserService {
    * @returns {object} - user model
    */
   async getUserByEmail(email) {
-    let user = await this.userRepository.getOne({ email: email }, "", "");
-    return user;
+    let user = await this.userRepository.findByEmail(email);
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getUserByName get user information from database by userName
@@ -315,12 +414,25 @@ class UserService {
    * @returns {object} - user model
    */
   async getUserByName(userName, popOptions) {
-    let user = await this.userRepository.getOne(
-      { userName: userName },
+    let user = await this.userRepository.findByUserName(
+      userName,
       "",
       popOptions
     );
-    return user;
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
   }
   /**
    * @property {Function} getPrefs get user preferences from user model
@@ -329,18 +441,19 @@ class UserService {
    */
   getPrefs(user) {
     let prefs = {
-      contentVisibility: user.contentVisibility,
       canbeFollowed: user.canbeFollowed,
       nsfw: user.nsfw,
       gender: user.gender,
-      allowInboxMessage: user.allowInboxMessage,
-      allowMentions: user.allowMentions,
-      allowCommentsOnPosts: user.allowCommentsOnPosts,
-      allowUpvotesOnComments: user.allowUpvotesOnComments,
-      allowUpvotesOnPosts: user.allowUpvotesOnPosts,
+      adultContent: user.adultContent,
+      autoplayMedia: user.autoplayMedia,
       displayName: user.displayName,
       profilePicture: user.profilePicture,
+      profileBackground: user.profileBackground,
       description: user.description,
+      email: user.email,
+      socialLinks: user.socialLinks,
+      country: user.country,
+      emailVerified: user.emailVerified,
     };
     return prefs;
   }
@@ -353,19 +466,18 @@ class UserService {
   async updatePrefs(query, id) {
     const filteredBody = this.filterObj(
       query,
-      "contentVisibility",
       "canbeFollowed",
       "nsfw",
       "gender",
-      "allowInboxMessage",
-      "allowMentions",
-      "allowCommentsOnPosts",
-      "allowUpvotesOnComments",
-      "allowUpvotesOnPosts",
+      "adultContent",
+      "autoplayMedia",
       "displayName",
-      "description"
+      "description",
+      "adultContent",
+      "autoplayMedia",
+      "country"
     );
-    let user = await this.userRepository.updateOne({ _id: id }, filteredBody);
+    let user = await this.userRepository.updateOne(id, filteredBody);
     return this.getPrefs(user.doc);
   }
   /**
@@ -384,15 +496,14 @@ class UserService {
 
   /**
    * Checks if username is available, that is, it doesn't exist in the database
-   * @param {string} username - The name of the user to be checked
+   * @param {string} userName - The name of the user to be checked
    * @returns {boolean}
    */
-  async isAvailable(username) {
-    const found = await this.userRepository.getByQuery(
-      { userName: username },
-      "_id"
-    );
-    return !found;
+  async isAvailable(userName) {
+    //const user = await this.userRepository.findByUserName(userName);
+    const user = await this.userRepository.findByName(userName);
+    if (user.success) return false;
+    return true;
   }
 
   /**
@@ -403,22 +514,479 @@ class UserService {
    * @returns {boolean}
    */
   async subscribe(userId, subredditId, action) {
-    const alreadySubscribed = await this.userRepository.getByQuery(
-      { _id: userId, subscribed: subredditId },
-      "_id"
+    const alreadySubscribed = await this.userRepository.isSubscribed(
+      userId,
+      subredditId
     );
     //In order to subscribe, user should not be already subscribed
-    if (action==="sub" && !alreadySubscribed) {
-      return await this.userRepository.push(userId, {
-        subscribed: subredditId,
+    if (action === "sub" && !alreadySubscribed) {
+      await this.userRepository.subscribe(subredditId, userId);
+      await this.subredditRepository.subscribe(subredditId, userId);
+      return true;
+      //In order to unsubscribe, user should be already subscribed
+    } else if (action === "unsub" && alreadySubscribed) {
+      await this.userRepository.unSubscribe(subredditId, userId);
+      await this.subredditRepository.unSubscribe(subredditId, userId);
+      return true;
+    }
+
+    return false;
+  }
+  async checkPassword(password, userName) {
+    let user = await this.userRepository.findByUserName(userName, "+password");
+    return await user.doc.checkPassword(password, user.doc.password);
+  }
+  async updateUserEmail(id, email) {
+    const user = await this.userRepository.updateEmailById(id, email);
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
+  }
+  async checkResetTokenTime(resetToken) {
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+    let user = await this.userRepository.findByResetPassword(hashedToken);
+    if (user.success === false) {
+      // invalid token or time passed
+      const response = {
+        success: false,
+        error: userErrors.INVALID_RESET_TOKEN,
+        msg: "Token Invalid or Has Expired",
+      };
+      return response;
+    } else {
+      const response = {
+        success: true,
+        msg: "valid token",
+      };
+      return response;
+    }
+  }
+  about(me, user) {
+    const relation = me.meUserRelationship.find(
+      (element) => element.userId.toString() === user._id.toString()
+    );
+    let isFollowed = false;
+    let isBlocked = false;
+    if (relation) {
+      if (relation.status === "followed") {
+        isFollowed = true;
+      } else if (relation.status === "blocked") {
+        isBlocked = true;
+      }
+    }
+    const checkBlocked = me.userMeRelationship.find(
+      (element) => element.userId.toString() === user._id.toString()
+    );
+    let userBlockedMe = false;
+    if (checkBlocked) {
+      if (checkBlocked.status === "blocked") userBlockedMe = true;
+    }
+    let searchUser;
+    if (userBlockedMe) {
+      searchUser = {
+        _id: user._id,
+        userName: user.userName,
+        profilePicture: `${process.env.BACKDOMAIN}/users/default.png`,
+        profileBackground: `${process.env.BACKDOMAIN}/users/defaultcover.png`,
+        canbeFollowed: false,
+        followersCount: user.followersCount,
+        friendsCount: user.friendsCount,
+        gender: user.gender,
+        displayName: user.displayName,
+        postKarma: user.postKarma,
+        commentKarma: user.commentKarma,
+        description: "",
+        createdAt: user.joinDate,
+        nsfw: user.nsfw,
+        autoplayMedia: user.autoplayMedia,
+        adultContent: user.adultContent,
+        isFollowed: false,
+        country: user.country,
+        socialLinks: [],
+        isBlocked: isBlocked,
+      };
+    } else {
+      searchUser = {
+        _id: user._id,
+        userName: user.userName,
+        profilePicture: user.profilePicture,
+        profileBackground: user.profileBackground,
+        canbeFollowed: user.canbeFollowed,
+        followersCount: user.followersCount,
+        friendsCount: user.friendsCount,
+        gender: user.gender,
+        displayName: user.displayName,
+        postKarma: user.postKarma,
+        commentKarma: user.commentKarma,
+        description: user.description,
+        createdAt: user.joinDate,
+        nsfw: user.nsfw,
+        autoplayMedia: user.autoplayMedia,
+        adultContent: user.adultContent,
+        isFollowed: isFollowed,
+        country: user.country,
+        socialLinks: user.socialLinks,
+        isBlocked: isBlocked,
+      };
+    }
+    return searchUser;
+  }
+  async addUserImageURL(userId, type, path) {
+    //console.log(path);
+    path = "users/" + path;
+
+    let user = {};
+    if (type === "profilePicture") {
+      user = await this.userRepository.updateOne(userId, {
+        profilePicture: path,
       });
-    //In order to unsubscribe, user should be already subscribed
-    } else if (action==="unsub" && alreadySubscribed) {
-      return await this.userRepository.pull(userId, {
-        subscribed: subredditId,
+    } else {
+      user = await this.userRepository.updateOne(userId, {
+        profileBackground: path,
       });
     }
+
+    return user.doc;
+  }
+  async getSocialLinks() {
+    let data = await this.SocialRepository.getAll();
+    return data;
+  }
+  async createSocialLinks(me, displayText, userLink, socialId) {
+    // check if social id is valid
+    //console.log(me.socialLinks.length);
+    if (me.socialLinks.length === 5) {
+      return {
+        success: false,
+        msg: "Max Links 5",
+        error: userErrors.MAXSOCIALLINKS,
+      };
+    } else {
+      let data = await this.SocialRepository.findOne(socialId);
+      //console.log(data);
+      if (data.success === true) {
+        // bug here should use updateone
+
+        // try {
+        //   me.socialLinks.push({
+        //     social: socialId,
+        //     displayText: displayText,
+        //     userLink: userLink,
+        //   });
+        // } catch (err) {
+        //   console.log(err);
+        // }
+        // await me.save();
+
+        await this.userRepository.updateSocialLinks(me._id, {
+          social: socialId,
+          displayText: displayText,
+          userLink: userLink,
+        });
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          msg: "Invalid social Id",
+          error: userErrors.INVALID_SOCIALID,
+        };
+      }
+    }
+  }
+  async updateSocialLinks(me, id, userLink, displayText) {
+    let index = me.socialLinks.findIndex((item) => item._id.toString() == id);
+    if (index != -1) {
+      if (userLink) {
+        me.socialLinks[index].userLink = userLink;
+      }
+      if (displayText) {
+        console.log("should save");
+        me.socialLinks[index].displayText = displayText;
+        let profileBackground = me.profileBackground;
+        let profilePicture = me.profilePicture;
+        me.profilePicture = profilePicture.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
+        me.profileBackground = profileBackground.replace(
+          `${process.env.BACKDOMAIN}/`,
+          ""
+        );
+      }
+      console.log(me.profileBackground + " " + me.profilePicture);
+      await me.save();
+      return { success: true, socialLinks: me.socialLinks };
+    } else {
+      return { success: false };
+    }
+  }
+  async deleteSocialLinks(me, id) {
+    let index = me.socialLinks.findIndex((item) => item._id == id);
+    if (index != -1) {
+      try {
+        me.socialLinks.pull({ _id: id });
+      } catch (err) {}
+
+      let profileBackground = me.profileBackground;
+      let profilePicture = me.profilePicture;
+      me.profilePicture = profilePicture.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      me.profileBackground = profileBackground.replace(
+        `${process.env.BACKDOMAIN}/`,
+        ""
+      );
+      console.log(me.profileBackground + " " + me.profilePicture);
+      await me.save();
+      return { success: true };
+    } else {
+      return { success: false };
+    }
+  }
+  replaceProfile(doc) {
+    let profileBackground = doc.profileBackground;
+    let profilePicture = doc.profilePicture;
+    doc.profilePicture = profilePicture.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
+    doc.profileBackground = profileBackground.replace(
+      `${process.env.BACKDOMAIN}/`,
+      ""
+    );
+    return doc;
+  }
+  async checkBlockStatus(me, otherUser) {
+    const index = otherUser.meUserRelationship.findIndex((element) => {
+      return element.userId.toString() == me._id.toString();
+    });
+
+    if (index != -1) {
+      console.log(otherUser.meUserRelationship[index].status);
+      if (otherUser.meUserRelationship[index].status === "blocked") {
+        return true;
+      }
+    }
     return false;
+  }
+  async blockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+    // console.log(index);
+    // console.log(index2);
+    if (index != -1) {
+      me.meUserRelationship[index].status = "blocked";
+      otherUser.userMeRelationship[index2].status = "blocked";
+    } else {
+      me.meUserRelationship.push({
+        userId: otherUser._id,
+        status: "blocked",
+      });
+      otherUser.userMeRelationship.push({
+        userId: me._id,
+        status: "blocked",
+      });
+    }
+    // remove relationship of other user and me
+    index = me.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    index2 = otherUser.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.userMeRelationship[index].status = "none";
+      otherUser.meUserRelationship[index2].status = "none";
+    }
+    await otherUser.save();
+    await me.save();
+    return true;
+  }
+  async unBlockUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      me.meUserRelationship[index].status = "none";
+      otherUser.userMeRelationship[index2].status = "none";
+    }
+    await otherUser.save();
+    await me.save();
+    return true;
+  }
+  async saveFirebaseToken(userId, token) {
+    //check if existing subreddit to create flair in
+
+    let addedToken = await this.userRepository.addTokenToUser(userId, token);
+    if (!addedToken.success) {
+      return { success: false, error: userErrors.MONGO_ERR };
+    }
+    return { success: true };
+  }
+
+  async getFirebaseToken(userId) {
+    let token = await this.userRepository.getFirebaseToken(userId);
+    if (!token.success) {
+      return { success: false, error: userErrors.MONGO_ERR };
+    }
+    return { success: true, data: token.doc };
+  }
+
+  async followUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+
+    //console.log(otherUser);
+    let isAlreadyFollowed = true;
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+    if (index != -1) {
+      if (me.meUserRelationship[index].status !== "followed") {
+        isAlreadyFollowed = false;
+      }
+      me.meUserRelationship[index].status = "followed";
+      otherUser.userMeRelationship[index2].status = "followed";
+      otherUser.followersCount = otherUser.followersCount + 1;
+    } else {
+      me.meUserRelationship.push({
+        userId: otherUser._id,
+        status: "followed",
+      });
+      otherUser.userMeRelationship.push({
+        userId: me._id,
+        status: "followed",
+      });
+      otherUser.followersCount = otherUser.followersCount + 1;
+      isAlreadyFollowed = false;
+    }
+    await otherUser.save();
+    await me.save();
+    return isAlreadyFollowed;
+  }
+  async unfollowUser(me, otherUser) {
+    this.replaceProfile(me);
+    this.replaceProfile(otherUser);
+    let isAlreadyUnfollowed = true;
+    let index = me.meUserRelationship.findIndex(
+      (item) => item.userId.toString() == otherUser._id.toString()
+    );
+    let index2 = otherUser.userMeRelationship.findIndex(
+      (item) => item.userId.toString() == me._id.toString()
+    );
+
+    if (index != -1) {
+      if (me.meUserRelationship[index].status === "followed") {
+        isAlreadyUnfollowed = false;
+      }
+      me.meUserRelationship[index].status = "none";
+      otherUser.userMeRelationship[index2].status = "none";
+      otherUser.followersCount = otherUser.followersCount - 1;
+    }
+    await otherUser.save();
+    await me.save();
+    return isAlreadyUnfollowed;
+  }
+  async getBlockedUsers(user) {
+    let users = await this.userRepository.getBlocked(user);
+    let blocked = [];
+    users.forEach((element) => {
+      if (element.status === "blocked") {
+        blocked.push({
+          _id: element.userId._id,
+          userName: element.userId.userName,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
+          postKarma: element.userId.postKarma,
+          commentKarma: element.userId.commentKarma,
+        });
+      }
+    });
+    return blocked;
+  }
+  async getFollowers(me) {
+    let users = await this.userRepository.getFollowers(me);
+    let followers = [];
+    users.forEach((element) => {
+      if (element.status === "followed") {
+        let isFollowed = this.isFollowed(me, element.userId._id);
+        followers.push({
+          _id: element.userId._id,
+          userName: element.userId.userName,
+          profilePicture:
+            process.env.BACKDOMAIN + "/" + element.userId.profilePicture,
+          postKarma: element.userId.postKarma,
+          commentKarma: element.userId.commentKarma,
+          displayName: element.userId.displayName,
+          isFollowed: isFollowed,
+        });
+      }
+    });
+    return followers;
+  }
+
+  getPeopleUserKnows(user) {
+    let people = [];
+    let blockedTwoWay = [];
+    user.meUserRelationship.forEach((element) => {
+      if (element.status === "followed" || element.status === "friend") {
+        if (
+          !user.userMeRelationship.find((el) => {
+            return el.userId.equals(element.userId) && el.status == "blocked";
+          })
+        ) {
+          people.push(element.userId);
+        } else {
+          blockedTwoWay.push(element.userId);
+        }
+      }
+      if (element.status === "blocked") {
+        blockedTwoWay.push(element.userId);
+      }
+    });
+    return { people: people, blocked: blockedTwoWay };
+    // return people;
+  }
+  isFollowed(me, userId) {
+    const relation = me.meUserRelationship.find(
+      (element) => element.userId.toString() === userId.toString()
+    );
+    let isFollowed = false;
+    if (relation) {
+      if (relation.status === "followed") isFollowed = true;
+    }
+    return isFollowed;
   }
 }
 
