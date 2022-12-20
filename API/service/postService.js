@@ -133,6 +133,7 @@ class PostService {
       data.kind = parentPost.doc.kind;
     }
 
+    data.createdAt = Date.now();
     const post = await this.postRepo.createOne(data);
     if (post.success) return { success: true, data: post.doc };
 
@@ -191,14 +192,14 @@ class PostService {
           sharedOwner["icon"] = newPosts[i].sharedFrom.owner.icon;
         }
         newPosts[i].sharedFrom.owner = sharedOwner;
-  
+
         let sharedAuthor = {};
         sharedAuthor["_id"] = newPosts[i].sharedFrom.author._id;
         sharedAuthor["name"] = newPosts[i].sharedFrom.author.userName;
         sharedAuthor["icon"] =
           `${process.env.BACKDOMAIN}/` +
           newPosts[i].sharedFrom.author.profilePicture;
-  
+
         newPosts[i].sharedFrom["author"] = sharedAuthor;
       }
     }
