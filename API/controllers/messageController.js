@@ -106,7 +106,9 @@ class MessageController {
              // console.log(messageToSend.data.to);
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
-            console.log(tokens);
+            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
+            console.log(messageToSend.data);
+            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
               if (tokens.success) {
                   message = {
                       to: tokens.data.firebaseToken,
