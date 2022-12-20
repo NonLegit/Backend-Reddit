@@ -62,7 +62,7 @@ router.post(
   subredditController.ModeratorInvitation
 );
 router.delete(
-  "/:subredditName/moderator/:moderatorName",
+  "/:subredditName/moderators/:moderatorName",
   subredditController.deletemoderator,
   MessageController.modMessage
 );
@@ -120,7 +120,7 @@ router.get("/:topics/posts/like_reels", subredditController.reels);
 router.get("/traffic/:subredditName", subredditController.traffic);
 
 router.get(
-  "pending_invitations/:subredditName",
+  "/pending_invitations/:subredditName",
   subredditController.pendingInvetations
 );
 

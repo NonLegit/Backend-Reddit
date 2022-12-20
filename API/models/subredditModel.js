@@ -175,7 +175,7 @@ const subredditSchema = new mongoose.Schema({
     },
   ],
 
-  invetations: [
+  invitations: [
     {
       user: {
         type: mongoose.SchemaTypes.ObjectId,
