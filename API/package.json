@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "backend api",
   "main": "server.js",
+  "nyc": {
+    "all": true,
+    "check-coverage": true,
+    "cwd" : "../",
+    "exclude" : [
+      "*.js"
+    ]
+  },
   "scripts": {
     "test": "mocha --timeout 1000000 --recursive --exit ",
     "covarage": "nyc --reporter=html mocha --timeout 1000000 --recursive --exit ",

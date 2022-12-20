@@ -186,9 +186,14 @@ class PostService {
    * @param {Object} filter filtering object to filter the posts
    * @returns {Object} object containing array of posts
    */
-  async getPosts(query, filter, me, sortType,people) {
-   
-    const posts = await this.postRepo.getPosts(filter, query, sortType,me,people);
+  async getPosts(query, filter, me, sortType, people) {
+    const posts = await this.postRepo.getPosts(
+      filter,
+      query,
+      sortType,
+      me,
+      people
+    );
 
     if (posts.success) {
       if (posts.doc.length == 0) {
@@ -318,6 +323,9 @@ class PostService {
       }
     }
     //console.log(newPosts)
+    newPosts = newPosts.filter(function (item) {
+      return !item.isDeleted;
+    });
     return newPosts;
   }
   /**
@@ -696,6 +704,9 @@ class PostService {
         name: newPosts[i].savedPost.author.userName,
       };
     }
+    newPosts = newPosts.filter(function (item) {
+      return !item.savedPost.isDeleted;
+    });
     return newPosts.reverse();
   }
   filterPosts(posts, comments) {
