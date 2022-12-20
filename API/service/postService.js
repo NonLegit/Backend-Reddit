@@ -107,10 +107,17 @@ class PostService {
         return { success: false, error: postErrors.INVALID_OWNER };
       const subreddit = await this.subredditRepo.findById(
         data.owner,
-        "flairIds"
+        "flairIds allowImgs allowVideos allowLinks"
       );
       if (!subreddit.success)
         return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
+
+      if (
+        (data.kind === "image" && !subreddit.doc.allowImgs) ||
+        (data.kind === "video" && !subreddit.doc.allowVideos) ||
+        (data.kind === "link" && !subreddit.doc.allowLinks)
+      )
+        return { success: false, error: postErrors.INVALID_POST_KIND };
 
       if (data.flairId && !subreddit.doc.flairIds.includes(data.flairId)) {
         return { success: false, error: postErrors.FLAIR_NOT_FOUND };
