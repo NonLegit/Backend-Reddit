@@ -40,7 +40,8 @@ class NotificationRepository extends Repository {
                         _id: comment._id,
                         text: comment.text
                     },
-                    post: post._id
+                    post: post._id,
+                    createdAt:Date.now()
                 };
             } else {
                 data = {
@@ -62,7 +63,8 @@ class NotificationRepository extends Repository {
                         _id: followedUserId
                         
                     },
-                    post: post._id
+                    post: post._id,
+                    createdAt:Date.now()
                 };
             }
         
@@ -110,7 +112,8 @@ class NotificationRepository extends Repository {
                             _id: comment._id,
                             text: comment.text
                         },
-                        post: post._id
+                        post: post._id,
+                        createdAt:Date.now()
                     };
                     let notification = await this.model.create(data);
                     listNotifactions.push(notification);
@@ -140,7 +143,8 @@ class NotificationRepository extends Repository {
                             _id: mentions[i].userId,
                         
                         },
-                        post: post._id
+                        post: post._id,
+                        createdAt:Date.now()
                     };
                      let notification = await this.model.create(data);
                 listNotifactions.push(notification);
@@ -181,7 +185,8 @@ class NotificationRepository extends Repository {
                     _id: followed._id,
                     userName: followed.userName
                         
-                }
+                },
+                createdAt:Date.now()
             };
             let notification = await this.model.create(data);
            // console.log(notification);
