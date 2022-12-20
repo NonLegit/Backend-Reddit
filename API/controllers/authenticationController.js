@@ -320,6 +320,7 @@ class AuthenticationController {
         const time = decoded.iat;
         const user = await this.UserServices.getUser(userId);
         if (user.success === false) {
+          console.log(user);
           res.status(404).json({
             status: "fail",
             errorMessage: "User not found",
