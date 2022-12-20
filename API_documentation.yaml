@@ -409,6 +409,67 @@ paths:
                     type: string
                     example: "Token is invalid or has expired"
 
+
+  /users/delete_account/:
+    description: User Resource
+    post:
+      tags:
+        - "Users"
+      description: delete account
+      summary: delete account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userName:
+                  type: string
+                  example: Ahmed
+                password:
+                  type: string
+                  example: Aa123456*
+      responses:
+        204:
+          description: Success operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        404:
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: User Not Found
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: fail
+                  errorMessage:
+                    type: string
+                    example: Incorrect password
+        401:
+          $ref: "#/components/responses/UnauthorizedError"
+
   /users/google/:
     description: User Resource
     post:
