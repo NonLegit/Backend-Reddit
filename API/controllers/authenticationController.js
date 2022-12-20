@@ -168,11 +168,13 @@ class AuthenticationController {
    * @returns void
    */
   logOut = (req, res) => {
-    res.clearCookie("jwt");
-    // res.cookie("jwt", "loggedout", {
-    //     expires: new Date(Date.now() + 10 * 1000),
-    //     httpOnly: true,
-    // });
+    //res.clearCookie("jwt");
+    res.cookie("jwt", "loggedout", {
+      expires: new Date(Date.now() + 10 * 1000),
+      sameSite: "None",
+      httpOnly: process.env.NODE_ENV === "production" ? true : false,
+      secure: process.env.NODE_ENV === "production" ? true : false,
+    });
     res.status(200).json({
       status: "success",
     });
@@ -659,7 +661,7 @@ class AuthenticationController {
       }
     }
   };
-  deleteAccount = async (req,res,next)=>{
+  deleteAccount = async (req, res, next) => {
     const userName = req.body.userName;
     const password = req.body.password;
     if (!userName || !password) {
@@ -669,8 +671,7 @@ class AuthenticationController {
         errorMessage: "Provide username and password",
       });
     } else {
-      if(userName === req.user.userName)
-      {
+      if (userName === req.user.userName) {
         const user = await this.UserServices.logIn(userName, password);
         if (user.success === true) {
           // mark account as deleted
@@ -685,17 +686,14 @@ class AuthenticationController {
             errorMessage: response.msg,
           });
         }
-      }
-      else
-      {
+      } else {
         res.status(400).json({
           status: "fail",
           errorMessage: "Invalid userName",
         });
       }
-
     }
-  }
+  };
 }
 
 module.exports = AuthenticationController;
