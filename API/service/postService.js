@@ -176,8 +176,33 @@ class PostService {
         _id: author._id,
         name: author.userName,
       };
+
+      if (posts[i].sharedFrom) {
+        let sharedOwner = {};
+        if (newPosts[i].sharedFrom.ownerType === "User") {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.userName;
+          sharedOwner["icon"] =
+            `${process.env.BACKDOMAIN}/` +
+            newPosts[i].sharedFrom.owner.profilePicture;
+        } else {
+          sharedOwner["_id"] = newPosts[i].sharedFrom.owner._id;
+          sharedOwner["name"] = newPosts[i].sharedFrom.owner.fixedName;
+          sharedOwner["icon"] = newPosts[i].sharedFrom.owner.icon;
+        }
+        newPosts[i].sharedFrom.owner = sharedOwner;
+  
+        let sharedAuthor = {};
+        sharedAuthor["_id"] = newPosts[i].sharedFrom.author._id;
+        sharedAuthor["name"] = newPosts[i].sharedFrom.author.userName;
+        sharedAuthor["icon"] =
+          `${process.env.BACKDOMAIN}/` +
+          newPosts[i].sharedFrom.author.profilePicture;
+  
+        newPosts[i].sharedFrom["author"] = sharedAuthor;
+      }
     }
-    // console.log(newPosts);
+
     return newPosts;
   }
   /**
