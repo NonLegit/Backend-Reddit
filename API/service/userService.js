@@ -453,6 +453,7 @@ class UserService {
       email: user.email,
       socialLinks: user.socialLinks,
       country: user.country,
+      emailVerified: user.emailVerified,
     };
     return prefs;
   }

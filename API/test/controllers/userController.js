@@ -42,6 +42,7 @@ describe("User Controller Test", () => {
           nsfw: false,
           country: "egypt",
           socialLinks: [],
+          emailVerified: true,
         },
       };
       const userController = new UserController({});
@@ -70,6 +71,7 @@ describe("User Controller Test", () => {
           nsfw: false,
           country: "egypt",
           socialLinks: [],
+          emailVerified: true,
         },
       });
     });
@@ -93,6 +95,7 @@ describe("User Controller Test", () => {
           description: "",
           country: "egypt",
           socialLinks: [],
+          emailVerified: true,
         },
       };
       const UserService = {
@@ -109,6 +112,7 @@ describe("User Controller Test", () => {
             description: "",
             country: "egypt",
             socialLinks: [],
+            emailVerified: true,
           };
           return response;
         },
@@ -130,6 +134,7 @@ describe("User Controller Test", () => {
           description: "",
           country: "egypt",
           socialLinks: [],
+          emailVerified: true,
         },
       });
     });

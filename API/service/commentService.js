@@ -131,7 +131,10 @@ class CommentService {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
-    await comment.doc.populate("author", "_id userName profilePicture profileBackground");
+    await comment.doc.populate(
+      "author",
+      "_id userName profilePicture profileBackground"
+    );
     let parentComment = await this.commentRepo.getComment(comment.doc.parent);
     console.log(parentComment);
     console.log(".......................");
@@ -149,14 +152,13 @@ class CommentService {
         _id: comment.doc._id,
         text: comment.doc.text,
         type: comment.doc.parentType,
-        parentCommentAuthor: parentComment.doc.author._id
+        parentCommentAuthor: parentComment.doc.author._id,
       };
     } else {
       commentToNotify = {
         _id: comment.doc._id,
         text: comment.doc.text,
         type: comment.doc.parentType,
-       
       };
     }
     let postToNotify;
@@ -339,6 +341,9 @@ class CommentService {
       hash[user.voteComment[i].comments] =
         user.voteComment[i].commentVoteStatus;
     }
+    userComments = userComments.filter(function (item) {
+      return !item.savedComment.isDeleted;
+    });
     userComments.forEach((element) => {
       if (
         post._id === undefined ||
@@ -391,7 +396,7 @@ class CommentService {
               _id: element.savedComment.author._id,
               name: element.savedComment.author.userName,
               icon:
-                `${process.env.BACKDOMAIN}/` +
+                /*`${process.env.BACKDOMAIN}/` +*/
                 element.savedComment.author.profilePicture,
             },
             sortOnHot: element.savedComment.sortOnHot,
@@ -416,7 +421,7 @@ class CommentService {
             _id: element.savedComment.author._id,
             name: element.savedComment.author.userName,
             icon:
-              `${process.env.BACKDOMAIN}/` +
+              /*`${process.env.BACKDOMAIN}/` +*/
               element.savedComment.author.profilePicture,
           },
           sortOnHot: element.savedComment.sortOnHot,
@@ -429,7 +434,6 @@ class CommentService {
     });
     if (post._id !== undefined)
       commentTree.push({ savedComment: post, createdAt: createdAt });
-    console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
 
