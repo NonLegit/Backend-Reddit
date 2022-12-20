@@ -1140,7 +1140,7 @@ class subredditService {
       return { success: false, error: userErrors.MODERATOR };
 
     if (action === "approve") {
-      //msh m7tag a check 34an already ana bgeb alnas mn al list of approved
+      //msh m7tag a check 34an already ana bgeb alnas mn al list of approved3
       // check of he is approved before
       let checkApproved = await this.subredditRepository.checkApproval(
         userExisted.doc._id,
@@ -1270,7 +1270,7 @@ class subredditService {
     else return { success: true, data: afterfilter };
   }
 
-  async traffic(subredditName, userId) {
+  async traffic(subredditName, userId,type) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
       "",
@@ -1286,7 +1286,7 @@ class subredditService {
     if (!iamMod.success)
       return { success: false, error: subredditErrors.NOT_MODERATOR };
     // get stats
-    let stats = await this.subredditRepository.traffic(subredditName);
+    let stats = await this.subredditRepository.traffic(subredditName,type);
     if (!stats.success)
       return { success: false, error: subredditErrors.MONGO_ERR };
 

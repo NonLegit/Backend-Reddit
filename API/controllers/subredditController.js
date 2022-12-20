@@ -1482,6 +1482,7 @@ class subredditController {
   traffic = async (req, res) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
+    let type = req.params.type;
 
     if (!subredditName) {
       res.status(400).json({
@@ -1491,7 +1492,11 @@ class subredditController {
       return;
     }
 
-    let reports = await this.subredditServices.traffic(subredditName, userId);
+    let reports = await this.subredditServices.traffic(
+      subredditName,
+      userId,
+      type
+    );
 
     if (!reports.success) {
       let msg, stat;
