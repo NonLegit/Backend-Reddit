@@ -237,7 +237,7 @@ class subredditController {
       userId,
       moderatorName
     );
-
+    console.log(deleted);
     if (!deleted.success) {
       let msg, stat;
       switch (deleted.error) {
@@ -261,6 +261,10 @@ class subredditController {
           msg = deleted.msg;
           stat = 400;
           break;
+        case subredditErrors.CANOT_DELETE:
+          msg = "canot delete mod higher than you in mod tree";
+          stat = 401;
+          break;
       }
       res.status(stat).json({
         status: "fail",
@@ -269,6 +273,7 @@ class subredditController {
       return;
     }
     res.status(204).json({ status: "success" });
+    console.log("iiiiiiiiiiiiii");
     req.messageObject = deleted.messageObj;
     return next();
   };

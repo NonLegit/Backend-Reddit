@@ -67,6 +67,7 @@ exports.subredditErrors = Object.freeze({
   NO_INVITATION: 9,
   RULE_TAKEN: 15,
   RULE_NOT_FOUND: 17,
+  CANOT_DELETE:100
 });
 
 exports.userErrors = Object.freeze({
