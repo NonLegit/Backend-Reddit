@@ -60,7 +60,7 @@ class NotificationController {
       console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
       //console.log(notification.data);
       let message;
-      if (tokens.success && tokens.data.firebaseToken.length != 0) {
+      if (tokens.success ) {
         message = {
           to: tokens.data.firebaseToken,
           data: { val: JSON.stringify(notification.data) }

@@ -198,9 +198,7 @@ class UserRepository extends Repository {
     return { success: true, doc: user };
   }
   async addTokenToUser(userId, token) {
-    const user = await this.model.findByIdAndUpdate(userId, {
-      $push: { firebaseToken: token },
-    });
+    const user = await this.model.findByIdAndUpdate(userId, { firebaseToken: token });
     if (!user) {
       return { success: false, error: mongoErrors.INVALID_ID };
     }
@@ -209,7 +207,10 @@ class UserRepository extends Repository {
   async getFirebaseToken(userId) {
     try {
       const user = await this.model.findById(userId, "firebaseToken");
-      if (!user) {
+       console.log("555555555555555555555555555555555");
+      console.log(user);
+      if (!user || !user.firebaseToken) {
+        console.log("555555555555555555555555555555555");
         return { success: false, error: mongoErrors.INVALID_ID };
       }
       return { success: true, doc: user };

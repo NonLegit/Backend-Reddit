@@ -107,7 +107,7 @@ class MessageController {
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
             console.log(tokens);
-              if (tokens.success&&tokens.data.firebaseToken.length!=0) {
+              if (tokens.success) {
                   message = {
                       to: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
@@ -167,7 +167,7 @@ class MessageController {
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
             console.log(tokens);
-              if (tokens.success&&tokens.data.firebaseToken.length!=0) {
+              if (tokens.success) {
                   message = {
                       to: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
