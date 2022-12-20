@@ -344,6 +344,9 @@ class CommentService {
       hash[user.voteComment[i].comments] =
         user.voteComment[i].commentVoteStatus;
     }
+    userComments = userComments.filter(function (item) {
+      return !item.savedComment.isDeleted;
+    });
     userComments.forEach((element) => {
       if (
         post._id === undefined ||
@@ -396,7 +399,7 @@ class CommentService {
               _id: element.savedComment.author._id,
               name: element.savedComment.author.userName,
               icon:
-                `${process.env.BACKDOMAIN}/` +
+                /*`${process.env.BACKDOMAIN}/` +*/
                 element.savedComment.author.profilePicture,
             },
             sortOnHot: element.savedComment.sortOnHot,
@@ -421,7 +424,7 @@ class CommentService {
             _id: element.savedComment.author._id,
             name: element.savedComment.author.userName,
             icon:
-              `${process.env.BACKDOMAIN}/` +
+              /*`${process.env.BACKDOMAIN}/` +*/
               element.savedComment.author.profilePicture,
           },
           sortOnHot: element.savedComment.sortOnHot,
@@ -434,7 +437,6 @@ class CommentService {
     });
     if (post._id !== undefined)
       commentTree.push({ savedComment: post, createdAt: createdAt });
-    console.log("Treeeeeeeeeeeeeeee", commentTree);
     return commentTree.reverse();
   }
 

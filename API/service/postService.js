@@ -348,6 +348,9 @@ class PostService {
       }
     }
     //console.log(newPosts)
+    newPosts = newPosts.filter(function (item) {
+      return !item.isDeleted;
+    });
     return newPosts;
   }
   /**
@@ -726,6 +729,9 @@ class PostService {
         name: newPosts[i].savedPost.author.userName,
       };
     }
+    newPosts = newPosts.filter(function (item) {
+      return !item.savedPost.isDeleted;
+    });
     return newPosts.reverse();
   }
   filterPosts(posts, comments) {

@@ -247,10 +247,6 @@ class PostController {
     // get vote of me if these post i vote on it
     let posts = this.postServices.setVoteStatus(me, me.saved);
     let comments = this.CommentService.setVoteStatus(me, me.savedComments);
-    // let posts = this.postServices.setVotePostStatus(me, posts);
-    // posts = this.postServices.setVotePostStatus(me, me.saved);
-    // posts = this.postServices.removeHiddenPosts(me, posts);
-    // posts = this.postServices.setPostOwnerData(posts);
     res.status(200).json({
       status: "success",
       savedPosts: posts,

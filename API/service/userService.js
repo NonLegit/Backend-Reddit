@@ -18,13 +18,18 @@ class UserService {
    * @param {object} UserRepository - User Repository Object for Deal with mongodb
    * @param {object} emailServices - Email Service Object for send emails to users
    */
-  constructor({ /*Repository*/ UserRepository, Email, SocialRepository,SubredditRepository }) {
+  constructor({
+    /*Repository*/ UserRepository,
+    Email,
+    SocialRepository,
+    SubredditRepository,
+  }) {
     //this.User = User; // can be mocked in unit testing
     //this.userRepository = Repository; // can be mocked in unit testing
     this.userRepository = UserRepository; // can be mocked in unit testing
     this.emailServices = Email;
     this.SocialRepository = SocialRepository;
-    this.subredditRepository = SubredditRepository; 
+    this.subredditRepository = SubredditRepository;
 
     // this.createUser = this.createUser.bind(this);
     // this.createToken = this.createToken.bind(this);
@@ -325,6 +330,7 @@ class UserService {
   }
   async deleteAccount(user) {
     user.isDeleted = true;
+    user.keepLoggedIn = false;
     await user.save();
     return true;
   }
@@ -361,12 +367,6 @@ class UserService {
       return response;
     }
   }
-
-
-
-
-
-
 
   async getUserWithFollowers(id) {
     let user = await this.userRepository.findById(id, "", "");
@@ -453,6 +453,7 @@ class UserService {
       email: user.email,
       socialLinks: user.socialLinks,
       country: user.country,
+      emailVerified: user.emailVerified,
     };
     return prefs;
   }
@@ -955,28 +956,27 @@ class UserService {
     return followers;
   }
 
-
-
-
-    getPeopleUserKnows(user) {
-      let people = [];
-      let blockedTwoWay= [];
+  getPeopleUserKnows(user) {
+    let people = [];
+    let blockedTwoWay = [];
     user.meUserRelationship.forEach((element) => {
       if (element.status === "followed" || element.status === "friend") {
-        
-        if (!user.userMeRelationship.find((el) => { return (el.userId.equals(element.userId)&&el.status=="blocked") })) {
-            people.push(element.userId);
-        }       
-        else {
-          blockedTwoWay.push(element.userId)
+        if (
+          !user.userMeRelationship.find((el) => {
+            return el.userId.equals(element.userId) && el.status == "blocked";
+          })
+        ) {
+          people.push(element.userId);
+        } else {
+          blockedTwoWay.push(element.userId);
         }
       }
       if (element.status === "blocked") {
         blockedTwoWay.push(element.userId);
       }
     });
-      return { people:people, blocked:blockedTwoWay};
-     // return people;
+    return { people: people, blocked: blockedTwoWay };
+    // return people;
   }
   isFollowed(me, userId) {
     const relation = me.meUserRelationship.find(
