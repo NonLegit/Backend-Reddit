@@ -115,7 +115,7 @@ class CommentService {
       }
     }
     data.mentions = mentions;
-    
+
     //console.log(mentions);
     //create the comment
     const comment = await this.commentRepo.createOne(data);
@@ -131,12 +131,11 @@ class CommentService {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
     else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
-    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-   // console.log(validParent.post);
-    console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
-    
-
-   
+    await comment.doc.populate("author", "_id userName profilePicture profileBackground");
+    comment.doc.author.profilePicture =
+      `${process.env.BACKDOMAIN}/` + comment.doc.author.profilePicture;
+    comment.doc.author.profileBackground =
+      `${process.env.BACKDOMAIN}/` + comment.doc.author.profileBackground;
 
     let commentToNotify = {
       _id: comment.doc._id,
@@ -144,8 +143,6 @@ class CommentService {
       type: comment.doc.parentType,
     };
     let postToNotify;
-    console.log("heeeeeeeeeeeeeeeeeee");
-    //console.log(validParent.post);
 
     if (validParent.post.ownerType == "Subreddit") {
       postToNotify = {
@@ -175,7 +172,7 @@ class CommentService {
       data: comment.doc,
       postToNotify: postToNotify,
       commentToNotify: commentToNotify,
-      mentions:mentions
+      mentions: mentions,
     };
   }
 

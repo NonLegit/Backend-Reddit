@@ -14,7 +14,7 @@ class CommentService {
     this.userRepo = UserRepository;
   }
 
-  async search(q, type, page, limit, sort, time) {
+  async search(q, type, page, limit, sort, time, user) {
     q.replace(/"/g, '\\"'); //For phrase searching quotes must be escaped
 
     let result;
@@ -23,7 +23,7 @@ class CommentService {
         result = await this.postRepo.search(q, page, limit, sort, time);
         break;
       case "communities":
-        result = await this.subredditRepo.search(q, page, limit);
+        result = await this.subredditRepo.search(q, page, limit, user.subscribed);
         break;
     }
     return result;
