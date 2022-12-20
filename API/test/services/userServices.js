@@ -381,7 +381,7 @@ describe("User Services Test", () => {
   describe("Username available", async () => {
     it("available", async () => {
       const UserRepository = {
-        findByUserName: async (userName) => {
+        findByName: async (userName) => {
           return { success: false };
         },
       };
@@ -393,7 +393,7 @@ describe("User Services Test", () => {
     });
     it("unavailable", async () => {
       const UserRepository = {
-        findByUserName: async (userName) => {
+        findByName: async (userName) => {
           return { success: true };
         },
       };

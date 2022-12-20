@@ -346,11 +346,16 @@ class PostController {
       //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
       // }
       // else {
+       let people;
+    if (me) {
+      people = this.userServices.getPeopleUserKnows(me);
+    }
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
         me,
-        sortType
+        sortType,
+        people
       );
 
       // }
@@ -389,14 +394,19 @@ class PostController {
     try {
       //req.query.sort = "-createdAt";
       //console.log(req.query);
-
-      let sortType = "new";
+       let sortType = "new";
       let me = req.isAuthorized == true ? req.user : undefined;
+   let people;
+    if (me) {
+      people = this.userServices.getPeopleUserKnows(me);
+    }
+     
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
         me,
-        sortType
+        sortType,
+        people
       );
 
       if (!posts.success) {
@@ -436,14 +446,18 @@ class PostController {
       //console.log(req.query);
 
       let me = req.isAuthorized == true ? req.user : undefined;
-
+   let people;
+    if (me) {
+      people = this.userServices.getPeopleUserKnows(me);
+    }
       let sortType = "top";
       // let filter = (req.toFilter) ? req.toFilter : {};
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
         me,
-        sortType
+        sortType,
+        people
       );
 
       if (!posts.success) {
@@ -498,13 +512,18 @@ class PostController {
 
       let me = req.isAuthorized == true ? req.user : undefined;
 
+         let people;
+    if (me) {
+      people = this.userServices.getPeopleUserKnows(me);
+    }
       // get post which he creates
 
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
         me,
-        sortType
+        sortType,
+        people
       );
 
       if (!posts.success) {

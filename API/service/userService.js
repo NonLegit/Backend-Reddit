@@ -323,6 +323,11 @@ class UserService {
       return response;
     }
   }
+  async deleteAccount(user) {
+    user.isDeleted = true;
+    await user.save();
+    return true;
+  }
   /**
    * @property {Function} decodeToken get information out from token
    * @param {string} token - user token
@@ -340,6 +345,30 @@ class UserService {
    * @returns {object} - user model
    */
   async getUser(id) {
+    let user = await this.userRepository.findById(id, "", "");
+    if (user.success === true) {
+      const response = {
+        success: true,
+        data: user.doc,
+      };
+      return response;
+    } else {
+      const response = {
+        success: false,
+        error: userErrors.USER_NOT_FOUND,
+        msg: "User Not Found",
+      };
+      return response;
+    }
+  }
+
+
+
+
+
+
+
+  async getUserWithFollowers(id) {
     let user = await this.userRepository.findById(id, "", "");
     if (user.success === true) {
       const response = {
@@ -470,7 +499,8 @@ class UserService {
    * @returns {boolean}
    */
   async isAvailable(userName) {
-    const user = await this.userRepository.findByUserName(userName);
+    //const user = await this.userRepository.findByUserName(userName);
+    const user = await this.userRepository.findByName(userName);
     if (user.success) return false;
     return true;
   }
@@ -847,7 +877,7 @@ class UserService {
       }
       me.meUserRelationship[index].status = "followed";
       otherUser.userMeRelationship[index2].status = "followed";
-      otherUser.followersCount = otherUser.followersCount +1;
+      otherUser.followersCount = otherUser.followersCount + 1;
     } else {
       me.meUserRelationship.push({
         userId: otherUser._id,
@@ -857,7 +887,7 @@ class UserService {
         userId: me._id,
         status: "followed",
       });
-      otherUser.followersCount = otherUser.followersCount +1;
+      otherUser.followersCount = otherUser.followersCount + 1;
       isAlreadyFollowed = false;
     }
     await otherUser.save();
@@ -923,6 +953,30 @@ class UserService {
       }
     });
     return followers;
+  }
+
+
+
+
+    getPeopleUserKnows(user) {
+      let people = [];
+      let blockedTwoWay= [];
+    user.meUserRelationship.forEach((element) => {
+      if (element.status === "followed" || element.status === "friend") {
+        
+        if (!user.userMeRelationship.find((el) => { return (el.userId.equals(element.userId)&&el.status=="blocked") })) {
+            people.push(element.userId);
+        }       
+        else {
+          blockedTwoWay.push(element.userId)
+        }
+      }
+      if (element.status === "blocked") {
+        blockedTwoWay.push(element.userId);
+      }
+    });
+      return { people:people, blocked:blockedTwoWay};
+     // return people;
   }
   isFollowed(me, userId) {
     const relation = me.meUserRelationship.find(

@@ -45,13 +45,14 @@ class NotificationController {
  
   addReplyNotification = async (req, res, next) => {
    // console.log(req.post);
-    if (!req.user || !req.comment || !req.post||!req.mentions) {
+    if (!req.user || !req.comment || !req.post) {
       return;
     }
     console.log("iiiiiiiiiiiiii");
     let notification = await this.notificationServices.addReplyNotification(req.user, req.comment, req.post);
-   // let notifyMentions = await this.sendMentions(req.user, req.comment, req.post,req.mentions);
-
+    if (req.mentions) {
+      let notifyMentions = await this.sendMentions(req.user, req.comment, req.post, req.mentions);
+    }
     if (notification.success) {
       
       let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
@@ -59,9 +60,9 @@ class NotificationController {
       console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
       //console.log(notification.data);
       let message;
-      if (tokens.success && tokens.data.firebaseToken.length != 0) {
+      if (tokens.success ) {
         message = {
-          registration_ids: tokens.data.firebaseToken,
+          to: tokens.data.firebaseToken,
           data: { val: JSON.stringify(notification.data) }
         }
         
@@ -76,41 +77,53 @@ class NotificationController {
         console.log(message);
       //  console.log(notification.data);
       }
-        if(notification.data.type=="postReply")
+        if(notification.data.type=="postReply"||notification.data.type=="userMention")
         return next();
       
     }
       return ;
     }
     
-  // sendMentions = async (req, res) => {
+  sendMentions = async (user, comment, post,mentions) => {
   
-  //   console.log("iiiiiiiiiiiiii");
-  //   let notification = await this.notificationServices.addFollowNotification(req.follower, req.followed);
-  //   //  console.log(notification);
-  //   if (notification.success) {
-      
-  //     let tokens = await this.notificationServices.getFirebaseToken(req.followed._id);
-  //     // console.log(tokens.data.firebaseToken[0]);
-  //     // console.log(notification.data);
-  //     let message;
-  //     if (tokens.success) {
-  //        message = {
-  //         registration_ids:tokens.data.firebaseToken,
-  //          data: { val: JSON.stringify(notification.data) }
-  //         }
-  //       };
-  //       fcm.send(message, (err, response) => {
-  //         if (err) {
-  //           console.log("Something has gone wrong!" + err);
-  //         } else {
-  //           console.log("Successfully sent with response: ");
-  //         }
-  //       });
+    console.log("iiiiiiiiiiiiii");
 
-  //   }
-  //     return ;
-  //   }
+    let notification = await this.notificationServices.sendMentions(user, comment, post, mentions);
+    console.log(notification);
+    //  console.log(notification);
+    if (notification.success) {
+     // if(notification.data.length==0)
+      let tokens;
+      if (notification.data.length == 0) {
+        return;
+      }
+      for (let i = 0; i < notification.data.length; i++) {
+        console.log("comme si t' etais la");
+        if (mentions[i].userId == user._id) continue;
+        let oneToken = await this.notificationServices.getFirebaseToken(mentions[i].userId);
+
+        let message;
+        if (oneToken.success) {
+        
+         message = {
+          to:oneToken.data.firebaseToken,
+           data: { val: JSON.stringify(notification.data[i]) }
+          }
+        };
+        fcm.send(message, (err, response) => {
+          if (err) {
+            console.log("Something has gone wrong!" + err);
+          } else {
+            console.log("Successfully sent with response: ");
+          }
+        });
+
+      }
+      
+
+    }
+      return ;
+    }
   
   
   
@@ -130,7 +143,7 @@ class NotificationController {
       let message;
       if (tokens.success) {
          message = {
-          registration_ids:tokens.data.firebaseToken,
+          to:tokens.data.firebaseToken,
            data: { val: JSON.stringify(notification.data) }
           }
         };

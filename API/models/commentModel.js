@@ -139,7 +139,9 @@ commentSchema.pre("find", function (next) {
 commentSchema.post("find", function (result) {
   for (const comment of result) {
     const author = comment.author;
-    if (!author.profilePicture.startsWith(process.env.BACKDOMAIN)) {
+    // console.log("-------------------------");
+    // console.log(author);
+    if (author&&author.profilePicture&&!author.profilePicture.startsWith(process.env.BACKDOMAIN)) {
       author.profilePicture =
         `${process.env.BACKDOMAIN}/` + author.profilePicture;
       author.profileBackground =

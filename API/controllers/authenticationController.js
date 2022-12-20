@@ -168,11 +168,13 @@ class AuthenticationController {
    * @returns void
    */
   logOut = (req, res) => {
-    res.clearCookie("jwt");
-    // res.cookie("jwt", "loggedout", {
-    //     expires: new Date(Date.now() + 10 * 1000),
-    //     httpOnly: true,
-    // });
+    //res.clearCookie("jwt");
+    res.cookie("jwt", "loggedout", {
+      expires: new Date(Date.now() + 10 * 1000),
+      sameSite: "None",
+      httpOnly: process.env.NODE_ENV === "production" ? true : false,
+      secure: process.env.NODE_ENV === "production" ? true : false,
+    });
     res.status(200).json({
       status: "success",
     });
@@ -320,6 +322,7 @@ class AuthenticationController {
         const time = decoded.iat;
         const user = await this.UserServices.getUser(userId);
         if (user.success === false) {
+          console.log(user);
           res.status(404).json({
             status: "fail",
             errorMessage: "User not found",
@@ -439,12 +442,6 @@ class AuthenticationController {
         if (user.success === false) {
           // user not found, signup new user
           const userName = "user";
-          // if (!userName) {
-          //   res.status(400).json({
-          //     status: "fail",
-          //     errorMessage: "provide userName",
-          //   });
-          // } else {
           const password = this.UserServices.generateRandomPassword();
           let user = await this.UserServices.signUp(email, userName, password);
           if (user.success === true) {
@@ -661,6 +658,39 @@ class AuthenticationController {
           req.isAuthorized = true;
           next();
         }
+      }
+    }
+  };
+  deleteAccount = async (req, res, next) => {
+    const userName = req.body.userName;
+    const password = req.body.password;
+    if (!userName || !password) {
+      // bad request
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Provide username and password",
+      });
+    } else {
+      if (userName === req.user.userName) {
+        const user = await this.UserServices.logIn(userName, password);
+        if (user.success === true) {
+          // mark account as deleted
+          let isDeleted = await this.UserServices.deleteAccount(req.user);
+          res.status(204).json({
+            status: "success",
+          });
+        } else {
+          const response = this.errorResponse(user.error, user.msg);
+          res.status(response.stat).json({
+            status: "fail",
+            errorMessage: response.msg,
+          });
+        }
+      } else {
+        res.status(400).json({
+          status: "fail",
+          errorMessage: "Invalid userName",
+        });
       }
     }
   };

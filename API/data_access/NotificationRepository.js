@@ -13,7 +13,16 @@ class NotificationRepository extends Repository {
         try {
             let data;
             let typeOfReply = (comment.type == "Post") ? "postReply" : 'commentReply';
+            console.log(comment);
        //     console.log(post);
+            let followedUserId;
+            if (typeOfReply == 'commentReply') {
+                console.log("ppppppppppppp");
+                followedUserId= comment.parentCommentAuthor;
+            } else {
+                followedUserId = post.author._id;
+            }
+            
             if (!post.subreddit) {
                 data = {
                     type: typeOfReply,
@@ -23,7 +32,7 @@ class NotificationRepository extends Repository {
                         profilePicture: user.profilePicture
                     },
                     followedUser: {
-                        _id: post.author._id,
+                        _id: followedUserId,
                         userName: post.author.userName
                         
                     },
@@ -50,7 +59,7 @@ class NotificationRepository extends Repository {
                         text: comment.text
                     },
                     followedUser: {
-                        _id: post.author._id
+                        _id: followedUserId
                         
                     },
                     post: post._id
@@ -65,6 +74,88 @@ class NotificationRepository extends Repository {
         
             //notify ba2a
             return { success: true, doc: notification };
+            
+        } catch (err) {
+            return { success: false, ...decorateError(err) };
+        }
+            
+       
+    }
+
+     async sendMentions(user, comment, post,mentions) {
+        try {
+            let data;
+           // let typeOfReply = (comment.type == "Post") ? "postReply" : 'commentReply';
+       //     console.log(post);
+            let listNotifactions = [];
+            if (!post.subreddit) {
+                for (let i = 0; i < mentions.length; i++) {   
+                    console.log(i);
+                    if (user._id==mentions[i].userId) {
+                        continue;
+                    }
+                    data = {
+                        type: "userMention",
+                        followerUser: {
+                            _id: user._id,
+                            userName: user.userName,
+                            profilePicture: user.profilePicture
+                        },
+                        followedUser: {
+                            _id: mentions[i].userId,
+                            userName: mentions[i].userName
+                        
+                        },
+                        comment: {
+                            _id: comment._id,
+                            text: comment.text
+                        },
+                        post: post._id
+                    };
+                    let notification = await this.model.create(data);
+                    listNotifactions.push(notification);
+                }
+                
+            } else {
+                for (let i = 0; i < mentions.length; i++) {
+                     if (user._id==mentions[i].userId) {
+                        continue;
+                    }
+                    data = {
+                        type: "userMention",
+                        followerUser: {
+                            _id: user._id,
+                            userName: user.userName,
+                            profilePicture: user.profilePicture
+                        },
+                        followedSubreddit: {
+                            _id: post.subreddit._id,
+                            fixedName: post.subreddit.fixedName
+                        },
+                        comment: {
+                            _id: comment._id,
+                            text: comment.text
+                        },
+                        followedUser: {
+                            _id: mentions[i].userId,
+                        
+                        },
+                        post: post._id
+                    };
+                     let notification = await this.model.create(data);
+                listNotifactions.push(notification);
+                }
+               
+            }
+            console.log(listNotifactions);
+            console.log("jjjjjjjjjjjjjjjjjjjjjjjjj");
+            // if (listNotifactions.length==0)
+            //     return { success: false, error: mongoErrors.UNKOWN };
+            
+            console.log(listNotifactions);
+        
+            //notify ba2a
+            return { success: true, doc: listNotifactions };
             
         } catch (err) {
             return { success: false, ...decorateError(err) };

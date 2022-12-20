@@ -109,6 +109,21 @@ class CommentRepository extends Repository {
       return { success: false };
     }
   }
+
+
+   async getComment(commentId) {
+    try {
+      // const doc = await features.query.explain();
+      // const features = new APIFeatures(this.model.find({ _id: postId }), "");
+      // let doc = await features.query;
+      let doc = await this.model.findOne({ _id: commentId });
+      // console.log(doc[0].owner);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      return { success: true, doc: doc };
+    } catch (err) {
+      return { success: false };
+    }
+  }
   async updateVotesCount(commentId, newVotes) {
     try {
       let doc = await this.model.findByIdAndUpdate(commentId, {

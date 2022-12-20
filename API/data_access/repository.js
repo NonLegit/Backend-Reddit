@@ -39,7 +39,7 @@ class Repository {
       if (select) query = query.select(select);
       if (pop) query = query.populate(pop);
       const doc = await query;
-
+      console.log("should not");
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
      // console.log(doc);
       return { success: true, doc: doc };
