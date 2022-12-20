@@ -212,7 +212,7 @@ class subredditController {
     });
   };
   //delete a mod
-  deletemoderator = async (req, res) => {
+  deletemoderator = async (req, res, next) => {
     let subredditName = req.params.subredditName;
     let userId = req.user._id;
     let moderatorName = req.params.moderatorName;
@@ -256,6 +256,10 @@ class subredditController {
         case userErrors.Not_MODERATOR:
           msg = "user is not a moderator";
           stat = 400;
+          break;
+        case subredditErrors.CANNOT_DELETE:
+          msg = "canot delete mod higher than you in mod tree";
+          stat = 401;
           break;
         case subredditErrors.MONGO_ERR:
           msg = deleted.msg;
@@ -548,6 +552,10 @@ class subredditController {
           break;
         case userErrors.Not_MODERATOR:
           msg = "user is not a moderator";
+          stat = 400;
+          break;
+        case subredditErrors.CANNOT_UPDATE:
+          msg = "cannot update mod higher than you in mod tree";
           stat = 400;
           break;
         case subredditErrors.MONGO_ERR:
@@ -1508,7 +1516,49 @@ class subredditController {
     });
   };
 
-  pendingInvetations = async (req, res) => {};
+  pendingInvetations = async (req, res) => {
+    let subredditName = req.params.subredditName;
+    let userId = req.user._id;
+
+    if (!subredditName) {
+      res.status(400).json({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+      return;
+    }
+
+    let invitation = await this.subredditServices.invitations(
+      subredditName,
+      userId
+    );
+
+    if (!invitation.success) {
+      let msg, stat;
+      switch (invitation.error) {
+        case subredditErrors.SUBREDDIT_NOT_FOUND:
+          msg = "Subreddit not found";
+          stat = 404;
+          break;
+
+        case subredditErrors.NOT_MODERATOR:
+          msg = "you are not moderator to preform this action";
+          stat = 401;
+          break;
+
+        case subredditErrors.MONGO_ERR:
+          msg = invitation.msg;
+          stat = 400;
+          break;
+      }
+      res.status(stat).json({
+        status: "fail",
+        errorMessage: msg,
+      });
+      return;
+    }
+    res.status(200).json({ status: "success", data: invitation.data });
+  };
 
   //!===================================================================================
   createFlair = async (req, res) => {

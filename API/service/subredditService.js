@@ -199,10 +199,13 @@ class subredditService {
               subredditExisted.data._id,
               data.permissions
             );
+            console.log("oriwpotuertiouweiotruewtr[w[t");
             let updateInvetation = await this.subredditRepository.invite(
               userId,
               subredditName
             );
+            console.log(updateInvetation);
+            console.log("============================================");
 
             if (!updateModerators.success) return updateModerators;
             let messageObj = {
@@ -271,6 +274,8 @@ class subredditService {
       afterDelete
     );
 
+    await this.subredditRepository.disInvite(userId, subredditName);
+
     return { success: true };
   }
   // TODO: service tests
@@ -329,27 +334,24 @@ class subredditService {
 
           if (!UserIsMod.success)
             return { success: false, error: userErrors.Not_MODERATOR };
-          // var t1 = new Date(canDelete.doc.moderators[0]["joiningDate"]);
-          // console.log(t);
+
           if (
-            parseInt(canDelete.doc.moderators[0]["joiningDate"]) <=
-            parseInt(UserIsMod.doc.moderators[0]["joiningDate"])
+            canDelete.doc.moderators[0]["modDate"] <=
+            UserIsMod.doc.moderators[0]["modDate"]
           ) {
-            // delete mod
-            console.log("newbieeeeeeeeeeeeeeeeeeeee");
             let allModerators = await this.subredditRepository.getModerators(
               subredditName
             );
-            console.log("khaled hesham");
+
             let mods = allModerators.doc.moderators;
 
             let afterDelete = this.removeId(mods, userExisted.doc._id);
-            //  console.log(afterDelete);
+
             let updateMods = await this.subredditRepository.updateModerators(
               subredditName,
               afterDelete
             );
-            // console.log(updateMods);
+
             if (!updateMods.success)
               return { success: false, error: subredditErrors.MONGO_ERR };
             let messageObj = {
@@ -361,7 +363,7 @@ class subredditService {
             return { success: true, messageObj: messageObj };
             // return { success: true ,};
           }
-          console.log("lumiereeeeeeeeeeeeee");
+          return { success: false, error: subredditErrors.CANNOT_DELETE };
         }
       }
     }
@@ -511,8 +513,8 @@ class subredditService {
           // var t1 = new Date(canDelete.doc.moderators[0]["joiningDate"]);
           // console.log(t);
           if (
-            parseInt(canDelete.doc.moderators[0]["joiningDate"]) <=
-            parseInt(UserIsMod.doc.moderators[0]["joiningDate"])
+            parseInt(canDelete.doc.moderators[0]["modDate"]) <=
+            parseInt(UserIsMod.doc.moderators[0]["modDate"])
           ) {
             // update  permissions
             let allModerators = await this.subredditRepository.getModerators(
@@ -537,6 +539,7 @@ class subredditService {
 
             return { success: true };
           }
+          return { success: false, error: subredditErrors.CANNOT_UPDATE };
         }
       }
     }
@@ -1050,32 +1053,37 @@ class subredditService {
 
   // TODO: service tests
   async categorizedSubreddits(category, query, userId) {
-    let subs = await this.subredditRepository.categorySubreddits(
-      query,
-      category
-    );
-    if (!subs.success) {
-      if (subs.error === mongoErrors.NOT_FOUND) return subs;
-      else return { success: false, error: subredditErrors.MONGO_ERR };
-    }
-
-    let subreddits = [];
-    for (const subreddit of subs.doc) {
-      if (subreddit.users.find((el) => el._id.equals(userId))) {
-        subreddit.isJoined = true;
+    if (category !== "All") {
+      let subs = await this.subredditRepository.categorySubreddits(
+        query,
+        category
+      );
+      if (!subs.success) {
+        if (subs.error === mongoErrors.NOT_FOUND) return subs;
+        else return { success: false, error: subredditErrors.MONGO_ERR };
       }
 
-      subreddits.push({
-        _id: subreddit._id,
-        fixedName: subreddit.fixedName,
-        isJoined: subreddit.isJoined,
-        icon: subreddit.icon,
-        backgroundImage: subreddit.backgroundImage,
-        membersCount: subreddit.membersCount,
-        description: subreddit.description,
-      });
+      let subreddits = [];
+      for (const subreddit of subs.doc) {
+        if (subreddit.users.find((el) => el._id.equals(userId))) {
+          subreddit.isJoined = true;
+        }
+
+        subreddits.push({
+          _id: subreddit._id,
+          fixedName: subreddit.fixedName,
+          isJoined: subreddit.isJoined,
+          icon: subreddit.icon,
+          backgroundImage: subreddit.backgroundImage,
+          membersCount: subreddit.membersCount,
+          description: subreddit.description,
+        });
+      }
+      return { success: true, data: subreddits };
+    } else {
+      let data = await this.randomSubreddits(query, userId);
+      return data;
     }
-    return { success: true, data: subreddits };
   }
 
   // TODO: service tests
@@ -1098,6 +1106,8 @@ class subredditService {
         isJoined: subreddit.isJoined,
         icon: subreddit.icon,
         backgroundImage: subreddit.backgroundImage,
+        membersCount: subreddit.membersCount,
+        description: subreddit.description,
       });
     }
     return { success: true, data: subreddits };
@@ -1275,13 +1285,43 @@ class subredditService {
     if (!iamMod.success)
       return { success: false, error: subredditErrors.NOT_MODERATOR };
     // get stats
-    let stats = await this.userRepository.traffic(subredditName);
+    let stats = await this.subredditRepository.traffic(subredditName);
     if (!stats.success)
       return { success: false, error: subredditErrors.MONGO_ERR };
 
     console.log(stats);
 
     return { success: true, data: stats.doc }; //
+  }
+
+  async invitations(subredditName, userId) {
+    let subredditExisted = await this.subredditRepository.getsubreddit(
+      subredditName,
+      "",
+      ""
+    );
+    if (!subredditExisted.success)
+      return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
+
+    let iamMod = await this.subredditRepository.isModerator_1(
+      subredditName,
+      userId
+    );
+    if (!iamMod.success)
+      return { success: false, error: subredditErrors.NOT_MODERATOR };
+
+    let approved = await this.subredditRepository.invitations(subredditName);
+    if (!approved.success)
+      return { success: false, error: subredditErrors.MONGO_ERR };
+
+    let approvedUsers = approved.doc.invitations;
+
+    for (const user of approvedUsers) {
+      user.user.profilePicture =
+        `${process.env.BACKDOMAIN}/` + user.user.profilePicture;
+    }
+
+    return { success: true, data: approvedUsers };
   }
 
   //! ===============================================================================================
