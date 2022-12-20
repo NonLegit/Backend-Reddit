@@ -171,14 +171,12 @@ const subredditSchema = new mongoose.Schema({
 
   moderators: [
     {
-      type: Object,
       user: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
       },
       moderatorPermissions: {
-        type: Object,
         required: false,
         all: { type: Boolean }, // everything
         access: { type: Boolean }, // can edit users
@@ -200,14 +198,6 @@ const subredditSchema = new mongoose.Schema({
         type: mongoose.SchemaTypes.ObjectId,
         ref: "User",
         required: false,
-      },
-      userName: { type: String },
-      banDate: { type: Date, default: new Date(Date.now()) },
-      profilePicture: {
-        type: String,
-        required: false,
-        trim: true, // *TODO: it will be unique with time stamp and username
-        default: "users/default.png",
       },
       type: { type: String, enum: ["banned", "muted"], required: true },
       banInfo: {

@@ -51,10 +51,9 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model
         .findOne({ fixedName: name })
-        .select(select + "-__v -punished");
+        .select(select + "-__v -punished -approved");
       if (popOptions) tempDoc = tempDoc.populate(popOptions);
       const doc = await tempDoc;
-      //  console.log(doc);
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
@@ -260,10 +259,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             punished: {
-              id: user._id,
-              userName: user.userName,
-              banDate: new Date(Date.now()),
-              profilePicture: user.profilePicture,
+              user: user._id,
               type: "banned",
               banInfo: {
                 punishReason: data.punishReason,
@@ -292,10 +288,7 @@ class SubredditRepository extends Repository {
         {
           $push: {
             punished: {
-              id: user._id,
-              userName: user.userName,
-              banDate: new Date(Date.now()),
-              profilePicture: user.profilePicture,
+              user: user._id,
               type: "muted",
               muteInfo: {
                 muteMessage: data.muteMessage,
@@ -440,9 +433,10 @@ class SubredditRepository extends Repository {
           fixedName: subredditName,
         })
         .select("moderators")
-        .populate("moderators.user", "_id userName joiningDate profilePicture");
+        .populate("moderators.user", "_id userName joinDate profilePicture");
 
       const doc = await tempDoc;
+      console.log(doc);
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
 
       return { success: true, doc: doc };
@@ -453,9 +447,12 @@ class SubredditRepository extends Repository {
 
   async punishedUsers(subredditName) {
     try {
-      let tempDoc = this.model.findOne({
-        fixedName: subredditName,
-      });
+      let tempDoc = this.model
+        .findOne({
+          fixedName: subredditName,
+        })
+        .select("punished")
+        .populate("punished.user", "_id userName joinDate profilePicture");
 
       const doc = await tempDoc;
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
@@ -541,7 +538,7 @@ class SubredditRepository extends Repository {
     try {
       let tempDoc = this.model.findOne({
         fixedName: subredditName,
-        "punished.id": userId,
+        "punished.user": userId,
         "punished.type": action,
       });
 
