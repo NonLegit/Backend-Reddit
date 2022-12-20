@@ -39,6 +39,7 @@ describe("Comment service test", () => {
         };
       },
       addReply: async (parent, child) => {},
+      incReplies: async (postId) => {},
     };
     const commentServices = new CommentService({
       CommentRepository,
