@@ -51,6 +51,10 @@ class subredditService {
           subreddit.doc._id,
           subreddit.doc.owner
         );
+        let subSubreddit = this.subredditRepository.subscribe(
+          subreddit.doc._id,
+          subreddit.doc.owner
+        );
 
         return { success: true, data: subreddit.doc };
       } else
@@ -273,7 +277,7 @@ class subredditService {
   // TODO: service tests
   removeId(list, value, type) {
     return list.filter(function (ele) {
-      return !(value.equals(ele.id) && ele.type === type);
+      return !(value.equals(ele.user._id) && ele.type === type);
     });
   }
 
@@ -570,7 +574,7 @@ class subredditService {
             );
             if (!baned.success)
               return { success: false, error: subredditErrors.mongoErrors };
-            console.log("ooooooooooooooooooooooooo");
+
             let messageObj = {
               from: userId,
               to: userExisted.doc._id,
@@ -597,6 +601,7 @@ class subredditService {
               userExisted.doc._id,
               "banned"
             );
+            console.log(afterDelete);
             let updateList = await this.subredditRepository.updatePunished(
               subredditName,
               afterDelete
@@ -771,9 +776,10 @@ class subredditService {
 
     if (!subredditExisted.success)
       return { success: false, error: subredditErrors.SUBREDDIT_NOT_FOUND };
-    else {
-      return { success: true, data: subredditExisted.doc.moderators };
-    }
+
+    let mods = await this.subredditRepository.getModerators(subredditName);
+
+    return { success: true, data: mods.doc.moderators };
   }
 
   // TODO: service tests
@@ -1152,21 +1158,22 @@ class subredditService {
       query
     );
 
-    let filtered = posts.doc;
+    let beforeFilter = posts.doc;
 
     function filter(list, value) {
       return list.filter(function (ele) {
         return value === ele.owner.primaryTopic;
       });
     }
-    let afterfilter = filter(filtered, topic);
+    let afterfilter = filter(beforeFilter, topic);
 
     if (!posts.success) {
       if (posts.error === mongoErrors.NOT_FOUND) return posts;
       else return { success: false, error: subredditErrors.MONGO_ERR };
     }
 
-    return { success: true, data: afterfilter };
+    if (topic === "All") return { success: true, data: beforeFilter };
+    else return { success: true, data: afterfilter };
   }
 
   async traffic(subredditName, userId) {
