@@ -131,7 +131,8 @@ class PostRepository extends Repository {
       console.log(doc);
       if (doc.length == 0 && !filter) {
         console.log("======================");
-        let featuresGen = new APIFeatures(this.model.find(), query)
+        let selectorTwo = user ? { author: { $nin: people.blocked } } : {};
+        let featuresGen = new APIFeatures(this.model.find(selectorTwo), query)
           .filter()
           .limitFields()
           .paginate()
