@@ -234,14 +234,18 @@ class PostService {
       //console.log("Top");
       const posts = await this.postRepo.getUserPosts(
         author,
-        { sort: "-votes", limit: limit, page: page  },
+        { sort: "-votes", limit: limit, page: page },
         "owner"
       );
       return posts.doc;
     } else {
       // sort by createdAt
-      console.log(limit,page);
-      const posts = await this.postRepo.getUserPosts(author,  { sort: "-createdAt", limit: limit, page: page }, "owner");
+      console.log(limit, page);
+      const posts = await this.postRepo.getUserPosts(
+        author,
+        { sort: "-createdAt", limit: limit, page: page },
+        "owner"
+      );
       return posts.doc;
     }
   }
@@ -672,6 +676,7 @@ class PostService {
         // filteredPost.postVoteStatus = hashPosts[saved[i].savedPost._id];
         //Object.assign(newPosts[i], {postVoteStatus: hash[posts[i]._id]});
       }
+      newPosts[i].savedPost.isSaved = true;
       newPosts[i].savedPost.owner = {
         _id: newPosts[i].savedPost.owner._id,
         name:
@@ -708,7 +713,7 @@ class PostService {
       return { success: false };
     }
   }
-  
+
   async addVote(user, postId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {
