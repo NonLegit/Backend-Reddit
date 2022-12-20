@@ -11,6 +11,14 @@ describe("Comment service test", () => {
   describe("create comment", () => {
     const CommentRepository = {
       createOne: async (data) => {
+        const doc = { ...data };
+        data.populate = () => {};
+        data.author = {
+          _id: "639cb530000510cd174a7c15",
+          userName: "kiro",
+          profilePicture: "/users/default.png",
+          profileBackground: "/users/defaultcover.png",
+        };
         return { success: true, doc: data };
       },
       addReply: async (parent, child) => {},
@@ -364,9 +372,7 @@ describe("Comment service test", () => {
           },
         ],
       };
-      const PostRepository= {
-
-      }
+      const PostRepository = {};
       const commentServices = new CommentService({
         CommentRepository,
         PostRepository,

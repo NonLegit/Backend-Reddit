@@ -78,7 +78,11 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: true,
   },
-
+  isDeleted: {
+    type: Boolean,
+    required: false,
+    default: false,
+  },
   postKarma: {
     type: Number,
     default: 0,
@@ -165,7 +169,7 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  
+
   savedComments: [
     {
       savedComment: {
@@ -302,39 +306,10 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
-  /*
-  contentVisibility: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowInboxMessage: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowMentions: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowCommentsOnPosts: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnComments: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  allowUpvotesOnPosts: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  */
 });
+
+//Indexed fields for search
+userSchema.index({ "$**": "text" });
 
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified

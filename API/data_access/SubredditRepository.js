@@ -703,7 +703,8 @@ class SubredditRepository extends Repository {
       .select("_id fixedName name icon membersCount description nsfw")
       .skip(skip)
       .limit(limit)
-      .sort({ score: { $meta: "textScore" } });
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
 
     const result = await query;
     return result;

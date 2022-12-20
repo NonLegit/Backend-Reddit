@@ -7,22 +7,52 @@ class UserRepository extends Repository {
   }
 
   //can be further extended to allow select and populate
+  async findById(id,select,pop) {
+    try {
+      // console.log("beforeeeeeeeeeeeeeeeeeeeeeeeee");
+      // console.log(select);
+      //  console.log(pop);
+      let query = this.model.findById(id, { isDeleted: false });
+      if (select) query = query.select(select);
+      if (pop) query = query.populate(pop);
+      const doc = await query;
+      console.log("doc",doc);
+      if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
+      // console.log(doc);
+      return { success: true, doc: doc };
+
+      //most probably you won't need error handling in this function but just to be on the safe side
+    } catch (err) {
+      console.log(err);
+      return { success: false, ...decorateError(err) };
+    }
+  }
   async findByUserName(userName, select, pop) {
-    let query = this.model.findOne({ userName: userName });
+    let query = this.model.findOne({ userName: userName, isDeleted: false });
     if (select) query = query.select(select);
     if (pop) query = query.populate(pop);
     const user = await query;
     if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
     return { success: true, doc: user };
   }
+  async findByName(userName) {
+    let query = this.model.findOne({ userName: userName });
+    const user = await query;
+    if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
+    return { success: true, doc: user };
+  }
   async findByEmail(email) {
-    let query = this.model.findOne({ email: email });
+    let query = this.model.findOne({ email: email, isDeleted: false });
     const user = await query;
     if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
     return { success: true, doc: user };
   }
   async findByEmailAndUserName(userName, email) {
-    let query = this.model.findOne({ email: email, userName: userName });
+    let query = this.model.findOne({
+      email: email,
+      userName: userName,
+      isDeleted: false,
+    });
     const user = await query;
     if (!user) return { success: false, error: mongoErrors.NOT_FOUND };
     return { success: true, doc: user };
@@ -332,6 +362,23 @@ class UserRepository extends Repository {
       }
     );
     return true;
+  }
+
+  async search(q, page, limit) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q } })
+      .select(
+        "_id userName displayName icon postKarma commentKarma description profilePicture"
+      )
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
+
+    const result = await query;
+    return result;
   }
 }
 module.exports = UserRepository;
