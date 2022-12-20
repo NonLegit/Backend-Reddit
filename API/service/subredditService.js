@@ -1032,6 +1032,8 @@ class subredditService {
         isJoined: subreddit.isJoined,
         icon: subreddit.icon,
         backgroundImage: subreddit.backgroundImage,
+        membersCount: subreddit.membersCount,
+        description: subreddit.description,
       });
     }
     return { success: true, data: subreddits };
