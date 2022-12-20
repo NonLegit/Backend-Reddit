@@ -762,7 +762,15 @@ class subredditService {
       return { success: false, error: subredditErrors.NOT_MODERATOR };
 
     let banned = await this.subredditRepository.punishedUsers(subredditName);
-    return { success: true, data: this.filter(banned.doc.punished, "banned") };
+
+    let banedUsers = this.filter(banned.doc.punished, "banned");
+
+    for (const user of banedUsers) {
+      user.user.profilePicture =
+        `${process.env.BACKDOMAIN}/` + user.user.profilePicture;
+    }
+
+    return { success: true, data: banedUsers };
   }
 
   // TODO: service tests
@@ -785,7 +793,15 @@ class subredditService {
       return { success: false, error: subredditErrors.NOT_MODERATOR };
 
     let muted = await this.subredditRepository.punishedUsers(subredditName);
-    return { success: true, data: this.filter(muted.doc.punished, "muted") };
+
+    let mutedUsers = this.filter(muted.doc.punished, "muted");
+
+    for (const user of mutedUsers) {
+      user.user.profilePicture =
+        `${process.env.BACKDOMAIN}/` + user.user.profilePicture;
+    }
+
+    return { success: true, data: mutedUsers };
   }
 
   // TODO: service tests
@@ -801,7 +817,13 @@ class subredditService {
 
     let mods = await this.subredditRepository.getModerators(subredditName);
 
-    return { success: true, data: mods.doc.moderators };
+    let moderators = mods.doc.moderators;
+
+    for (const user of moderators) {
+      user.user.profilePicture =
+        `${process.env.BACKDOMAIN}/` + user.user.profilePicture;
+    }
+    return { success: true, data: moderators };
   }
 
   // TODO: service tests
@@ -1203,7 +1225,14 @@ class subredditService {
     if (!approved.success)
       return { success: false, error: subredditErrors.MONGO_ERR };
 
-    return { success: true, data: approved.doc.approved };
+    let approvedUsers = approved.doc.approved;
+
+    for (const user of approvedUsers) {
+      user.user.profilePicture =
+        `${process.env.BACKDOMAIN}/` + user.user.profilePicture;
+    }
+
+    return { success: true, data: approvedUsers };
   }
 
   async reels(topic, query) {
