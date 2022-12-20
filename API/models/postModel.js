@@ -177,7 +177,7 @@ postSchema.pre("find", function () {
       this.populate("author");
     } else {
       this.populate("sharedFrom");
-      this.populate("author", "_id userName profilePicture profileBackground");
+      this.populate("author", "_id userName profilePicture profileBackground displayName");
     }
 
     this.populate("flairId");

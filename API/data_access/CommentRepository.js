@@ -120,5 +120,28 @@ class CommentRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
+
+  /**
+   * Changes the modState of a post according to action only by the moderators of the subreddit
+   * @param {string} commentId The ID of the post
+   * @param {string} action The action to be performed
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  async modAction(commentId, action) {
+    //Just to be consistent with the language rules
+    const state = action === "spam" ? "spammed" : action + "d";
+
+    const doc = await this.model.findOneAndUpdate(
+      { _id: commentId, modState: { $ne: state } },
+      { modState: state },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    
+    if (doc) return true;
+    return false;
+  }
 }
 module.exports = CommentRepository;

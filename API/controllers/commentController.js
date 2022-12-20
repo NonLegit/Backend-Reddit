@@ -478,6 +478,68 @@ class CommentController {
       }
     }
   };
+
+  mustBeMod = async (req, res, next) => {
+    const commentId = req.params?.commentId;
+    const userId = req.user._id;
+
+    if (!commentId) {
+      res.status(400).send({ status: "fail", message: "Invalid request" });
+      return;
+    }
+
+    const { success, error } = await this.commentServices.isMod(
+      commentId,
+      userId
+    );
+
+    if (!success) {
+      switch (error) {
+        case commentErrors.COMMENT_NOT_FOUND:
+          res
+            .status(404)
+            .send({ status: "fail", message: "Comment not found" });
+          break;
+        case commentErrors.NOT_MOD:
+          res.status(401).send({
+            status: "fail",
+            message: "User must be moderator",
+          });
+          break;
+        case commentErrors.OWNER_NOT_SUBREDDIT:
+          res.status(400).send({
+            status: "fail",
+            message: "The comment must belong to a subreddit",
+          });
+          break;
+      }
+      return;
+    }
+
+    next();
+  };
+
+  moderateComment = async (req, res) => {
+    const commentId = req.params.commentId;
+    const action = req.params?.action;
+
+    const validActions = ["approve", "remove", "spam"];
+    if (!validActions.includes(action)) {
+      res.status(400).json({
+        status: "fail",
+        message: "Invalid comment moderation action",
+      });
+      return;
+    }
+
+    const success = await this.commentServices.modAction(commentId, action);
+    if (success) res.status(204).json({});
+    else
+      res.status(409).json({
+        status: "fail",
+        message: "Action is already performed",
+      });
+  };
 }
 
 module.exports = CommentController;
