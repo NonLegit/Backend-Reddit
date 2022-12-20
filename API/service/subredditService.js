@@ -362,6 +362,8 @@ class subredditService {
             // return { success: true ,};
           }
           console.log("lumiereeeeeeeeeeeeee");
+          return { success: false, error: subredditErrors.CANOT_DELETE };
+
         }
       }
     }
