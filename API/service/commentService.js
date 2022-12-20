@@ -120,6 +120,7 @@ class CommentService {
 
     //console.log(mentions);
     //create the comment
+    data.createdAt = Date.now();
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
       return {
