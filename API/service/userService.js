@@ -321,6 +321,11 @@ class UserService {
       return response;
     }
   }
+  async deleteAccount(user) {
+    user.isDeleted = true;
+    await user.save();
+    return true;
+  }
   /**
    * @property {Function} decodeToken get information out from token
    * @param {string} token - user token
@@ -468,7 +473,8 @@ class UserService {
    * @returns {boolean}
    */
   async isAvailable(userName) {
-    const user = await this.userRepository.findByUserName(userName);
+    //const user = await this.userRepository.findByUserName(userName);
+    const user = await this.userRepository.findByName(userName);
     if (user.success) return false;
     return true;
   }
@@ -847,7 +853,7 @@ class UserService {
       }
       me.meUserRelationship[index].status = "followed";
       otherUser.userMeRelationship[index2].status = "followed";
-      otherUser.followersCount = otherUser.followersCount +1;
+      otherUser.followersCount = otherUser.followersCount + 1;
     } else {
       me.meUserRelationship.push({
         userId: otherUser._id,
@@ -857,7 +863,7 @@ class UserService {
         userId: me._id,
         status: "followed",
       });
-      otherUser.followersCount = otherUser.followersCount +1;
+      otherUser.followersCount = otherUser.followersCount + 1;
       isAlreadyFollowed = false;
     }
     await otherUser.save();
