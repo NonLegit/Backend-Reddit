@@ -121,6 +121,9 @@ describe("Post Controller Test", () => {
         setPostOwnerData: (posts) => {
           return posts;
         },
+        removeHiddenPosts: (me,posts) =>{
+          return posts;
+        }
       };
 
       const authObj = new auth({ PostService, UserService });
@@ -183,7 +186,7 @@ describe("Post Controller Test", () => {
       const PostService = {};
       const authObj = new auth({ PostService, UserService });
       await authObj.userPosts(req, res, "");
-      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status).to.have.been.calledWith(400);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "Provide userName ",
