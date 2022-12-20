@@ -1427,7 +1427,7 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: approved.data });
   };
-
+// this is for droping database commit
   reels = async (req, res) => {
     let topic = req.params.topics;
 
