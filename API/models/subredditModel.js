@@ -193,6 +193,7 @@ const subredditSchema = new mongoose.Schema({
         ref: "User",
         required: false,
       },
+      modDate: { type: Date, default: new Date(Date.now()) },
       moderatorPermissions: {
         required: false,
         all: { type: Boolean }, // everything
@@ -216,6 +217,7 @@ const subredditSchema = new mongoose.Schema({
         ref: "User",
         required: false,
       },
+      banDate: { type: Date, default: new Date(Date.now()) },
       type: { type: String, enum: ["banned", "muted"], required: true },
       banInfo: {
         punishReason: { type: String, trim: true, default: "No reason" },
