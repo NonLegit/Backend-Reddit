@@ -19,8 +19,8 @@ class MessageRepository extends Repository {
            to: userToRecieve,
            subject: {
              text:message.subject
-           }
-           
+           },
+           createdAt:Date.now()
          };
          console.log(data);
             let messageToSend = await this.model.create(data);
@@ -50,7 +50,8 @@ class MessageRepository extends Repository {
            from: userId,
            to: parentMessage.from._id,
            subject: parentMessage.subject,
-           parentMessage:parentMessage._id
+           parentMessage: parentMessage._id,
+           createdAt:Date.now()
            
          };
             let messageToSend = await this.model.create(data);
@@ -75,7 +76,7 @@ class MessageRepository extends Repository {
        try {
              
 
-      
+         msg.createdAt = Date.now();
             let messageToSend = await this.model.create(msg);
          if (!messageToSend) {
           
@@ -126,6 +127,7 @@ class MessageRepository extends Repository {
        }
        
       // console.log(data);
+       data.createdAt = Date.now();
        let message = await this.model.create(data);
        console.log("comme un enfannt");
      //  console.log(message);
@@ -174,6 +176,7 @@ class MessageRepository extends Repository {
        }
        
       // console.log(data);
+       Date.createdAt = Date.now();
        let message = await this.model.create(data);
        console.log("comme un enfannt");
      //  console.log(message);
