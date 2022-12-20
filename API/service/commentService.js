@@ -129,11 +129,15 @@ class CommentService {
       };
 
     //Add the comment in the replies of the parent
-    if (comment.doc.parentType === "Comment")
+    if (comment.doc.parentType === "Comment") {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
+      await this.postRepo.incReplies(comment.doc.post);
+    } else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
-    await comment.doc.populate("author", "_id userName profilePicture profileBackground");
+    await comment.doc.populate(
+      "author",
+      "_id userName profilePicture profileBackground"
+    );
     let parentComment = await this.commentRepo.getComment(comment.doc.parent);
     console.log(parentComment);
     console.log(".......................");
@@ -151,14 +155,13 @@ class CommentService {
         _id: comment.doc._id,
         text: comment.doc.text,
         type: comment.doc.parentType,
-        parentCommentAuthor: parentComment.doc.author._id
+        parentCommentAuthor: parentComment.doc.author._id,
       };
     } else {
       commentToNotify = {
         _id: comment.doc._id,
         text: comment.doc.text,
         type: comment.doc.parentType,
-       
       };
     }
     let postToNotify;
@@ -620,7 +623,7 @@ class CommentService {
 
     if (ownerType !== "Subreddit")
       return { success: false, error: commentErrors.OWNER_NOT_SUBREDDIT };
-console.log(owner, userId)
+    console.log(owner, userId);
     const isMod = (await this.subredditRepo.moderator(owner, userId)).success;
     if (!isMod) return { success: false, error: commentErrors.NOT_MOD };
 

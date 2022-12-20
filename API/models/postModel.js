@@ -110,12 +110,12 @@ const postSchema = new mongoose.Schema({
     default: 0,
     min: 0,
   },
-  shareCount: {
-    type: Number,
-    required: true,
-    default: 0,
-    min: 0,
-  },
+  // shareCount: {
+  //   type: Number,
+  //   required: true,
+  //   default: 0,
+  //   min: 0,
+  // },
   suggestedSort: {
     type: String,
     required: true,
