@@ -698,7 +698,7 @@ class SubredditRepository extends Repository {
     return { success: true, doc: doc };
   }
 
-  async search(q, page, limit, subscribed) {
+  async search(q, page, limit) {
     const skip = (page - 1) * limit;
 
     const query = this.model
@@ -706,15 +706,10 @@ class SubredditRepository extends Repository {
       .select("_id fixedName name icon membersCount description nsfw")
       .skip(skip)
       .limit(limit)
-      .sort({ score: { $meta: "textScore" } });
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
 
     const result = await query;
-
-    for (const sr of result) {
-      if (subscribed.includes(sr._id)) sr.isJoined = true;
-      else sr.isJoined = false;
-    }
-
     return result;
   }
 }

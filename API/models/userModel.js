@@ -308,6 +308,9 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+//Indexed fields for search
+userSchema.index({ "$**": "text" });
+
 userSchema.pre("save", async function (next) {
   // Only run this function if password was actually modified
   let profileBackground = this.profileBackground;

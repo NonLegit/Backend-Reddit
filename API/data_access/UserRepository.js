@@ -363,5 +363,22 @@ class UserRepository extends Repository {
     );
     return true;
   }
+
+  async search(q, page, limit) {
+    const skip = (page - 1) * limit;
+
+    const query = this.model
+      .find({ $text: { $search: q } })
+      .select(
+        "_id userName displayName icon postKarma commentKarma description profilePicture"
+      )
+      .skip(skip)
+      .limit(limit)
+      .sort({ score: { $meta: "textScore" } })
+      .lean();
+
+    const result = await query;
+    return result;
+  }
 }
 module.exports = UserRepository;
