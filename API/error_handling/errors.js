@@ -39,6 +39,8 @@ exports.commentErrors = Object.freeze({
   POST_NOT_FOUND: 4,
   COMMENT_NOT_CHILD: 5,
   PARANT_LOCKED: 6,
+  OWNER_NOT_SUBREDDIT: 7,
+  NOT_MOD: 8,
 });
 
 exports.notificationErrors = Object.freeze({
@@ -65,6 +67,7 @@ exports.subredditErrors = Object.freeze({
   NO_INVITATION: 9,
   RULE_TAKEN: 15,
   RULE_NOT_FOUND: 17,
+  CANOT_DELETE:100
 });
 
 exports.userErrors = Object.freeze({

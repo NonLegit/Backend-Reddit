@@ -127,13 +127,19 @@ const subredditSchema = new mongoose.Schema({
     type: String,
     required: false,
     default: "subreddits/default.png",
-    trim: true, // *TODO: it will be unique with time stamp and username
+    trim: true,
+  },
+  theme: {
+    type: String,
+    required: false,
+    default: "subreddits/default.png",
+    trim: true,
   },
   backgroundImage: {
     type: String,
     required: false,
     default: "subreddits/defaultcover.png",
-    trim: true, // *TODO: it will be unique with time stamp and username
+    trim: true,
   },
   membersCount: {
     type: Number,
@@ -169,6 +175,17 @@ const subredditSchema = new mongoose.Schema({
     },
   ],
 
+  invetations: [
+    {
+      user: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "User",
+        required: false,
+      },
+      inviteDate: { type: Date, default: new Date(Date.now()) },
+    },
+  ],
+
   moderators: [
     {
       user: {
@@ -176,6 +193,7 @@ const subredditSchema = new mongoose.Schema({
         ref: "User",
         required: false,
       },
+      modDate: { type: Date, default: new Date(Date.now()) },
       moderatorPermissions: {
         required: false,
         all: { type: Boolean }, // everything
@@ -199,6 +217,7 @@ const subredditSchema = new mongoose.Schema({
         ref: "User",
         required: false,
       },
+      banDate: { type: Date, default: new Date(Date.now()) },
       type: { type: String, enum: ["banned", "muted"], required: true },
       banInfo: {
         punishReason: { type: String, trim: true, default: "No reason" },
@@ -240,9 +259,11 @@ subredditSchema.index({ "$**": "text" });
 function topicsLimit(val) {
   return val.length <= 25;
 }
+
 subredditSchema.post("init", function (doc) {
   doc.icon = `${process.env.BACKDOMAIN}/` + doc.icon;
   doc.backgroundImage = `${process.env.BACKDOMAIN}/` + doc.backgroundImage;
+  doc.theme = `${process.env.BACKDOMAIN}/` + doc.theme;
 });
 const subreddit = mongoose.model("Subreddit", subredditSchema);
 

@@ -11,11 +11,13 @@ class CommentService {
     PostRepository,
     NotificationRepository,
     UserRepository,
+    SubredditRepository,
   }) {
     this.commentRepo = CommentRepository;
     this.postRepo = PostRepository;
     this.notificationRepo = NotificationRepository;
     this.userRepo = UserRepository;
+    this.subredditRepo = SubredditRepository;
   }
 
   /**
@@ -118,6 +120,7 @@ class CommentService {
 
     //console.log(mentions);
     //create the comment
+    data.createdAt = Date.now();
     const comment = await this.commentRepo.createOne(data);
     if (!comment.success)
       return {
@@ -127,9 +130,10 @@ class CommentService {
       };
 
     //Add the comment in the replies of the parent
-    if (comment.doc.parentType === "Comment")
+    if (comment.doc.parentType === "Comment") {
       await this.commentRepo.addReply(comment.doc.parent, comment.doc._id);
-    else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
+      await this.postRepo.incReplies(comment.doc.post);
+    } else await this.postRepo.addReply(comment.doc.parent, comment.doc._id);
 
     await comment.doc.populate(
       "author",
@@ -603,6 +607,41 @@ class CommentService {
     //user.replaceProfileDomain();
     await user.save();
     return true;
+  }
+
+  /**
+   * Checks if the user is moderator in the post subreddit
+   * @param {string} commentId The post ID
+   * @param {string} userId The ID of the user in question
+   * @returns {object}
+   */
+  async isMod(commentId, userId) {
+    const comment = await this.commentRepo.findById(commentId, "post");
+    if (!comment.success)
+      return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+
+    await comment.doc.populate("post", "owenr ownerType");
+
+    const { owner, ownerType } = comment.doc.post;
+
+    if (ownerType !== "Subreddit")
+      return { success: false, error: commentErrors.OWNER_NOT_SUBREDDIT };
+    console.log(owner, userId);
+    const isMod = (await this.subredditRepo.moderator(owner, userId)).success;
+    if (!isMod) return { success: false, error: commentErrors.NOT_MOD };
+
+    return { success: true };
+  }
+
+  /**
+   * Performs an action on post only by the moderators of the subreddit
+   * @param {string} commentId The ID of the post
+   * @param {string} action The action to be performed
+   * @returns {bool} returns true if the action is performed successfully and false otherwise
+   */
+  // TODO: mod permissions
+  async modAction(commentId, action) {
+    return await this.commentRepo.modAction(commentId, action);
   }
 }
 

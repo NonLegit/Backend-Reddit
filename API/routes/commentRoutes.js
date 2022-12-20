@@ -26,6 +26,9 @@ router.post("/:commentId/save", CommentController.saveComment);
 router.post("/:commentId/unsave", CommentController.unSaveComment);
 router.route("/comment_tree/:postId").get(CommentController.commentTree);
 router.route("/more_children").get(CommentController.moreChildren);
+router
+  .route("/:commentId/moderate/:action")
+  .patch(CommentController.mustBeMod, CommentController.moderateComment);
 
 module.exports = router;
 

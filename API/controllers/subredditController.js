@@ -137,6 +137,8 @@ class subredditController {
       false
     );
 
+    console.log(subreddit);
+
     if (!subreddit.success) {
       let msg, stat;
       switch (subreddit.error) {
@@ -235,7 +237,7 @@ class subredditController {
       userId,
       moderatorName
     );
-
+    console.log(deleted);
     if (!deleted.success) {
       let msg, stat;
       switch (deleted.error) {
@@ -259,6 +261,10 @@ class subredditController {
           msg = deleted.msg;
           stat = 400;
           break;
+        case subredditErrors.CANOT_DELETE:
+          msg = "canot delete mod higher than you in mod tree";
+          stat = 401;
+          break;
       }
       res.status(stat).json({
         status: "fail",
@@ -267,6 +273,7 @@ class subredditController {
       return;
     }
     res.status(204).json({ status: "success" });
+    console.log("iiiiiiiiiiiiii");
     req.messageObject = deleted.messageObj;
     return next();
   };
@@ -388,6 +395,7 @@ class subredditController {
     });
   };
   // TODO: service tests
+  // TODO: this for deleting DB
   subredditsModerated = async (req, res) => {
     let userName = req.params.username;
 
@@ -1236,7 +1244,8 @@ class subredditController {
 
     let subreddits = await this.subredditServices.categorizedSubreddits(
       category,
-      req.query
+      req.query,
+      req.user._id
     );
 
     if (!subreddits.success) {
@@ -1264,7 +1273,10 @@ class subredditController {
 
   // TODO: service tests
   leaderboardRandom = async (req, res) => {
-    let subreddits = await this.subredditServices.randomSubreddits(req.query);
+    let subreddits = await this.subredditServices.randomSubreddits(
+      req.query,
+      req.user._id
+    );
 
     if (!subreddits.success) {
       let msg, stat;
@@ -1423,7 +1435,7 @@ class subredditController {
     }
     res.status(200).json({ status: "success", data: approved.data });
   };
-
+  // this is for droping database commit
   reels = async (req, res) => {
     let topic = req.params.topics;
 
@@ -1500,6 +1512,8 @@ class subredditController {
       data: reports.data,
     });
   };
+
+  pendingInvetations = async (req, res) => {};
 
   //!===================================================================================
   createFlair = async (req, res) => {
