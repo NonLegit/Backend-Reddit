@@ -1236,7 +1236,8 @@ class subredditController {
 
     let subreddits = await this.subredditServices.categorizedSubreddits(
       category,
-      req.query
+      req.query,
+      req.user._id
     );
 
     if (!subreddits.success) {
@@ -1264,7 +1265,10 @@ class subredditController {
 
   // TODO: service tests
   leaderboardRandom = async (req, res) => {
-    let subreddits = await this.subredditServices.randomSubreddits(req.query);
+    let subreddits = await this.subredditServices.randomSubreddits(
+      req.query,
+      req.user._id
+    );
 
     if (!subreddits.success) {
       let msg, stat;
@@ -1499,6 +1503,10 @@ class subredditController {
       status: "success",
       data: reports.data,
     });
+  };
+
+  pendingInvetations = async (req, res) => {
+    
   };
 
   //!===================================================================================

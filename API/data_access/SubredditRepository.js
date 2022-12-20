@@ -500,20 +500,23 @@ class SubredditRepository extends Repository {
       return { success: false, ...decorateError(err) };
     }
   }
-  async randomSubreddits(query) {
+  async randomSubreddits(query, userId) {
     const page = query.page * 1 || 1;
     const limit = query.limit * 1 || 100;
     const skip = (page - 1) * limit;
     try {
       let doc = await this.model
-        .find({})
+        .find({ khaled: userId })
+        .select("_id icon fixedName isJoined users")
         .skip(skip)
-        .limit(limit)
-        .sort("-createdAt");
+        .limit(limit);
+
+      // .sort("-membersCount");
 
       if (!doc) return { success: false, error: mongoErrors.NOT_FOUND };
       return { success: true, doc: doc };
     } catch (err) {
+      console.log(err);
       return { success: false, ...decorateError(err) };
     }
   }
@@ -684,10 +687,16 @@ class SubredditRepository extends Repository {
         { icon: "subreddits/" + filename },
         { new: true }
       );
-    } else {
+    } else if (type === "backgroundImage") {
       doc = await this.model.findOneAndUpdate(
         { fixedName: subredditName },
         { backgroundImage: "subreddits/" + filename },
+        { new: true }
+      );
+    } else {
+      doc = await this.model.findOneAndUpdate(
+        { fixedName: subredditName },
+        { theme: "subreddits/" + filename },
         { new: true }
       );
     }
