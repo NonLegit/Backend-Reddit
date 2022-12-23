@@ -21,21 +21,17 @@ class MessageService {
         return { success: true, data: messageToSend.doc };
  }
     async createMessage(userId,message) {
-        //validate post ID
-      console.log("here");
-      console.log(message.to);
+       
         let userExisted = await this.userRepo.findByName(
             message.to
            
-        );//user id to send
-     // console.log(userExisted);
+        );
       console.log(userExisted);
             if (!userExisted.success)
             return { success: false, error: userErrors.USER_NOT_FOUND };
         const messageToSend = await this.messageRepo.createMessage(userId,message,userExisted.doc._id);
         if (!messageToSend.success) {
-          //  console.log(messageToSend.error);
-          console.log("moooooooooooooooooooooooooooooo");
+          
             return { success: false, error: messageToSend.error };
 
         }
