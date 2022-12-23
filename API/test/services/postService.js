@@ -7,6 +7,12 @@ const PostService = require("./../../service/postService");
 const { postErrors } = require("../../error_handling/errors");
 const ObjectId = require("mongoose").Types.ObjectId;
 
+let postList = [{
+  _id: "123",
+  title:"title"
+}];
+
+
 describe("Post service test", () => {
   describe("create post", () => {
     const PostRepository = {
@@ -50,6 +56,7 @@ describe("Post service test", () => {
         text: "this is a post",
         author: "879d493c3ff67d626ec990e5",
         ownerType: "User",
+        flairId: "879d493c3ff67d626ec990e5",
       };
       const { success, data } = await postServices.createPost(post);
       expect(success).to.equal(true);
@@ -90,6 +97,75 @@ describe("Post service test", () => {
       const { success, error } = await postServices.createPost(post);
       expect(success).to.equal(false);
       expect(error).to.equal(postErrors.INVALID_OWNER);
+    });
+    it("invalid post kind 1", async () => {
+      post = {
+        title: "kiro post",
+        kind: "image",
+        text: "this is a post",
+        owner: "636d493c3ff67d626ec990d0",
+        author: "879d493c3ff67d626ec990e5",
+        ownerType: "Subreddit",
+        flairId: "123d493c3ff67d626ec994f7",
+      };
+      SubredditRepository.findById = async (id, fields) => {
+        return {
+          success: true,
+          doc: {
+            flairIds: ["123d493c3ff67d626ec994f7", "666d493c3ff67d626ec990d1"],
+            allowImgs: false,
+          },
+        };
+      };
+      const { success, error } = await postServices.createPost(post);
+      expect(success).to.equal(false);
+      expect(error).to.equal(postErrors.INVALID_POST_KIND)
+    });
+    it("invalid post kind 2", async () => {
+      post = {
+        title: "kiro post",
+        kind: "video",
+        text: "this is a post",
+        owner: "636d493c3ff67d626ec990d0",
+        author: "879d493c3ff67d626ec990e5",
+        ownerType: "Subreddit",
+        flairId: "123d493c3ff67d626ec994f7",
+      };
+      SubredditRepository.findById = async (id, fields) => {
+        return {
+          success: true,
+          doc: {
+            flairIds: ["123d493c3ff67d626ec994f7", "666d493c3ff67d626ec990d1"],
+            allowVideos: false,
+          },
+        };
+      };
+      const { success, error } = await postServices.createPost(post);
+      expect(success).to.equal(false);
+      expect(error).to.equal(postErrors.INVALID_POST_KIND)
+    });
+    it("invalid post kind 3", async () => {
+      post = {
+        title: "kiro post",
+        kind: "link",
+        text: "this is a post",
+        owner: "636d493c3ff67d626ec990d0",
+        author: "879d493c3ff67d626ec990e5",
+        ownerType: "Subreddit",
+        flairId: "123d493c3ff67d626ec994f7",
+      };
+      SubredditRepository.findById = async (id, fields) => {
+        return {
+          success: true,
+          doc: {
+            flairIds: ["123d493c3ff67d626ec994f7", "666d493c3ff67d626ec990d1"],
+            allowLinks: false,
+          },
+        };
+      };
+      const { success, error } = await postServices.createPost(post);
+      expect(success).to.equal(false);
+      expect(error).to.equal(postErrors.INVALID_POST_KIND)
     });
     it("flair not found", async () => {
       post = {
@@ -621,80 +697,334 @@ describe("Post service test", () => {
     });
   });
 
+  describe("Is author or mod", () => {
+    const PostRepository = {
+      findById: async (data) => {
+        return {
+          success: true,
+          doc: {
+            author: ObjectId("578a5fccf267fc3a463b35e4"),
+            owner: ObjectId("123a5fccf267fc3a463b35e3"),
+            ownerType: "Subreddit",
+          },
+        };
+      },
+    };
+
+    const SubredditRepository = {
+      moderator: async (owner, usrId) => {
+        return { success: true };
+      },
+    };
+
+    let userId = "578a5fccf267fc3a463b35e4";
+    let postId = "111p5fccf267fc3a463b35e4";
+
+    const postservices = new PostService({
+      PostRepository,
+      SubredditRepository,
+    });
+    it("author", async () => {
+      const result = await postservices.isAuthOrMod(postId, userId);
+      expect(result.success).to.equal(true);
+    });
+
+    it("moderator", async () => {
+      userId = "000a5fccf267fc3a463b35e4";
+      const result = await postservices.isAuthOrMod(postId, userId);
+      expect(result.success).to.equal(true);
+    });
+
+    it("not author or moderator 1", async () => {
+      PostRepository.findById = async (data) => {
+        return {
+          success: true,
+          doc: {
+            author: ObjectId("578a5fccf267fc3a463b35e4"),
+            owner: ObjectId("123a5fccf267fc3a463b35e3"),
+            ownerType: "User",
+          },
+        };
+      };
+      const result = await postservices.isAuthOrMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.NOT_AUTHOR_OR_MOD);
+    });
+
+    it("not author or moderator 2", async () => {
+      SubredditRepository.moderator = async () => {
+        return { success: false };
+      };
+      const result = await postservices.isAuthOrMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.NOT_AUTHOR_OR_MOD);
+    });
+
+    it("post not found", async () => {
+      PostRepository.findById = async () => {
+        return { success: false };
+      };
+      const result = await postservices.isAuthOrMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.POST_NOT_FOUND);
+    });
+  });
+
+  describe("Is author", () => {
+    const PostRepository = {
+      findById: async (data) => {
+        return {
+          success: true,
+          doc: {
+            author: ObjectId("578a5fccf267fc3a463b35e4"),
+            owner: ObjectId("123a5fccf267fc3a463b35e3"),
+            ownerType: "Subreddit",
+          },
+        };
+      },
+    };
+
+    const SubredditRepository = {};
+
+    let userId = "578a5fccf267fc3a463b35e4";
+    let postId = "111p5fccf267fc3a463b35e4";
+
+    const postservices = new PostService({
+      PostRepository,
+      SubredditRepository,
+    });
+    it("author", async () => {
+      const result = await postservices.isAuth(postId, userId);
+      expect(result.success).to.equal(true);
+    });
+
+    it("not author", async () => {
+      userId = "000a5fccf267fc3a463b35e4";
+      const result = await postservices.isAuth(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.NOT_AUTHOR);
+    });
+
+    it("post not found", async () => {
+      PostRepository.findById = async () => {
+        return { success: false };
+      };
+      const result = await postservices.isAuth(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.POST_NOT_FOUND);
+    });
+  });
+
+  describe("Is mod", () => {
+    const PostRepository = {
+      findById: async (data) => {
+        return {
+          success: true,
+          doc: {
+            owner: ObjectId("123a5fccf267fc3a463b35e3"),
+            ownerType: "Subreddit",
+          },
+        };
+      },
+    };
+
+    const SubredditRepository = {
+      moderator: async (owner, usrId) => {
+        return { success: true };
+      },
+    };
+
+    let userId = "578a5fccf267fc3a463b35e4";
+    let postId = "111p5fccf267fc3a463b35e4";
+
+    const postservices = new PostService({
+      PostRepository,
+      SubredditRepository,
+    });
+
+    it("moderator", async () => {
+      const result = await postservices.isMod(postId, userId);
+      expect(result.success).to.equal(true);
+    });
+
+    it("not moderator", async () => {
+      SubredditRepository.moderator = async () => {
+        return { success: false };
+      };
+      const result = await postservices.isMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.NOT_MOD);
+    });
+
+    it("not in subreddit", async () => {
+      PostRepository.findById = async (data) => {
+        return {
+          success: true,
+          doc: {
+            owner: ObjectId("123a5fccf267fc3a463b35e3"),
+            ownerType: "User",
+          },
+        };
+      };
+      const result = await postservices.isMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.OWNER_NOT_SUBREDDIT);
+    });
+
+    it("post not found", async () => {
+      PostRepository.findById = async () => {
+        return { success: false };
+      };
+      const result = await postservices.isMod(postId, userId);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.POST_NOT_FOUND);
+    });
+  });
+
+  describe("post actions", () => {
+    const PostRepository = {
+      postAction: async (data) => {},
+    };
+
+    let postId = "111p5fccf267fc3a463b35e4";
+    let action;
+
+    const postservices = new PostService({
+      PostRepository,
+    });
+
+    it("lock", async () => {
+      action = "lock_comments";
+      await postservices.postAction(postId, action);
+    });
+
+    it("unlock", async () => {
+      action = "unlock_comments";
+      await postservices.postAction(postId, action);
+    });
+
+    it("nsfw", async () => {
+      action = "mark_nsfw";
+      await postservices.postAction(postId, action);
+    });
+
+    it("spoiler", async () => {
+      action = "spoiler";
+      await postservices.postAction(postId, action);
+    });
+  });
+
+  describe("mod actions", () => {
+    const PostRepository = {
+      modAction: async (data) => {},
+    };
+
+    let postId = "111p5fccf267fc3a463b35e4";
+    let action;
+
+    const postservices = new PostService({
+      PostRepository,
+    });
+
+    it("modAction", async () => {
+      action = "lock_comments";
+      await postservices.modAction(postId, action);
+    });
+  });
+
+  describe("spam", () => {
+    const PostRepository = {
+      findById: async (data) => {
+        return {
+          success: true,
+          doc: {
+            spammedBy: ["578a5fccf267fc3a463b35e4", "123a5fccf267fc3a463b35e4"],
+            spamCount: 4,
+          },
+        };
+      },
+      spam: async () => {},
+      modAction: async (data) => {},
+    };
+
+    let userId = "578a5fccf267fc3a463b35e4";
+    let postId = "111p5fccf267fc3a463b35e4";
+    let dir = -1;
+
+    const postservices = new PostService({
+      PostRepository,
+    });
+
+    it("unspam success", async () => {
+      dir = -1;
+      const result = await postservices.spam(postId, userId, dir);
+      expect(result.success).to.equal(true);
+    });
+
+    it("spam fail", async () => {
+      dir = 1;
+      const result = await postservices.spam(postId, userId, dir);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.ACTION_ALREADY_DONE);
+    });
+
+    it("unspam fail", async () => {
+      PostRepository.findById = async (data) => {
+        return {
+          success: true,
+          doc: {
+            spammedBy: ["123a5fccf267fc3a463b35e4"],
+            spamCount: 4,
+          },
+        };
+      };
+      dir = -1;
+      const result = await postservices.spam(postId, userId, dir);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.ACTION_ALREADY_DONE);
+    });
+
+    it("spam success", async () => {
+      dir = 1;
+      const result = await postservices.spam(postId, userId, dir);
+      expect(result.success).to.equal(true);
+    });
+
+    it("post not found", async () => {
+      PostRepository.findById = async (data) => {
+        return { success: false };
+      };
+      const result = await postservices.spam(postId, userId, dir);
+      expect(result.success).to.equal(false);
+      expect(result.error).to.equal(postErrors.POST_NOT_FOUND);
+    });
+  });
+
+  describe("add file", () => {
+    const PostRepository = {
+      addImage: async (data) => {},
+      addVideo: async (data) => {},
+    };
+
+    let postId = "111p5fccf267fc3a463b35e4";
+    let kind;
+    let file;
+
+    const postservices = new PostService({
+      PostRepository,
+    });
+
+    it("image", async () => {
+      kind = "image";
+      const result = await postservices.addFile(postId, kind, file);
+    });
+
+    it("video", async () => {
+      kind = "video";
+      const result = await postservices.addFile(postId, kind, file);
+    });
+  });
 
 
-  
 
-
-
-  // describe("Testing get posts",()=>{
-  //    it("1) test success", async () => {
-  //     const PostRepository = {
-  //       getPosts: async(x,y) => {
-  //         const response = {
-  //           success: true,
-  //           doc: [{
-  //             _id: "636e901bbc485bd111dd3880",
-  //             text: "first post"
-  //           }]
-  //         };
-
-  //         return response;
-  //       },
-  //        getPosts: async(x,y) => {
-  //         const response = {
-  //           success: true,
-  //           doc: [{
-  //             _id: "636e901bbc485bd111dd3880",
-  //             text: "first post"
-  //           }]
-  //         };
-
-  //         return response;
-  //       },
-  //        getPosts: async(x,y) => {
-  //         const response = {
-  //           success: true,
-  //           doc: [{
-  //             _id: "636e901bbc485bd111dd3880",
-  //             text: "first post"
-  //           }]
-  //         };
-
-  //         return response;
-  //       },
-  //        getPosts: async(x,y) => {
-  //         const response = {
-  //           success: true,
-  //           doc: [{
-  //             _id: "636e901bbc485bd111dd3880",
-  //             text: "first post"
-  //           }]
-  //         };
-
-  //         return response;
-  //       },
-  //        getPosts: async(x,y) => {
-  //         const response = {
-  //           success: true,
-  //           doc: [{
-  //             _id: "636e901bbc485bd111dd3880",
-  //             text: "first post"
-  //           }]
-  //         };
-
-  //         return response;
-  //       },
-
-  //     };
-  //     const on = {};
-  //     const subredditServiceObj = new SubredditService({  SubredditRepository,on, on});
-  //     const subredditName = " ";
-
-  //     const result = await subredditServiceObj.getFlairs(subredditName);
-  //     expect(result.success).to.equal(true);
-  //     expect(result.data[0].text).to.equal( "first flair");
-
-  //   });
-  // })
 });

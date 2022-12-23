@@ -1,5 +1,10 @@
 const { userErrors, mongoErrors, messageErrors } = require("../error_handling/errors");
 
+/**
+ * this class is used for implementing message Service functions
+ * @param {Repository} messageRepo - message repository object to access repository functions using notification model
+ * @param {Repository} userRepo - user repository object to access repository functions using user model
+ */
 
 class MessageService {
   constructor({ MessageRepository,UserRepository }) {
@@ -7,7 +12,11 @@ class MessageService {
     this.userRepo = UserRepository;
   }
 
-
+ /**
+   *This function add moderation message to db
+   * @param {String} msg - message to be added to db
+   * @returns {Object} - a response containg the message created
+   */
   async modMessage(msg) {
   
            
@@ -19,7 +28,14 @@ class MessageService {
         }
         
         return { success: true, data: messageToSend.doc };
- }
+  }
+ /**
+   * create message service function
+   * @param {String} userId - user id who created the message
+   * @param {object} message - message to create
+   * @returns {Object} - a response containing the created message.
+   *
+   */
     async createMessage(userId,message) {
        
         let userExisted = await this.userRepo.findByName(
@@ -38,6 +54,16 @@ class MessageService {
         
         return { success: true, data: messageToSend.doc };
   }
+
+
+   /**
+   * create reply service function
+   * @param {String} userId - user id who created the message
+   * @param {String} text - text of the reply to be created
+   * @param {String} parentMessageId - id of the parent message which this reply is created on 
+   * @returns {Object} - a response containing the created reply.
+   *
+   */
    async reply(userId,text,parentMessageId) {
    
      let messageExisted = await this.messageRepo.findById(parentMessageId);
@@ -57,7 +83,17 @@ class MessageService {
         }
         
         return { success: true, data: messageToSend.doc };
-    }
+  }
+  
+
+   /**
+   * create post reply service function
+   * @param {String} user - user to create the reply
+   * @param {Object} comment - the comment object on the post
+   * @param {String} post - post object which has the comment on it 
+   * @returns {Object} - a response containing the created post reply message.
+   *
+   */
     async createReplyMessage(user,comment,post) {
         //validate post ID
         
@@ -70,6 +106,13 @@ class MessageService {
         return { success: true, data: message.doc };
     }   
 
+    /**
+   * get sent messages service function
+   * @param {String} userId - user to get sent messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of sent messages.
+   *
+   */
     async getSentMessage(userId,query) {
     const sentMessages = await this.messageRepo.getSentMessage(userId,query);
      //console.log(notifications);
@@ -78,6 +121,13 @@ class MessageService {
     }
     return { success: true, data: sentMessages.doc };
   }
+    /**
+   * get inbox messages service function
+   * @param {String} userId - user to get sent messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of inbox messages.
+   *
+   */
   async getMessages(userId,query) {
     const sentMessages = await this.messageRepo.getMessages(userId,query);
      //console.log(notifications);
@@ -86,7 +136,13 @@ class MessageService {
     }
     return { success: true, data: sentMessages.doc };
   }
-
+ /**
+   * get all messages service function
+   * @param {String} userId - user to get all messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of all messages.
+   *
+   */
    async getAllMessages(userId,query) {
     const allMessages = await this.messageRepo.getAllMessages(userId,query);
      //console.log(notifications);
@@ -95,7 +151,13 @@ class MessageService {
     }
     return { success: true, data: allMessages.doc };
     }
-    
+     /**
+   * get unread messages service function
+   * @param {String} userId - user to get all messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of unread messages.
+   *
+   */
      async getUnreadMessage(userId,query) {
     const unreadMessages = await this.messageRepo.getUnreadMessage(userId,query);
      //console.log(notifications);
@@ -105,6 +167,13 @@ class MessageService {
     return { success: true, data: unreadMessages.doc };
     }
     
+   /**
+   * get post replies messages service function
+   * @param {String} userId - user to get post replies messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of post replies messages.
+   *
+   */
     async getPostReplies(userId,query) {
     const postReplies = await this.messageRepo.getPostReplies(userId,query);
      //console.log(notifications);
@@ -114,6 +183,13 @@ class MessageService {
     return { success: true, data: postReplies.doc };
     }
     
+   /**
+   * get post unread messages service function
+   * @param {String} userId - user to get post unread messages
+   * @param {Object} query - query 
+   * @returns {Object} - a response containing array of post unread messages.
+   *
+   */
      async getUnreadMessage(userId,query) {
     const unreadMessages = await this.messageRepo.getUnreadMessage(userId,query);
      //console.log(notifications);
@@ -132,7 +208,13 @@ class MessageService {
     }
     return { success: true }; 
   }
-
+ /**
+   * get post unread messages service function
+   * @param {String} userId - user to get post unread messages
+   * @param {String} messageId - message id to delete
+   * @returns {Object} - a response containing success status.
+   *
+   */
     async deleteMessage(userId,messageId) {
  const message = await this.messageRepo.deleteMessage(userId,messageId);
 

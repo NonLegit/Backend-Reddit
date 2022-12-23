@@ -146,7 +146,12 @@ class PostService {
 
     return { success: false, error: postErrors.MONGO_ERR, msg: post.msg };
   }
-
+/**
+ * 
+ * @param {Array} posts -array of posts to populate its owner and author
+ * @param {Object} me -object
+ * @returns {Object} - a response object containing status
+ */
   getPostOwnerAndAuthor(posts, me) {
     //let newPosts = Array.from(posts);
 
@@ -421,7 +426,12 @@ class PostService {
     }
     return newPosts;
   }
-
+/**
+ * 
+ * @param {Object} user -user object
+ * @param {Array} posts -array of posts
+ * @returns {Object} - a response object containing status
+ */
   setSpamPostStatus(user, posts) {
     let newPosts = Array.from(posts);
     let hash = {};
@@ -525,20 +535,14 @@ class PostService {
     return newPost;
   }
 
+  /**
+   * get post by id
+   * @param {String} postId -postid to get
+   * @param {Object} me -user object
+   * @returns {Object} - a response object containing status 
+   */
   async getPost(postId, me) {
-    //console.log("inhere");
     let post = await this.postRepo.getPost(postId);
-    //   console.log(post);
-    //   if (!post.success) {
-    //     return { sucess: false, error: postErrors.POST_NOT_FOUND };
-    //   }
-    //   console.log(post);
-    //   return post;
-    // }
-
-    // let postInList = [];
-    // postInList.push(post.doc);
-
     if (post.success) {
       if (me == undefined) {
         let postList = this.getPostOwnerAndAuthor(post.doc, me);
@@ -562,7 +566,7 @@ class PostService {
    * Checks if the user is the post author or moderator in the post subreddit
    * @param {string} postId The post ID
    * @param {string} userId The ID of the user in question
-   * @returns {object}
+   * @returns {Object} - a response object containing status
    */
   async isAuthOrMod(postId, userId) {
     const post = await this.postRepo.findById(postId, "author owner ownerType");

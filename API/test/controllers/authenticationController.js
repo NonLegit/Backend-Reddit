@@ -1718,4 +1718,269 @@ describe("Authentication Controller Test", () => {
       expect(response.stat).to.be.equal(400);
     });
   });
+
+  describe("checkAuthorize  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check1 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check1);
+      expect(next_check1).to.have.been.calledOnce;
+    });
+    it("second test fail", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return false;
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check2 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check2);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Unauthorized",
+      });
+    });
+
+    it("thrid test fail password change after token created ", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check3 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check3);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "Password is changed , Please login again",
+      });
+    });
+
+    it("fourth test keeploggedin ", async () => {
+      const req = {
+        cookies: {
+          jwt: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              keepLoggedIn: true,
+
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check4 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check4);
+      expect(next_check4).to.have.been.calledOnce;
+    });
+    it("fifth test success", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return true;
+            },
+            split: () => {
+              return ["Bearer", "Token"];
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check5 = sinon.spy();
+
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check5);
+      expect(next_check5).to.have.been.calledOnce;
+    });
+
+    it("sixth test", async () => {
+      const req = {
+        cookies: {},
+        headers: {
+          authorization: {
+            startsWith: (token) => {
+              return true;
+            },
+            split: () => {
+              return ["Bearer", "Token"];
+            },
+          },
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: false,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check6 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.checkAuthorize(req, res, next_check6);
+      expect(res.status(404).json).to.deep.calledWith({
+        status: "fail",
+        errorMessage: "User not found",
+      });
+    });
+  });
+
+  describe("google  Test", () => {
+    it("first test success", async () => {
+      const req = {
+        body: {
+          tokenId: "token",
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check1 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.googleAuth(req, res, next_check1);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "provide valid token",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        body: {
+        },
+      };
+      const UserService = {
+        getUser: async (userId) => {
+          const response = {
+            success: true,
+            data: {
+              changedPasswordAfter: (time) => {
+                return false;
+              },
+            },
+          };
+          return response;
+        },
+        decodeToken: async (token) => {
+          return "1";
+        },
+      };
+      let next_check1 = sinon.spy();
+      const authObj = new auth({ UserService });
+      await authObj.googleAuth(req, res, next_check1);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "provide token",
+      });
+    });
+  });
 });
