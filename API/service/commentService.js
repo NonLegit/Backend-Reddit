@@ -285,6 +285,12 @@ class CommentService {
     return await this.commentRepo.commentTree(children, limit, depth - 1, sort);
   }
 
+  /**
+   * @property {Function} setVoteCommentStatus   set vote Status of comments
+   * @param {object} user - user who initate request
+   * @param {string} comments - list of comments
+   * @returns {Array} - list of comments
+   */
   setVoteCommentStatus(user, comments) {
     // create map of posts voted by user
     let newComments = Array.from(comments);
@@ -312,6 +318,13 @@ class CommentService {
     //console.log("new comments", newComments);
     return newComments;
   }
+
+  /**
+   * @property {Function} setSavedCommentStatus   set saved Status of comments
+   * @param {object} user - user who initate request
+   * @param {string} comments - list of comments
+   * @returns {Array} - list of comments
+   */
   setSavedCommentStatus(user, comments) {
     let newComments = Array.from(comments);
 
@@ -336,6 +349,13 @@ class CommentService {
     }
     return newComments;
   }
+
+  /**
+   * @property {Function} setVoteStatus   set Vote Status of comments
+   * @param {object} user - user who initate request
+   * @param {string} userComments - list of comments
+   * @returns {Array} - list of comments
+   */
   setVoteStatus(user, userComments) {
     let post = {};
     let commentTree = [];
@@ -441,6 +461,13 @@ class CommentService {
     return commentTree.reverse();
   }
 
+  /**
+   *@property {Function} getUserComments   get all comments created by user
+   * @param {object} user - user who initate request
+   * @param {string} userId - user id to get its comments
+   * @param {object} query - sort criteria sent by client
+   * @returns {Array} - list of posts contains list of comments
+   */
   async getUserComments(userId, user, query) {
     let data = await this.commentRepo.getUserComments(userId, query, "post");
     let post = {};
@@ -539,6 +566,12 @@ class CommentService {
       return { success: false };
     }
   }
+  /**
+   *@property {Function} saveComment   user save comment
+   * @param {string} user - user who save comment
+   * @param {string} commentId - comment id to save on
+   * @returns {boolean} - true if post is not saved before or false if save is already saved
+   */
   async saveComment(user, commentId) {
     const index = user.savedComments.findIndex((element) => {
       return element.savedComment.toString() === commentId.toString();
@@ -553,6 +586,13 @@ class CommentService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} unSaveComment   add user unsave comment
+   * @param {string} user - user who save post
+   * @param {string} commentId - comment id to unsave on
+   * @returns {boolean} - false if comment is not saved before or true if comment is already saved
+   */
   async unSaveComment(user, commentId) {
     const index = user.savedComments.findIndex((element) => {
       return element.savedComment.toString() === commentId.toString();
@@ -565,6 +605,16 @@ class CommentService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} addVote add vote to comment
+   * @param {string} user - authenticated user
+   * @param {object} commentId - comment id
+   * @param {string} voteDir - vote status
+   * @param {string} votesCount - votesCount of comment
+   * @param {object} author - creator of comment
+   * @returns {Array} - list of saved posts
+   */
   async addVote(user, commentId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.voteComment.findIndex((element) => {
