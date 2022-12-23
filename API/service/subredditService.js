@@ -32,7 +32,7 @@ class subredditService {
    * @returns {Object} - a response containing the created subreddit.
    *
    */
-  // TODO: service tests
+  
   async createSubreddit(data, userName, profilePicture) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -72,7 +72,7 @@ class subredditService {
    * @param {String} userId - query options
    * @returns {Object} - a response
    */
-  // TODO: service tests
+ 
   async deleteSubreddit(subredditName, userId) {
     // ..
     let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
@@ -94,7 +94,6 @@ class subredditService {
    * @param {object} data - the new data passed from request body
    * @returns {Object} - a response containing the updated subreddit.
    */
-  // TODO: service tests
   async updateSubreddit(subredditName, userId, data) {
     // ..
     let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
@@ -118,7 +117,6 @@ class subredditService {
    * @param {object} name - a query to select a certain subreddit from database
    * @returns {Object} - a response containing the retrieved subreddit
    */
-  // TODO: service tests
   async retrieveSubreddit(userId, name, checkOnly) {
     let subreddit = await this.subredditRepository.getsubreddit(name, "", "");
     if (subreddit.success) {
@@ -142,7 +140,7 @@ class subredditService {
    * @param {object} data - moderator permissions bassed from request body
    * @returns {Object} a response.
    */
-  // TODO: service tests
+
   async inviteMod(subredditName, userId, modName, data) {
     // ..
     //  check subreddit existed or not
@@ -187,7 +185,7 @@ class subredditService {
               subredditExisted.data._id
             );
             //console.log(invited);
-            //TODO: add this case in tests
+            
             if (invited.success)
               return {
                 success: false,
@@ -222,7 +220,7 @@ class subredditService {
     }
   }
 
-  // TODO: service testing
+ 
   async handleInvitation(
     userId,
     userName,
@@ -278,13 +276,13 @@ class subredditService {
 
     return { success: true };
   }
-  // TODO: service tests
+
   removeSubredditId(list, value) {
     return list.filter(function (ele) {
       return !value.equals(ele.subredditId);
     });
   }
-  // TODO: service tests
+
   removeId(list, value, type) {
     return list.filter(function (ele) {
       return !(value.equals(ele.user._id) && ele.type === type);
@@ -298,7 +296,7 @@ class subredditService {
    * @param {string} modName - moderator name i want to remove from moderation
    * @returns a response.
    */
-  // TODO: service tests
+
   async deleteMod(subredditName, userId, modName) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -369,54 +367,14 @@ class subredditService {
       }
     }
   }
-
-  /**
-   * This function returns posts in subreddit by their category to be viewed in mod tools
-   * @param {string} subredditName - name od subreddit
-   * @param {string} userId - iD of user making the request
-   * @param {string} category - category i want to retrieve
-   * @returns {Object} - a response contains categorized posts.
-   */
-  // TODO: service tests
-  async getCategoryPosts(subredditName, userId, category) {
-    try {
-      // ! check if user is mod first
-      let canGet = await this.isModerator(subredditName, userId);
-      if (!canGet) {
-        canGet.statusCode = 401;
-        res.status(canGet.statusCode).json({
-          status: canGet.statusCode,
-          message: "you are not moderator to this subreddit",
-        });
-      } else {
-        // ! get posts relevant to this category
-        let response = await this.subredditRepository.getOne(
-          {
-            name: subredditName,
-            "posts.category": category,
-          },
-          "posts",
-          ""
-        );
-        return response;
-      }
-    } catch (err) {
-      console.log("catch error here" + err);
-      const error = {
-        status: "fail",
-        statusCode: 400,
-        err,
-      };
-      return error;
-    }
-  }
+  
   /**
    * this function returns subreddits that iam in as a subscriber or as a moderator
    * @param {string} userId - Id if user making the request
    * @param {string} location - an enum value either [subscriber, moderator]
    * @returns {Object} - a response containing an array of subreddits
    */
-  // TODO: service tests
+ 
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
@@ -451,7 +409,7 @@ class subredditService {
       else return { success: true, data: subreddits.doc[0].subscribed };
     } else return { success: false, error: subredditErrors.INVALID_ENUM };
   }
-  // TODO: service tests
+  
   async subredditsModeratedBy(userName) {
     let subreddits = await this.subredditRepository.getSubreddits(
       userName,
@@ -461,7 +419,6 @@ class subredditService {
     else return { success: true, data: subreddits.doc };
   }
 
-  // TODO: service tests
   async getFavourites(userId) {
     let subreddits = await this.userRepository.getFavouriteSubreddits(userId);
     if (!subreddits.success) return subreddits;
@@ -475,7 +432,7 @@ class subredditService {
    * @param {Object} data - new permissions passed in request body
    * @returns {Object} a moderator information after updating his permissions
    */
-  // TODO: service tests
+  
   async updateModeratorSettings(subredditName, userId, modName, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -739,7 +696,7 @@ class subredditService {
     }
   }
 
-  // TODO: service tests
+  
   filter(list, value) {
     return list.filter(function (ele) {
       return value === ele.type;

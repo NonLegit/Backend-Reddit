@@ -9,6 +9,7 @@ const {
   postErrors,
   subredditErrors,
 } = require("./../../error_handling/errors");
+const PostController = require("./../../controllers/postController");
 dotenv.config();
 chai.use(sinonChai);
 
@@ -2914,6 +2915,18 @@ describe("get post", () => {
         });
       });
 
+      it("Invalid parent post", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.INVALID_PARENT_POST };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid parent post",
+        });
+      });
+
       it("Flair not found", async () => {
         PostService.createPost = async (data) => {
           return { success: false, error: postErrors.FLAIR_NOT_FOUND };
@@ -3104,5 +3117,369 @@ describe("get post", () => {
     });
   });
 
-  
+  describe("Delete post test", () => {
+    const req = {
+      user: {
+        _id: "123e4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "456p4aab2a94c22ae492983a",
+      },
+      body: {
+        text: "this is a post",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      deletePost: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new auth({ PostService, UserService });
+
+    it("successful delete", async () => {
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "success",
+        data: null,
+      });
+    });
+
+    it("User must be author", async () => {
+      PostService.deletePost = async () => {
+        return { success: false, error: postErrors.NOT_AUTHOR };
+      };
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be author",
+      });
+    });
+
+    it("Post not found", async () => {
+      PostService.deletePost = async () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params.postId;
+      await postController.deletePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter postId",
+      });
+    });
+  });
+
+  describe("Must be moderator test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      isMod: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("moderator", async () => {
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
+      //expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("not moderator", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.NOT_MOD };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be moderator",
+      });
+    });
+
+    it("not subreddit", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.OWNER_NOT_SUBREDDIT };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "The post must belong to a subreddit",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Must be moderator or author test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      isAuthOrMod: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("moderator or author", async () => {
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
+      //expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("not moderator nor author", async () => {
+      PostService.isAuthOrMod = () => {
+        return { success: false, error: postErrors.NOT_AUTHOR_OR_MOD };
+      };
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be moderator",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.isAuthOrMod = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Moderate post test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+        action: "approve",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      modAction: async () => true,
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("successful action", async () => {
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("action arleady done", async () => {
+      PostService.modAction = () => false;
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action is already performed",
+      });
+    });
+
+    it("Invalid request", async () => {
+      req.params.action = "not a valid action";
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid post moderation action",
+      });
+    });
+  });
+
+  describe("Spam test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+      body: {
+        dir: 1,
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      spam: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("successful action", async () => {
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("action arleady done", async () => {
+      PostService.spam = () => {
+        return { success: false, error: postErrors.ACTION_ALREADY_DONE };
+      };
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action is already performed",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.spam = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Default values", async () => {
+      delete req.body.dir;
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+ 
+  describe("Post actions test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+        action: "lock_comments",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      postAction: async (postId, action) => true
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("post successful action", async () => {
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("post action arleady done", async () => {
+      PostService.postAction = () => false;
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action already performed",
+      });
+    });
+
+    it("Invalid request", async () => {
+      req.params.action = "not a valid action";
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid post action",
+      });
+    });
+  });
+
+
 });
