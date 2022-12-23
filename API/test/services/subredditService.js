@@ -9,6 +9,7 @@ const {
   mongoErrors,
   userErrors,
 } = require("../../error_handling/errors");
+const ObjectId = require("mongoose").Types.ObjectId;
 
 describe("Subreddit Test", () => {
   describe("Subreddit services Test", () => {
@@ -3596,10 +3597,9 @@ describe("Subreddit Test", () => {
           banUser: async (user, subredditName, data) => {
             return { success: true };
           },
-          getPunished:async (subredditName)=>{
-            return {doc:{punished:{}}}
-          }
-
+          getPunished: async (subredditName) => {
+            return { doc: { punished: {} } };
+          },
         };
         const FlairRepository = {};
         const subredditServices = new subredditService({
@@ -3620,671 +3620,723 @@ describe("Subreddit Test", () => {
       });
     });
 
-
     describe("muteUnmute function ", () => {
-        it("first test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
+      it("first test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 10,
+                  },
+                ],
+              },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: false,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 15,
+                  },
+                ],
+              },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return {
+              success: true,
+              doc: {
+                moderators: [
+                  {
+                    user: {
                       _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 10,
                     },
-                  ],
-                },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: false,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
-                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 15,
-                    },
-                  ],
-                },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return {
-                success: true,
-                doc: {
-                  moderators: [
-                    {
-                      user: {
-                        _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      },
-                    },
-                  ],
-                },
-              };
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: true };
-            },
-            checkPunished: async (userId, subredditName, action) => {
-              return { success: false };
-            },
-            banUser: async (user, subredditName, data) => {
-              return { success: true };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
+                  },
+                ],
+              },
+            };
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: true };
+          },
+          checkPunished: async (userId, subredditName, action) => {
+            return { success: false };
+          },
+          banUser: async (user, subredditName, data) => {
+            return { success: true };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
         });
-  
-        it("first test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
-                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 10,
-                    },
-                  ],
-                },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: false,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
-                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 15,
-                    },
-                  ],
-                },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return {
-                success: true,
-                doc: {
-                  moderators: [
-                    {
-                      user: {
-                        _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      },
-                    },
-                  ],
-                },
-              };
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: true };
-            },
-            checkPunished: async (userId, subredditName, action) => {
-              return { success: false };
-            },
-            banUser: async (user, subredditName, data) => {
-              return { success: false };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-        });
-  
-        it("2nd test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: false,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 10 }] },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return true;
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: true };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
 
-        });
-  
-        it("3rd test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: false,
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return true;
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: true };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-          expect(result.error).to.equal(subredditErrors.NOT_MODERATOR);
-        });
-  
-        it("4th test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return { success: false };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 10 }] },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return true;
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: true };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-          expect(result.error).to.equal(userErrors.USER_NOT_FOUND);
-        });
-  
-       
-        it("6th test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return {
-                success: true,
-                doc: {
-                  _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                  userName: "khaled",
-                },
-              };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
-                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 10,
-                    },
-                  ],
-                },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: {
-                  _id: "10",
-                  moderators: [
-                    {
-                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      modDate: 15,
-                    },
-                  ],
-                },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return {
-                success: true,
-                doc: {
-                  moderators: [
-                    {
-                      user: {
-                        _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-                      },
-                    },
-                  ],
-                },
-              };
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: false };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-        });
-  
-        it("7th test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 30 }] },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return true;
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: false };
-            },
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "ban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-        });
-  
-        it("7th test ", async () => {
-          const UserRepository = {
-            isSubscribed: async (user, subreddit) => {
-              return false;
-            },
-            findByUserName: async (userName, select, pop) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            updateByName: async (userName, subredditId, permissions) => {
-              return { success: true, doc: { _id: "1", userName: "khaled" } };
-            },
-            checkInvetation: async (userId, subredditId) => {
-              return { suucess: true };
-            },
-          };
-          const SubredditRepository = {
-            create: async (data, userName, profilePicture) => {
-              return { success: true, doc: { _id: "10" } };
-            },
-            getsubreddit: async (name, select, popOptions) => {
-              return {
-                success: true,
-                doc: { _id: "10", fixedName: "subreddit", nsfw: true },
-              };
-            },
-            isModerator_1: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 30 }] },
-              };
-            },
-            isModerator_2: async (subredditName, userID) => {
-              return {
-                success: true,
-                doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
-              };
-            },
-            invite: async (userId, subredditName) => {
-              return { success: true };
-            },
-            getModerators: async (subredditName) => {
-              return true;
-            },
-            updateModerators: async (subredditName, moderators) => {
-              return { success: false };
-            },
-            checkPunished: async (userId, subredditName, action) => {
-              return { success: true };
-            },
-            banUser: async (user, subredditName, data) => {
-              return { success: true };
-            },
-            getPunished:async (subredditName)=>{
-              return {doc:{punished:{}}}
-            }
-  
-          };
-          const FlairRepository = {};
-          const subredditServices = new subredditService({
-            SubredditRepository,
-            FlairRepository,
-            UserRepository,
-          });
-  
-          const result = await subredditServices.muteUnmute(
-            mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
-            "subreddit",
-            "khaled",
-            "unban",
-            {}
-          );
-  
-          expect(result.success).to.equal(false);
-        });
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
       });
 
+      it("first test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 10,
+                  },
+                ],
+              },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: false,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 15,
+                  },
+                ],
+              },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return {
+              success: true,
+              doc: {
+                moderators: [
+                  {
+                    user: {
+                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: true };
+          },
+          checkPunished: async (userId, subredditName, action) => {
+            return { success: false };
+          },
+          banUser: async (user, subredditName, data) => {
+            return { success: false };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
 
-    
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+      });
+
+      it("2nd test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: false,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 10 }] },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return true;
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: true };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+      });
+
+      it("3rd test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: false,
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return true;
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: true };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(subredditErrors.NOT_MODERATOR);
+      });
+
+      it("4th test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return { success: false };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 10 }] },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return true;
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: true };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+        expect(result.error).to.equal(userErrors.USER_NOT_FOUND);
+      });
+
+      it("6th test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return {
+              success: true,
+              doc: {
+                _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                userName: "khaled",
+              },
+            };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 10,
+                  },
+                ],
+              },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: {
+                _id: "10",
+                moderators: [
+                  {
+                    _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    modDate: 15,
+                  },
+                ],
+              },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return {
+              success: true,
+              doc: {
+                moderators: [
+                  {
+                    user: {
+                      _id: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+                    },
+                  },
+                ],
+              },
+            };
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: false };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+      });
+
+      it("7th test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 30 }] },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return true;
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: false };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "ban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+      });
+
+      it("7th test ", async () => {
+        const UserRepository = {
+          isSubscribed: async (user, subreddit) => {
+            return false;
+          },
+          findByUserName: async (userName, select, pop) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          updateByName: async (userName, subredditId, permissions) => {
+            return { success: true, doc: { _id: "1", userName: "khaled" } };
+          },
+          checkInvetation: async (userId, subredditId) => {
+            return { suucess: true };
+          },
+        };
+        const SubredditRepository = {
+          create: async (data, userName, profilePicture) => {
+            return { success: true, doc: { _id: "10" } };
+          },
+          getsubreddit: async (name, select, popOptions) => {
+            return {
+              success: true,
+              doc: { _id: "10", fixedName: "subreddit", nsfw: true },
+            };
+          },
+          isModerator_1: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 30 }] },
+            };
+          },
+          isModerator_2: async (subredditName, userID) => {
+            return {
+              success: true,
+              doc: { _id: "10", moderators: [{ _id: "1", modDate: 15 }] },
+            };
+          },
+          invite: async (userId, subredditName) => {
+            return { success: true };
+          },
+          getModerators: async (subredditName) => {
+            return true;
+          },
+          updateModerators: async (subredditName, moderators) => {
+            return { success: false };
+          },
+          checkPunished: async (userId, subredditName, action) => {
+            return { success: true };
+          },
+          banUser: async (user, subredditName, data) => {
+            return { success: true };
+          },
+          getPunished: async (subredditName) => {
+            return { doc: { punished: {} } };
+          },
+        };
+        const FlairRepository = {};
+        const subredditServices = new subredditService({
+          SubredditRepository,
+          FlairRepository,
+          UserRepository,
+        });
+
+        const result = await subredditServices.muteUnmute(
+          mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+          "subreddit",
+          "khaled",
+          "unban",
+          {}
+        );
+
+        expect(result.success).to.equal(false);
+      });
+    });
+  });
+
+  describe("Subscriable Test", () => {
+    const UserRepository = {};
+    const SubredditRepository = {
+      findByName: async (name, fields) => {
+        return {
+          success: true,
+          doc: {
+            _id: "",
+            punished: [
+              {
+                userId: "678a5fccf267fc3a463b35e5",
+                type: "banned",
+              },
+            ],
+          },
+        };
+      },
+    };
+    const FlairRepository = {};
+    const subredditServices = new subredditService({
+      SubredditRepository,
+      FlairRepository,
+      UserRepository,
+    });
+
+    const subredditName = "kiro";
+    let userId = ObjectId("578a5fccf267fc3a463b35e4");
+
+    it("subscriable", async () => {
+      const subscriable = await subredditServices.subscriable(
+        subredditName,
+        userId
+      );
+      expect(subscriable.success).to.equal(true);
+    });
+
+    it("banned", async () => {
+      userId = ObjectId("678a5fccf267fc3a463b35e5");
+      const subscriable = await subredditServices.subscriable(
+        subredditName,
+        userId
+      );
+      expect(subscriable.success).to.equal(false);
+      expect(subscriable.error).to.equal(subredditErrors.BANNED);
+    });
+
+    it("not found", async () => {
+      SubredditRepository.findByName = () => {
+        return { success: false };
+      };
+      const subscriable = await subredditServices.subscriable(
+        subredditName,
+        userId
+      );
+      expect(subscriable.success).to.equal(false);
+      expect(subscriable.error).to.equal(subredditErrors.SUBREDDIT_NOT_FOUND);
+    });
   });
 });

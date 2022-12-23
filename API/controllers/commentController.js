@@ -484,7 +484,7 @@ class CommentController {
     const userId = req.user._id;
 
     if (!commentId) {
-      res.status(400).send({ status: "fail", message: "Invalid request" });
+      res.status(400).json({ status: "fail", message: "Invalid request" });
       return;
     }
 
@@ -498,16 +498,16 @@ class CommentController {
         case commentErrors.COMMENT_NOT_FOUND:
           res
             .status(404)
-            .send({ status: "fail", message: "Comment not found" });
+            .json({ status: "fail", message: "Comment not found" });
           break;
         case commentErrors.NOT_MOD:
-          res.status(401).send({
+          res.status(401).json({
             status: "fail",
             message: "User must be moderator",
           });
           break;
         case commentErrors.OWNER_NOT_SUBREDDIT:
-          res.status(400).send({
+          res.status(400).json({
             status: "fail",
             message: "The comment must belong to a subreddit",
           });
