@@ -850,5 +850,481 @@ describe("notification test",()=> {
           
           
         });
+        it("15) test fail in token ", async () => {
+            //const FCM = ()=>{ return "b" };
+            const req = {
+              
+                user: {},
+                comment: {},
+              post: {},
+              mentions:{}
+                
+             };
+            const NotificationService = {
+                addReplyNotification: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                             text: "hi",
+                          to: "12",
+                             type:"postReply"
+                        }
+                    }
+                    return response;
+              },
+               getFirebaseToken: async (id) => {
+                    const response = {
+                        success: false,
+                        
+                    }
+                    return response;
+                }
+              
+            };
+             
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+              notificationObj.sendMentions = async () => { return; };
+            await notificationObj.addReplyNotification(req, res);
+         // expect(res.status).to.have.been.calledWith(201);
+          
+          
+      });
    });
+    describe("add follow notification", () => {  
+          it("1) test success", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {
+                  addFollowNotification: async (id) => {
+                      const response = {
+                          success: true
+                      }
+                      return response;
+                  },
+                   getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    return response;
+                }
+              
+
+              };
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+           it("2) test bad request", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {};
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+            it("3) test bad request", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                  
+              };
+              const NotificationService = {};
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+            it("4) test bad request", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {};
+              const NotificationService = {};
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+           it("5) test fail in notification creation", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {
+                  addFollowNotification: async (id) => {
+                      const response = {
+                          success: false
+                      }
+                      return response;
+                  }};
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+           it("6) test fail in getting token", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {
+                  addFollowNotification: async (id) => {
+                      const response = {
+                          success: true
+                      }
+                      return response;
+                  },
+                   getFirebaseToken: async (id) => {
+                    const response = {
+                        success: false,
+                      }
+                    return response;
+                }
+              
+
+              };
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+           it("7) test exception", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {
+                  addFollowNotification: async (id) => {
+                      const response = {
+                          success: true
+                      }
+throw new Error('divide by zero!');
+                      return response;
+                      
+                  },
+                   getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    return response;
+                }
+              
+
+              };
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+               it("8) test exception", async () => {
+              //const FCM = ()=>{ return "b" };
+              const req = {
+                follower: {_id:"1"},
+                followed: {_id:" 2"  }
+                  
+              };
+              const NotificationService = {
+                  addFollowNotification: async (id) => {
+                      const response = {
+                          success: true
+                      }
+
+                      return response;
+                      
+                  },
+                   getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    throw new Error('divide by zero!');
+                    return response;
+                }
+              
+
+              };
+              const on = {};
+              const notificationObj = new notification({ on, NotificationService });
+              await notificationObj.addFollowNotification(req, res);
+            //expect(res.status).to.have.been.calledWith(201);
+            
+            
+          });
+           
+    });
+     describe("send mentions", () => {  
+        it("1) test success", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:" "
+            };
+             const mentions=[
+               { userId:"12"}
+           ] ;
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[
+                            {}]
+                    }
+                    return response;
+                },
+                  getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+      it("2) test no notifiaction", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:" "
+            };
+             const mentions=[
+               { userId:"12"}
+           ] ;
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: false,
+                       
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+        it("3) test no notifications existing", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:" "
+            };
+             const mentions=[
+               { userId:"12"}
+           ] ;
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[]
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+         it("4) test same id and success ", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:"12"
+            }
+            const mentions=[
+               { userId:"12"}
+           ] ;
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[
+                            {}]
+                    }
+                    return response;
+                },
+                  getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+         
+         it("5) test defferent id and success ", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:"124"
+            }
+            const mentions=[
+               { userId:"12"}
+           ] ;
+
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[
+                            {}
+                           ]
+                    }
+                    return response;
+                },
+                  getFirebaseToken: async (id) => {
+                    const response = {
+                        success: true,
+                        data: {
+                            firebaseToken: "638bed1001f496d7284c2832"
+                        }
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+         it("6) test different id and fail", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:"132"
+            }
+            const mentions=[
+               { userId:"12"}
+           ] ;
+
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[
+                            {},
+                           ]
+                    }
+                    return response;
+                },
+                  getFirebaseToken: async (id) => {
+                    const response = {
+                        success: false
+                    }
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+         it("7) test fail exception", async () => {
+            const req = {
+                    user: { _id: "125" }
+                
+            };
+            const user={
+                _id:"132"
+            }
+            const mentions=[
+               { userId:"12"}
+           ] ;
+
+            const NotificationService = {
+                sendMentions: async (id) => {
+                    const response = {
+                        success: true,
+                        data:[
+                            {},
+                           ]
+                    }
+
+                    return response;
+                },
+                  getFirebaseToken: async (id) => {
+                    const response = {
+                        success: false
+                    }
+                    throw new Error('divide by zero!');
+                    return response;
+                }
+              
+            };
+            const on = {};
+            const notificationObj = new notification({ on, NotificationService });
+            await notificationObj.sendMentions(user,on,on, mentions);
+            
+        });
+    });
+
  });
