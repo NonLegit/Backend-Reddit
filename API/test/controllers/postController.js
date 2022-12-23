@@ -2915,6 +2915,18 @@ describe("get post", () => {
         });
       });
 
+      it("Invalid parent post", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.INVALID_PARENT_POST };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid parent post",
+        });
+      });
+
       it("Flair not found", async () => {
         PostService.createPost = async (data) => {
           return { success: false, error: postErrors.FLAIR_NOT_FOUND };
@@ -2950,93 +2962,6 @@ describe("get post", () => {
       });
     });
 
-<<<<<<< HEAD
-    it("Subreddit not found", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
-      };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(404);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Subreddit not found",
-      });
-    });
-
-    it("Flair not found", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.FLAIR_NOT_FOUND };
-      };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Flair not found",
-      });
-    });
-
-    it("Invalid parent post", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.INVALID_PARENT_POST };
-      };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid parent post",
-      });
-    });
-
-    it("mongo error", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
-      };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "message",
-      });
-    });
-
-    it("Invalid request", async () => {
-      delete req.body.kind;
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid request",
-      });
-    });
-  });
-
-  describe("Update post test", () => {
-    const req = {
-      user: {
-        _id: "123e4aab2a94c22ae492983a",
-      },
-      params: {
-        postId: "456p4aab2a94c22ae492983a",
-      },
-      body: {
-        text: "this is a post",
-      },
-    };
-    const UserService = {};
-    const PostService = {
-      updatePost: async (id, data, userId) => {
-        return { success: true, data };
-      },
-    };
-    const postController = new auth({ PostService, UserService });
-
-    it("successful update", async () => {
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(201);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "success",
-        data: {
-=======
     describe("Update post test", () => {
       const req = {
         user: {
@@ -3046,7 +2971,6 @@ describe("get post", () => {
           postId: "456p4aab2a94c22ae492983a",
         },
         body: {
->>>>>>> development
           text: "this is a post",
         },
       };
@@ -3193,7 +3117,6 @@ describe("get post", () => {
     });
   });
 
-<<<<<<< HEAD
   describe("Delete post test", () => {
     const req = {
       user: {
@@ -3559,7 +3482,4 @@ describe("get post", () => {
   });
 
 
-=======
-  
->>>>>>> development
 });
