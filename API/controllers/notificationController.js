@@ -22,9 +22,12 @@ class NotificationController {
         });
         return;
       }
+    
       const token = req.body.token;
       const userId = req.user._id;
+       
       const savedToUser = await this.userServices.saveFirebaseToken(userId, token);
+      
       if (!savedToUser.success) {
         res.status(500).json({
           message: "Internal server error",
@@ -56,6 +59,7 @@ class NotificationController {
         let tokens = await this.notificationServices.getFirebaseToken(req.post.author._id);
         let message;
         if (tokens.success) {
+          console.log("commeeeeeeeeeeeeeee");
           message = {
             to: tokens.data.firebaseToken,
             data: { val: JSON.stringify(notification.data) }
@@ -78,6 +82,7 @@ class NotificationController {
       }
       return;
     } catch (err) {
+      console.log(err);
       return;
       }
     

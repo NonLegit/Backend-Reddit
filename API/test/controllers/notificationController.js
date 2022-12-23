@@ -5,6 +5,7 @@ const sinon = require("sinon");
 const sinonChai = require("sinon-chai");
 const dotenv = require("dotenv");
 dotenv.config();
+const next = sinon.spy();
 const notification = require("./../../controllers/notificationController");
 const { notificationErrors } = require("./../../error_handling/errors");
 
@@ -19,7 +20,7 @@ const { notificationErrors } = require("./../../error_handling/errors");
 chai.use(sinonChai);
 
 const statusJsonSpy = sinon.spy();
-const next = sinon.spy();
+
 
 const res = {
   json: sinon.spy(),
@@ -401,6 +402,7 @@ describe("notification test",()=> {
             
           });
     }); 
+    
     describe("add firebase token", () => {  
           it("1) test success", async () => {
               //const FCM = ()=>{ return "b" };
@@ -412,7 +414,7 @@ describe("notification test",()=> {
                       user: { _id: "125" }
                   
               };
-              const NotificationService = {
+              const UserService = {
                   saveFirebaseToken: async (id) => {
                       const response = {
                           success: true
@@ -421,7 +423,7 @@ describe("notification test",()=> {
                   }
               };
               const on = {};
-              const notificationObj = new notification({ on, NotificationService });
+              const notificationObj = new notification({ UserService, on });
               await notificationObj.addFirebaseToken(req, res);
             expect(res.status).to.have.been.calledWith(201);
             
@@ -445,7 +447,8 @@ describe("notification test",()=> {
                   message: "Invalid request"
               })
             });
-          it("3) test failure internal", async () => {
+        
+        it("3) test failure internal", async () => {
               const req = {
                 body: {
                     token:"123"
@@ -454,7 +457,7 @@ describe("notification test",()=> {
                       user: { _id: "125" }
                   
               };
-              const NotificationService = {
+              const UserService = {
                   saveFirebaseToken: async (id) => {
                       const response = {
                         success: false
@@ -463,11 +466,12 @@ describe("notification test",()=> {
                   }
               };
               const on = {};
-              const notificationObj = new notification({ on, NotificationService });
+              const notificationObj = new notification({ UserService,on });
               await notificationObj.addFirebaseToken(req, res);
               expect(res.status).to.have.been.calledWith(500);
-              expect(res.status(404).json).to.have.been.calledWith({
+              expect(res.status(500).json).to.have.been.calledWith({
                   message : "Internal server error",
+                   statusCode: 500,
                   status : "Internal Server Error"
               })
           });
@@ -481,7 +485,7 @@ describe("notification test",()=> {
                       user: { _id: "125" }
                   
               };
-              const NotificationService = {
+              const UserService = {
                   saveFirebaseToken: async (id) => {
                       const response = {
                           success: true
@@ -491,21 +495,23 @@ describe("notification test",()=> {
                   }
               };
               const on = {};
-              const notificationObj = new notification({ on, NotificationService });
+              const notificationObj = new notification({ UserService, on });
               await notificationObj.addFirebaseToken(req, res);
             expect(res.status).to.have.been.calledWith(500);
             
             
           });
-    });
-   describe("create reply notification", () => {  
+   
+});
+  
+    describe("create reply notification", () => {  
         it("1) test success (postReply)", async () => {
             //const FCM = ()=>{ return "b" };
             const req = {
               
                 user: {},
                 comment: {},
-              post: {}
+              post: {author:{_id:" "}}
                 
              };
             const NotificationService = {
@@ -534,7 +540,7 @@ describe("notification test",()=> {
              
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -545,7 +551,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {}
+              post: {author:{_id:" "}}
                 
              };
             const NotificationService = {
@@ -574,7 +580,7 @@ describe("notification test",()=> {
              
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -588,7 +594,7 @@ describe("notification test",()=> {
              };            
             const on = {};
             const notificationObj = new notification({ on, on });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -601,7 +607,7 @@ describe("notification test",()=> {
              };            
             const on = {};
             const notificationObj = new notification({ on, on });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -610,10 +616,10 @@ describe("notification test",()=> {
             //const FCM = ()=>{ return "b" };
             const req = {
               
-                 post: {}            
+                 post: {author:{_id:" "}}           
              };            
             const on = {};
-            const notificationObj = new notification({ on, on });
+            const notificationObj = new notification({ on, on,next });
             await notificationObj.addReplyNotification(req, res);
          // expect(res.status).to.have.been.calledWith(201);
           
@@ -625,7 +631,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {}
+              post: {author:{_id:" "}}
                 
              };
             const NotificationService = {
@@ -641,7 +647,7 @@ describe("notification test",()=> {
              
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -652,7 +658,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {}
+             post: {author:{_id:" "}}
                 
              };
             const NotificationService = {
@@ -679,7 +685,7 @@ describe("notification test",()=> {
              
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -690,7 +696,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {},
+              post: {author:{_id:" "}},
               mentions:{}
                 
              };
@@ -721,7 +727,7 @@ describe("notification test",()=> {
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
        notificationObj.sendMentions = async () => { return; };
-       await notificationObj.addReplyNotification(req, res);
+       await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -732,7 +738,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {},
+             post: {author:{_id:" "}},
               mentions:{}
                 
              };
@@ -754,7 +760,7 @@ describe("notification test",()=> {
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
        notificationObj.sendMentions = async () => { return; };
-       await notificationObj.addReplyNotification(req, res);
+       await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -816,7 +822,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {}
+              post: {author:{_id:" "}}
                 
              };
             const NotificationService = {
@@ -845,7 +851,7 @@ describe("notification test",()=> {
              
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
@@ -856,7 +862,7 @@ describe("notification test",()=> {
               
                 user: {},
                 comment: {},
-              post: {},
+              post: {author:{_id:" "}},
               mentions:{}
                 
              };
@@ -885,11 +891,12 @@ describe("notification test",()=> {
             const on = {};
             const notificationObj = new notification({ on, NotificationService });
               notificationObj.sendMentions = async () => { return; };
-            await notificationObj.addReplyNotification(req, res);
+            await notificationObj.addReplyNotification(req, res,next);
          // expect(res.status).to.have.been.calledWith(201);
           
           
       });
+   
    });
     describe("add follow notification", () => {  
           it("1) test success", async () => {
