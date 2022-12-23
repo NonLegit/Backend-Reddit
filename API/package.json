@@ -20,7 +20,9 @@
       "API/mochawesome-report",
       "API/scripts",
       "API/error_handling/*.js",
-      "API/service/emailService.js"
+      "API/service/emailService.js",
+      "API/controllers/fileController.js"
+
     ]
   },
   "scripts": {

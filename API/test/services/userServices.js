@@ -1,6 +1,7 @@
 const assert = require("chai").assert;
 const expect = require("chai").expect;
 const dotenv = require("dotenv");
+const { default: mongoose } = require("mongoose");
 const { mongoErrors, userErrors } = require("./../../error_handling/errors");
 dotenv.config();
 const UserService = require("./../../service/userService");
@@ -413,6 +414,9 @@ describe("User Services Test", () => {
     const UserRepository = {
       push: async (id, obj) => {},
       pull: async (id, obj) => {},
+      isSubscribed: () => {
+        return true;
+      },
     };
     const userServices = new UserService({
       UserRepository,
@@ -460,6 +464,81 @@ describe("User Services Test", () => {
         action
       );
       expect(subscribed).to.equal(false);
+    });
+  });
+  describe("Subscribe", async () => {
+
+    it("subscribe(fail)", async () => {
+      const UserRepository = {
+        push: async (id, obj) => {},
+        pull: async (id, obj) => {},
+        isSubscribed:async  () => {
+          return true;
+        },
+        subscribe:async  () => {
+          return true;
+        },
+      };
+      const SubredditRepository = {
+        push: async (id, obj) => {},
+        pull: async (id, obj) => {},
+        unSubscribe :async  () => {
+          return true;
+        },
+        isSubscribed:async  () => {
+          return true;
+        },
+      };
+      const userServices = new UserService({
+        UserRepository,SubredditRepository
+      });
+      const userId = "123d493c3ff67d626ec994f7";
+      const subredditId = "456d493c3ff67d626ec994f7";
+      let action = "sub";
+      action = "sub";
+      UserRepository.isSubscribed = async (userName) => true;
+      const subscribed = await userServices.subscribe(
+        userId,
+        subredditId,
+        action
+      );
+      expect(subscribed).to.equal(false);
+    });
+    it("unsubscribe(fail)", async () => {
+      const UserRepository = {
+        push: async (id, obj) => {},
+        pull: async (id, obj) => {},
+        unSubscribe :async  () => {
+          return true;
+        },
+        isSubscribed:async  () => {
+          return true;
+        },
+      };
+      const SubredditRepository = {
+        push: async (id, obj) => {},
+        pull: async (id, obj) => {},
+        unSubscribe :async  () => {
+          return true;
+        },
+        isSubscribed:async  () => {
+          return true;
+        },
+      };
+      const userServices = new UserService({
+        UserRepository,SubredditRepository
+      });
+      const userId = "123d493c3ff67d626ec994f7";
+      const subredditId = "456d493c3ff67d626ec994f7";
+      let action = "unsub";
+      action = "unsub";
+      UserRepository.isSubscribed = async (userName) => true;
+      const subscribed = await userServices.subscribe(
+        userId,
+        subredditId,
+        action
+      );
+      expect(subscribed).to.equal(true);
     });
   });
   describe("addUserImageURL  ", () => {
@@ -2022,6 +2101,42 @@ describe("User Services Test", () => {
       const output = await userServiceObj.getFollowers(me);
       assert.equal(output.length, 1);
       assert.equal(output[0].userName, "mohamed");
+    });
+  });
+  describe("getPeopleUserKnows services Test", () => {
+    it("first test (success operation of database)", async () => {
+      let me = {
+        meUserRelationship: [
+          {
+            userId: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+            status: "followed",
+          },
+          {
+            userId: mongoose.Types.ObjectId("636e901bbc485bd111dd3881"),
+            status: "blocked",
+          },
+          {
+            userId: mongoose.Types.ObjectId("636e901bbc485bd111dd3882"),
+            status: "followed",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: mongoose.Types.ObjectId("636e901bbc485bd111dd3880"),
+            status: "followed",
+          },
+          {
+            userId: mongoose.Types.ObjectId("636e901bbc485bd111dd3882"),
+            status: "blocked",
+          },
+        ],
+      };
+      const userServiceObj = new UserService({
+        Email,
+      });
+      const output = await userServiceObj.getPeopleUserKnows(me);
+      // assert.equal(output.length, 1);
+      // assert.equal(output[0].userName, "mohamed");
     });
   });
 });
