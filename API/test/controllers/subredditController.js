@@ -707,6 +707,41 @@ describe("Subreddit Controller Test", () => {
       });
     });
     //********************************************** */
+
+    it("third test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          where: "subscriberr",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        subredditsIamIn: async (userId, location) => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.subredditsJoined(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: undefined,
+      });
+    });
   });
   // ! *************************************************************
   describe("/subreddits/moderator/{username} Test", () => {
@@ -773,6 +808,33 @@ describe("Subreddit Controller Test", () => {
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "Missing required parameter userName",
+      });
+    });
+
+    it("third test fail", async () => {
+      const req = {
+        params: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        subredditsModeratedBy: async (userName) => {
+          const response = {
+            success: false,
+            error:subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      await subredditController.subredditsModerated(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: undefined,
       });
     });
 
@@ -958,6 +1020,45 @@ describe("Subreddit Controller Test", () => {
       expect(res.status(404).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "Subreddit not found",
+      });
+    });
+
+    it("test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "subreddit",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "1",
+        },
+        body: {
+          permissions: {
+            all: false,
+            access: true,
+            config: true,
+            flair: false,
+            posts: false,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        inviteMod: async (subredditName, userId, modName, data) => {
+          return { success: false, error: userErrors.USER_IS_ALREADY_INVITED };
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.inviteModerator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user is already invited",
       });
     });
     // ==================================================
@@ -1784,6 +1885,55 @@ describe("Subreddit Controller Test", () => {
         errorMessage: "you are not moderator to preform this action",
       });
     });
+
+    it(" test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        updateModeratorSettings: async (
+          subredditName,
+          userId,
+          modName,
+          data
+        ) => {
+          const response = {
+            success: false,
+            error: subredditErrors.CANNOT_UPDATE,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.updatePermissions(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "cannot update mod higher than you in mod tree",
+      });
+    });
     // ***********************************************************************
 
     it("6th test fail", async () => {
@@ -2515,7 +2665,90 @@ describe("Subreddit Controller Test", () => {
         errorMessage: "Invalid Enum value [ban,unban]",
       });
     });
+
+    it("test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          action: "ban",
+          userName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          punish_type: "No Spoiler",
+          Note: "he is bad person",
+          punishReason: "not dowing his homework",
+          duration: 20,
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        banUnban: async (userId, subredditName, banedUser, action, data) => {
+          const response = {
+            success: false,
+            error:userErrors.USER_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.banSettings(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user not found",
+      });
+    });
     // ***********************************************************************
+
+    it("5th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          action: "ban",
+          userName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          punish_type: "No Spoiler",
+          Note: "he is bad person",
+          punishReason: "not dowing his homework",
+          duration: 20,
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        banUnban: async (userId, subredditName, banedUser, action, data) => {
+          const response = {
+            success: false,error:userErrors.MODERATOR
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.banSettings(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user is a moderator cant make this action",
+      });
+    });
 
     it("6th test success", async () => {
       const req = {
@@ -2738,7 +2971,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -2767,7 +3000,7 @@ describe("Subreddit Controller Test", () => {
         UserService,
       });
       // console.log(subredditController);
-      await subredditController.muteSettings(req, res);
+      await subredditController.muteSettings(req, res, next);
       expect(res.status).to.have.been.calledWith(200);
       expect(res.status(204).json).to.have.been.calledWith({});
     });
@@ -2775,7 +3008,7 @@ describe("Subreddit Controller Test", () => {
     it("2nd test success", async () => {
       const req = {
         params: {
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -2817,7 +3050,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
         },
         user: {
           _id: "10",
@@ -2917,7 +3150,7 @@ describe("Subreddit Controller Test", () => {
       const subredditService = {
         muteUnmute: async (userId, subredditName, banedUser, action, data) => {
           const response = {
-            success: true,
+            success: false,
           };
           return response;
         },
@@ -2941,7 +3174,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -2984,7 +3217,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -3021,13 +3254,12 @@ describe("Subreddit Controller Test", () => {
         errorMessage: "you are not moderator to preform this action",
       });
     });
-    // ***********************************************************************
 
-    it("8th test success", async () => {
+    it("7th test success", async () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -3046,7 +3278,7 @@ describe("Subreddit Controller Test", () => {
         muteUnmute: async (userId, subredditName, banedUser, action, data) => {
           const response = {
             success: false,
-            error: userErrors.ALREADY_BANED,
+            error: userErrors.MODERATOR,
           };
           return response;
         },
@@ -3061,7 +3293,50 @@ describe("Subreddit Controller Test", () => {
       expect(res.status).to.have.been.calledWith(400);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
-        errorMessage: "user is already banned",
+        errorMessage: "user is a moderator cant make this action",
+      });
+    });
+    // ***********************************************************************
+
+    it("8th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          action: "mute",
+          userName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          punish_type: "No Spoiler",
+          Note: "he is bad person",
+          punishReason: "not dowing his homework",
+          duration: 20,
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        muteUnmute: async (userId, subredditName, banedUser, action, data) => {
+          const response = {
+            success: false,
+            error: userErrors.ALREADY_MUTED,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.muteSettings(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user is already muted",
       });
     });
     // ***********************************************************************
@@ -3070,7 +3345,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -3089,7 +3364,7 @@ describe("Subreddit Controller Test", () => {
         muteUnmute: async (userId, subredditName, banedUser, action, data) => {
           const response = {
             success: false,
-            error: userErrors.Not_BANED,
+            error: userErrors.Not_MUTED,
           };
           return response;
         },
@@ -3104,7 +3379,7 @@ describe("Subreddit Controller Test", () => {
       expect(res.status).to.have.been.calledWith(400);
       expect(res.status(400).json).to.have.been.calledWith({
         status: "fail",
-        errorMessage: "user is not baned to unban",
+        errorMessage: "user is not muted to unmute",
       });
     });
     // ***********************************************************************
@@ -3113,7 +3388,7 @@ describe("Subreddit Controller Test", () => {
       const req = {
         params: {
           subredditName: "Subreddit name",
-          action: "ban",
+          action: "mute",
           userName: "khaled",
         },
         user: {
@@ -5721,5 +5996,725 @@ describe("Subreddit Controller Test", () => {
         errorMessage: undefined,
       });
     });
+  });
+
+  describe("deletemoderator Test", () => {
+    it("1st test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    // ***********************************************************************
+    it("2nd test fail", async () => {
+      const req = {
+        params: {
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+    });
+    // ***********************************************************************
+
+    it("test fail", async () => {
+      const req = {
+        params: {
+          moderatorName: "khaled",
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: false,
+            error: subredditErrors.CANNOT_DELETE,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "canot delete mod higher than you in mod tree",
+      });
+    });
+
+    it("3rd test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: true,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Missing required parameter moderatorName",
+      });
+    });
+    // ***********************************************************************
+
+    it("4th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Subreddit not found",
+      });
+    });
+    // ***********************************************************************
+
+    it("5th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName) => {
+          const response = {
+            success: false,
+            error: subredditErrors.NOT_MODERATOR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status(401).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "you are not moderator to preform this action",
+      });
+    });
+    // ***********************************************************************
+
+    it("6th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName, data) => {
+          const response = {
+            success: false,
+            error: userErrors.USER_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user not found",
+      });
+    });
+    // ***********************************************************************
+
+    it("7th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName, data) => {
+          const response = {
+            success: false,
+            error: userErrors.Not_MODERATOR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status(204).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "user is not a moderator",
+      });
+    });
+    // ***********************************************************************
+
+    it("8th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          moderatorName: "khaled",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {
+          permissions: {
+            all: true,
+            access: true,
+            config: true,
+            flair: true,
+            posts: true,
+          },
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        deleteMod: async (subredditName, userId, modName, data) => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.deletemoderator(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: undefined,
+      });
+    });
+    // ***********************************************************************
+  });
+
+  describe("getModerators Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        mods: async (subredditName) => {
+          const response = {
+            success: true,
+            data: { user: { _id: "10" }, morTime: "22/2/2020" },
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.getModerators(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        data: { user: { _id: "10" }, morTime: "22/2/2020" },
+      });
+    });
+    // ***********************************************************************
+    it("2nd test fail", async () => {
+      const req = {
+        params: {},
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        mods: async (subredditName) => {
+          const response = {
+            success: true,
+            data: { user: { _id: "10" }, morTime: "22/2/2020" },
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.getModerators(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Missing required parameter subredditName",
+      });
+    });
+    it("3rd test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        mods: async (subredditName) => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.getModerators(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Subreddit not found",
+      });
+    });
+    it("4th test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+      };
+      const UserService = {};
+      const subredditService = {
+        mods: async (subredditName) => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+      // console.log(subredditController);
+      await subredditController.getModerators(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: undefined,
+      });
+    });
+  });
+
+  describe("updateFlair Test", () => {
+    it("first test success", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          flairId: "10",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        updateFlair: async (subredditName, flairId, data, userId) => {
+          const response = {
+            success: true,
+            data: { _id: "10" },
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      await subredditController.updateFlair(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: { _id: "10" },
+      });
+    });
+    // ***********************************************************************
+    it("2nd test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        updateFlair: async (subredditName, flairId, data, userId) => {
+          const response = {};
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      await subredditController.updateFlair(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter",
+      });
+    });
+
+    it("3rd test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          flairId: "10",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        updateFlair: async (subredditName, flairId, data, userId) => {
+          const response = {
+            success: false,
+            error: subredditErrors.NOT_MODERATOR,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      await subredditController.updateFlair(req, res);
+      expect(res.status).to.have.been.calledWith(403);
+      expect(res.status(403).json).to.have.been.calledWith({
+        status: "Forbidden",
+        message: "Not a subreddit moderator",
+      });
+    });
+
+    it("4th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          flairId: "10",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        updateFlair: async (subredditName, flairId, data, userId) => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      await subredditController.updateFlair(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "Not Found",
+        message: "Subreddit not found",
+      });
+    });
+
+    it("5th test fail", async () => {
+      const req = {
+        params: {
+          subredditName: "Subreddit name",
+          flairId: "10",
+        },
+        user: {
+          _id: "10",
+          userName: "khaled hesham",
+        },
+        body: {},
+      };
+      const UserService = {};
+      const subredditService = {
+        updateFlair: async (subredditName, flairId, data, userId) => {
+          const response = {
+            success: false,
+            error: subredditErrors.FLAIR_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+
+      const subredditController = new SubredditController({
+        subredditService,
+        UserService,
+      });
+
+      await subredditController.updateFlair(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "Not Found",
+        message: "Flair not found",
+      });
+    });
+
+    // it("7th test fail", async () => {
+    //   const req = {
+    //     params: {
+    //       subredditName: "Subreddit name",
+    //       flairId: "10",
+    //     },
+    //     user: {
+    //       _id: "10",
+    //       userName: "khaled hesham",
+    //     },
+    //     body: {},
+    //   };
+    //   const UserService = {};
+    //   const subredditService = {
+    //     updateFlair: async (subredditName, flairId, data, userId) => {
+    //       const response = {
+    //         success: false,
+    //         error: subredditErrors.MONGO_ERR,
+    //       };
+    //       return response;
+    //     },
+    //   };
+
+    //   const subredditController = new SubredditController({
+    //     subredditService,
+    //     UserService,
+    //   });
+
+    //   await subredditController.updateFlair(req, res);
+    //   expect(res.status).to.have.been.calledWith(500);
+    //   expect(res.status(500).json).to.have.been.calledWith({
+    //     status: "fail",
+
+    //   });
+    // });
   });
 });
