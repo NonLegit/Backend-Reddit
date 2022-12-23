@@ -26,7 +26,7 @@ class MessageService {
             message.to
            
         );
-      console.log(userExisted);
+      
             if (!userExisted.success)
             return { success: false, error: userErrors.USER_NOT_FOUND };
         const messageToSend = await this.messageRepo.createMessage(userId,message,userExisted.doc._id);
@@ -39,11 +39,10 @@ class MessageService {
         return { success: true, data: messageToSend.doc };
   }
    async reply(userId,text,parentMessageId) {
-        //validate post ID
-     console.log("here");
+   
      let messageExisted = await this.messageRepo.findById(parentMessageId);
 
-     console.log(messageExisted);
+     
      if (!messageExisted.success) {
         return { success: false, error: messageErrors.MESSAGE_NOT_FOUND };
      }
@@ -52,7 +51,7 @@ class MessageService {
         }
         const messageToSend = await this.messageRepo.reply(userId,text,messageExisted.doc);
         if (!messageToSend.success) {
-          //  console.log(messageToSend.error);
+          
             return { success: false, error: messageToSend.error };
 
         }
@@ -87,6 +86,7 @@ class MessageService {
     }
     return { success: true, data: sentMessages.doc };
   }
+
    async getAllMessages(userId,query) {
     const allMessages = await this.messageRepo.getAllMessages(userId,query);
      //console.log(notifications);
