@@ -11,7 +11,7 @@ class subredditController {
     this.subredditServices = subredditService; // can be mocked in unit testing
     this.userServices = UserService;
   }
-  // TODO: service tests
+
   createSubreddit = async (req, res) => {
     let data = req.body;
     let userId = req.user._id;

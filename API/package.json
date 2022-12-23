@@ -21,8 +21,8 @@
       "API/scripts",
       "API/error_handling/*.js",
       "API/service/emailService.js",
-      "API/controllers/fileController.js"
-
+      "API/controllers/fileController.js",
+      "docs"
     ]
   },
   "scripts": {
