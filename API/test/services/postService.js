@@ -255,6 +255,378 @@ describe("Post service test", () => {
       expect(error).to.equal(postErrors.POST_NOT_FOUND);
     });
   });
+
+  describe("addVote function ", () => {
+    it("first test ", async () => {
+      let user = {
+        votePost: [
+          {
+            posts: "1",
+            postVoteStatus: 1,
+          },
+          {
+            posts: "2",
+            postVoteStatus: -1,
+          },
+          {
+            posts: "4",
+            postVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        postKarma: 0,
+        save: async () => {},
+      };
+      const PostRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.addVote(user, "2", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("second test", async () => {
+      let user = {
+        votePost: [
+          {
+            posts: "1",
+            postVoteStatus: 1,
+          },
+          {
+            posts: "2",
+            postVoteStatus: -1,
+          },
+          {
+            posts: "4",
+            postVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        postKarma: 0,
+        save: async () => {},
+      };
+      const PostRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.addVote(user, "5", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("thrid test ", async () => {
+      let user = {
+        votePost: [
+          {
+            posts: "1",
+            postVoteStatus: 1,
+          },
+          {
+            posts: "2",
+            postVoteStatus: -1,
+          },
+          {
+            posts: "4",
+            postVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        postKarma: 0,
+        save: async () => {},
+      };
+      const PostRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.addVote(user, "2", -1, 0, author);
+      expect(result).to.equal(false);
+    });
+
+    it("fourth test ", async () => {
+      let user = {
+        votePost: [
+          {
+            posts: "1",
+            postVoteStatus: 1,
+          },
+          {
+            posts: "2",
+            postVoteStatus: -1,
+          },
+          {
+            posts: "4",
+            postVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        postKarma: 0,
+        save: async () => {},
+      };
+      const PostRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.addVote(user, "1", 0, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("fifth test ", async () => {
+      let user = {
+        votePost: [
+          {
+            posts: "1",
+            postVoteStatus: 1,
+          },
+          {
+            posts: "2",
+            postVoteStatus: 0,
+          },
+          {
+            posts: "4",
+            postVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        postKarma: 0,
+        save: async () => {},
+      };
+      const PostRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.addVote(user, "2", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+  });
+
+  describe("savePost function ", () => {
+    it("first test ", async () => {
+      let user = {
+        saved: [
+          {
+            savedPost: "1",
+          },
+          {
+            savedPost: "2",
+          },
+          {
+            savedPost: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.savePost(user, "1");
+      expect(result).to.equal(false);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        saved: [
+          {
+            savedPost: "1",
+          },
+          {
+            savedPost: "2",
+          },
+          {
+            savedPost: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.savePost(user, "3");
+      expect(result).to.equal(true);
+    });
+  });
+
+  describe("unSavePost function ", () => {
+    it("first test ", async () => {
+      Array.prototype.pull = function (elem) {
+        var i = this.indexOf(elem);
+
+        if (i === -1)
+          //w  w w  . j a  v a  2s .  c  o  m
+          return;
+
+        return this.splice(i, 1);
+      };
+      let user = {
+        saved: [
+          {
+            savedPost: "1",
+          },
+          {
+            savedPost: "2",
+          },
+          {
+            savedPost: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.unSavePost(user, "1");
+      expect(result).to.equal(true);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        saved: [
+          {
+            savedPost: "1",
+          },
+          {
+            savedPost: "2",
+          },
+          {
+            savedPost: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.unSavePost(user, "3");
+      expect(result).to.equal(false);
+    });
+  });
+
+  describe("hidePost function ", () => {
+    it("first test ", async () => {
+      let user = {
+        hidden: ["1", "2", "4"],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.hidePost(user, "1");
+      expect(result).to.equal(false);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        hidden: ["1", "2", "4"],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.hidePost(user, "3");
+      expect(result).to.equal(true);
+    });
+  });
+
+  describe("unHidePost function ", () => {
+    it("first test ", async () => {
+      Array.prototype.pull = function (elem) {
+        var i = this.indexOf(elem);
+
+        if (i === -1)
+          //w  w w  . j a  v a  2s .  c  o  m
+          return;
+
+        return this.splice(i, 1);
+      };
+      let user = {
+        hidden: ["1", "2", "4"],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.unHidePost(user, "1");
+      expect(result).to.equal(true);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        hidden: ["1", "2", "4"],
+        save: async () => {},
+      };
+      const postservices = new PostService({});
+      const result = await postservices.unHidePost(user, "3");
+      expect(result).to.equal(false);
+    });
+  });
+
+  describe("filterPosts function ", () => {
+    it("first test ", async () => {
+      let user = {
+        hidden: ["1", "2", "4"],
+        save: async () => {},
+      };
+      posts = [
+        {
+          _id: "1",
+        },
+        {
+          _id: "2",
+        },
+        {
+          _id: "3",
+        },
+      ];
+      comments = [
+        {
+          _id: "1",
+        },
+        {
+          _id: "2",
+        },
+        {
+          _id: "3",
+        },
+      ];
+      const postservices = new PostService({});
+      const result = await postservices.filterPosts(posts, comments);
+      expect(result.length).to.equal(0);
+    });
+  });
+
+  describe("findPostById function ", () => {
+    it("first test ", async () => {
+      const PostRepository = {
+        getPostwithAuthor: async (data) => {
+          return { success: true, doc: [] };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.findPostById("1");
+      expect(result.success).to.equal(true);
+    });
+    it("second test ", async () => {
+      const PostRepository = {
+        getPostwithAuthor: async (data) => {
+          return { success: false, doc: [] };
+        },
+      };
+      const postservices = new PostService({ PostRepository });
+      const result = await postservices.findPostById("1");
+      expect(result.success).to.equal(false);
+    });
+  });
+
+
+
+  
+
+
+
   // describe("Testing get posts",()=>{
   //    it("1) test success", async () => {
   //     const PostRepository = {
@@ -264,9 +636,9 @@ describe("Post service test", () => {
   //           doc: [{
   //             _id: "636e901bbc485bd111dd3880",
   //             text: "first post"
-  //           }]        
+  //           }]
   //         };
-          
+
   //         return response;
   //       },
   //        getPosts: async(x,y) => {
@@ -275,9 +647,9 @@ describe("Post service test", () => {
   //           doc: [{
   //             _id: "636e901bbc485bd111dd3880",
   //             text: "first post"
-  //           }]        
+  //           }]
   //         };
-          
+
   //         return response;
   //       },
   //        getPosts: async(x,y) => {
@@ -286,9 +658,9 @@ describe("Post service test", () => {
   //           doc: [{
   //             _id: "636e901bbc485bd111dd3880",
   //             text: "first post"
-  //           }]        
+  //           }]
   //         };
-          
+
   //         return response;
   //       },
   //        getPosts: async(x,y) => {
@@ -297,9 +669,9 @@ describe("Post service test", () => {
   //           doc: [{
   //             _id: "636e901bbc485bd111dd3880",
   //             text: "first post"
-  //           }]        
+  //           }]
   //         };
-          
+
   //         return response;
   //       },
   //        getPosts: async(x,y) => {
@@ -308,21 +680,21 @@ describe("Post service test", () => {
   //           doc: [{
   //             _id: "636e901bbc485bd111dd3880",
   //             text: "first post"
-  //           }]        
+  //           }]
   //         };
-          
+
   //         return response;
   //       },
-        
+
   //     };
   //     const on = {};
   //     const subredditServiceObj = new SubredditService({  SubredditRepository,on, on});
   //     const subredditName = " ";
-      
+
   //     const result = await subredditServiceObj.getFlairs(subredditName);
   //     expect(result.success).to.equal(true);
   //     expect(result.data[0].text).to.equal( "first flair");
-      
+
   //   });
   // })
 });

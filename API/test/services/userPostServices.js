@@ -150,6 +150,18 @@ describe("User Post Test", () => {
         expect(posts.length).to.equal(1);
         expect(posts[0]["_id"]).to.equal("1");
       });
+      it("second test,", async () => {
+        posts = await postservices.getUserPosts("", "Hot");
+        //console.log(posts);
+        expect(posts.length).to.equal(1);
+        expect(posts[0]["_id"]).to.equal("1");
+      });
+      it("thrid test,", async () => {
+        posts = await postservices.getUserPosts("", "Top");
+        //console.log(posts);
+        expect(posts.length).to.equal(1);
+        expect(posts[0]["_id"]).to.equal("1");
+      });
     });
     describe("removehiddenposts function ", () => {
       const postservices = new PostService({});
@@ -273,7 +285,9 @@ describe("User Post Test", () => {
           hidden: ["1", "4"],
         };
         let user2 = {
-          hidden: ["10"],
+          hidden: [{
+            _id:"10"
+          }],
         };
         let posts = [
           {
@@ -330,6 +344,15 @@ describe("User Post Test", () => {
               _id: "1",
               userName: "ahmed",
             },
+            sharedFrom:{
+              _id: "10",
+              ownerType: "User",
+              owner: { _id: "1", userName: "ahmed" ,profilePicture:""},
+              author: {
+                _id: "1",
+                userName: "ahmed",
+              },
+            }
           },
           {
             _id: "3",
@@ -342,6 +365,15 @@ describe("User Post Test", () => {
               _id: "3",
               userName: "ahmed2",
             },
+            sharedFrom:{
+              _id: "11",
+              ownerType: "Subreddit",
+              owner: { _id: "1", fixedName: "ahmed" ,icon:""},
+              author: {
+                _id: "1",
+                userName: "ahmed",
+              },
+            }
           },
           {
             _id: "4",

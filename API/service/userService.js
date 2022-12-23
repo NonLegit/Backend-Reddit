@@ -49,7 +49,11 @@ class UserService {
     // this.isAvailable = this.isAvailable.bind(this);
     // this.subscribe = this.subscribe.bind(this);
   }
-
+  /**
+   * @property {Function} generateRandomPassword generate random password for user
+   * generate random password for user  if sign up with google or facebook
+   * @returns {string} - valid password to store in db
+   */
   generateRandomPassword() {
     var password = generator.generate({
       length: 10,
@@ -60,6 +64,12 @@ class UserService {
     console.log(password);
     return password;
   }
+  /**
+   * @property {Function} checkPasswordStrength check strength of password
+   * generate random password for user  if sign up with google or facebook
+   * @param {string} password - password to check it's strength
+   * @returns {string} - strength enum one of [Too weak,Weak,Medium,Strong]
+   */
   checkPasswordStrength(password) {
     return passwordStrength(password).value;
   }
@@ -233,6 +243,11 @@ class UserService {
       return response;
     }
   }
+  /**
+   * @property {Function} sendVerificationToken send verification mail to user
+   * @param {object} user - User object
+   * @returns {object} - response of sendVerificationToken contain status of services if successful sent or not
+   */
   async sendVerificationToken(user) {
     const verificationToken = user.createVerificationToken();
     user.emailVerified = false;
@@ -291,6 +306,13 @@ class UserService {
       return response;
     }
   }
+  /**
+   * @property {Function} changePassword store new password in database
+   * @param {object} user - User object
+   * @param {object} keepLoggedIn - keep other tokens valid
+   * @param {object} password - new password
+   * @returns {string} - User Token
+   */
   async changePassword(user, keepLoggedIn, password) {
     // let user = await this.userRepository.changekeepLoggedIn(
     //   userId,
@@ -302,6 +324,11 @@ class UserService {
     const token = this.createToken(user._id);
     return token;
   }
+  /**
+   * @property {Function} verifyEmailToken verify user email with verificationToken
+   * @param {object} verificationToken - verificationToken token
+   * @returns {object} - response object contain state of verification (success and verified or failed)
+   */
   async verifyEmailToken(verificationToken) {
     const hashedToken = crypto
       .createHash("sha256")
@@ -328,6 +355,11 @@ class UserService {
       return response;
     }
   }
+  /**
+   * @property {Function} deleteAccount soft delete user account
+   * @param {object} user - user object
+   * @returns {boolean} - true boolean
+   */
   async deleteAccount(user) {
     user.isDeleted = true;
     user.keepLoggedIn = false;
@@ -367,7 +399,11 @@ class UserService {
       return response;
     }
   }
-
+  /**
+   * @property {Function} getUserWithFollowers create user token
+   * @param {object} id - User Id to be stored in token
+   * @returns {object} - response object contains followers if success or error type in fail
+   */
   async getUserWithFollowers(id) {
     let user = await this.userRepository.findById(id, "", "");
     if (user.success === true) {
@@ -532,10 +568,22 @@ class UserService {
 
     return false;
   }
+  /**
+   * @property {Function} checkPassword check user password is same as in database
+   * @param {object} password - password entered by user
+   * @param {object} userName - UserName to check it's password
+   * @returns {boolean} - boolean indicate if correct password or not
+   */
   async checkPassword(password, userName) {
     let user = await this.userRepository.findByUserName(userName, "+password");
     return await user.doc.checkPassword(password, user.doc.password);
   }
+  /**
+   * @property {Function} updateUserEmail updateUserEmail
+   * @param {object} id - User Id
+   * @param {object} email - User new email to be stored in db
+   * @returns {object} - response indicate if successful update or user not found
+   */
   async updateUserEmail(id, email) {
     const user = await this.userRepository.updateEmailById(id, email);
     if (user.success === true) {
@@ -553,6 +601,12 @@ class UserService {
       return response;
     }
   }
+
+  /**
+   * @property {Function} checkResetTokenTime checkResetToken is valid and not expired
+   * @param {object} resetToken - resetToken
+   * @returns {object} - response indicate if resetToken valid or expired
+   */
   async checkResetTokenTime(resetToken) {
     const hashedToken = crypto
       .createHash("sha256")
@@ -575,6 +629,14 @@ class UserService {
       return response;
     }
   }
+
+  /**
+   * @property {Function} about return information about user
+   * check if user i followed him or  blocked by him inorder to return appropriate data
+   * @param {object} me - User object of requested user
+   * @param {object} user - User object of user to get its information
+   * @returns {object} - SearchUser data
+   */
   about(me, user) {
     const relation = me.meUserRelationship.find(
       (element) => element.userId.toString() === user._id.toString()
@@ -645,6 +707,14 @@ class UserService {
     }
     return searchUser;
   }
+
+  /**
+   * @property {Function} addUserImageURL add ImageURL to user
+   * @param {object} userId -userId to store path in
+   * @param {string} type - type of image (profilePicture or Background)
+   * @param {string} path - relative path of imagek
+   * @returns {object} - user object
+   */
   async addUserImageURL(userId, type, path) {
     //console.log(path);
     path = "users/" + path;
@@ -662,10 +732,22 @@ class UserService {
 
     return user.doc;
   }
+  /**
+   * @property {Function} getSocialLinks get list of available Social Media
+   * @returns {Array} - List of available Social Media
+   */
   async getSocialLinks() {
     let data = await this.SocialRepository.getAll();
     return data;
   }
+  /**
+   * @property {Function} createSocialLinks create social link to user with social media id
+   * @param {object} me -me object of database
+   * @param {string} socialId - id of  social media
+   * @param {string} displayText - display text of social link
+   * @param {string} userLink - valid social link of social media
+   * @returns {object} - object indicate if social link created successfully or max count reached
+   */
   async createSocialLinks(me, displayText, userLink, socialId) {
     // check if social id is valid
     //console.log(me.socialLinks.length);
@@ -707,6 +789,15 @@ class UserService {
       }
     }
   }
+
+  /**
+   * @property {Function} updateSocialLinks update social link of user by id
+   * @param {object} me -me object of database
+   * @param {string} id - id of user social link
+   * @param {string} displayText - display text of social link
+   * @param {string} userLink - valid social link of social media
+   * @returns {object} - boolean indicate if social link deleted successfully or not
+   */
   async updateSocialLinks(me, id, userLink, displayText) {
     let index = me.socialLinks.findIndex((item) => item._id.toString() == id);
     if (index != -1) {
@@ -734,6 +825,12 @@ class UserService {
       return { success: false };
     }
   }
+  /**
+   * @property {Function} deleteSocialLinks delete social link of user by id
+   * @param {object} me -me object of database
+   * @param {object} id - id of user social link
+   * @returns {object} - boolean indicate if social link deleted successfully or not
+   */
   async deleteSocialLinks(me, id) {
     let index = me.socialLinks.findIndex((item) => item._id == id);
     if (index != -1) {
@@ -758,6 +855,11 @@ class UserService {
       return { success: false };
     }
   }
+  /**
+   * @property {Function} replaceProfile remove changes done to doc to keep user in valid state
+   * @param {object} doc -user object of database
+   * @returns {object} - doc to save later
+   */
   replaceProfile(doc) {
     let profileBackground = doc.profileBackground;
     let profilePicture = doc.profilePicture;
@@ -771,6 +873,12 @@ class UserService {
     );
     return doc;
   }
+  /**
+   * @property {Function} checkBlockStatus check if other User blocked me or not
+   * @param {object} me -me object of database
+   * @param {object} otherUser - user object  of database
+   * @returns {object} - boolean indicate if user blocked me or not
+   */
   async checkBlockStatus(me, otherUser) {
     const index = otherUser.meUserRelationship.findIndex((element) => {
       return element.userId.toString() == me._id.toString();
@@ -784,6 +892,15 @@ class UserService {
     }
     return false;
   }
+  /**
+   * @property {Function} blockUser block User
+   * check if user is in blocked users
+   * if no add it to blocked list
+   * if yes return
+   * @param {object} me -me object of database
+   * @param {object} otherUser - user object  of database
+   * @returns {object} - boolean indicate if blocked successfully
+   */
   async blockUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
@@ -824,6 +941,15 @@ class UserService {
     await me.save();
     return true;
   }
+  /**
+   * @property {Function} unBlockUser unBlock user
+   * check if user is in blocked users
+   * if yes mark its state to none
+   * if no return true
+   * @param {object} me -me object of database
+   * @param {object} otherUser - user object  of database
+   * @returns {object} - boolean indicate if unblocked successfully
+   */
   async unBlockUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
@@ -859,7 +985,15 @@ class UserService {
     }
     return { success: true, data: token.doc };
   }
-
+  /**
+   * @property {Function} followUser uollow user
+   * check if user is in followed users
+   * if no mark its state to follow and return false
+   * if yse return true
+   * @param {object} me -me object of database
+   * @param {object} otherUser - user object  of database
+   * @returns {object} - boolean indicate if followed him or he is already followed
+   */
   async followUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
@@ -895,6 +1029,15 @@ class UserService {
     await me.save();
     return isAlreadyFollowed;
   }
+  /**
+   * @property {Function} unfollowUser unfollow user
+   * check if user is in followed users
+   * if yes mark its state to none and return false
+   * if no return true
+   * @param {object} me -me object of database
+   * @param {object} otherUser - user object  of database
+   * @returns {object} - boolean indicate if unfollowed him or he is already unfollowed
+   */
   async unfollowUser(me, otherUser) {
     this.replaceProfile(me);
     this.replaceProfile(otherUser);
@@ -918,6 +1061,11 @@ class UserService {
     await me.save();
     return isAlreadyUnfollowed;
   }
+  /**
+   * @property {Function} getBlockedUsers get Blocked users by me
+   * @param {object} user - user object
+   * @returns {Array} - List of Blocked Users
+   */
   async getBlockedUsers(user) {
     let users = await this.userRepository.getBlocked(user);
     let blocked = [];
@@ -935,6 +1083,11 @@ class UserService {
     });
     return blocked;
   }
+  /**
+   * @property {Function} getFollowers get myFollowers and state indicate if followed them too
+   * @param {object} me - me object to search for isFollowed status for each follower
+   * @returns {Array} - List of Followers data
+   */
   async getFollowers(me) {
     let users = await this.userRepository.getFollowers(me);
     let followers = [];
@@ -978,6 +1131,12 @@ class UserService {
     return { people: people, blocked: blockedTwoWay };
     // return people;
   }
+  /**
+   * @property {Function} isFollowed check if i followd user or not
+   * @param {object} me - me object to search in meUserRelationShip stored in it
+   * @param {string} userId - User Id to be stored in token
+   * @returns {boolean} - boolean indicate if i followd user or not
+   */
   isFollowed(me, userId) {
     const relation = me.meUserRelationship.find(
       (element) => element.userId.toString() === userId.toString()

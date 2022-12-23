@@ -470,6 +470,19 @@ describe("User Controller Test", () => {
         },
       });
     });
+    it("fourth test success", async () => {
+      const req = {
+        params: {},
+      };
+      const UserService = {};
+      const userController = new UserController({ UserService });
+      await userController.about(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Provide userName ",
+      });
+    });
   });
 
   describe("UsernameAvailable Test", () => {
@@ -1193,9 +1206,447 @@ describe("User Controller Test", () => {
       });
     });
   });
+
+  describe("followUser Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        followUser: async (me, data) => {
+          return false;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.followUser(req, res, () => {});
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        followUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.followUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("thrid test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: false,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        followUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.followUser(req, res, () => {});
+      expect(res.status).to.have.been.calledWith(304);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("fourth test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        followUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.followUser(req, res, () => {});
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+    it("fifth test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "2",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        followUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.followUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Try Unfollowing yourself",
+      });
+    });
+  });
+
+  describe("unfollowUser Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        unfollowUser: async (me, data) => {
+          return false;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unfollowUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return true;
+          }
+        },
+        unfollowUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unfollowUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("thrid test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: false,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: true,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (!me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        unfollowUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unfollowUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(304);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("fourth test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "1",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        unfollowUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unfollowUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
+      });
+    });
+    it("fifth test fail", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+        params: {
+          userName: "2",
+        },
+      };
+      const UserService = {
+        getUserByName: async (data) => {
+          let response = {
+            success: false,
+            data: {
+              test: true,
+            },
+          };
+          return response;
+        },
+        checkBlockStatus: async (me, data) => {
+          if (me.test) {
+            return true;
+          } else {
+            return false;
+          }
+        },
+        unfollowUser: async (me, data) => {
+          return true;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.unfollowUser(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Try Unfollowing yourself",
+      });
+    });
+  });
+
+  describe("blockedUsers Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+      };
+      const UserService = {
+        getBlockedUsers: async (data) => {
+          let response = [];
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.blockedUsers(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        blocked: [],
+      });
+    });
+  });
+  describe("myFollowers Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          userName: "2",
+          test: true,
+        },
+      };
+      const UserService = {
+        getFollowers: async (data) => {
+          let response = [];
+          return response;
+        },
+      };
+      const userController = new UserController({ UserService });
+      await userController.myFollowers(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        followers: [],
+      });
+    });
+  });
 });
 
-// describe("User Controller Test", () => {
 //   describe("get preferences Test", () => {
 //     it("first test success", (done) => {
 //       seeder().then(() => {

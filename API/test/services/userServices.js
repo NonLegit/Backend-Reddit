@@ -12,6 +12,9 @@ const Email = {
   sendUserName: async (user) => {
     return true;
   },
+  sendVerificationMail: async (user) => {
+    return true;
+  },
 };
 describe("Authentication Test", () => {
   describe("Sign-up services Test", () => {
@@ -260,10 +263,11 @@ describe("Authentication Test", () => {
     });
     it("thrid test(fail operation of database)", async () => {
       const UserRepository = {
-        getOne: (userData) => {
+        findByEmailAndUserName: (userData) => {
           const response = {
             success: false,
             error: mongoErrors.NOT_FOUND,
+            msg: "",
           };
           return response;
         },
@@ -274,7 +278,7 @@ describe("Authentication Test", () => {
       });
       const output = await userServiceObj.forgotPassword("", "");
       assert.equal(output.success, false);
-      assert.notEqual(output.error, userErrors.USER_NOT_FOUND);
+      assert.equal(output.error, userErrors.USER_NOT_FOUND);
     });
   });
   describe("reset-password services Test", () => {
@@ -415,7 +419,7 @@ describe("User Services Test", () => {
     });
     const userId = "123d493c3ff67d626ec994f7";
     const subredditId = "456d493c3ff67d626ec994f7";
-    let action = "sub"
+    let action = "sub";
     // it("subscribe(success)", async () => {
     //   action = "sub"
     //   UserRepository.isSubscribed = async (userName) => false
@@ -423,9 +427,13 @@ describe("User Services Test", () => {
     //   expect(subscribed).to.equal(true);
     // });
     it("subscribe(fail)", async () => {
-      action = "sub"
-      UserRepository.isSubscribed = async (userName) => true
-      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      action = "sub";
+      UserRepository.isSubscribed = async (userName) => true;
+      const subscribed = await userServices.subscribe(
+        userId,
+        subredditId,
+        action
+      );
       expect(subscribed).to.equal(false);
     });
     // it("unsubscribe(success)", async () => {
@@ -435,14 +443,22 @@ describe("User Services Test", () => {
     //   expect(subscribed).to.equal(true);
     // });
     it("unsubscribe(fail)", async () => {
-      action = "unsub"
-      UserRepository.isSubscribed = async (userName) => false
-      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      action = "unsub";
+      UserRepository.isSubscribed = async (userName) => false;
+      const subscribed = await userServices.subscribe(
+        userId,
+        subredditId,
+        action
+      );
       expect(subscribed).to.equal(false);
     });
     it("invalid action", async () => {
-      action = "not a valid action"
-      const subscribed = await userServices.subscribe(userId, subredditId, action);
+      action = "not a valid action";
+      const subscribed = await userServices.subscribe(
+        userId,
+        subredditId,
+        action
+      );
       expect(subscribed).to.equal(false);
     });
   });
@@ -657,7 +673,7 @@ describe("User Services Test", () => {
           return true;
         },
       };
-      let result = await userServiceObj.updateSocialLinks(me, "2");
+      let result = await userServiceObj.updateSocialLinks(me, "2", true, true);
       assert.equal(result.success, true);
     });
     it("test should be success", async () => {
@@ -682,7 +698,7 @@ describe("User Services Test", () => {
           return true;
         },
       };
-      let result = await userServiceObj.updateSocialLinks(me, "5");
+      let result = await userServiceObj.updateSocialLinks(me, "5", true, true);
       assert.equal(result.success, false);
     });
   });
@@ -842,7 +858,6 @@ describe("User Services Test", () => {
       assert.equal(result, true);
     });
   });
-
 
   // block user
 
@@ -1021,7 +1036,6 @@ describe("User Services Test", () => {
       assert.equal(other.userMeRelationship[0].status, "none");
     });
   });
-
 
   // follow user
 
@@ -1237,4 +1251,777 @@ describe("User Services Test", () => {
     });
   });
 
+  describe("generateRandomPassword  ", () => {
+    it("test should be success", () => {
+      const userServiceObj = new UserService({});
+      let result = userServiceObj.generateRandomPassword();
+      assert.notEqual(result, false);
+    });
+  });
+  describe("checkPasswordStrength  ", () => {
+    it("test should be success", () => {
+      const userServiceObj = new UserService({});
+      let result = userServiceObj.checkPasswordStrength("Aa123456*");
+      assert.equal(result, "Medium");
+    });
+  });
+
+  describe("sendVerificationToken  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({ Email });
+      let user = {
+        profileBackground: "",
+        profilePicture: "",
+        createVerificationToken: () => {
+          return "token";
+        },
+        save: async () => {
+          return true;
+        },
+      };
+
+      let result = await userServiceObj.sendVerificationToken(user);
+      assert.equal(result.success, true);
+    });
+
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let user = {
+        profileBackground: "",
+        profilePicture: "",
+        createVerificationToken: () => {
+          return "token";
+        },
+        save: async () => {
+          return true;
+        },
+      };
+
+      let result = await userServiceObj.sendVerificationToken(user);
+      assert.equal(result.success, false);
+    });
+  });
+
+  describe("changePassword  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let user = {
+        _id: "1",
+        save: async () => {
+          return true;
+        },
+      };
+
+      let result = await userServiceObj.changePassword(user);
+      assert.notEqual(result, false);
+    });
+  });
+  describe("deleteAccount  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      let user = {
+        _id: "1",
+        save: async () => {
+          return true;
+        },
+      };
+
+      let result = await userServiceObj.deleteAccount(user);
+      assert.equal(result, true);
+    });
+  });
+  describe("decodeToken  ", () => {
+    it("test should be success", async () => {
+      const userServiceObj = new UserService({});
+      token = userServiceObj.createToken("1");
+      let result = await userServiceObj.decodeToken(token);
+      assert.notEqual(result, false);
+    });
+  });
+  describe("verifyEmailToken services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findByVerificationToken: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.verifyEmailToken("ahmed");
+      assert.equal(output.success, true);
+      assert.notEqual(output.token, false);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findByVerificationToken: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.verifyEmailToken("token");
+      assert.equal(output.success, false);
+      assert.equal(output.error, userErrors.INVALID_RESET_TOKEN);
+    });
+  });
+
+  describe("getUser services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findById: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUser("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findById: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUser("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("getUserWithFollowers services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findById: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserWithFollowers("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findById: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserWithFollowers("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("getUserByEmail services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findByEmail: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserByEmail("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findByEmail: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserByEmail("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("getUserByName services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findByUserName: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserByName("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findByUserName: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getUserByName("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("checkPassword  ", () => {
+    it("test should be success", async () => {
+      const UserRepository = {
+        findByUserName: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              checkPassword: async () => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({ UserRepository });
+      let result = await userServiceObj.checkPassword(token);
+      assert.equal(result, true);
+    });
+  });
+
+  describe("updateUserEmail services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        updateEmailById: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.updateUserEmail("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        updateEmailById: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.updateUserEmail("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("checkResetTokenTime services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        findByResetPassword: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.checkResetTokenTime("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        findByResetPassword: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.checkResetTokenTime("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("about services Test", () => {
+    it("first test (success operation of database)", async () => {
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        _id: "2",
+        userName: "",
+        profilePicture: "",
+        profileBackground: "",
+        canbeFollowed: 0,
+        followersCount: 0,
+        friendsCount: 0,
+        gender: "",
+        displayName: "",
+        postKarma: 0,
+        commentKarma: 0,
+        description: "",
+        createdAt: "",
+        nsfw: true,
+        autoplayMedia: true,
+        adultContent: true,
+        isFollowed: true,
+        country: "",
+        socialLinks: [],
+        isBlocked: false,
+      };
+
+      const userServiceObj = new UserService({});
+      const output = await userServiceObj.about(me, other);
+      assert.equal(output.profileBackground, "");
+      assert.equal(output.isBlocked, false);
+      assert.equal(output.isFollowed, true);
+    });
+    it("second test success", async () => {
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: "2",
+            status: "blocked",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        _id: "2",
+        userName: "",
+        profilePicture: `${process.env.BACKDOMAIN}/users/default.png`,
+        profileBackground: `${process.env.BACKDOMAIN}/users/defaultcover.png`,
+        canbeFollowed: 0,
+        followersCount: 0,
+        friendsCount: 0,
+        gender: "",
+        displayName: "",
+        postKarma: 0,
+        commentKarma: 0,
+        description: "",
+        createdAt: "",
+        nsfw: true,
+        autoplayMedia: true,
+        adultContent: true,
+        isFollowed: false,
+        country: "",
+        socialLinks: [],
+        isBlocked: true,
+      };
+
+      const userServiceObj = new UserService({});
+      const output = await userServiceObj.about(me, other);
+      assert.equal(
+        output.profileBackground,
+        `${process.env.BACKDOMAIN}/users/defaultcover.png`
+      );
+      assert.equal(output.isBlocked, false);
+      assert.equal(output.isFollowed, false);
+    });
+    it("thrid test (success operation of database)", async () => {
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "blocked",
+          },
+          {
+            userId: "3",
+            status: "blocked",
+          },
+        ],
+        userMeRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+        ],
+        _id: "1",
+        profileBackground: "",
+        profilePicture: "",
+        save: async () => {
+          return true;
+        },
+      };
+      let other = {
+        _id: "2",
+        userName: "",
+        profilePicture: "",
+        profileBackground: "",
+        canbeFollowed: 0,
+        followersCount: 0,
+        friendsCount: 0,
+        gender: "",
+        displayName: "",
+        postKarma: 0,
+        commentKarma: 0,
+        description: "",
+        createdAt: "",
+        nsfw: true,
+        autoplayMedia: true,
+        adultContent: true,
+        isFollowed: false,
+        country: "",
+        socialLinks: [],
+        isBlocked: true,
+      };
+
+      const userServiceObj = new UserService({});
+      const output = await userServiceObj.about(me, other);
+      assert.equal(output.profileBackground, "");
+      assert.equal(output.isBlocked, true);
+      assert.equal(output.isFollowed, false);
+    });
+  });
+
+  describe("saveFirebaseToken services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        addTokenToUser: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.saveFirebaseToken("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        addTokenToUser: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.saveFirebaseToken("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("getFirebaseToken services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        getFirebaseToken: (userData) => {
+          const response = {
+            success: true,
+            doc: {
+              _id: "1",
+              password: "Aa1234*",
+              profileBackground: "",
+              profilePicture: "",
+              save: async (data1, data2) => {
+                return true;
+              },
+            },
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getFirebaseToken("ahmed");
+      assert.equal(output.success, true);
+    });
+    it("second test success", async () => {
+      const UserRepository = {
+        getFirebaseToken: (userData) => {
+          const response = {
+            success: false,
+            error: mongoErrors.NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getFirebaseToken("token");
+      assert.equal(output.success, false);
+    });
+  });
+
+  describe("getBlockedUsers services Test", () => {
+    it("first test (success operation of database)", async () => {
+      const UserRepository = {
+        getBlocked: (userData) => {
+          const users = [
+            {
+              status: "blocked",
+              userId: {
+                _id: "1",
+                profileBackground: "",
+                profilePicture: "",
+                userName: "ahmed",
+                postKarma: 0,
+                commentKarma: 0,
+              },
+            },
+            {
+              status: "followed",
+              userId: {
+                _id: "2",
+                profileBackground: "",
+                profilePicture: "",
+                userName: "mohamed",
+                postKarma: 0,
+                commentKarma: 0,
+              },
+            },
+          ];
+
+          return users;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getBlockedUsers("ahmed");
+      assert.equal(output.length, 1);
+      assert.equal(output[0].userName, "ahmed");
+    });
+  });
+  describe("getFollowers services Test", () => {
+    it("first test (success operation of database)", async () => {
+      let me = {
+        meUserRelationship: [
+          {
+            userId: "2",
+            status: "followed",
+          },
+        ],
+      };
+      const UserRepository = {
+        getFollowers: (userData) => {
+          const users = [
+            {
+              status: "blocked",
+              userId: {
+                _id: "1",
+                profileBackground: "",
+                profilePicture: "",
+                userName: "ahmed",
+                postKarma: 0,
+                commentKarma: 0,
+              },
+            },
+            {
+              status: "followed",
+              userId: {
+                _id: "2",
+                profileBackground: "",
+                profilePicture: "",
+                userName: "mohamed",
+                postKarma: 0,
+                commentKarma: 0,
+              },
+            },
+          ];
+
+          return users;
+        },
+      };
+      const userServiceObj = new UserService({
+        UserRepository,
+        Email,
+      });
+      const output = await userServiceObj.getFollowers(me);
+      assert.equal(output.length, 1);
+      assert.equal(output[0].userName, "mohamed");
+    });
+  });
 });
