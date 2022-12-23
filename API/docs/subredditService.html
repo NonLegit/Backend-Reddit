@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>subredditService<span class="signature">(subreddit, flair, user, subredditRepository, flairRepository, userRepository)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>subredditService<span class="signature">(subredditRepository, flairRepository, userRepository)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>this class is used for implementing Subreddit Service functions</p></div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="subredditService"><span class="type-signature"></span>new subredditService<span class="signature">(subreddit, flair, user, subredditRepository, flairRepository, userRepository)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="subredditService"><span class="type-signature"></span>new subredditService<span class="signature">(subredditRepository, flairRepository, userRepository)</span><span class="type-signature"></span></h4>
     
 
     
@@ -85,82 +85,13 @@
 
         <tr>
             
-                <td class="name"><code>subreddit</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Model</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>subreddit Data Model</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>flair</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Model</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>flair Data Model</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>user</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Model</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>user Data Model</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
                 <td class="name"><code>subredditRepository</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">Repository</span>
+<span class="param-type"><a href="Repository.html">Repository</a></span>
 
 
             
@@ -183,7 +114,7 @@
             <td class="type">
             
                 
-<span class="param-type">Repository</span>
+<span class="param-type"><a href="Repository.html">Repository</a></span>
 
 
             
@@ -206,7 +137,7 @@
             <td class="type">
             
                 
-<span class="param-type">Repository</span>
+<span class="param-type"><a href="Repository.html">Repository</a></span>
 
 
             
@@ -257,7 +188,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line10">line 10</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line15">line 15</a>
     </li></ul></dd>
     
 
@@ -433,7 +364,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line786">line 786</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1406">line 1406</a>
     </li></ul></dd>
     
 
@@ -463,184 +394,6 @@
         
 <div class="param-desc">
     <p>the subreddit object if the flair exists and an error obj if not</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="checkModerator"><span class="type-signature"></span>checkModerator<span class="signature">(subreddit, userID)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>subreddit</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>subreddit object</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>userID</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>id of the moderaror to check whether it exists in the subreddit</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line807">line 807</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>subreddit object if the moderator exists within it and an error obj if not</p>
 </div>
 
 
@@ -766,7 +519,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line753">line 753</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1385">line 1385</a>
     </li></ul></dd>
     
 
@@ -967,7 +720,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line703">line 703</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1337">line 1337</a>
     </li></ul></dd>
     
 
@@ -1025,7 +778,7 @@
     
 
     
-    <h4 class="name" id="createSubreddit"><span class="type-signature">(async) </span>createSubreddit<span class="signature">(data)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="createSubreddit"><span class="type-signature">(async) </span>createSubreddit<span class="signature">(data, userName, profilePicture)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -1089,6 +842,52 @@
         </tr>
 
     
+
+        <tr>
+            
+                <td class="name"><code>userName</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>username of currently logged user</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>profilePicture</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>profile picture of currently logged user</p></td>
+        </tr>
+
+    
     </tbody>
 </table>
 
@@ -1126,7 +925,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line55">line 55</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line36">line 36</a>
     </li></ul></dd>
     
 
@@ -1329,7 +1128,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line874">line 874</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1464">line 1464</a>
     </li></ul></dd>
     
 
@@ -1534,7 +1333,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line308">line 308</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -1580,7 +1379,7 @@
     
 
     
-    <h4 class="name" id="deleteSubreddit"><span class="type-signature">(async) </span>deleteSubreddit<span class="signature">(filter, options)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="deleteSubreddit"><span class="type-signature">(async) </span>deleteSubreddit<span class="signature">(subredditName, userId)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -1588,7 +1387,7 @@
 
 
 <div class="description">
-    <p>delete subreddit service function</p>
+    <p>This function deletes the subreddit</p>
 </div>
 
 
@@ -1624,13 +1423,13 @@
 
         <tr>
             
-                <td class="name"><code>filter</code></td>
+                <td class="name"><code>subredditName</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">String</span>
 
 
             
@@ -1647,13 +1446,13 @@
 
         <tr>
             
-                <td class="name"><code>options</code></td>
+                <td class="name"><code>userId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">String</span>
 
 
             
@@ -1704,7 +1503,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line85">line 85</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line76">line 76</a>
     </li></ul></dd>
     
 
@@ -1911,7 +1710,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line429">line 429</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line381">line 381</a>
     </li></ul></dd>
     
 
@@ -2091,7 +1890,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line922">line 922</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1498">line 1498</a>
     </li></ul></dd>
     
 
@@ -2246,7 +2045,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line951">line 951</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1519">line 1519</a>
     </li></ul></dd>
     
 
@@ -2276,167 +2075,6 @@
         
 <div class="param-desc">
     <p>object containing all flairs if subreddit exists and an error object if not</p>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Object</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="getSubreddit"><span class="type-signature">(async) </span>getSubreddit<span class="signature">(query)</span><span class="type-signature"> &rarr; {Object}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>retrieve a subreddit from database service function</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>query</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>a query to select a certain subreddit from database</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line131">line 131</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <ul>
-<li>a response containing the retrieved subreddit</li>
-</ul>
 </div>
 
 
@@ -2635,7 +2273,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line201">line 201</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line146">line 146</a>
     </li></ul></dd>
     
 
@@ -2693,7 +2331,7 @@
     
 
     
-    <h4 class="name" id="isBanned"><span class="type-signature">(async) </span>isBanned<span class="signature">(subredditId, userId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="retrieveSubreddit"><span class="type-signature">(async) </span>retrieveSubreddit<span class="signature">(name)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -2701,7 +2339,7 @@
 
 
 <div class="description">
-    <p>Checks if a user is banned from a given a subreddit</p>
+    <p>retrieve a subreddit from database service function</p>
 </div>
 
 
@@ -2737,13 +2375,13 @@
 
         <tr>
             
-                <td class="name"><code>subredditId</code></td>
+                <td class="name"><code>name</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">object</span>
 
 
             
@@ -2753,30 +2391,7 @@
 
             
 
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>userId</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
+            <td class="description last"><p>a query to select a certain subreddit from database</p></td>
         </tr>
 
     
@@ -2817,185 +2432,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line983">line 983</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="isModerator"><span class="type-signature">(async) </span>isModerator<span class="signature">(subredditName, userID)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>this function checks if user is moderator or not by passing @subredditName and @iD</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>subredditName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of subreddit i want to check from</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>userID</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>iD if the user i want to check</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line153">line 153</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line122">line 122</a>
     </li></ul></dd>
     
 
@@ -3025,7 +2462,7 @@
         
 <div class="param-desc">
     <ul>
-<li>a boolean true or false,</li>
+<li>a response containing the retrieved subreddit</li>
 </ul>
 </div>
 
@@ -3037,191 +2474,7 @@
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="isOwner"><span class="type-signature">(async) </span>isOwner<span class="signature">(subredditName, userID)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>this function checks if user is owner or not by passing @subredditName and @iD</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>subredditName</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>name of subreddit i want to check from</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>userID</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>iD if the user i want to check</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line176">line 176</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <ul>
-<li>a boolean true or false,</li>
-</ul>
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
+<span class="param-type">Object</span>
 
 
     </dd>
@@ -3363,7 +2616,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line467">line 467</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line420">line 420</a>
     </li></ul></dd>
     
 
@@ -3406,6 +2659,184 @@
     <dd>
         
 <span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="subscriable"><span class="type-signature">(async) </span>subscriable<span class="signature">(subredditId, userId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Checks if a user is banned from a given a subreddit</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>subredditId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1539">line 1539</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -3589,7 +3020,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line835">line 835</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line1435">line 1435</a>
     </li></ul></dd>
     
 
@@ -3817,7 +3248,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line526">line 526</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line479">line 479</a>
     </li></ul></dd>
     
 
@@ -3875,7 +3306,7 @@
     
 
     
-    <h4 class="name" id="updateSubreddit"><span class="type-signature">(async) </span>updateSubreddit<span class="signature">(filter, data)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    <h4 class="name" id="updateSubreddit"><span class="type-signature">(async) </span>updateSubreddit<span class="signature">(subredditName, userId, data)</span><span class="type-signature"> &rarr; {Object}</span></h4>
     
 
     
@@ -3883,7 +3314,7 @@
 
 
 <div class="description">
-    <p>Update the subreddit service function</p>
+    <p>this function Updates the subreddit</p>
 </div>
 
 
@@ -3919,13 +3350,13 @@
 
         <tr>
             
-                <td class="name"><code>filter</code></td>
+                <td class="name"><code>subredditName</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">String</span>
 
 
             
@@ -3935,7 +3366,34 @@
 
             
 
-            <td class="description last"><p>query filters to select a spacefic document in database or a spacific attribute</p></td>
+            <td class="description last"><ul>
+<li></li>
+</ul></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><ul>
+<li></li>
+</ul></td>
         </tr>
 
     
@@ -3999,7 +3457,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line108">line 108</a>
+        <a href="service_subredditService.js.html">service/subredditService.js</a>, <a href="service_subredditService.js.html#line98">line 98</a>
     </li></ul></dd>
     
 
@@ -4069,13 +3527,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="FileController.html">FileController</a></li><li><a href="MessageService.html">MessageService</a></li><li><a href="NotificationService.html">NotificationService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Nov 12 2022 23:28:40 GMT+0200 (Eastern European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Fri Dec 23 2022 23:49:17 GMT+0200 (Eastern European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
