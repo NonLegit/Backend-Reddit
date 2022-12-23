@@ -144,7 +144,7 @@ class UserController {
       let user = await this.userServices.getUserByName(userName, "");
       // get id of user with its name
       if (user.success !== false) {
-        let searchUser = this.userServices.about(me,user.data);
+        let searchUser = this.userServices.about(me, user.data);
         console.log(searchUser);
         res.status(200).json({
           status: "success",
@@ -158,6 +158,14 @@ class UserController {
       }
     }
   };
+
+  /**
+   * @property {Function} getSocialLinks get social media links to choose from
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   getSocialLinks = async (req, res, next) => {
     let data = await this.userServices.getSocialLinks();
 
@@ -166,6 +174,13 @@ class UserController {
       socialLinks: data,
     });
   };
+  /**
+   * @property {Function} addSocialLink add user social link which belong to social media
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   addSocialLink = async (req, res, next) => {
     let displayText = req.body.displayText;
     let userLink = req.body.userLink;
@@ -207,6 +222,13 @@ class UserController {
     }
   };
 
+  /**
+   * @property {Function} updateSocialLink update SocialLink of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   updateSocialLink = async (req, res, next) => {
     let displayText = req.body.displayText;
     let userLink = req.body.userLink;
@@ -237,6 +259,13 @@ class UserController {
       }
     }
   };
+  /**
+   * @property {Function} deleteSocialLink  delete SocialLink of user
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   deleteSocialLink = async (req, res, next) => {
     let id = req.params.id;
     let me = req.user;
@@ -257,6 +286,13 @@ class UserController {
   // should i check that the user i want to block has block me ?
   // assume Yes
   // check that user who to block not me
+  /**
+   * @property {Function} blockUser block users
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   blockUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
@@ -305,6 +341,14 @@ class UserController {
       });
     }
   };
+
+  /**
+   * @property {Function} unBlockUser unBlock users
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   unBlockUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
@@ -352,6 +396,15 @@ class UserController {
       });
     }
   };
+
+  /**
+   * @property {Function} followUser follow users
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
+
   followUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
@@ -411,6 +464,14 @@ class UserController {
       });
     }
   };
+
+  /**
+   * @property {Function} unfollowUser unfollow users
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   unfollowUser = async (req, res, next) => {
     let userName = req.params.userName;
     let me = req.user;
@@ -469,6 +530,13 @@ class UserController {
       });
     }
   };
+  /**
+   * @property {Function} blockedUsers get user blocked users by him
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   blockedUsers = async (req, res, next) => {
     const me = req.user;
     const blockedUsers = await this.userServices.getBlockedUsers(me);
@@ -478,6 +546,13 @@ class UserController {
       blocked: blockedUsers,
     });
   };
+  /**
+   * @property {Function} myFollowers get user followers
+   * @param {object} req - request object sent by client
+   * @param {object} res - response to client
+   * @param {Function} next -  function to execute next middleware
+   * @returns void
+   */
   myFollowers = async (req, res, next) => {
     const me = req.user;
     const followers = await this.userServices.getFollowers(me);
