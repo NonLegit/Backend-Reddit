@@ -394,5 +394,533 @@ describe("Comment service test", () => {
       const comments = await commentServices.getUserComments("1", user, "");
       expect(comments.length).to.equal(1);
     });
+
+    it("second test ", async () => {
+      const CommentRepository = {
+        getUserComments: async () => {
+          return {
+            doc: [
+              {
+                _id: "1",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "2",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "2",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "3",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "Subreddit",
+                  owner: {
+                    _id: "1",
+                    fixedName: "ahmed",
+                    icon: "users/default.png",
+                  },
+                },
+              },
+            ],
+          };
+        },
+      };
+      const user = {
+        voteComment: [
+          { comments: "1", commentVoteStatus: "1" },
+          { comments: "2", commentVoteStatus: "-1" },
+        ],
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "3",
+          },
+        ],
+      };
+      const PostRepository = {};
+      const commentServices = new CommentService({
+        CommentRepository,
+        PostRepository,
+      });
+      const comments = await commentServices.getUserComments("1", user, "");
+      expect(comments.length).to.equal(3);
+    });
   });
+
+
+  describe("addVote function ", () => {
+    it("first test ", async () => {
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        commentKarma: 0,
+        save: async () => {},
+      };
+      const CommentRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.addVote(user, "2", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("second test", async () => {
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        commentKarma: 0,
+        save: async () => {},
+      };
+      const CommentRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.addVote(user, "5", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("thrid test ", async () => {
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        commentKarma: 0,
+        save: async () => {},
+      };
+      const CommentRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.addVote(user, "2", -1, 0, author);
+      expect(result).to.equal(false);
+    });
+
+    it("fourth test ", async () => {
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        commentKarma: 0,
+        save: async () => {},
+      };
+      const CommentRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.addVote(user, "1", 0, 0, author);
+      expect(result).to.equal(true);
+    });
+
+    it("fifth test ", async () => {
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: 0,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+        save: async () => {},
+      };
+      let author = {
+        commentKarma: 0,
+        save: async () => {},
+      };
+      const CommentRepository = {
+        updateVotesCount: async (data) => {
+          return { success: true };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.addVote(user, "2", 1, 0, author);
+      expect(result).to.equal(true);
+    });
+
+  });
+
+  describe("saveComment function ", () => {
+    it("first test ", async () => {
+      let user = {
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "2",
+          },
+          {
+            savedComment: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const CommentServices = new CommentService({});
+      const result = await CommentServices.saveComment(user, "1");
+      expect(result).to.equal(false);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "2",
+          },
+          {
+            savedComment: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const CommentServices = new CommentService({});
+      const result = await CommentServices.saveComment(user, "3");
+      expect(result).to.equal(true);
+    });
+  });
+
+  describe("unSaveComment function ", () => {
+    it("first test ", async () => {
+      Array.prototype.pull = function (elem) {
+        var i = this.indexOf(elem);
+
+        if (i === -1)
+          //w  w w  . j a  v a  2s .  c  o  m
+          return;
+
+        return this.splice(i, 1);
+      };
+      let user = {
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "2",
+          },
+          {
+            savedComment: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const CommentServices = new CommentService({});
+      const result = await CommentServices.unSaveComment(user, "1");
+      expect(result).to.equal(true);
+    });
+
+    it("second test ", async () => {
+      let user = {
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "2",
+          },
+          {
+            savedComment: "4",
+          },
+        ],
+        save: async () => {},
+      };
+      const CommentServices = new CommentService({});
+      const result = await CommentServices.unSaveComment(user, "3");
+      expect(result).to.equal(false);
+    });
+  });
+
+  describe("findCommentById function ", () => {
+    it("first test ", async () => {
+      const CommentRepository = {
+        getCommentwithAuthor: async (data) => {
+          return { success: true, doc: [] };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.findCommentById("1");
+      expect(result.success).to.equal(true);
+    });
+    it("second test ", async () => {
+      const CommentRepository = {
+        getCommentwithAuthor: async (data) => {
+          return { success: false, doc: [] };
+        },
+      };
+      const CommentServices = new CommentService({ CommentRepository });
+      const result = await CommentServices.findCommentById("1");
+      expect(result.success).to.equal(false);
+    });
+  });
+
+  describe("setVoteStatus function ", () => {
+    const CommentServices = new CommentService({});
+    it("first test ", () => {
+      let saved = [
+        {
+          savedComment: {
+            _id: "1",
+            post:{
+              _id:"1",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"User",
+              owner:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              userName: "ahmed",
+              profilePicture: "users/default.png",
+            },
+            ownerType: "User",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+          },
+        },
+        {
+          savedComment: {
+            _id: "2",
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              fixedName: "ahmed",
+              icon: "subreddits/default.png",
+            },
+            ownerType: "Subreddit",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+            post:{
+              _id:"1",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"Subreddit",
+              owner:{
+                _id:"1",
+                fixedName:"ahmed",
+                icon:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+          },
+        },
+        {
+          savedComment: {
+            _id: "3",
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              fixedName: "ahmed",
+              icon: "subreddits/default.png",
+            },
+            ownerType: "Subreddit",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+            post:{
+              _id:"2",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"Subreddit",
+              owner:{
+                _id:"1",
+                fixedName:"ahmed",
+                icon:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+          },
+        },
+      ];
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+      };
+      const result = CommentServices.setVoteStatus(user, saved);
+      expect(result.length).to.equal(2);
+    });
+  });
+
 });

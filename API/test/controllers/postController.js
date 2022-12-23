@@ -60,7 +60,9 @@ describe("Post Controller Test", () => {
           userName: "Ahmed",
         },
         query: {
-          sortType: "New",
+          sort: "New",
+          limit: -1,
+          page:-1
         },
       };
       const UserService = {
@@ -123,7 +125,7 @@ describe("Post Controller Test", () => {
         },
         removeHiddenPosts: (me, posts) => {
           return posts;
-        }
+        },
       };
 
       const authObj = new auth({ PostService, UserService });
@@ -218,6 +220,40 @@ describe("Post Controller Test", () => {
       expect(res.status(404).json).to.have.been.calledWith({
         status: "fail",
         errorMessage: "User Not Found",
+      });
+    });
+    it("fourth test fail", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          userName: "ahmed",
+        },
+        query: {
+          sortType: "New",
+        },
+      };
+      const UserService = {
+        getUserByName: async (userName, dummy) => {
+          return {
+            success: true,
+            data: {
+              _id: "2",
+            },
+          };
+        },
+        checkBlockStatus: async (me, user) => {
+          return true;
+        },
+      };
+      const PostService = {};
+      const authObj = new auth({ PostService, UserService });
+      await authObj.userPosts(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        posts: [],
       });
     });
   });
@@ -520,6 +556,1273 @@ describe("Post Controller Test", () => {
             name: "Nour",
           },
         ],
+      });
+    });
+  });
+
+  describe("postVote Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        addVote: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.postVote(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        addVote: (me, posts) => {
+          return false;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.postVote(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("thrid test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return true;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        addVote: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.postVote(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("fourth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: false,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        addVote: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.postVote(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    });
+    it("fifth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 2,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        addVote: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.postVote(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    });
+  });
+
+  describe("savePost Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        savePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.savePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        savePost: (me, posts) => {
+          return false;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.savePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("thrid test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return true;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        savePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.savePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("fourth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: false,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        savePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.savePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    });
+    it("fifth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 2,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        savePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.savePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    });
+  });
+
+  describe("unSavePost Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unSavePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unSavePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unSavePost: (me, posts) => {
+          return false;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unSavePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("thrid test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return true;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unSavePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unSavePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("fourth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: false,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unSavePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unSavePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    });
+    it("fifth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 2,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unSavePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unSavePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    });
+  });
+
+  describe("hidePost Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        hidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.hidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        hidePost: (me, posts) => {
+          return false;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.hidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("thrid test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return true;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        hidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.hidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("fourth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: false,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        hidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.hidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    });
+    it("fifth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 2,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        hidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.hidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    });
+  });
+
+  describe("unHidePost Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unHidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unHidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unHidePost: (me, posts) => {
+          return false;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unHidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(304).json).to.have.been.calledWith({
+        status: "success",
+      });
+    });
+    it("thrid test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return true;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unHidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unHidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(405);
+      expect(res.status(405).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Method Not Allowed",
+      });
+    });
+    it("fourth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 1,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: false,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unHidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unHidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Post Not Found",
+      });
+    });
+    it("fifth test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          postId: "Ahmed",
+        },
+        body: {
+          dir: 2,
+        },
+      };
+      const UserService = {
+        checkBlockStatus: async (user, me) => {
+          return false;
+        },
+      };
+      const PostService = {
+        findPostById: async (postId) => {
+          let response = {
+            success: true,
+            data: {
+              author: "1",
+              votes: "5",
+            },
+          };
+          return response;
+        },
+        unHidePost: (me, posts) => {
+          return true;
+        },
+      };
+
+      const authObj = new auth({ PostService, UserService });
+      await authObj.unHidePost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "Enter Valid Vote dir",
+      });
+    });
+  });
+
+  describe("overview Test", () => {
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          userName: "Ahmed",
+        },
+        query: {
+          sortType: "New",
+        },
+      };
+      const UserService = {
+        getUserByName: async (userName, dummy) => {
+          return {
+            success: true,
+            data: {
+              _id: "2",
+            },
+          };
+        },
+        checkBlockStatus: async (userName, dummy) => {
+          return false;
+        },
+      };
+      const PostService = {
+        getUserPosts: (me, posts) => {
+          return [{ _id: "1" }];
+        },
+        setVotePostStatus: (me, posts) => {
+          return posts;
+        },
+        setSavedPostStatus: (me, posts) => {
+          return posts;
+        },
+        setHiddenPostStatus: (me, posts) => {
+          return posts;
+        },
+        setPostOwnerData: (posts) => {
+          return posts;
+        },
+        removeHiddenPosts: (me, posts) => {
+          return posts;
+        },
+        filterPosts: (posts) => {
+          return posts;
+        },
+      };
+      const CommentService = {
+        getUserComments: async () => {
+          return [
+            {
+              _id: "1",
+            },
+          ];
+        },
+      };
+      const authObj = new auth({ PostService, UserService, CommentService });
+      await authObj.overview(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        posts: [
+          {
+            _id: "1",
+          },
+        ],
+        comments: [
+          {
+            _id: "1",
+          },
+        ],
+      });
+      const authObj2 = new auth({ PostService, UserService, CommentService });
+      const req2 = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          userName: "Ahmed",
+        },
+        query: {
+          sort: "Top",
+          page: 5,
+          limit: 3,
+        },
+      };
+      await authObj2.overview(req2, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        posts: [
+          {
+            _id: "1",
+          },
+        ],
+        comments: [
+          {
+            _id: "1",
+          },
+        ],
+      });
+    });
+    it("second test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          userName: "Ahmed",
+        },
+        query: {
+          sortType: "New",
+        },
+      };
+      const UserService = {
+        getUserByName: async (userName, dummy) => {
+          return {
+            success: true,
+            data: {
+              _id: "2",
+            },
+          };
+        },
+        checkBlockStatus: async (userName, dummy) => {
+          return true;
+        },
+      };
+      const PostService = {
+        getUserPosts: (me, posts) => {
+          return [{ _id: "1" }];
+        },
+        setVotePostStatus: (me, posts) => {
+          return posts;
+        },
+        setSavedPostStatus: (me, posts) => {
+          return posts;
+        },
+        setHiddenPostStatus: (me, posts) => {
+          return posts;
+        },
+        setPostOwnerData: (posts) => {
+          return posts;
+        },
+        removeHiddenPosts: (me, posts) => {
+          return posts;
+        },
+        filterPosts: (posts) => {
+          return posts;
+        },
+      };
+      const CommentService = {
+        getUserComments: async () => {
+          return [
+            {
+              _id: "1",
+            },
+          ];
+        },
+      };
+      const authObj = new auth({ PostService, UserService, CommentService });
+      await authObj.overview(req, res, "");
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "success",
+        posts: [],
+        comments: [],
+      });
+    });
+    it("first test success", async () => {
+      const req = {
+        user: {
+          _id: "1",
+        },
+        params: {
+          userName: "Ahmed",
+        },
+        query: {
+          sortType: "New",
+        },
+      };
+      const UserService = {
+        getUserByName: async (userName, dummy) => {
+          return {
+            success: false,
+            data: {
+              _id: "2",
+            },
+          };
+        },
+        checkBlockStatus: async (userName, dummy) => {
+          return false;
+        },
+      };
+      const PostService = {
+        getUserPosts: (me, posts) => {
+          return [{ _id: "1" }];
+        },
+        setVotePostStatus: (me, posts) => {
+          return posts;
+        },
+        setSavedPostStatus: (me, posts) => {
+          return posts;
+        },
+        setHiddenPostStatus: (me, posts) => {
+          return posts;
+        },
+        setPostOwnerData: (posts) => {
+          return posts;
+        },
+        removeHiddenPosts: (me, posts) => {
+          return posts;
+        },
+        filterPosts: (posts) => {
+          return posts;
+        },
+      };
+      const CommentService = {
+        getUserComments: async () => {
+          return [
+            {
+              _id: "1",
+            },
+          ];
+        },
+      };
+      const authObj = new auth({ PostService, UserService, CommentService });
+      await authObj.overview(req, res, "");
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        status: "fail",
+        errorMessage: "User Not Found",
       });
     });
   });

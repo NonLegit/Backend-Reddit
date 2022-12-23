@@ -8,7 +8,18 @@
     "check-coverage": true,
     "cwd" : "../",
     "exclude" : [
-      "*.js"
+      "API/*.js",
+      "API/models/*.js",
+      "API/routes/*.js",
+      "API/migrations",
+      "API/public",
+      "API/docs",
+      "API/data_access/*.js",
+      "API/test/**/*.js",
+      "API/spec",
+      "API/mochawesome-report",
+      "API/scripts",
+      "API/error_handling/*.js"
     ]
   },
   "scripts": {

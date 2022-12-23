@@ -524,6 +524,7 @@ class PostService {
     });
     return newPost;
   }
+
   async getPost(postId, me) {
     //console.log("inhere");
     let post = await this.postRepo.getPost(postId);
@@ -697,6 +698,13 @@ class PostService {
 
     return { success: true };
   }
+
+  /**
+   *@property {Function} setVoteStatus set vote status of saved posts of users
+   * @param {string} user - authenticated user
+   * @param {object} saved - list of saved posts
+   * @returns {Array} - list of saved posts
+   */
   setVoteStatus(user, saved) {
     let newPosts = Array.from(saved);
     //let newPosts = [];
@@ -742,6 +750,13 @@ class PostService {
     });
     return newPosts.reverse();
   }
+
+  /**
+   *@property {Function} filterPosts   remove duplicate posts in comments from post list
+   * @param {string} comments - list of comments containing posts to filter from post list
+   * @param {object} posts - list of  posts
+   * @returns {Array} - list of posts
+   */
   filterPosts(posts, comments) {
     posts = posts.filter(
       (post) =>
@@ -751,6 +766,12 @@ class PostService {
     );
     return posts;
   }
+
+  /**
+   *@property {Function} findPostById   find post by id
+   * @param {string} postId - post id to find
+   * @returns {object} - object contain post if success or fail
+   */
   async findPostById(postId) {
     let post = await this.postRepo.getPostwithAuthor(postId);
     if (post.success === true) {
@@ -759,7 +780,15 @@ class PostService {
       return { success: false };
     }
   }
-
+  /**
+   *@property {Function} addVote   add user vote on post
+   * @param {string} user - user who vote on post
+   * @param {string} postId - post id to vote on
+   * @param {string} voteDir - vote status (-1,0,1)
+   * @param {string} votesCount - # of votes on post
+   * @param {string} author - creator of post
+   * @returns {boolean} - true
+   */
   async addVote(user, postId, voteDir, votesCount, author) {
     let voteNumber = voteDir;
     const index = user.votePost.findIndex((element) => {
@@ -803,6 +832,13 @@ class PostService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} savePost   add user save post
+   * @param {string} user - user who save post
+   * @param {string} postId - post id to save on
+   * @returns {boolean} - true if post is not saved before or false if post is already saved
+   */
   async savePost(user, postId) {
     const index = user.saved.findIndex((element) => {
       return element.savedPost.toString() === postId.toString();
@@ -817,6 +853,13 @@ class PostService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} unSavePost   add user unsave post
+   * @param {string} user - user who save post
+   * @param {string} postId - post id to unsave on
+   * @returns {boolean} - false if post is not saved before or true if post is already saved
+   */
   async unSavePost(user, postId) {
     const index = user.saved.findIndex((element) => {
       return element.savedPost.toString() === postId.toString();
@@ -829,6 +872,13 @@ class PostService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} hidePost  user hide post
+   * @param {string} user - user who hide post
+   * @param {string} postId - post id to hide on
+   * @returns {boolean} - false if post is not hidden before or true if post is already hidden
+   */
   async hidePost(user, postId) {
     const index = user.hidden.findIndex((element) => {
       return element.toString() === postId.toString();
@@ -841,6 +891,14 @@ class PostService {
     await user.save();
     return true;
   }
+
+  /**
+   *@property {Function} unHidePost  user unHide post
+   * @param {string} user - user who hide post
+   * @param {string} postId - post id to hide on
+   * @returns {boolean} - true if post is not hidden before or false if post is already hidden
+   */
+
   async unHidePost(user, postId) {
     const index = user.hidden.findIndex((element) => {
       return element.toString() === postId.toString();
