@@ -1,17 +1,9 @@
 const FCM = require("fcm-node");
-//const serverKey = require("../nonlegit-df8a9-firebase-adminsdk-t3oo5-df87e5812d.json");
-//const serverKey = "AAAAExvkdPQ:APA91bGYbrdVHWtvumTEOz3YncleOdyHiBjrdGq_BlotyC6WUlydVmhN0FDX4Uepu_YX0edQHgZmvnZuKDdMrRx5wofMLUyBIIcnWUSZinLdzenM-5tku84BfjtpSBuwIXFCbK8mg8HN";
 const serverKey = process.env.FIREBASE_SERVER_KEY;
 const fcm = new FCM(serverKey);
 const { messageErrors, userErrors } = require("../error_handling/errors");
 
-// var admin = require("firebase-admin");
 
-// var serviceAccount = require("path/to/serviceAccountKey.json");
-
-// admin.initializeApp({
-//   credential: admin.credential.cert(serviceAccount)
-// });
 class MessageController {
   constructor({UserService,MessageService,NotificationService }) {
    
@@ -19,30 +11,8 @@ class MessageController {
       this.messageServices = MessageService;
       this.notificationServices = NotificationService;
   }
+//done not right
 
-//   addFirebaseToken = async (req, res) => {
-//     if (!req.body || !req.body.token||!req.user){
-//             res.status(400).json({
-//                 status: "fail",
-//                 message: "Invalid request",
-//             });
-//             return;
-//       }
-//       const token = req.body.token;
-//       const userId = req.user._id;
-//       const savedToUser = await this.userServices.saveFirebaseToken(userId,token);
-//       if (!savedToUser.success) {
-//           res.status(500).json({
-//             message : "Internal server error",
-//             statusCode : 500,
-//             status : "Internal Server Error"
-//         });
-//          return;
-//       }
-//       return res.status(201).json();
-      
-//     }
- 
   modMessage = async (req, res) => {
     try {
       if (!req.messageObject) {
@@ -53,20 +23,20 @@ class MessageController {
         return;
       }
       let invite = await this.messageServices.modMessage(req.messageObject);
-      //  console.log(notification);
+      
       if (invite.success) {
       
         let tokens = await this.notificationServices.getFirebaseToken(req.messageObject.to);
-        // console.log(tokens.data.firebaseToken[0]);
-        // console.log(notification.data);
         let message;
         if (tokens.success) {
+          
           message = {
             to: tokens.data.firebaseToken,
             data: { val: JSON.stringify(invite.data) }
           }
         
           fcm.send(message, (err, response) => {
+
             if (err) {
               console.log("Something has gone wrong!" + err);
             } else {
@@ -86,17 +56,18 @@ class MessageController {
   sendMessage = async (req, res) => {
       try {
          
-        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-          if (!req.user || !req.body.text || !req.body.subject || !req.body.to) {
+        
+        if (!req.user || !req.body.text || !req.body.subject || !req.body.to) {
+         
                  res.status(400).json({
                 status: "fail",
                 message: "Invalid request",
             });
             return;
         }
-        console.log(";;;;;;;;;;;;;;;;;;;;;;;;;;;;");
-        console.log(req.body.subject.length);
-        if (req.body.subject.length >20) {
+       
+        if (req.body.subject.length > 20) {
+          
             res.status(400).json({
                 status: "fail",
                 message: "Subject must have less or equal than 100 characters",
@@ -105,21 +76,19 @@ class MessageController {
         }
           
           let messageToSend = await this.messageServices.createMessage(req.user._id, req.body);
-           // console.log(messageToSend);
+          
           if (messageToSend.success) {
-             // console.log(messageToSend.data.to);
+       
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
-            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
-            console.log(messageToSend.data);
-            console.log("mmmmmmmmmmmmmmmmmmmmmmmm");
+           
               if (tokens.success) {
                   message = {
                       to: tokens.data.firebaseToken,
                       data: { val: JSON.stringify(messageToSend.data) }
                   }
             };
-           // console.log(tokens);
+          
               fcm.send(message, (err, response) => {
                   if (err) {
                       console.log("Something has gone wrong!" + err);
@@ -154,11 +123,14 @@ class MessageController {
      
   }
   
-   reply = async (req, res) => {
+  //done
+  
+  reply = async (req, res) => {
       try {
          
-        console.log("hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
-          if (!req.user || !req.body.text || !req.params.parentMessageId) {
+       
+        if (!req.user || !req.body.text || !req.params.parentMessageId) {
+          
                  res.status(400).json({
                 status: "fail",
                 message: "Invalid request",
@@ -167,9 +139,9 @@ class MessageController {
           }
           
           let messageToSend = await this.messageServices.reply(req.user._id, req.body.text,req.params.parentMessageId);
-           // console.log(messageToSend);
+           
           if (messageToSend.success) {
-             // console.log(messageToSend.data.to);
+             
               let tokens = await this.notificationServices.getFirebaseToken(messageToSend.data.to);
             let message;
             console.log(tokens);
@@ -179,7 +151,7 @@ class MessageController {
                       data: { val: JSON.stringify(messageToSend.data) }
                   }
             };
-           // console.log(tokens);
+           
               fcm.send(message, (err, response) => {
                   if (err) {
                       console.log("Something has gone wrong!" + err);
@@ -219,15 +191,16 @@ class MessageController {
      
     }
 
+  //done
   createReplyMessage = async (req, res) => {
     try {
-      console.log("herssssssssssssssssssssssssssssssssssssse");
+      
       if (!req.user || !req.comment || !req.post || !req.mentions) {
         return;
       }
-      console.log("iiiiiiiiiiiiii");
+     
       let messageToSend = await this.messageServices.createReplyMessage(req.user, req.comment, req.post, req.mentions);
-      console.log(req.post);
+   
     
      
       return;
@@ -236,12 +209,13 @@ class MessageController {
     }
     }
 
+  //done
   getMessages = async (req, res) => {
   {
     try {
       let userId = req.user._id;
       let sentMessages = await this.messageServices.getMessages(userId,req.query);
-      //console.log(notifications);
+      
       if (!sentMessages.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -261,12 +235,13 @@ class MessageController {
       
   }
   }
+  //done
    getAllMessages = async (req, res) => {
   {
     try {
       let userId = req.user._id;
       let allMessages = await this.messageServices.getAllMessages(userId,req.query);
-      //console.log(notifications);
+     
       if (!allMessages.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -286,12 +261,12 @@ class MessageController {
       
   }
 }
-    
-    getSentMessage = async (req, res) => {
+  //done
+   getSentMessage = async (req, res) => {
           try {
       let userId = req.user._id;
       let sentMessages = await this.messageServices.getSentMessage(userId,req.query);
-      //console.log(notifications);
+     
       if (!sentMessages.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -310,11 +285,12 @@ class MessageController {
     }
       
   }
- getUnreadMessage = async (req, res) => {
+  //done
+  getUnreadMessage = async (req, res) => {
           try {
       let userId = req.user._id;
       let unreadMessages = await this.messageServices.getUnreadMessage(userId,req.query);
-      //console.log(notifications);
+     
       if (!unreadMessages.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -333,12 +309,12 @@ class MessageController {
     }
       
   }
-  
-markAllAsRead=async (req, res) => {
+  //done
+  markAllAsRead=async (req, res) => {
     try {
       let userId = req.user._id;
       let messages = await this.messageServices.markAllAsRead(userId);
-      //console.log(notifications);
+   
       if (!messages.success) {
         return res.status(500).json({
           status: "Internal server error",
@@ -352,16 +328,16 @@ markAllAsRead=async (req, res) => {
         status: "fail",
       });
     }
-    }
+  }
+  //done
     deleteMessage=async (req, res) => {
     try {
         let userId = req.user._id;
-        //if(!req.params.messageId!!!req.params.messageId.)
-      //console.log(req.params.notificationId);
+   
       let messageToDelete = await this.messageServices.deleteMessage(userId,req.params.messageId);
-      //console.log(notifications);
+      
       if (!messageToDelete.success) {
-          //console.log(messageToDelete);
+          
         let message, statusCode, status;
         switch (messageToDelete.error) {
           case messageErrors.MESSAGE_NOT_FOUND:
@@ -388,12 +364,12 @@ markAllAsRead=async (req, res) => {
       });
     }
     }
-    
+    //done
      getPostReplies = async (req, res) => {
           try {
       let userId = req.user._id;
       let postReplies = await this.messageServices.getPostReplies(userId,req.query);
-      //console.log(notifications);
+  
       if (!postReplies.success) {
         return res.status(500).json({
           status: "Internal server error",
