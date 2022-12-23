@@ -19,7 +19,8 @@
       "API/spec",
       "API/mochawesome-report",
       "API/scripts",
-      "API/error_handling/*.js"
+      "API/error_handling/*.js",
+      "API/service/emailService.js"
     ]
   },
   "scripts": {
@@ -27,7 +28,7 @@
     "covarage": "nyc --reporter=html mocha --timeout 1000000 --recursive --exit ",
     "test_covarage":"nyc --check-coverage=true  --reporter=html npm run test",
     "start": "nodemon server.js",
-    "migrate": "migrate create seeder  -d mongodb://localhost:27017/redditDB",
+    "migrate": "migrate create finalSeed  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",
     "testDB": "migrate up  -d mongodb://127.0.0.1/redditDB --autosync",
     "jsdoc": "jsdoc -c jsdoc.json"
