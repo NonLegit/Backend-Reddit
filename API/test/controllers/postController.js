@@ -1937,263 +1937,909 @@ describe("Post Controller Test", () => {
   });
   //////////////////////////////////////////////////////
 
-  // describe("get hot posts", () => {
-  //   it("1) test success", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //       // toFilter: " "
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: true,
-  //           data: posts,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getHotPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(200);
-  //     expect(res.status(200).json).to.have.been.calledWith({
-  //       status: "OK",
-  //       data: posts,
-  //     });
-  //   });
+  describe("get hot posts", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        }
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts,
+      });
+    });
+    it("2) test success not logged in", async () => {
+      const req = {
+        isAuthorized: true,
+       
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts,
+      });
+    });
 
-  //   it("2) test subreddit not found", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //       // toFilter: " "
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: false,
-  //           error: subredditErrors.SUBREDDIT_NOT_FOUND,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getHotPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(404);
-  //     expect(res.status(404).json).to.have.been.calledWith({
-  //       message: "Subreddit not found",
+    it("3) test fail subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+        // toFilter: " "
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        message: "Subreddit not found",
 
-  //       status: "Not Found",
-  //     });
-  //   });
-  // });
+        status: "Not Found",
+      });
+    });
+    it("4) test fail internal", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+        // toFilter: " "
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        message: "Internal server error",
+            
+        status: "Internal Server Error",
+      });
+    });
+    it("5) test fail exception", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        }
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          throw new Error('divide by zero!');
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getHotPosts(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        status: "fail",
+       
+      });
+    });
+  });
+  describe("get new posts", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        }
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts,
+      });
+    });
+    it("2) test success not logged in", async () => {
+      const req = {
+        isAuthorized: true,
+       
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts,
+      });
+    });
 
-  // describe("get top posts", () => {
-  //   it("1) test success", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: true,
-  //           data: posts,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getTopPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(200);
-  //     expect(res.status(200).json).to.have.been.calledWith({
-  //       status: "OK",
-  //       data: posts,
-  //     });
-  //   }),
-  //     it("2) test subreddit not found", async () => {
-  //       const req = {
-  //         isAuthorized: true,
-  //         user: {
-  //           _id: " ",
-  //         },
-  //         // toFilter: " "
-  //       };
-  //       const PostService = {
-  //         getPosts: async () => {
-  //           const response = {
-  //             success: false,
-  //             error: subredditErrors.SUBREDDIT_NOT_FOUND,
-  //           };
-  //           return response;
-  //         },
-  //       };
-  //       const on = {};
-  //       const postObj = new auth({ PostService, on });
-  //       await postObj.getTopPosts(req, res);
-  //       expect(res.status).to.have.been.calledWith(404);
-  //       expect(res.status(404).json).to.have.been.calledWith({
-  //         message: "Subreddit not found",
+    it("3) test fail subreddit not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+        // toFilter: " "
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.SUBREDDIT_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        message: "Subreddit not found",
 
-  //         status: "Not Found",
-  //       });
-  //     });
-  // });
+        status: "Not Found",
+      });
+    });
+    it("4) test fail internal", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+        // toFilter: " "
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        message: "Internal server error",
+            
+        status: "Internal Server Error",
+      });
+    });
+    it("5) test fail exception", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        }
+      };
+      const UserService = {
+        getPeopleUserKnows: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          
+          return response;
+        }
+      };
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          throw new Error('divide by zero!');
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, UserService });
+      await postObj.getNewPosts(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        status: "fail",
+       
+      });
+    });
+  }); 
+  
+  describe("get top posts", () => {
+      it("1) test success", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          }
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getTopPosts(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status(200).json).to.have.been.calledWith({
+          status: "OK",
+          data: posts,
+        });
+      });
+      it("2) test success not logged in", async () => {
+        const req = {
+          isAuthorized: true,
+       
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getTopPosts(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status(200).json).to.have.been.calledWith({
+          status: "OK",
+          data: posts,
+        });
+      });
 
-  // describe("get new posts", () => {
-  //   it("1) test success", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: true,
-  //           data: posts,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getNewPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(200);
-  //     expect(res.status(200).json).to.have.been.calledWith({
-  //       status: "OK",
-  //       data: posts,
-  //     });
-  //   }),
-  //     it("2) test subreddit not found", async () => {
-  //       const req = {
-  //         isAuthorized: true,
-  //         user: {
-  //           _id: " ",
-  //         },
-  //         // toFilter: " "
-  //       };
-  //       const PostService = {
-  //         getPosts: async () => {
-  //           const response = {
-  //             success: false,
-  //             error: subredditErrors.SUBREDDIT_NOT_FOUND,
-  //           };
-  //           return response;
-  //         },
-  //       };
-  //       const on = {};
-  //       const postObj = new auth({ PostService, on });
-  //       await postObj.getNewPosts(req, res);
-  //       expect(res.status).to.have.been.calledWith(404);
-  //       expect(res.status(404).json).to.have.been.calledWith({
-  //         message: "Subreddit not found",
+      it("3) test fail subreddit not found", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          },
+          // toFilter: " "
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: false,
+              error: subredditErrors.SUBREDDIT_NOT_FOUND,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getTopPosts(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(404).json).to.have.been.calledWith({
+          message: "Subreddit not found",
 
-  //         status: "Not Found",
-  //       });
-  //     });
-  // });
+          status: "Not Found",
+        });
+      });
+      it("4) test fail internal", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          },
+          // toFilter: " "
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getTopPosts(req, res);
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.status(500).json).to.have.been.calledWith({
+          message: "Internal server error",
+            
+          status: "Internal Server Error",
+        });
+      });
+      it("5) test fail exception", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          }
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+          
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            throw new Error('divide by zero!');
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getTopPosts(req, res);
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.status(500).json).to.have.been.calledWith({
+          status: "fail",
+       
+        });
+      });
+    });
+describe("get best posts", () => {
+      it("1) test success", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          }
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getBestPosts(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status(200).json).to.have.been.calledWith({
+          status: "OK",
+          data: posts,
+        });
+      });
+      it("2) test success not logged in", async () => {
+        const req = {
+          isAuthorized: true,
+       
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getBestPosts(req, res);
+        expect(res.status).to.have.been.calledWith(200);
+        expect(res.status(200).json).to.have.been.calledWith({
+          status: "OK",
+          data: posts,
+        });
+      });
 
-  // describe("get best posts", () => {
-  //   it("1) test success", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: true,
-  //           data: posts,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getBestPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(200);
-  //     expect(res.status(200).json).to.have.been.calledWith({
-  //       status: "OK",
-  //       data: posts,
-  //     });
-  //   });
-  //   it("2) test subreddit not found", async () => {
-  //     const req = {
-  //       isAuthorized: true,
-  //       user: {
-  //         _id: " ",
-  //       },
-  //       // toFilter: " "
-  //     };
-  //     const PostService = {
-  //       getPosts: async () => {
-  //         const response = {
-  //           success: false,
-  //           error: subredditErrors.SUBREDDIT_NOT_FOUND,
-  //         };
-  //         return response;
-  //       },
-  //     };
-  //     const on = {};
-  //     const postObj = new auth({ PostService, on });
-  //     await postObj.getBestPosts(req, res);
-  //     expect(res.status).to.have.been.calledWith(404);
-  //     expect(res.status(404).json).to.have.been.calledWith({
-  //       message: "Subreddit not found",
+      it("3) test fail subreddit not found", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          },
+          // toFilter: " "
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: false,
+              error: subredditErrors.SUBREDDIT_NOT_FOUND,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getBestPosts(req, res);
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status(404).json).to.have.been.calledWith({
+          message: "Subreddit not found",
 
-  //       status: "Not Found",
-  //     });
-  //   });
-  // });
-  //////////////////////////////////////////////////
+          status: "Not Found",
+        });
+      });
+      it("4) test fail internal", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          },
+          // toFilter: " "
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: false,
+              error: subredditErrors.MONGO_ERR,
+            };
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getBestPosts(req, res);
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.status(500).json).to.have.been.calledWith({
+          message: "Internal server error",
+            
+          status: "Internal Server Error",
+        });
+      });
+      it("5) test fail exception", async () => {
+        const req = {
+          isAuthorized: true,
+          user: {
+            _id: " ",
+          }
+        };
+        const UserService = {
+          getPeopleUserKnows: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+          
+            return response;
+          }
+        };
+        const PostService = {
+          getPosts: async () => {
+            const response = {
+              success: true,
+              data: posts,
+            };
+            throw new Error('divide by zero!');
+            return response;
+          },
+        };
+        const on = {};
+        const postObj = new auth({ PostService, UserService });
+        await postObj.getBestPosts(req, res);
+        expect(res.status).to.have.been.calledWith(500);
+        expect(res.status(500).json).to.have.been.calledWith({
+          status: "fail",
+       
+        });
+      });
+    });
+
+describe("get post", () => {
+    it("1) test success", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+        params: {
+          postId:" "
+        }
+      };
+      const PostService = {
+        getPost: async () => {
+          const response = {
+            success: true,
+            doc: posts[0],
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts[0],
+      });
+    });
+    it("2) test success not logged in", async () => {
+      const req = {
+        isAuthorized: true,
+        params: {
+          postId:" "
+        }
+      };
+      
+      const PostService = {
+        getPosts: async () => {
+          const response = {
+            success: true,
+            doc: posts[0],
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(200);
+      expect(res.status(200).json).to.have.been.calledWith({
+        status: "OK",
+        data: posts[0],
+      });
+    });
+
+    it("3) test fail post not found", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+         params: {
+          postId:" "
+        }
+        // toFilter: " "
+      };
+     
+      const PostService = {
+        getPost: async () => {
+          const response = {
+            success: false,
+            error: postErrors.POST_NOT_FOUND,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status(404).json).to.have.been.calledWith({
+        message: "Post not found",
+
+        status: "Not Found",
+      });
+    });
+    it("4) test fail internal", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+         params: {
+          postId:" "
+        }
+        // toFilter: " "
+      };
+     
+      const PostService = {
+        getPost: async () => {
+          const response = {
+            success: false,
+            error: subredditErrors.MONGO_ERR,
+          };
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        message: "Internal server error",
+            
+        status: "Internal Server Error",
+      });
+    });
+    it("5) test fail exception", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+         params: {
+          postId:" "
+        }
+
+      };
+     
+      const PostService = {
+        getPost: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+          throw new Error('divide by zero!');
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(500);
+      expect(res.status(500).json).to.have.been.calledWith({
+        status: "fail",
+       
+      });
+    });
+    it("6) test fail bad request", async () => {
+      const req = {
+        isAuthorized: true,
+        user: {
+          _id: " ",
+        },
+         params: {
+          postId:undefined
+        }
+
+      };
+     
+      const PostService = {
+        getPost: async () => {
+          const response = {
+            success: true,
+            data: posts,
+          };
+         
+          return response;
+        },
+      };
+      const on = {};
+      const postObj = new auth({ PostService, on });
+      await postObj.getPost(req, res);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status(400).json).to.have.been.calledWith({
+        status: "fail",
+        message: "Missing required parameter",
+       
+      });
+    });
+ 
 });
 
-describe("Post Controller CRUD operations", () => {
-  describe("Create post test", () => {
-    const req = {
-      user: {
-        _id: "123e4aab2a94c22ae492983a",
-      },
-      body: {
-        title: "kiro post",
-        kind: "self",
-        text: "this is a post",
-        owner: "637e4aab2a94c22ae492983a",
-        ownerType: "Subreddit",
-        nsfw: false,
-        spoiler: true,
-        sendReplies: true,
-        suggestedSort: "top",
-      },
-    };
-    const UserService = {};
-    const PostService = {
-      createPost: async (data) => {
-        return { success: true, data };
-      },
-    };
-    const postController = new auth({ PostService, UserService });
+  
 
-    it("successful creation", async () => {
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(201);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "success",
-        data: {
-          author: "123e4aab2a94c22ae492983a",
+  describe("Post Controller CRUD operations", () => {
+    describe("Create post test", () => {
+      const req = {
+        user: {
+          _id: "123e4aab2a94c22ae492983a",
+        },
+        body: {
           title: "kiro post",
           kind: "self",
           text: "this is a post",
@@ -2204,33 +2850,107 @@ describe("Post Controller CRUD operations", () => {
           sendReplies: true,
           suggestedSort: "top",
         },
-      });
-    });
-
-    it("Invalid post kind", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.INVALID_POST_KIND };
       };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid post kind",
-      });
-    });
-
-    it("Invalid owner type", async () => {
-      PostService.createPost = async (data) => {
-        return { success: false, error: postErrors.INVALID_OWNER };
+      const UserService = {};
+      const PostService = {
+        createPost: async (data) => {
+          return { success: true, data };
+        },
       };
-      await postController.createPost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid owner type",
+      const postController = new auth({ PostService, UserService });
+
+      it("successful creation", async () => {
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(201);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "success",
+          data: {
+            author: "123e4aab2a94c22ae492983a",
+            title: "kiro post",
+            kind: "self",
+            text: "this is a post",
+            owner: "637e4aab2a94c22ae492983a",
+            ownerType: "Subreddit",
+            nsfw: false,
+            spoiler: true,
+            sendReplies: true,
+            suggestedSort: "top",
+          },
+        });
+      });
+
+      it("Invalid post kind", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.INVALID_POST_KIND };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid post kind",
+        });
+      });
+
+      it("Invalid owner type", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.INVALID_OWNER };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid owner type",
+        });
+      });
+
+      it("Subreddit not found", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Subreddit not found",
+        });
+      });
+
+      it("Flair not found", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.FLAIR_NOT_FOUND };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Flair not found",
+        });
+      });
+
+      it("mongo error", async () => {
+        PostService.createPost = async (data) => {
+          return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
+        };
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "message",
+        });
+      });
+
+      it("Invalid request", async () => {
+        delete req.body.kind;
+        await postController.createPost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid request",
+        });
       });
     });
 
+<<<<<<< HEAD
     it("Subreddit not found", async () => {
       PostService.createPost = async (data) => {
         return { success: false, error: postErrors.SUBREDDIT_NOT_FOUND };
@@ -2316,70 +3036,164 @@ describe("Post Controller CRUD operations", () => {
       expect(res.status().json).to.have.been.calledWith({
         status: "success",
         data: {
+=======
+    describe("Update post test", () => {
+      const req = {
+        user: {
+          _id: "123e4aab2a94c22ae492983a",
+        },
+        params: {
+          postId: "456p4aab2a94c22ae492983a",
+        },
+        body: {
+>>>>>>> development
           text: "this is a post",
         },
-      });
-    });
-
-    it("Post isn't editable", async () => {
-      PostService.updatePost = async (data) => {
-        return { success: false, error: postErrors.NOT_EDITABLE };
       };
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Post isn't editable",
-      });
-    });
-
-    it("User must be author", async () => {
-      PostService.updatePost = async (data) => {
-        return { success: false, error: postErrors.NOT_AUTHOR };
+      const UserService = {};
+      const PostService = {
+        updatePost: async (id, data, userId) => {
+          return { success: true, data };
+        },
       };
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(401);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "User must be author",
+      const postController = new auth({ PostService, UserService });
+
+      it("successful update", async () => {
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(201);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "success",
+          data: {
+            text: "this is a post",
+          },
+        });
+      });
+
+      it("Post isn't editable", async () => {
+        PostService.updatePost = async (data) => {
+          return { success: false, error: postErrors.NOT_EDITABLE };
+        };
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Post isn't editable",
+        });
+      });
+
+      it("User must be author", async () => {
+        PostService.updatePost = async (data) => {
+          return { success: false, error: postErrors.NOT_AUTHOR };
+        };
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(401);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "User must be author",
+        });
+      });
+
+      it("Post not found", async () => {
+        PostService.updatePost = async (data) => {
+          return { success: false, error: postErrors.POST_NOT_FOUND };
+        };
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Post not found",
+        });
+      });
+
+      it("mongo error", async () => {
+        PostService.updatePost = async (data) => {
+          return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
+        };
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "message",
+        });
+      });
+
+      it("Invalid request", async () => {
+        delete req.body.text;
+        await postController.updatePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Invalid request",
+        });
       });
     });
 
-    it("Post not found", async () => {
-      PostService.updatePost = async (data) => {
-        return { success: false, error: postErrors.POST_NOT_FOUND };
+    describe("Delete post test", () => {
+      const req = {
+        user: {
+          _id: "123e4aab2a94c22ae492983a",
+        },
+        params: {
+          postId: "456p4aab2a94c22ae492983a",
+        },
+        body: {
+          text: "this is a post",
+        },
       };
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(404);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Post not found",
-      });
-    });
-
-    it("mongo error", async () => {
-      PostService.updatePost = async (data) => {
-        return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
+      const UserService = {};
+      const PostService = {
+        deletePost: async () => {
+          return { success: true };
+        },
       };
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "message",
-      });
-    });
+      const postController = new auth({ PostService, UserService });
 
-    it("Invalid request", async () => {
-      delete req.body.text;
-      await postController.updatePost(req, res, "");
-      expect(res.status).to.have.been.calledWith(400);
-      expect(res.status().json).to.have.been.calledWith({
-        status: "fail",
-        message: "Invalid request",
+      it("successful delete", async () => {
+        await postController.deletePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(204);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "success",
+          data: null,
+        });
+      });
+
+      it("User must be author", async () => {
+        PostService.deletePost = async () => {
+          return { success: false, error: postErrors.NOT_AUTHOR };
+        };
+        await postController.deletePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(401);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "User must be author",
+        });
+      });
+
+      it("Post not found", async () => {
+        PostService.deletePost = async () => {
+          return { success: false, error: postErrors.POST_NOT_FOUND };
+        };
+        await postController.deletePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(404);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Post not found",
+        });
+      });
+
+      it("Invalid request", async () => {
+        delete req.params.postId;
+        await postController.deletePost(req, res, "");
+        expect(res.status).to.have.been.calledWith(400);
+        expect(res.status().json).to.have.been.calledWith({
+          status: "fail",
+          message: "Missing required parameter postId",
+        });
       });
     });
   });
 
+<<<<<<< HEAD
   describe("Delete post test", () => {
     const req = {
       user: {
@@ -2745,4 +3559,7 @@ describe("Post Controller CRUD operations", () => {
   });
 
 
+=======
+  
+>>>>>>> development
 });

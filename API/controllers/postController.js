@@ -331,18 +331,10 @@ class PostController {
 
   getHotPosts = async (req, res) => {
     try {
-      //req.query.sort = "-createdAt,-votes,-commentCount";
+      
       let sortType = "hot";
       let me = req.isAuthorized == true ? req.user : undefined;
 
-      //console.log(req.user);
-      //let posts;
-      // if (req.user) {
-      //   // let hiddenPostsIds = await req.user.populate("hidden");
-      //   // console.log(hiddenPostsIds);
-      //    posts = await this.postServices.getPosts(req.query, req.toFilter,req.user);
-      // }
-      // else {
        let people;
     if (me) {
       people = this.userServices.getPeopleUserKnows(me);
@@ -355,7 +347,7 @@ class PostController {
         people
       );
 
-      // }
+    
       if (!posts.success) {
         let message, statusCode, status;
         switch (posts.error) {
@@ -566,6 +558,7 @@ class PostController {
     }
     try {
       let post = await this.postServices.getPost(postId, me);
+      console.log("ppppppppppppppppppp");
       if (!post.success) {
         let message, statusCode, status;
         switch (post.error) {
