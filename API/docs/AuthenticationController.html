@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>AuthenticationController<span class="signature">(UserServices)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>AuthenticationController<span class="signature">(UserService)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>AuthenticationController Class which handles authentication and authorization of user in backend</p></div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="AuthenticationController"><span class="type-signature"></span>new AuthenticationController<span class="signature">(UserServices)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="AuthenticationController"><span class="type-signature"></span>new AuthenticationController<span class="signature">(UserService)</span><span class="type-signature"></span></h4>
     
 
     
@@ -90,7 +90,7 @@ Depends on user services object</p>
 
         <tr>
             
-                <td class="name"><code>UserServices</code></td>
+                <td class="name"><code>UserService</code></td>
             
 
             <td class="type">
@@ -147,7 +147,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line5">line 5</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line9">line 9</a>
     </li></ul></dd>
     
 
@@ -193,124 +193,15 @@ Depends on user services object</p>
     
 
     
-
-    
-        <h3 class="subsection-title">Methods</h3>
+        <h3 class="subsection-title">Members</h3>
 
         
             
-
-    
-
-    
-    <h4 class="name" id="authorize"><span class="type-signature">(async) </span>authorize<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="authorize"><span class="type-signature"></span>authorize<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -398,7 +289,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line198">line 198</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line302">line 302</a>
     </li></ul></dd>
     
 
@@ -414,144 +305,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="createCookie"><span class="type-signature"></span>createCookie<span class="signature">(res, token, statusCode)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="createCookie"><span class="type-signature"></span>createCookie<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>token</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>user token to put in cookie</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>statusCode</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>status code of respones</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -639,7 +399,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line32">line 32</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line60">line 60</a>
     </li></ul></dd>
     
 
@@ -655,167 +415,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="facebookAuth"><span class="type-signature">(async) </span>facebookAuth<span class="signature">(accessToken, refreshToken, profile, done)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="facebookAuth"><span class="type-signature"></span>facebookAuth<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>accessToken</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>token sent from client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>refreshToken</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>profile</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>user profile on facebook</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>done</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>callback function</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -903,7 +509,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line239">line 239</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line363">line 363</a>
     </li></ul></dd>
     
 
@@ -919,144 +525,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="facebookValidation"><span class="type-signature">(async) </span>facebookValidation<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="facebookValidation"><span class="type-signature"></span>facebookValidation<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1144,7 +619,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line265">line 265</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line389">line 389</a>
     </li></ul></dd>
     
 
@@ -1160,144 +635,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="forgotPassword"><span class="type-signature">(async) </span>forgotPassword<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="forgotPassword"><span class="type-signature"></span>forgotPassword<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1385,7 +729,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line127">line 127</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line190">line 190</a>
     </li></ul></dd>
     
 
@@ -1401,144 +745,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="forgotUserName"><span class="type-signature">(async) </span>forgotUserName<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="forgotUserName"><span class="type-signature"></span>forgotUserName<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1626,7 +839,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line148">line 148</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line221">line 221</a>
     </li></ul></dd>
     
 
@@ -1642,144 +855,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="googleAuth"><span class="type-signature">(async) </span>googleAuth<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="googleAuth"><span class="type-signature"></span>googleAuth<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -1867,7 +949,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line299">line 299</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line425">line 425</a>
     </li></ul></dd>
     
 
@@ -1883,134 +965,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="logIn"><span class="type-signature">(async) </span>logIn<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="logIn"><span class="type-signature"></span>logIn<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2098,7 +1059,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line85">line 85</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line142">line 142</a>
     </li></ul></dd>
     
 
@@ -2114,121 +1075,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="logOut"><span class="type-signature"></span>logOut<span class="signature">(req, res)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="logOut"><span class="type-signature"></span>logOut<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2316,7 +1169,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line110">line 110</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line171">line 171</a>
     </li></ul></dd>
     
 
@@ -2332,144 +1185,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="resetPassword"><span class="type-signature">(async) </span>resetPassword<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="resetPassword"><span class="type-signature"></span>resetPassword<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2557,7 +1279,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line168">line 168</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line252">line 252</a>
     </li></ul></dd>
     
 
@@ -2573,144 +1295,13 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
-    
-
-
-
-
-
         
             
-
-    
-
-    
-    <h4 class="name" id="signUp"><span class="type-signature">(async) </span>signUp<span class="signature">(req, res, next)</span><span class="type-signature"></span></h4>
-    
-
-    
+<h4 class="name" id="signUp"><span class="type-signature"></span>signUp<span class="type-signature"></span></h4>
 
 
 
 
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>req</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>request object sent by client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>res</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>response to client</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>next</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">function</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>function to execute next middleware</p></td>
-        </tr>
-
-    
-    </tbody>
-</table>
 
 
 
@@ -2798,7 +1389,7 @@ Depends on user services object</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line54">line 54</a>
+        <a href="controllers_authenticationController.js.html">controllers/authenticationController.js</a>, <a href="controllers_authenticationController.js.html#line88">line 88</a>
     </li></ul></dd>
     
 
@@ -2814,31 +1405,9 @@ Depends on user services object</p>
 
 
 
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
         
-<div class="param-desc">
-    <p>void</p>
-</div>
-
-
-
     
 
-
-
-
-
-        
     
 
     
@@ -2854,13 +1423,13 @@ Depends on user services object</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="FileController.html">FileController</a></li><li><a href="MessageService.html">MessageService</a></li><li><a href="NotificationService.html">NotificationService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Nov 12 2022 23:28:40 GMT+0200 (Eastern European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Fri Dec 23 2022 23:49:17 GMT+0200 (Eastern European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
