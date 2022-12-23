@@ -693,7 +693,7 @@ class PostController {
     const userId = req.user._id;
 
     if (!postId) {
-      res.status(400).send({ status: "fail", message: "Invalid request" });
+      res.status(400).json({ status: "fail", message: "Invalid request" });
       return;
     }
 
@@ -702,16 +702,16 @@ class PostController {
     if (!success) {
       switch (error) {
         case postErrors.POST_NOT_FOUND:
-          res.status(404).send({ status: "fail", message: "Post not found" });
+          res.status(404).json({ status: "fail", message: "Post not found" });
           break;
         case postErrors.NOT_MOD:
-          res.status(401).send({
+          res.status(401).json({
             status: "fail",
             message: "User must be moderator",
           });
           break;
         case postErrors.OWNER_NOT_SUBREDDIT:
-          res.status(400).send({
+          res.status(400).json({
             status: "fail",
             message: "The post must belong to a subreddit",
           });
@@ -727,7 +727,7 @@ class PostController {
     const postId = req.params?.postId;
 
     if (!postId) {
-      res.status(400).send({ status: "fail", message: "Invalid request" });
+      res.status(400).json({ status: "fail", message: "Invalid request" });
       return;
     }
     const userId = req.user._id;
@@ -740,10 +740,10 @@ class PostController {
     if (!success) {
       switch (error) {
         case postErrors.POST_NOT_FOUND:
-          res.status(404).send({ status: "fail", message: "Post not found" });
+          res.status(404).json({ status: "fail", message: "Post not found" });
           break;
         case postErrors.NOT_AUTHOR_OR_MOD:
-          res.status(401).send({
+          res.status(401).json({
             status: "fail",
             message: "User must be author or moderator",
           });

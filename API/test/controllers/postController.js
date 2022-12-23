@@ -9,6 +9,7 @@ const {
   postErrors,
   subredditErrors,
 } = require("./../../error_handling/errors");
+const PostController = require("./../../controllers/postController");
 dotenv.config();
 chai.use(sinonChai);
 
@@ -121,9 +122,9 @@ describe("Post Controller Test", () => {
         setPostOwnerData: (posts) => {
           return posts;
         },
-        removeHiddenPosts: (me,posts) =>{
+        removeHiddenPosts: (me, posts) => {
           return posts;
-        }
+        },
       };
 
       const authObj = new auth({ PostService, UserService });
@@ -1059,6 +1060,18 @@ describe("Post Controller CRUD operations", () => {
       });
     });
 
+    it("Invalid parent post", async () => {
+      PostService.createPost = async (data) => {
+        return { success: false, error: postErrors.INVALID_PARENT_POST };
+      };
+      await postController.createPost(req, res, "");
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid parent post",
+      });
+    });
+
     it("mongo error", async () => {
       PostService.createPost = async (data) => {
         return { success: false, error: postErrors.MONGO_ERR, msg: "message" };
@@ -1236,254 +1249,305 @@ describe("Post Controller CRUD operations", () => {
     });
   });
 
+  describe("Must be moderator test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      isMod: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("moderator", async () => {
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
+      //expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("not moderator", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.NOT_MOD };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be moderator",
+      });
+    });
+
+    it("not subreddit", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.OWNER_NOT_SUBREDDIT };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "The post must belong to a subreddit",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.isMod = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Must be moderator or author test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      isAuthOrMod: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("moderator or author", async () => {
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(200);
+      //expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("not moderator nor author", async () => {
+      PostService.isAuthOrMod = () => {
+        return { success: false, error: postErrors.NOT_AUTHOR_OR_MOD };
+      };
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(401);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "User must be moderator",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.isAuthOrMod = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.mustBeAuthOrMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+
+  describe("Moderate post test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+        action: "approve",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      modAction: async () => true,
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("successful action", async () => {
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("action arleady done", async () => {
+      PostService.modAction = () => false;
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action is already performed",
+      });
+    });
+
+    it("Invalid request", async () => {
+      req.params.action = "not a valid action";
+      await postController.moderatePost(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid post moderation action",
+      });
+    });
+  });
+
+  describe("Spam test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+      },
+      body: {
+        dir: 1,
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      spam: async () => {
+        return { success: true };
+      },
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("successful action", async () => {
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("action arleady done", async () => {
+      PostService.spam = () => {
+        return { success: false, error: postErrors.ACTION_ALREADY_DONE };
+      };
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action is already performed",
+      });
+    });
+
+    it("post not found", async () => {
+      PostService.spam = () => {
+        return { success: false, error: postErrors.POST_NOT_FOUND };
+      };
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Post not found",
+      });
+    });
+
+    it("Default values", async () => {
+      delete req.body.dir;
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+
+    it("Invalid request", async () => {
+      delete req.params;
+      await postController.spam(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid request",
+      });
+    });
+  });
+ 
+  describe("Post actions test", () => {
+    const req = {
+      user: {
+        _id: "123u4aab2a94c22ae492983a",
+      },
+      params: {
+        postId: "123p4aab2a94c22ae492983a",
+        action: "lock_comments",
+      },
+    };
+    const UserService = {};
+    const PostService = {
+      postAction: async (postId, action) => true
+    };
+    const postController = new PostController({
+      PostService,
+      UserService,
+    });
+
+    it("post successful action", async () => {
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(204);
+      expect(res.status().json).to.have.been.calledWith({});
+    });
+
+    it("post action arleady done", async () => {
+      PostService.postAction = () => false;
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Action already performed",
+      });
+    });
+
+    it("Invalid request", async () => {
+      req.params.action = "not a valid action";
+      await postController.postActions(req, res, next);
+      expect(res.status).to.have.been.calledWith(400);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Invalid post action",
+      });
+    });
+  });
 
 
 });
-
-/*
-describe("Post controller test", () => {
-  describe("Create post Test", () => {
-    it("successful post creation", async () => {
-      await seeder();
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      res = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(res.status).to.equal(201);
-    });
-
-    it("unsuccessful post creation", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      res = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "Subreddit",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(res.status).to.equal(400);
-    });
-  });
-
-  describe("Delete post Test", () => {
-    it("successful deletion", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/posts/${postRes._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(204);
-    });
-
-    it("delete: non valid id", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/posts/636d490f3ff67d626ec990cb`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(404);
-    });
-
-    it("delete: unauthorized", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "khaled",
-        email: "khaled@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      deleteRes = await request(app)
-        .delete(`/api/v1/posts/${postRes._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send();
-      expect(deleteRes.status).to.equal(401);
-    });
-  });
-
-  describe("Update post Test", () => {
-    it("successful delete", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      updateRes = await request(app)
-        .patch(`/api/v1/posts/${postRes._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "some text" });
-      expect(updateRes.status).to.equal(200);
-      expect(updateRes._body.data.text).to.equal("some text");
-    });
-
-    it("Update: non valid id", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      updateRes = await request(app)
-        .patch(`/api/v1/posts/636d490f3ff67d626ec990cb`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "some text" });
-      expect(updateRes.status).to.equal(404);
-    });
-
-    it("update: unauthorized", async () => {
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "kirollos",
-        email: "kirollos@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      postRes = await request(app)
-        .post("/api/v1/posts")
-        .set("Cookie", res.header["set-cookie"])
-        .send({
-          title: "kiro post",
-          kind: "self",
-          text: "this is a post",
-          ownerType: "User",
-          nsfw: false,
-          spoiler: true,
-          sendReplies: true,
-          suggestedSort: "top",
-        });
-      expect(postRes.status).to.equal(201);
-
-      res = await request(app).post("/api/v1/users/login").send({
-        userName: "khaled",
-        email: "khaled@gmail.com",
-        password: "12345678",
-      });
-      expect(res.status).to.equal(200);
-
-      updateRes = await request(app)
-        .patch(`/api/v1/posts/${postRes._body.data._id}`)
-        .set("Cookie", res.header["set-cookie"])
-        .send({ text: "some text" });
-      expect(updateRes.status).to.equal(401);
-    });
-  });
-});
-*/

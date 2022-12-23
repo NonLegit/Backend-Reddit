@@ -69,6 +69,18 @@ describe("Comment Controller CRUD operations", () => {
       });
     });
 
+    it("parent locked", async () => {
+      CommentService.createComment = async (data) => {
+        return { success: false, error: commentErrors.PARANT_LOCKED };
+      };
+      await commentController.createComment(req, res, "");
+      expect(res.status).to.have.been.calledWith(409);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Parent is locked, comments are not allowed"
+      });
+    });
+
     it("mongo error", async () => {
       CommentService.createComment = async (data) => {
         return {
@@ -464,6 +476,18 @@ describe("Comment Controller CRUD operations", () => {
       expect(res.status().json).to.have.been.calledWith({
         status: "fail",
         message: "The comment must belong to a subreddit",
+      });
+    });
+
+    it("comment not found", async () => {
+      CommentService.isMod = () => {
+        return { success: false, error: commentErrors.COMMENT_NOT_FOUND };
+      };
+      await commentController.mustBeMod(req, res, next);
+      expect(res.status).to.have.been.calledWith(404);
+      expect(res.status().json).to.have.been.calledWith({
+        status: "fail",
+        message: "Comment not found",
       });
     });
 
