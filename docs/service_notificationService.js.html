@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: service/notificationService.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: service/notificationService.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { postErrors, mongoErrors, notificationErrors } = require("../error_handling/errors");
+
+/**
+ * this class is used for implementing Notification Service functions
+ * @param {Repository} notificationRepo - notification repository object to access repository functions using notification model
+ * @param {Repository} userRepo - user repository object to access repository functions using user model
+ */
+class NotificationService {
+  constructor({ NotificationRepository,UserRepository }) {
+    this.notificationRepo = NotificationRepository;
+    this.userRepo = UserRepository;
+  }
+
+
+   /**
+   * add reply notification service function
+   * @param {object} user - user who created the reply
+   * @param {object} comment - comment created on the post
+   * @param {object} post - post which has reply on it 
+   * @returns {Object} - a response containing the created notification.
+   *
+   */
+  async addReplyNotification(user,comment,post) {
+    
+    const notification = await this.notificationRepo.addReplyNotification(user,comment,post);
+    if (!notification.success)
+      return { success: false, error: notification.error };
+
+    
+    
+    return { success: true, data: notification.doc };
+  }
+
+   /**
+   * add mentions notifications service function
+   * @param {object} user - user who created the reply
+   * @param {object} comment - comment created on the post
+   * @param {object} post - post which has reply on it 
+   * @param {Array} mentions - list of mentions on in the reply
+   * @returns {Object} - a response containing the created notifications.
+   *
+   */
+   async sendMentions(user,comment,post,mentions) {
+    
+    const notification = await this.notificationRepo.sendMentions(user,comment,post,mentions);
+    if (!notification.success)
+      return { success: false, error: notification.error };
+
+    
+    
+    return { success: true, data: notification.doc };
+  }
+
+  /**
+   * add follow notifications service function
+   * @param {object} follower - user who request the follow
+   * @param {object} followed - user who is requested to be followed
+   * @returns {Object} - a response containing the created notification.
+   */
+   async addFollowNotification(follower,followed) {
+   
+     const notification = await this.notificationRepo.addFollowNotification(follower, followed);
+ 
+    if (!notification.success)
+      return { success: false, error: notification.error };
+
+    
+    
+    return { success: true, data: notification.doc };
+  }
+
+    /**
+   * add firebase token service function
+   * @param {String} userId - user to get his token
+   * @returns {Object} - a response containing the user firebase token.
+   */
+  async getFirebaseToken(userId) {
+   
+    const tokens = await this.userRepo.getFirebaseToken(userId);
+    if (!tokens.success)
+      return { success: false, error: tokens.error };
+
+    
+    
+    return { success: true, data: tokens.doc };
+  }
+
+ /**
+   * get all notifications service function
+   * @param {String} userId - user to get his notifications
+   * @returns {Object} - a response containing the notifications.
+   */
+
+  async getAllNotifications(userId) {
+    const notifications = await this.notificationRepo.getAllNotifications(userId);
+
+    if (!notifications.success) {
+      return { success: false, error: notifications.error };
+    }
+    return { success: true, data: notifications.doc };
+  }
+  
+
+   /**
+   * mark all notifications sd read service function
+   * @param {String} userId - user to mark his notifications as read
+   * @returns {Object} - a response containing success status.
+   */
+  async markAllNotificationsAsRead(userId) {
+ const notifications = await this.notificationRepo.markAllNotificationsAsRead(userId);
+
+   
+    if (!notifications.success) {
+      return { success: false, error: notifications.error };
+    }
+    return { success: true }; 
+  }
+  
+   /**
+   * mark notification as read service function
+   * @param {String} userId - user to mark his notifications as read.
+   * @param {String} notificationId - notification id to mark  as read.
+   * @returns {Object} - a response containing success status.
+   */
+   async markNotificationAsRead(userId,notificationId) {
+ const notification = await this.notificationRepo.markNotificationAsRead(userId,notificationId);
+
+
+    if (!notification.success) {
+      return { success: false, error: notificationErrors.NOTIFICATION_NOT_FOUND };
+    }
+    return { success: true }; 
+  }
+  
+    /**
+   * hide notifications service function
+   * @param {String} userId - user to hide his notifications.
+   * @param {String} notificationId - notification to hide.
+   * @returns {Object} - a response containing success status.
+   */
+     async hideNotification(userId,notificationId) {
+ const notification = await this.notificationRepo.hideNotification(userId,notificationId);
+
+   
+    if (!notification.success) {
+      return { success: false, error: notificationErrors.NOTIFICATION_NOT_FOUND };
+    }
+    return { success: true }; 
+}
+  
+  
+
+}
+
+module.exports = NotificationService;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="FileController.html">FileController</a></li><li><a href="MessageService.html">MessageService</a></li><li><a href="NotificationService.html">NotificationService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Fri Dec 23 2022 23:59:28 GMT+0200 (Eastern European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
