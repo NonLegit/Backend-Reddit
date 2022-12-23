@@ -27,12 +27,11 @@ class subredditService {
   /**
    * create subreddit service function
    * @param {object} data - the data coming from request body
-   * @param {object} userName - username of currently logged user
-   * @param {object} profilePicture - profile picture of currently logged user
+   * @param {string} userName - username of currently logged user
+   * @param {String} profilePicture - profile picture of currently logged user
    * @returns {Object} - a response containing the created subreddit.
    *
    */
-  
   async createSubreddit(data, userName, profilePicture) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -72,7 +71,6 @@ class subredditService {
    * @param {String} userId - query options
    * @returns {Object} - a response
    */
- 
   async deleteSubreddit(subredditName, userId) {
     // ..
     let subreddit = await this.retrieveSubreddit(userId, subredditName, true);
@@ -114,7 +112,9 @@ class subredditService {
   }
   /**
    * retrieve a subreddit from database service function
+   * @param {userId} userId - user id
    * @param {object} name - a query to select a certain subreddit from database
+   * @param {boolean} checkOnly - a boolean to indecate wheather i want to check if user is joined or check only if subreddit exists
    * @returns {Object} - a response containing the retrieved subreddit
    */
   async retrieveSubreddit(userId, name, checkOnly) {
@@ -140,7 +140,6 @@ class subredditService {
    * @param {object} data - moderator permissions bassed from request body
    * @returns {Object} a response.
    */
-
   async inviteMod(subredditName, userId, modName, data) {
     // ..
     //  check subreddit existed or not
@@ -220,7 +219,15 @@ class subredditService {
     }
   }
 
- 
+ /**
+  * This function handles invitations sent to user to join as moderator.
+  * @param {String} userId 
+  * @param {String} userName 
+  * @param {String} profilePicture 
+  * @param {String} subredditName 
+  * @param {String} action 
+  * @returns {Object} - a response
+  */
   async handleInvitation(
     userId,
     userName,
@@ -277,12 +284,26 @@ class subredditService {
     return { success: true };
   }
 
+
+/**
+ * utility function
+ * @param {Array} list 
+ * @param {Object} value 
+ * @returns {Array} - modified array
+ */
   removeSubredditId(list, value) {
     return list.filter(function (ele) {
       return !value.equals(ele.subredditId);
     });
   }
 
+  /**
+   * utility function
+   * @param {Array} list 
+   * @param {Object} value 
+   * @param {String} type 
+   * @returns {Array} a modified array
+   */
   removeId(list, value, type) {
     return list.filter(function (ele) {
       return !(value.equals(ele.user._id) && ele.type === type);
@@ -294,9 +315,8 @@ class subredditService {
    * @param {string} subredditName - name of subreddit i want to remove moderator from
    * @param {string} userId - iD of the user making the request
    * @param {string} modName - moderator name i want to remove from moderation
-   * @returns a response.
+   * @returns {Object} a response.
    */
-
   async deleteMod(subredditName, userId, modName) {
     // ..
     let subredditExisted = await this.retrieveSubreddit(
@@ -374,7 +394,6 @@ class subredditService {
    * @param {string} location - an enum value either [subscriber, moderator]
    * @returns {Object} - a response containing an array of subreddits
    */
- 
   async subredditsIamIn(userId, location) {
     if (location === "moderator") {
       //! get list of subreddits iam moderator in (easy)
@@ -432,7 +451,6 @@ class subredditService {
    * @param {Object} data - new permissions passed in request body
    * @returns {Object} a moderator information after updating his permissions
    */
-  
   async updateModeratorSettings(subredditName, userId, modName, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -503,7 +521,15 @@ class subredditService {
     }
   }
 
-  // TODO: service tests
+  /**
+   * this function is used to handle mod actions ban or unban user in the subreddit
+   * @param {String} userId 
+   * @param {String} subredditName 
+   * @param {String} banedUser 
+   * @param {String} action 
+   * @param {Object} data 
+   * @returns {Object} a response
+   */
   async banUnban(userId, subredditName, banedUser, action, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -599,7 +625,15 @@ class subredditService {
     }
   }
 
-  // TODO: service tests
+  /**
+   * this function handles mod actions Mute and unmute of user in subreddit
+   * @param {String} userId 
+   * @param {String} subredditName 
+   * @param {String} banedUser 
+   * @param {String} action 
+   * @param {Object} data 
+   * @returns {Object} a response 
+   */
   async muteUnmute(userId, subredditName, banedUser, action, data) {
     let subredditExisted = await this.retrieveSubreddit(
       userId,
@@ -696,14 +730,25 @@ class subredditService {
     }
   }
 
-  
+  /**
+   * Utility function
+   * @param {Array} list 
+   * @param {Object} value 
+   * @returns  {Array} modified array
+   */
   filter(list, value) {
     return list.filter(function (ele) {
       return value === ele.type;
     });
   }
 
-  // TODO: service tests
+ 
+  /**
+   * This function returns the banned users
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @returns {Object} list of banned users
+   */
   async banned(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -734,7 +779,12 @@ class subredditService {
     return { success: true, data: banedUsers };
   }
 
-  // TODO: service tests
+ /**
+  * this function returns the muted users in this subreddit
+  * @param {String} subredditName 
+  * @param {String} userId 
+  * @returns {Object} muted users
+  */
   async muted(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -765,7 +815,11 @@ class subredditService {
     return { success: true, data: mutedUsers };
   }
 
-  // TODO: service tests
+  /**
+   * this function returns an object containing all moderators in this subreddit 
+   * @param {String} subredditName 
+   * @returns {Object} a response containing all moderators
+   */
   async mods(subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -787,7 +841,12 @@ class subredditService {
     return { success: true, data: moderators };
   }
 
-  // TODO: service tests
+  /**
+   * leave moderation action
+   * @param {String} userId 
+   * @param {String} subredditName 
+   * @returns {Object} a response
+   */
   async leaveMod(userId, subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -821,7 +880,12 @@ class subredditService {
     return { success: true };
   }
 
-  // TODO: service tests
+  /**
+   * mark or unmark a subreddit as fivourite or un fivourite
+   * @param {String} userId 
+   * @param {String} subredditName 
+   * @returns {Object} a response
+   */
   async handleFavourite(userId, subredditName) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -858,7 +922,14 @@ class subredditService {
     }
   }
 
-  // TODO: service tests
+  /**
+   * this function is used to add rule to this subreddit
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @param {String} title 
+   * @param {Object} data 
+   * @returns {Object} a response
+   */
   async addRule(subredditName, userId, title, data) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -890,7 +961,14 @@ class subredditService {
     return { success: true };
   }
 
-  // TODO: service tests
+   /**
+   * this function is used to esit rule to this subreddit
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @param {String} title 
+   * @param {Object} data 
+   * @returns {Object} a response
+   */
   async editRule(subredditName, userId, title, data) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -937,7 +1015,13 @@ class subredditService {
 
     return { success: true };
   }
-  // TODO: service tests
+    /**
+   * this function is used to delete rule to this subreddit
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @param {String} title  
+   * @returns {Object} a response
+   */
   async deleteRule(subredditName, userId, title) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -960,7 +1044,12 @@ class subredditService {
 
     let rules = subredditExisted.doc.rules;
 
-    // TODO: service tests
+    /**
+     * Utility function used to remove rule
+     * @param {Array} list 
+     * @param {Object} value 
+     * @returns {Array} a modified array
+     */
     function removeRule(list, value) {
       return list.filter(function (ele) {
         return !(value === ele.title);
@@ -979,7 +1068,14 @@ class subredditService {
     return { success: true };
   }
 
-  // TODO: service tests
+  /**
+   * this function returns posts based on their tybe in mod tools
+   * @param {Object} query 
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @param {String} location 
+   * @returns {Object}
+   */
   async categorizedPosts(query, subredditName, userId, location) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -1009,7 +1105,13 @@ class subredditService {
     return { success: true, data: posts.doc };
   }
 
-  // TODO: service tests
+  /**
+   * this function returns subreddits based on their topic
+   * @param {String} category 
+   * @param {Object} query 
+   * @param {String} userId 
+   * @returns {Object}
+   */
   async categorizedSubreddits(category, query, userId) {
     if (category !== "All") {
       let subs = await this.subredditRepository.categorySubreddits(
@@ -1044,7 +1146,12 @@ class subredditService {
     }
   }
 
-  // TODO: service tests
+  /**
+   * this function return random subreddits from database
+   * @param {Object} query 
+   * @param {String} userId 
+   * @returns {Object}
+   */
   async randomSubreddits(query, userId) {
     let subs = await this.subredditRepository.randomSubreddits(query, userId);
     if (!subs.success) {
@@ -1071,6 +1178,15 @@ class subredditService {
     return { success: true, data: subreddits };
   }
 
+
+  /**
+   * this function mark user as approved or not
+   * @param {String} userId 
+   * @param {String} subredditName 
+   * @param {String} approvedUser 
+   * @param {String} action 
+   * @returns {Object} 
+   */
   async approveUser(userId, subredditName, approvedUser, action) {
     let canDelete = await this.subredditRepository.isModerator_1(
       subredditName,
@@ -1173,6 +1289,13 @@ class subredditService {
     }
   }
 
+
+  /**
+   *  return approved users
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @returns {Object}
+   */
   async approved(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -1203,6 +1326,12 @@ class subredditService {
     return { success: true, data: approvedUsers };
   }
 
+  /**
+   * this function returns posts contains videos and images to be visualized as reels in mobile app
+   * @param {String} topic 
+   * @param {Object} query 
+   * @returns {Object}
+   */
   async reels(topic, query) {
     let posts = await this.postRepository.getPostsBySubredditTopic(
       topic,
@@ -1227,6 +1356,13 @@ class subredditService {
     else return { success: true, data: afterfilter };
   }
 
+  /**
+   *  this function returns stats of the subreddit
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @param {String} type 
+   * @returns {Object}
+   */
   async traffic(subredditName, userId,type) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -1252,6 +1388,13 @@ class subredditService {
     return { success: true, data: stats.doc }; //
   }
 
+
+  /**
+   *  this function returns users invited to be moderators in this subreddit
+   * @param {String} subredditName 
+   * @param {String} userId 
+   * @returns {Object}
+   */
   async invitations(subredditName, userId) {
     let subredditExisted = await this.subredditRepository.getsubreddit(
       subredditName,
@@ -1515,10 +1658,22 @@ class subredditService {
     return { success: true, _id: subreddit.doc._id };
   }
 
+  /**
+   * update membersCount of this subreddit
+   * @param {String} id 
+   * @param {String} action 
+   */
   async updateUserCount(id, action) {
     if (action == "sub") await this.subredditRepository.addUser(id);
     else await this.subredditRepository.removeUser(id);
   }
+  /**
+   * udates the image of the subreddit [icon,BG,theme]
+   * @param {String} subredditName 
+   * @param {String} type 
+   * @param {String} filename 
+   * @returns {Object}
+   */
   async addUserImageURL(subredditName, type, filename) {
     let subreddit = await this.subredditRepository.updateSubredditImage(
       subredditName,

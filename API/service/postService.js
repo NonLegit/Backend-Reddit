@@ -675,7 +675,7 @@ class PostService {
    * @param {String} postId
    * @param {String} userId
    * @param {Number} dir
-   * @returns
+   * @returns {Object}
    */
   async spam(postId, userId, dir) {
     const SPAM_THRESHOLD = 5;

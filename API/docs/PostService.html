@@ -28,7 +28,7 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>PostService<span class="signature">(Post, postRepository, subredditRepository, flairRepository)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>PostService<span class="signature">(PostRepository, subredditRepo)</span><span class="type-signature"></span></h2>
         
             <div class="class-description"><p>Post Service class for handling Post model and services</p></div>
         
@@ -45,7 +45,7 @@
     
 
     
-    <h4 class="name" id="PostService"><span class="type-signature"></span>new PostService<span class="signature">(Post, postRepository, subredditRepository, flairRepository)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="PostService"><span class="type-signature"></span>new PostService<span class="signature">(PostRepository, subredditRepo)</span><span class="type-signature"></span></h4>
     
 
     
@@ -90,30 +90,7 @@ Depends on the following classes</p>
 
         <tr>
             
-                <td class="name"><code>Post</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"><p>Post data model</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>postRepository</code></td>
+                <td class="name"><code>PostRepository</code></td>
             
 
             <td class="type">
@@ -136,7 +113,7 @@ Depends on the following classes</p>
 
         <tr>
             
-                <td class="name"><code>subredditRepository</code></td>
+                <td class="name"><code>subredditRepo</code></td>
             
 
             <td class="type">
@@ -153,29 +130,6 @@ Depends on the following classes</p>
             
 
             <td class="description last"><p>Data access object for subreddit</p></td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>flairRepository</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">object</span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
         </tr>
 
     
@@ -216,7 +170,7 @@ Depends on the following classes</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line6">line 6</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line11">line 11</a>
     </li></ul></dd>
     
 
@@ -272,6 +226,307 @@ Depends on the following classes</p>
     
 
     
+    <h4 class="name" id="addVote"><span class="type-signature">(async) </span>addVote<span class="signature">(user, postId, voteDir, votesCount, author)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user who vote on post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to vote on</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>voteDir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>vote status (-1,0,1)</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>votesCount</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><h1>of votes on post</h1></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>author</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>creator of post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>addVote</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>add user vote on post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line792">line 792</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>true</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
     <h4 class="name" id="createPost"><span class="type-signature">(async) </span>createPost<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
@@ -280,7 +535,14 @@ Depends on the following classes</p>
 
 
 <div class="description">
-    <p>Creates a post with the given data</p>
+    <p>Creates a post after validation
+The following conditions are checked</p>
+<ul>
+<li>required data is present</li>
+<li>the post is of valid kind</li>
+<li>the post owner is valid</li>
+<li>valid flair id is provided</li>
+</ul>
 </div>
 
 
@@ -373,7 +635,7 @@ Depends on the following classes</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line52">line 52</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line86">line 86</a>
     </li></ul></dd>
     
 
@@ -401,12 +663,6 @@ Depends on the following classes</p>
 <h5>Returns:</h5>
 
         
-<div class="param-desc">
-    <ul>
-<li>Post object after creation</li>
-</ul>
-</div>
-
 
 
 <dl>
@@ -536,7 +792,7 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line74">line 74</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line58">line 58</a>
     </li></ul></dd>
     
 
@@ -561,6 +817,447 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
 
 
 
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="filterPosts"><span class="type-signature"></span>filterPosts<span class="signature">(comments, posts)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>comments</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>list of comments containing posts to filter from post list</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>posts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>list of  posts</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filterPosts</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>remove duplicate posts in comments from post list</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line760">line 760</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>list of posts</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="findPostById"><span class="type-signature">(async) </span>findPostById<span class="signature">(postId)</span><span class="type-signature"> &rarr; {object}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to find</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>findPostById</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>find post by id</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line775">line 775</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>object contain post if success or fail</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
 
 
 
@@ -696,7 +1393,7 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line159">line 159</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line222">line 222</a>
     </li></ul></dd>
     
 
@@ -926,7 +1623,7 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line179">line 179</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line261">line 261</a>
     </li></ul></dd>
     
 
@@ -986,7 +1683,239 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
     
 
     
-    <h4 class="name" id="isAuthor"><span class="type-signature">(async) </span>isAuthor<span class="signature">(postId, userId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="hidePost"><span class="type-signature">(async) </span>hidePost<span class="signature">(user, postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user who hide post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to hide on</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>hidePost</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user hide post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line882">line 882</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>false if post is not hidden before or true if post is already hidden</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="isAuth"><span class="type-signature">(async) </span>isAuth<span class="signature">(postId, userId)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -994,8 +1923,7 @@ The delete effect is cascaded to all the comment tree of the post using mongoose
 
 
 <div class="description">
-    <p>Checks if the user is the post author
-assumes postId is valid</p>
+    <p>Checks if the user is the post author</p>
 </div>
 
 
@@ -1047,7 +1975,7 @@ assumes postId is valid</p>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>The post ID</p></td>
         </tr>
 
     
@@ -1070,7 +1998,7 @@ assumes postId is valid</p>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>The ID of the user in question</p></td>
         </tr>
 
     
@@ -1111,7 +2039,7 @@ assumes postId is valid</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line124">line 124</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line591">line 591</a>
     </li></ul></dd>
     
 
@@ -1147,7 +2075,7 @@ assumes postId is valid</p>
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -1165,7 +2093,7 @@ assumes postId is valid</p>
     
 
     
-    <h4 class="name" id="isEditable"><span class="type-signature">(async) </span>isEditable<span class="signature">(postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="isAuthOrMod"><span class="type-signature">(async) </span>isAuthOrMod<span class="signature">(postId, userId)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -1173,8 +2101,7 @@ assumes postId is valid</p>
 
 
 <div class="description">
-    <p>Checks if the post with given id can be edited
-A post can be edited if its kind is self and it's not crossposted</p>
+    <p>Checks if the user is the post author or moderator in the post subreddit</p>
 </div>
 
 
@@ -1226,146 +2153,14 @@ A post can be edited if its kind is self and it's not crossposted</p>
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>The post ID</p></td>
         </tr>
 
-    
-    </tbody>
-</table>
-
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line147">line 147</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<h5>Returns:</h5>
-
-        
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">boolean</span>
-
-
-    </dd>
-</dl>
-
-    
-
-
-
-
-
-        
-            
-
-    
-
-    
-    <h4 class="name" id="isValidId"><span class="type-signature">(async) </span>isValidId<span class="signature">(id)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
-    
-
-    
-
-
-
-<div class="description">
-    <p>Validates post id</p>
-</div>
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>userId</code></td>
             
 
             <td class="type">
@@ -1381,7 +2176,7 @@ A post can be edited if its kind is self and it's not crossposted</p>
 
             
 
-            <td class="description last"><p>Post id</p></td>
+            <td class="description last"><p>The ID of the user in question</p></td>
         </tr>
 
     
@@ -1422,7 +2217,7 @@ A post can be edited if its kind is self and it's not crossposted</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line134">line 134</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line567">line 567</a>
     </li></ul></dd>
     
 
@@ -1458,7 +2253,7 @@ A post can be edited if its kind is self and it's not crossposted</p>
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">object</span>
 
 
     </dd>
@@ -1476,7 +2271,7 @@ A post can be edited if its kind is self and it's not crossposted</p>
     
 
     
-    <h4 class="name" id="isValidPost"><span class="type-signature">(async) </span>isValidPost<span class="signature">(data)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    <h4 class="name" id="isMod"><span class="type-signature">(async) </span>isMod<span class="signature">(postId, userId)</span><span class="type-signature"> &rarr; {object}</span></h4>
     
 
     
@@ -1484,14 +2279,7 @@ A post can be edited if its kind is self and it's not crossposted</p>
 
 
 <div class="description">
-    <p>Validate the post data request
-The following conditions are checked</p>
-<ul>
-<li>required data is present</li>
-<li>the post is of valid kind</li>
-<li>the post owner is valid</li>
-<li>valid flair id is provided</li>
-</ul>
+    <p>Checks if the user is moderator in the post subreddit</p>
 </div>
 
 
@@ -1527,13 +2315,13 @@ The following conditions are checked</p>
 
         <tr>
             
-                <td class="name"><code>data</code></td>
+                <td class="name"><code>postId</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">object</span>
+<span class="param-type">string</span>
 
 
             
@@ -1543,7 +2331,30 @@ The following conditions are checked</p>
 
             
 
-            <td class="description last"><p>The post data</p></td>
+            <td class="description last"><p>The post ID</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The ID of the user in question</p></td>
         </tr>
 
     
@@ -1584,7 +2395,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line88">line 88</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line614">line 614</a>
     </li></ul></dd>
     
 
@@ -1620,7 +2431,394 @@ The following conditions are checked</p>
     </dt>
     <dd>
         
-<span class="param-type">boolean</span>
+<span class="param-type">object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="modAction"><span class="type-signature">(async) </span>modAction<span class="signature">(postId, action)</span><span class="type-signature"> &rarr; {bool}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Performs an action on post only by the moderators of the subreddit</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The ID of the post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>action</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The action to be performed</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line668">line 668</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>returns true if the action is performed successfully and false otherwise</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">bool</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="postAction"><span class="type-signature">(async) </span>postAction<span class="signature">(postId, action, dir)</span><span class="type-signature"> &rarr; {bool}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Performs an action on post that requires the user to be either author or mod</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The ID of the post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>action</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>The action to be performed</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">bool</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>True for the action, False for its opposite</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line638">line 638</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <p>returns true if the action is performed successfully and false otherwise</p>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">bool</span>
 
 
     </dd>
@@ -1810,7 +3008,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line228">line 228</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line370">line 370</a>
     </li></ul></dd>
     
 
@@ -1853,6 +3051,238 @@ The following conditions are checked</p>
     <dd>
         
 <span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="savePost"><span class="type-signature">(async) </span>savePost<span class="signature">(user, postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user who save post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to save on</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>savePost</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>add user save post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line842">line 842</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>true if post is not saved before or false if post is already saved</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -2042,7 +3472,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line340">line 340</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line513">line 513</a>
     </li></ul></dd>
     
 
@@ -2274,7 +3704,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line281">line 281</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line453">line 453</a>
     </li></ul></dd>
     
 
@@ -2483,7 +3913,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line206">line 206</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line297">line 297</a>
     </li></ul></dd>
     
 
@@ -2715,7 +4145,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line253">line 253</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line395">line 395</a>
     </li></ul></dd>
     
 
@@ -2947,7 +4377,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line310">line 310</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line483">line 483</a>
     </li></ul></dd>
     
 
@@ -2990,6 +4420,904 @@ The following conditions are checked</p>
     <dd>
         
 <span class="param-type">Array.&lt;object></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="setVoteStatus"><span class="type-signature"></span>setVoteStatus<span class="signature">(user, saved)</span><span class="type-signature"> &rarr; {Array}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>authenticated user</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>saved</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">object</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>list of saved posts</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>setVoteStatus</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>set vote status of saved posts of users</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line708">line 708</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>list of saved posts</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Array</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="spam"><span class="type-signature">(async) </span>spam<span class="signature">(postId, userId, dir)</span><span class="type-signature"> &rarr; {Object}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    <p>Mark a post as spammed by a non-mod user
+If spam count exceeded certain threshold the post is marked as spammed</p>
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>userId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>dir</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Number</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line680">line 680</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="unHidePost"><span class="type-signature">(async) </span>unHidePost<span class="signature">(user, postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user who hide post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to hide on</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>unHidePost</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user unHide post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line902">line 902</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>true if post is not hidden before or false if post is already hidden</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="unSavePost"><span class="type-signature">(async) </span>unSavePost<span class="signature">(user, postId)</span><span class="type-signature"> &rarr; {boolean}</span></h4>
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>user</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>user who save post</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>postId</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>post id to unsave on</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>unSavePost</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">function</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>add user unsave post</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line863">line 863</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    <ul>
+<li>false if post is not saved before or true if post is already saved</li>
+</ul>
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">boolean</span>
 
 
     </dd>
@@ -3131,7 +5459,7 @@ The following conditions are checked</p>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line63">line 63</a>
+        <a href="service_postService.js.html">service/postService.js</a>, <a href="service_postService.js.html#line31">line 31</a>
     </li></ul></dd>
     
 
@@ -3201,13 +5529,13 @@ The following conditions are checked</p>
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AuthenticationController.html">AuthenticationController</a></li><li><a href="CommentService.html">CommentService</a></li><li><a href="FileController.html">FileController</a></li><li><a href="PostService.html">PostService</a></li><li><a href="UserController.html">UserController</a></li><li><a href="UserService.html">UserService</a></li><li><a href="subredditService.html">subredditService</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Sat Nov 12 2022 23:28:40 GMT+0200 (Eastern European Standard Time)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.0</a> on Fri Dec 23 2022 23:46:52 GMT+0200 (Eastern European Standard Time)
 </footer>
 
 <script> prettyPrint(); </script>
