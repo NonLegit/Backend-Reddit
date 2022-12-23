@@ -394,6 +394,125 @@ describe("Comment service test", () => {
       const comments = await commentServices.getUserComments("1", user, "");
       expect(comments.length).to.equal(1);
     });
+
+    it("second test ", async () => {
+      const CommentRepository = {
+        getUserComments: async () => {
+          return {
+            doc: [
+              {
+                _id: "1",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "2",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "2",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "User",
+                  owner: {
+                    _id: "1",
+                    userName: "ahmed",
+                    profilePicture: "users/default.png",
+                  },
+                },
+              },
+              {
+                _id: "3",
+                mentions: [],
+                parent: "1",
+                parentType: "Post",
+                text: "1",
+                votes: "1",
+                repliesCount: 0,
+                createdAt: "",
+                isDeleted: "1",
+                sortOnHot: 5,
+                author: {
+                  _id: "1",
+                  userName: "ahmed",
+                },
+                post: {
+                  _id: "1",
+                  author: {
+                    _id: "1",
+                    userName: "ahmed",
+                  },
+                  ownerType: "Subreddit",
+                  owner: {
+                    _id: "1",
+                    fixedName: "ahmed",
+                    icon: "users/default.png",
+                  },
+                },
+              },
+            ],
+          };
+        },
+      };
+      const user = {
+        voteComment: [
+          { comments: "1", commentVoteStatus: "1" },
+          { comments: "2", commentVoteStatus: "-1" },
+        ],
+        savedComments: [
+          {
+            savedComment: "1",
+          },
+          {
+            savedComment: "3",
+          },
+        ],
+      };
+      const PostRepository = {};
+      const commentServices = new CommentService({
+        CommentRepository,
+        PostRepository,
+      });
+      const comments = await commentServices.getUserComments("1", user, "");
+      expect(comments.length).to.equal(3);
+    });
   });
 
 
@@ -673,6 +792,134 @@ describe("Comment service test", () => {
       const CommentServices = new CommentService({ CommentRepository });
       const result = await CommentServices.findCommentById("1");
       expect(result.success).to.equal(false);
+    });
+  });
+
+  describe("setVoteStatus function ", () => {
+    const CommentServices = new CommentService({});
+    it("first test ", () => {
+      let saved = [
+        {
+          savedComment: {
+            _id: "1",
+            post:{
+              _id:"1",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"User",
+              owner:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              userName: "ahmed",
+              profilePicture: "users/default.png",
+            },
+            ownerType: "User",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+          },
+        },
+        {
+          savedComment: {
+            _id: "2",
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              fixedName: "ahmed",
+              icon: "subreddits/default.png",
+            },
+            ownerType: "Subreddit",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+            post:{
+              _id:"1",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"Subreddit",
+              owner:{
+                _id:"1",
+                fixedName:"ahmed",
+                icon:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+          },
+        },
+        {
+          savedComment: {
+            _id: "3",
+            commentVoteStatus: 1,
+            owner: {
+              _id: "1",
+              fixedName: "ahmed",
+              icon: "subreddits/default.png",
+            },
+            ownerType: "Subreddit",
+            author: {
+              _id: "1",
+              userName: "ahmed",
+            },
+            post:{
+              _id:"2",
+              title:"",
+              author:{
+                _id:"1",
+                userName:"ahmed",
+                profilePicture:"icon.png"
+              },
+              ownerType:"Subreddit",
+              owner:{
+                _id:"1",
+                fixedName:"ahmed",
+                icon:"icon.png"
+              },
+              text:"",
+              nsfw:"",
+              flairId:"",
+            },
+          },
+        },
+      ];
+      let user = {
+        voteComment: [
+          {
+            comments: "1",
+            commentVoteStatus: 1,
+          },
+          {
+            comments: "2",
+            commentVoteStatus: -1,
+          },
+          {
+            comments: "4",
+            commentVoteStatus: -1,
+          },
+        ],
+      };
+      const result = CommentServices.setVoteStatus(user, saved);
+      expect(result.length).to.equal(2);
     });
   });
 

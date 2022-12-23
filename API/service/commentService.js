@@ -426,7 +426,7 @@ class CommentService {
             sortOnHot: element.savedComment.sortOnHot,
             commentVoteStatus: !hash[element.savedComment._id]
               ? 0
-              : hash[comments[i]._id],
+              : hash[element.savedComment._id],
             isSaved: true,
           },
         ];
@@ -451,7 +451,7 @@ class CommentService {
           sortOnHot: element.savedComment.sortOnHot,
           commentVoteStatus: !hash[element.savedComment._id]
             ? 0
-            : hash[comments[i]._id],
+            : hash[element.savedComment._id],
           isSaved: true,
         });
       }
