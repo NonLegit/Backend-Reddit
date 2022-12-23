@@ -7,14 +7,7 @@ dotenv.config({ path: "config/config.env" });
 
 const SubredditService = require("./../../service/subredditService");
 
-// const emailServiceObj = {
-//   sendPasswordReset: (user, resetURL) => {
-//     return true;
-//   },
-//   sendUserName: (user) => {
-//     return true;
-//   },
-// };
+
 
 describe("get subreddit flair", () => {
   
