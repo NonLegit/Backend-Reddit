@@ -284,7 +284,7 @@ class CommentController {
       let limit = req.query.limit;
       let page = req.query.page;
       let sort = req.query.sort;
-      if (sort !== "New" || sort !== "Hot" || sort !== "Top") {
+      if (sort !== "New" && sort !== "Hot" && sort !== "Top") {
         sort = "-createdAt";
       } else {
         if (sort === "New") {

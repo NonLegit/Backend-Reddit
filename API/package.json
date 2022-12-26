@@ -22,13 +22,15 @@
       "API/error_handling/*.js",
       "API/service/emailService.js",
       "API/controllers/fileController.js",
-      "docs"
+      "docs",
+      "coverage"
     ]
   },
   "scripts": {
-    "test": "mocha --timeout 1000000 --recursive --exit ",
+    "test": "mocha --timeout 1000000 --recursive --exit --reporter mochawesome ",
     "covarage": "nyc --reporter=html mocha --timeout 1000000 --recursive --exit ",
     "test_covarage":"nyc --check-coverage=true  --reporter=html npm run test",
+    "text":"nyc --check-coverage=true  --reporter=text npm run test",
     "start": "nodemon server.js",
     "migrate": "migrate create finalSeed  -d mongodb://localhost:27017/redditDB",
     "up": "migrate up  -d mongodb://<USER>:<PASSWORD>@mongodb/redditDB?authSource=admin --autosync",

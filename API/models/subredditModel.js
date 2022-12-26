@@ -148,7 +148,7 @@ const subredditSchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: new Date(Date.now()),
+    default: new Date(Date.now),
   },
   topics: {
     type: [{ type: String }],

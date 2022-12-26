@@ -66,7 +66,7 @@ const postSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
   },
   locked: {
     type: Boolean,
@@ -159,7 +159,7 @@ postSchema.pre("save", function (next) {
   // this points to the current query
 
   this.sortOnHot =
-    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.commentCount * 0.2;
+    this.createdAt.getTime() * 0.5 + this.votes * 10 + this.commentCount * 10;
   this.sortOnBest =
     this.createdAt.getTime() * 0.4 +
     this.votes * 0.25 +

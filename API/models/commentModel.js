@@ -50,7 +50,7 @@ const commentSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
   },
   isDeleted: {
     type: Boolean,
@@ -202,7 +202,7 @@ commentSchema.pre("find", function () {
 commentSchema.pre("save", function (next) {
   // this points to the current query
   this.sortOnHot =
-    this.createdAt.getTime() * 0.5 + this.votes * 0.3 + this.repliesCount * 0.2;
+    this.createdAt.getTime() * 0.5 + this.votes * 10+ this.repliesCount * 10;
   next();
 });
 

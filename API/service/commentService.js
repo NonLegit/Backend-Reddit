@@ -365,8 +365,9 @@ class CommentService {
       hash[user.voteComment[i].comments] =
         user.voteComment[i].commentVoteStatus;
     }
+    console.log(userComments);
     userComments = userComments.filter(function (item) {
-      return !item.savedComment.isDeleted;
+      return item.savedComment !== null && !item.savedComment.isDeleted;
     });
     userComments.forEach((element) => {
       if (

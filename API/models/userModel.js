@@ -55,12 +55,12 @@ const userSchema = new mongoose.Schema({
   joinDate: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
   },
   createdAt: {
     type: Date,
     required: true,
-    default: Date.now(),
+    default: Date.now,
     select: false,
   },
   keepLoggedIn: {

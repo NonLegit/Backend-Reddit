@@ -1070,7 +1070,7 @@ class UserService {
     let users = await this.userRepository.getBlocked(user);
     let blocked = [];
     users.forEach((element) => {
-      if (element.status === "blocked") {
+      if (element!== null && element.status === "blocked") {
         blocked.push({
           _id: element.userId._id,
           userName: element.userId.userName,
@@ -1092,7 +1092,7 @@ class UserService {
     let users = await this.userRepository.getFollowers(me);
     let followers = [];
     users.forEach((element) => {
-      if (element.status === "followed") {
+      if (element!== null && element.status === "followed") {
         let isFollowed = this.isFollowed(me, element.userId._id);
         followers.push({
           _id: element.userId._id,

@@ -201,7 +201,12 @@ class PostController {
             posts: [],
           });
         } else {
-          let posts = await this.postServices.getUserPosts(userId, sortType,limit,page);
+          let posts = await this.postServices.getUserPosts(
+            userId,
+            sortType,
+            limit,
+            page
+          );
           // get vote of me if these post i vote on it
           posts = this.postServices.setVotePostStatus(me, posts);
           posts = this.postServices.setSavedPostStatus(me, posts);
@@ -331,14 +336,13 @@ class PostController {
 
   getHotPosts = async (req, res) => {
     try {
-      
       let sortType = "hot";
       let me = req.isAuthorized == true ? req.user : undefined;
 
-       let people;
-    if (me) {
-      people = this.userServices.getPeopleUserKnows(me);
-    }
+      let people;
+      if (me) {
+        people = this.userServices.getPeopleUserKnows(me);
+      }
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
@@ -347,7 +351,6 @@ class PostController {
         people
       );
 
-    
       if (!posts.success) {
         let message, statusCode, status;
         switch (posts.error) {
@@ -383,13 +386,13 @@ class PostController {
     try {
       //req.query.sort = "-createdAt";
       //console.log(req.query);
-       let sortType = "new";
+      let sortType = "new";
       let me = req.isAuthorized == true ? req.user : undefined;
-   let people;
-    if (me) {
-      people = this.userServices.getPeopleUserKnows(me);
-    }
-     
+      let people;
+      if (me) {
+        people = this.userServices.getPeopleUserKnows(me);
+      }
+
       let posts = await this.postServices.getPosts(
         req.query,
         req.toFilter,
@@ -435,10 +438,10 @@ class PostController {
       //console.log(req.query);
 
       let me = req.isAuthorized == true ? req.user : undefined;
-   let people;
-    if (me) {
-      people = this.userServices.getPeopleUserKnows(me);
-    }
+      let people;
+      if (me) {
+        people = this.userServices.getPeopleUserKnows(me);
+      }
       let sortType = "top";
       // let filter = (req.toFilter) ? req.toFilter : {};
       let posts = await this.postServices.getPosts(
@@ -501,10 +504,10 @@ class PostController {
 
       let me = req.isAuthorized == true ? req.user : undefined;
 
-         let people;
-    if (me) {
-      people = this.userServices.getPeopleUserKnows(me);
-    }
+      let people;
+      if (me) {
+        people = this.userServices.getPeopleUserKnows(me);
+      }
       // get post which he creates
 
       let posts = await this.postServices.getPosts(
@@ -756,7 +759,7 @@ class PostController {
       let limit = req.query.limit;
       let page = req.query.page;
       let sort = req.query.sort;
-      if (sort !== "New" || sort !== "Hot" || sort !== "Top") {
+      if (sort !== "New" && sort !== "Hot" && sort !== "Top") {
         sort = "-createdAt";
       } else {
         if (sort === "New") {
@@ -800,7 +803,12 @@ class PostController {
           query
         );
         console.log(query);
-        let posts = await this.postServices.getUserPosts(userId, sort,limit,page);
+        let posts = await this.postServices.getUserPosts(
+          userId,
+          sort,
+          limit,
+          page
+        );
         posts = this.postServices.setVotePostStatus(me, posts);
         posts = this.postServices.setSavedPostStatus(me, posts);
         posts = this.postServices.removeHiddenPosts(me, posts);
